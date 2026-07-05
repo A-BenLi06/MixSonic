@@ -113,3 +113,9 @@
 - Compared the live desktop home screenshot against the MixRadio desktop references after the startup fix.
 - Removed the duplicate pink play tile from the left playback area so the title block sits beside the cover art, and widened the left content rail to push library sections toward the MixRadio reference position.
 - Changed non-play library command tiles from full-color dashboard blocks to dark MixRadio-style tiles with a magenta caption band, while keeping the existing Navidrome entry points and tile commands intact.
+
+## 2026-07-05 19:23:19 +08:00
+
+- Built the Windows Phone 8.1 target with VS2015 MSBuild successfully after the desktop layout pass.
+- Started the WP8.1 WVGA 4-inch emulator from XDE with the SDK `flash.vhd`, confirmed the emulator reached the app list, and enabled the stopped `PhoneSvc` service.
+- Runtime phone deployment is still blocked by the WP8.1 deployment stack: `AppDeployCmd`, VS `/Deploy`, and target index deployment all fail with `Object reference not set to an instance of an object`, while the physical device target reports no phone detected.
