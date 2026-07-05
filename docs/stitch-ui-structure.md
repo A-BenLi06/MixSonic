@@ -730,7 +730,7 @@ flowchart LR
 - SearchPage：青色输入条，artists/albums/songs 单列分组结果。
 - AlbumPage：全屏专辑封面背景，前景大封面，歌曲单列，底部 play all / shuffle。
 - PlaybackPage：全屏 now playing，封面背景，大封面，大号歌曲名，底部圆形 previous/play/next，粉色 play/pause。
-- ArtistsPage / ArtistAlbumsPage：艺人单列，艺人详情显示专辑列表。
+- ArtistsPage / ArtistAlbumsPage：艺人单列，艺人详情使用单列 album flow（封面、专辑名、艺人、曲目数），不要缩成桌面端两列专辑墙。
 - GenresPage / GenreSongsPage：彩色 genre tile，进入后是该流派歌曲单列。
 - PlaylistsPage：远程歌单列表，当前可能为空，必须设计空状态。
 - FavouritesPage：收藏歌曲列表，支持 play all / shuffle 和空状态。
