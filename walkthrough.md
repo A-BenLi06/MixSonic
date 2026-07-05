@@ -59,3 +59,9 @@
 - Rechecked the Windows Phone home panorama for places where copied reference styling had become static product data.
 - Replaced the fixed small header number with the live album count binding so the MixRadio-style indicator reflects the current library.
 - Simplified the search tile column layout so the text and search glyph fit predictably on narrow phone widths.
+
+## 2026-07-05 18:06:11 +08:00
+
+- Audited the desktop playback progress indicator against the MixRadio reference playback surface.
+- Replaced the default full-width ProgressBar appearance with a centered 320px thin progress line using the MixRadio pink accent over a dark gray track.
+- Preserved the existing playback progress binding and time tooltip while reducing the default template feel around the album-art playback area.
