@@ -2,6 +2,10 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="MixRadioResources.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+
     <SolidColorBrush x:Key="LightToggleSwitchCurtainBackgroundThemeBrush"
                      Color="{StaticResource SystemColorHighlightColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchCurtainDisabledBackgroundThemeBrush"
@@ -508,3 +512,4 @@
         </Setter>
     </Style>
 </ResourceDictionary>
+

@@ -101,3 +101,9 @@
 - Used the new startup log to identify the desktop launch crash as a XAML resource ordering problem: `LightStandardStyles.xaml` referenced `MixRadioAccentColor` before App-level resources had been loaded.
 - Added a shared desktop `MixRadioResources.xaml` palette and merged it before the standard/custom style dictionaries that depend on those colors and brushes.
 - Kept the fix in the resource layer so page markup and playback behavior stay unchanged while startup parsing becomes deterministic.
+
+## 2026-07-05 18:49:45 +08:00
+
+- Retested the desktop launch and found WinRT XAML still could not resolve the MixRadio palette from a sibling merged dictionary while parsing `LightStandardStyles.xaml`.
+- Merged `MixRadioResources.xaml` directly inside `LightStandardStyles.xaml` so its own first-level theme brushes can resolve the palette locally.
+- Preserved the existing desktop palette values and kept the change limited to resource dictionary visibility.
