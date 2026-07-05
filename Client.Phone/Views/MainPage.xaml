@@ -59,7 +59,7 @@
                                                Style="{StaticResource MixRadioSectionIconTextStyle}"
                                                Margin="1,0,0,0" />
                                 </Border>
-                                <TextBlock Text="3"
+                                <TextBlock Text="{Binding Albums.Count}"
                                            Style="{StaticResource BodyTextStyle}"
                                            Foreground="White"
                                            FontSize="18"
@@ -497,7 +497,6 @@
                                 Margin="0,0,0,18">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
@@ -506,7 +505,7 @@
                                            Foreground="White"
                                            TextTrimming="CharacterEllipsis"
                                            VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="2"
+                                <TextBlock Grid.Column="1"
                                            Text="&#xE11A;"
                                            FontFamily="Segoe UI Symbol"
                                            FontSize="20"

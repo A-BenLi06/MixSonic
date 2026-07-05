@@ -53,3 +53,9 @@
 - Audited the desktop in-app tile template against the MixRadio Store reference tile wall.
 - Tightened `MenuItemView` tile spacing and reduced caption-band height so command and media tiles read as hard-edged MixRadio tiles instead of heavier generic cards.
 - Enlarged the central glyphs while shrinking the small play marker and text band density, preserving all existing tile bindings and navigation behavior.
+
+## 2026-07-05 17:59:42 +08:00
+
+- Rechecked the Windows Phone home panorama for places where copied reference styling had become static product data.
+- Replaced the fixed small header number with the live album count binding so the MixRadio-style indicator reflects the current library.
+- Simplified the search tile column layout so the text and search glyph fit predictably on narrow phone widths.
