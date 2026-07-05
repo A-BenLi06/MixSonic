@@ -44,7 +44,7 @@
 
 | 页面 | Windows 8.1 Store 结构 | Windows Phone 8.1 结构 |
 | --- | --- | --- |
-| Home / My Music | 黑色大画布；左侧 now-playing / brand 区；右侧 library tile wall；横向滚动 | 全屏照片背景；`MixRadio` wordmark；`my music`；青色搜索条；粉色 `play me`；彩色 hub tile；下方专辑单列 |
+| Home / My Music | 黑色大画布；左侧 now-playing / brand 区；右侧 library tile wall；横向滚动；`MixRadio` wordmark 要有 Mix/Radio 字重层级 | 全屏照片背景；`MixRadio` wordmark；`my music`；青色搜索条；粉色 `play me`；彩色 hub tile；下方专辑单列 |
 | Browse Collection | PageHeader + 横向 GridView + tile card + 底部 AppBar | 大标题 + 单列 ListView，必要时两列小 tile |
 | Album Detail | 左侧大封面或背景，右侧歌曲 grid/list，底部 play/add 命令 | 全屏专辑封面背景，前景封面，歌曲单列，底部 play all / shuffle |
 | Search | 大标题 + Busy/Empty/Grouped results，结果按 Artists/Albums/Songs 分组 | 青色搜索输入条固定靠上，结果单列分组向下滚动 |
