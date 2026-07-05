@@ -17,3 +17,9 @@
 - Audited the Windows 8.1 Store browse surface against the desktop MixRadio references.
 - Changed ordinary media tiles from wide list-like blocks to square MixRadio-style visual tiles with cover art or color, a bottom caption band, and a small play marker.
 - Updated the shared media tile sizing so album/search/browse collections read as a Metro tile wall instead of dense rows, and noted that direction in the Stitch structure document.
+
+## 2026-07-05 17:21:29 +08:00
+
+- Audited the desktop playback queue against the MixRadio queue-drawer reference.
+- Shifted the queue panel toward a MixRadio-style deep magenta drawer with a lighter command header and reduced black-card layering.
+- Reworked queue rows into compact media list items with subtle dividers and a bright pink state strip, keeping playback behavior unchanged.

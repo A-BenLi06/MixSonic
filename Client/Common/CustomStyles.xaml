@@ -8,34 +8,51 @@
     </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="SettingsTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource ControlContentThemeFontSize}" />
-        <Setter Property="FontFamily" Value="{StaticResource ContentControlThemeFontFamily}" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontFamily" Value="Segoe UI Light" />
+        <Setter Property="Foreground" Value="{StaticResource ApplicationForegroundThemeBrush}" />
         <Setter Property="TextTrimming" Value="WordEllipsis" />
         <Setter Property="TextWrapping" Value="Wrap" />
         <Setter Property="Typography.StylisticSet20" Value="True" />
         <Setter Property="Typography.DiscretionaryLigatures" Value="True" />
         <Setter Property="Typography.CaseSensitiveForms" Value="True" />
-        <Setter Property="Margin" Value="10" />
+        <Setter Property="Margin" Value="0,12,0,4" />
     </Style>
 
     <Style x:Key="SettingsTextBoxStyle" TargetType="TextBox">
-        <Setter Property="BorderBrush" Value="Black" />
-        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="Background" Value="{StaticResource MixRadioPanelBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource ApplicationForegroundThemeBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource MixRadioTealBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,3" />
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="FontSize" Value="16" />
         <Setter Property="Width" Value="270" />
+        <Setter Property="MinHeight" Value="38" />
     </Style>
 
     <Style x:Key="PopupTextBoxStyle" TargetType="TextBox">
-        <Setter Property="BorderThickness" Value="2" />
-        <Setter Property="Width" Value="200" />
+        <Setter Property="Background" Value="{StaticResource MixRadioPanelBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource ApplicationForegroundThemeBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource MixRadioTealBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,3" />
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Width" Value="220" />
+        <Setter Property="MinHeight" Value="38" />
     </Style>
 
     <Style x:Key="PasswordTextBoxStyle" TargetType="PasswordBox">
-        <Setter Property="BorderBrush" Value="Black" />
-        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="Background" Value="{StaticResource MixRadioPanelBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource ApplicationForegroundThemeBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource MixRadioTealBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,3" />
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="FontSize" Value="16" />
         <Setter Property="Width" Value="270" />
+        <Setter Property="MinHeight" Value="38" />
     </Style>
 
-    <SolidColorBrush x:Key="SaveButtonBackgroundBrush" Color="#FF632F00"></SolidColorBrush>
+    <SolidColorBrush x:Key="SaveButtonBackgroundBrush" Color="{StaticResource MixRadioAccentColor}"></SolidColorBrush>
 
     <Style x:Key="ExpandTextBlockStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="20" />
@@ -55,10 +72,31 @@
         <Setter Property="Background" Value="Transparent"></Setter>
     </Style>
 
-    <Style x:Key="PlaylistItemsListStyle" TargetType="ListView">
+    <Style x:Key="PlaylistItemsListStyle" TargetType="GridView">
         <Setter Property="Background" Value = "Transparent"/>
-        <Setter Property="Margin" Value="0,0,0,10"/>
-        <Setter Property="Padding" Value="5,5,0,0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Padding" Value="0,6,0,0"/>
+    </Style>
+
+    <Style x:Key="MixRadioNavTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource ApplicationForegroundThemeBrush}"/>
+        <Setter Property="FontFamily" Value="Segoe UI Light"/>
+        <Setter Property="FontSize" Value="17"/>
+        <Setter Property="Height" Value="27"/>
+        <Setter Property="TextTrimming" Value="WordEllipsis"/>
+    </Style>
+
+    <Style x:Key="MixRadioGlyphButtonStyle" TargetType="Button">
+        <Setter Property="Width" Value="38"/>
+        <Setter Property="Height" Value="38"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="Foreground" Value="{StaticResource ApplicationForegroundThemeBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ApplicationForegroundThemeBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
     <Style x:Key="RepeatAllOnButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
@@ -105,7 +143,7 @@
     </Style>
 
     <Style x:Key="PlaylistContentGridStyle" TargetType="Grid">
-        <Setter Property="Margin" Value="116,0"/>
+        <Setter Property="Margin" Value="0"/>
     </Style>
 
     <Style x:Key="ExpandedPlaybackGridStyle" TargetType="Grid">
@@ -131,12 +169,13 @@
 
     <Style x:Key="PlayingItemBorderStyle" TargetType="Border">
         <Setter Property="BorderThickness" Value="4"/>
-        <Setter Property="BorderBrush" Value="Blue"/>
+        <Setter Property="BorderBrush" Value="{StaticResource MixRadioAccentBrush}"/>
     </Style>
 
     <Style x:Key="PlaybackBigCoverArtStyle" TargetType="Image">
-        <Setter Property="Stretch" Value="Uniform"/>
-        <Setter Property="MinHeight" Value="400"/>
+        <Setter Property="Stretch" Value="UniformToFill"/>
+        <Setter Property="Width" Value="320"/>
+        <Setter Property="Height" Value="320"/>
     </Style>
     
     <Style x:Key="ProgressBarStyle" TargetType="Slider">
@@ -212,16 +251,16 @@
     </Style>
 
     <Style x:Key="ErrorRootPanel" TargetType="StackPanel">
-        <Setter Property="Background" Value="{StaticResource ApplicationPageBackgroundThemeBrush}"/>
-        <Setter Property="Margin" Value="30,50,30,50"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Margin" Value="88,32,88,50"/>
     </Style>
 
     <Style x:Key="ErrorPanel" TargetType="StackPanel">
-        <Setter Property="Margin" Value="20"/>
-        <Setter Property="Background" Value="{StaticResource ApplicationPageBackgroundThemeBrush}"/>
+        <Setter Property="Margin" Value="0,18,0,0"/>
+        <Setter Property="Background" Value="Transparent"/>
     </Style>
     
     <Style x:Key="PlayingItemContainerStyle" TargetType="Grid">
-        <Setter Property="Background" Value="LightSlateGray"/>
+        <Setter Property="Background" Value="{StaticResource MixRadioPanelBrush}"/>
     </Style>
 </ResourceDictionary>
