@@ -77,3 +77,21 @@
 - Audited the desktop playback filter surface against MixRadio's search-on-media visual language.
 - Reworked `Filter.xaml` from a plain form under album art into a cover-art overlay with dark gradient, large light title, teal search input, and a pink icon-only done button.
 - Preserved the existing realtime `FilterText` binding, Enter-key handling, and `DoneFiltering()` action while removing the old typo-prone instruction text.
+
+## 2026-07-05 18:32:25 +08:00
+
+- Investigated the desktop package launch failure that currently prevents screenshot-based MixRadio parity verification.
+- Added scoped startup and unhandled-exception logging to `App.xaml.cs`, writing activation milestones and exception details to the app local folder.
+- Kept the diagnostic code out of the UI surface and preserved startup behavior by rethrowing caught activation exceptions after logging them.
+
+## 2026-07-05 18:35:57 +08:00
+
+- Rebuilt the desktop target and found the first diagnostic implementation used `System.IO.File`, which is unavailable in the Windows Store app target.
+- Reworked startup diagnostics to use WinRT `StorageFile` and `FileIO.AppendTextAsync`, with a small LocalSettings fallback containing the recent startup milestones.
+- Kept the logging fire-and-forget so the UI thread is not blocked during normal launch, while preserving the same startup flow and exception rethrow behavior.
+
+## 2026-07-05 18:36:51 +08:00
+
+- Removed the diagnostic handler name collision with Caliburn's inherited unhandled-exception hook.
+- Renamed the local app-level event handler to clarify that it is only attached to the Windows XAML application event.
+- Kept the actual logged message text unchanged so existing diagnostic searches still find `UnhandledException`.
