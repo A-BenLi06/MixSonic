@@ -146,7 +146,7 @@ UI 建议：
 
 UI 建议：
 
-- Album Wall 使用方形封面 tile。
+- Album Wall 使用方形封面 tile，底部保留 MixRadio 色带和小播放标记；不要做左图右文的列表卡片。
 - 标题/艺术家/曲目数放在底部半透明或强调色 caption band。
 - Album Detail 可以有左侧大封面/背景图，右侧歌曲列表，也可以继续使用横向 Metro grid。
 

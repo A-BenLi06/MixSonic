@@ -11,3 +11,9 @@
 - Audited the current Windows Phone pages against the WP MixRadio references and the Metro phone layout rules.
 - Reworked `ArtistAlbumsPage` from a two-column album wall into a phone-first single-column album flow with artwork, album title, artist, track count, and a subtle divider.
 - Updated the Stitch structure notes so artist detail is specified as a WP album flow instead of a shrunken desktop tile wall.
+
+## 2026-07-05 17:14:26 +08:00
+
+- Audited the Windows 8.1 Store browse surface against the desktop MixRadio references.
+- Changed ordinary media tiles from wide list-like blocks to square MixRadio-style visual tiles with cover art or color, a bottom caption band, and a small play marker.
+- Updated the shared media tile sizing so album/search/browse collections read as a Metro tile wall instead of dense rows, and noted that direction in the Stitch structure document.
