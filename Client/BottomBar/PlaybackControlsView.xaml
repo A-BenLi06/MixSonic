@@ -9,17 +9,142 @@
 
     <UserControl.Resources>
         <cal:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
+
+        <Style x:Key="BottomMixRadioCircleButtonStyle" TargetType="ButtonBase">
+            <Setter Property="Width" Value="46" />
+            <Setter Property="Height" Value="46" />
+            <Setter Property="MinWidth" Value="46" />
+            <Setter Property="MinHeight" Value="46" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="6,0" />
+            <Setter Property="FontFamily" Value="Segoe UI Symbol" />
+            <Setter Property="FontSize" Value="19" />
+            <Setter Property="Foreground" Value="{StaticResource ApplicationForegroundThemeBrush}" />
+            <Setter Property="Background" Value="#22000000" />
+            <Setter Property="BorderBrush" Value="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ButtonBase">
+                        <Grid Width="{TemplateBinding Width}"
+                              Height="{TemplateBinding Height}">
+                            <Ellipse x:Name="ButtonChrome"
+                                     Fill="{TemplateBinding Background}"
+                                     Stroke="{TemplateBinding BorderBrush}"
+                                     StrokeThickness="{TemplateBinding BorderThickness}" />
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonChrome"
+                                                                           Storyboard.TargetProperty="Stroke">
+                                                <DiscreteObjectKeyFrame KeyTime="0"
+                                                                        Value="{StaticResource ApplicationForegroundThemeBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonChrome"
+                                                                           Storyboard.TargetProperty="Fill">
+                                                <DiscreteObjectKeyFrame KeyTime="0"
+                                                                        Value="{StaticResource MixRadioAccentBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonChrome"
+                                                                           Storyboard.TargetProperty="Stroke">
+                                                <DiscreteObjectKeyFrame KeyTime="0"
+                                                                        Value="{StaticResource ApplicationForegroundThemeBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ButtonChrome"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="0.32"
+                                                             Duration="0" />
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BottomMixRadioPrimaryButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource BottomMixRadioCircleButtonStyle}">
+            <Setter Property="Width" Value="58" />
+            <Setter Property="Height" Value="58" />
+            <Setter Property="MinWidth" Value="58" />
+            <Setter Property="MinHeight" Value="58" />
+            <Setter Property="FontSize" Value="26" />
+            <Setter Property="Margin" Value="8,0" />
+            <Setter Property="Background" Value="{StaticResource MixRadioAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ApplicationForegroundThemeBrush}" />
+        </Style>
+
+        <Style x:Key="BottomMixRadioPreviousButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource BottomMixRadioCircleButtonStyle}">
+            <Setter Property="Content" Value="&#xE100;" />
+            <Setter Property="AutomationProperties.Name" Value="Previous" />
+        </Style>
+
+        <Style x:Key="BottomMixRadioPlayButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource BottomMixRadioPrimaryButtonStyle}">
+            <Setter Property="Content" Value="&#xE102;" />
+            <Setter Property="AutomationProperties.Name" Value="Play" />
+        </Style>
+
+        <Style x:Key="BottomMixRadioPauseButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource BottomMixRadioPrimaryButtonStyle}">
+            <Setter Property="Content" Value="&#xE103;" />
+            <Setter Property="AutomationProperties.Name" Value="Pause" />
+        </Style>
+
+        <Style x:Key="BottomMixRadioStopButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource BottomMixRadioCircleButtonStyle}">
+            <Setter Property="Content" Value="&#xE15B;" />
+            <Setter Property="Width" Value="38" />
+            <Setter Property="Height" Value="38" />
+            <Setter Property="MinWidth" Value="38" />
+            <Setter Property="MinHeight" Value="38" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Margin" Value="6,10,6,0" />
+            <Setter Property="AutomationProperties.Name" Value="Stop" />
+        </Style>
+
+        <Style x:Key="BottomMixRadioNextButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource BottomMixRadioCircleButtonStyle}">
+            <Setter Property="Content" Value="&#xE101;" />
+            <Setter Property="AutomationProperties.Name" Value="Next" />
+        </Style>
     </UserControl.Resources>
 
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Margin="0,0,14,0"
                 Visibility="{Binding DisplayPlayControls, Converter={StaticResource VisibilityConverter}}">
-        <Button Style="{StaticResource PreviousAppBarButtonStyle}"
+        <Button Style="{StaticResource BottomMixRadioPreviousButtonStyle}"
                 cal:Message.Attach="[Event Click] = [Action PlayPrevious()]" />
-        <ic:AppBarToggleButton Style="{StaticResource PlayAppBarButtonStyle}"
-                               CheckedStyle="{StaticResource PauseAppBarButtonStyle}"
+        <ic:AppBarToggleButton Style="{StaticResource BottomMixRadioPlayButtonStyle}"
+                               CheckedStyle="{StaticResource BottomMixRadioPauseButtonStyle}"
                                cal:Message.Attach="[Event Click] = [Action PlayPause()]" AutoToggle="False"
                                IsChecked="{Binding IsPlaying}" />
-        <Button Style="{StaticResource StopAppBarButtonStyle}" cal:Message.Attach="[Event Click] = [Action Stop()]" />
-        <Button Style="{StaticResource NextAppBarButtonStyle}" cal:Message.Attach="[Event Click] = [Action PlayNext()]" />
+        <Button Style="{StaticResource BottomMixRadioNextButtonStyle}" cal:Message.Attach="[Event Click] = [Action PlayNext()]" />
+        <Button Style="{StaticResource BottomMixRadioStopButtonStyle}" cal:Message.Attach="[Event Click] = [Action Stop()]" />
     </StackPanel>
 </UserControl>

@@ -41,3 +41,9 @@
 - Audited the Windows Phone home page against the WP MixRadio references, especially the horizontal home sweep with cover collage, bright play tile, and separate music/search panels.
 - Reworked `MainPage` into a panorama-like horizontal canvas: first screen for cover collage and recently played, second screen for music entry tiles, and third screen for search/featured actions.
 - Kept the existing Navidrome entry points and counts intact while making the albums entry return to the first screen instead of behaving like a desktop-scaled menu.
+
+## 2026-07-05 17:51:23 +08:00
+
+- Audited the desktop bottom playback controls against the MixRadio playback treatment already used on the main playback page.
+- Added scoped circular MixRadio playback button styles to `PlaybackControlsView` so previous, play/pause, next, and stop no longer fall back to default AppBar button chrome.
+- Kept the Caliburn playback actions and toggle behavior unchanged, with the visual change isolated from global AppBar command styles.
