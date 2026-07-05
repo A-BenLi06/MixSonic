@@ -47,3 +47,9 @@
 - Audited the desktop bottom playback controls against the MixRadio playback treatment already used on the main playback page.
 - Added scoped circular MixRadio playback button styles to `PlaybackControlsView` so previous, play/pause, next, and stop no longer fall back to default AppBar button chrome.
 - Kept the Caliburn playback actions and toggle behavior unchanged, with the visual change isolated from global AppBar command styles.
+
+## 2026-07-05 17:56:20 +08:00
+
+- Audited the desktop in-app tile template against the MixRadio Store reference tile wall.
+- Tightened `MenuItemView` tile spacing and reduced caption-band height so command and media tiles read as hard-edged MixRadio tiles instead of heavier generic cards.
+- Enlarged the central glyphs while shrinking the small play marker and text band density, preserving all existing tile bindings and navigation behavior.
