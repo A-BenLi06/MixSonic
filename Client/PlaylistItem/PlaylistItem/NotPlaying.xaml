@@ -13,27 +13,53 @@
         <converters:IntToTimeStringConverter x:Key="TimeConverter" />
     </UserControl.Resources>
 
-    <Grid Style="{StaticResource PlaylistItemGridStyle}">
+    <Grid Style="{StaticResource PlaylistItemGridStyle}"
+          MinHeight="54"
+          Margin="0,0,0,4">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="48" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Image Source="{Binding CoverArtUrl}" Style="{StaticResource PlaylistItemCoverArtStyle}" />
+        <Image Source="{Binding CoverArtUrl}"
+               Width="48"
+               Height="48"
+               Stretch="UniformToFill"
+               VerticalAlignment="Top" />
 
-        <Grid Grid.Column="1" Style="{StaticResource PlaylistItemDetailsGridStyle}">
+        <Grid Grid.Column="1"
+              Margin="10,0,8,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Artist}" Style="{StaticResource PlaylistItemArtistStyle}"/>
-                <TextBlock Text="-" Style="{StaticResource PlaylistItemTextStyle}"/>
-                <TextBlock Text="{Binding Title}" Style="{StaticResource PlaylistItemTitleStyle}"/>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="{Binding Title}"
+                           FontFamily="Segoe UI"
+                           FontSize="15"
+                           Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                           TextTrimming="WordEllipsis"
+                           TextWrapping="NoWrap" />
+                <TextBlock Text="{Binding Artist}"
+                           FontSize="12"
+                           Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                           TextTrimming="WordEllipsis"
+                           TextWrapping="NoWrap"
+                           Margin="0,1,0,0" />
             </StackPanel>
 
-            <TextBlock Grid.Column="1" Text="{Binding Duration, Converter={StaticResource TimeConverter}}" Style="{StaticResource PlaylistItemDurationStyle}" />
+            <TextBlock Grid.Column="1"
+                       Text="{Binding Duration, Converter={StaticResource TimeConverter}}"
+                       FontSize="12"
+                       Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                       VerticalAlignment="Center"
+                       Margin="12,0,0,0" />
+
+            <Rectangle Grid.ColumnSpan="2"
+                       Height="1"
+                       Fill="#22FFFFFF"
+                       VerticalAlignment="Bottom" />
         </Grid>
     </Grid>
 </UserControl>

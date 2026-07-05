@@ -65,3 +65,9 @@
 - Audited the desktop playback progress indicator against the MixRadio reference playback surface.
 - Replaced the default full-width ProgressBar appearance with a centered 320px thin progress line using the MixRadio pink accent over a dark gray track.
 - Preserved the existing playback progress binding and time tooltip while reducing the default template feel around the album-art playback area.
+
+## 2026-07-05 18:10:04 +08:00
+
+- Audited the desktop playlist item row used by playback queues and playlist lists against the MixRadio queue/media-row references.
+- Reworked the row from a single `Artist - Title` text run into a cover-art media row with title, artist, duration, and a subtle divider.
+- Kept the existing cover art, title, artist, duration, and playing-state bindings intact while making the row easier to scan in the dark MixRadio layout.
