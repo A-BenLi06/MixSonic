@@ -95,3 +95,9 @@
 - Removed the diagnostic handler name collision with Caliburn's inherited unhandled-exception hook.
 - Renamed the local app-level event handler to clarify that it is only attached to the Windows XAML application event.
 - Kept the actual logged message text unchanged so existing diagnostic searches still find `UnhandledException`.
+
+## 2026-07-05 18:44:32 +08:00
+
+- Used the new startup log to identify the desktop launch crash as a XAML resource ordering problem: `LightStandardStyles.xaml` referenced `MixRadioAccentColor` before App-level resources had been loaded.
+- Added a shared desktop `MixRadioResources.xaml` palette and merged it before the standard/custom style dictionaries that depend on those colors and brushes.
+- Kept the fix in the resource layer so page markup and playback behavior stay unchanged while startup parsing becomes deterministic.

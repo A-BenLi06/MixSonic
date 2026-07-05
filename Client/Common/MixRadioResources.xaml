@@ -1,0 +1,21 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Color x:Key="MixRadioAccentColor">#FFFF2B86</Color>
+    <Color x:Key="MixRadioAccentDarkColor">#FF8A1248</Color>
+    <Color x:Key="MixRadioTealColor">#FF00AFAF</Color>
+    <Color x:Key="MixRadioYellowColor">#FFD7C900</Color>
+    <Color x:Key="MixRadioGreenColor">#FF78B800</Color>
+    <Color x:Key="MixRadioPanelColor">#D9000000</Color>
+    <Color x:Key="MixRadioPanelAltColor">#E6171717</Color>
+
+    <SolidColorBrush x:Key="MixRadioAccentBrush" Color="{StaticResource MixRadioAccentColor}" />
+    <SolidColorBrush x:Key="MixRadioAccentDarkBrush" Color="{StaticResource MixRadioAccentDarkColor}" />
+    <SolidColorBrush x:Key="MixRadioTealBrush" Color="{StaticResource MixRadioTealColor}" />
+    <SolidColorBrush x:Key="MixRadioYellowBrush" Color="{StaticResource MixRadioYellowColor}" />
+    <SolidColorBrush x:Key="MixRadioGreenBrush" Color="{StaticResource MixRadioGreenColor}" />
+    <SolidColorBrush x:Key="MixRadioPanelBrush" Color="{StaticResource MixRadioPanelColor}" />
+    <SolidColorBrush x:Key="MixRadioPanelAltBrush" Color="{StaticResource MixRadioPanelAltColor}" />
+    <SolidColorBrush x:Key="MixRadioTileBorderBrush" Color="{StaticResource MixRadioAccentColor}" />
+</ResourceDictionary>
