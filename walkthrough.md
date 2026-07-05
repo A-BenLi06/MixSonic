@@ -29,3 +29,9 @@
 - Audited the desktop root `PageHeader` against the MixRadio desktop reference.
 - Reworked the root wordmark so `Mix` uses a stronger weight, `Radio` stays light, and the brand mark is larger with a larger circular play bubble.
 - Reduced the root section title size so the first viewport reads like MixRadio's brand-first home instead of a generic large page title.
+
+## 2026-07-05 17:34:59 +08:00
+
+- Audited the Windows Phone `NowPlayingPage` against the WP MixRadio music-list direction.
+- Reworked active server playback rows from a pure text status list into cover-art media rows with title, artist, activity, and a subtle divider.
+- Updated the Stitch structure notes so Now Playing is specified as a lightweight music list rather than a status feed.

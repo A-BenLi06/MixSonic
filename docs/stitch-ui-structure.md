@@ -561,7 +561,7 @@ Playlist BottomBar：
 - PlaylistsPage：当前服务器歌单为 0 时显示空状态，不要用空白页。
 - FavouritesPage：收藏歌曲单列，支持 play all / shuffle；空状态为 No favourites yet。
 - RadioStationsPage：电台使用强色块和 radio 图标，点击直接进入 PlaybackPage 播放流。
-- NowPlayingPage：显示歌曲、艺术家、用户名、player name、minutes ago；空状态为 Nobody is playing right now。
+- NowPlayingPage：显示封面、歌曲、艺术家、用户名、player name、minutes ago；行结构应像轻量音乐列表，不要做纯文字状态流；空状态为 Nobody is playing right now。
 
 ### Phone AlbumPage
 
