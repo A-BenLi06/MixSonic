@@ -55,33 +55,33 @@ namespace Subsonic8.Framework.Extensions
                     viewModel.TileHeight = CommandTileSize;
                     break;
                 case SubsonicModelTypeEnum.LibraryAlbums:
-                    MakeCommandTile(viewModel, MixRadioTeal(), "\uE189");
+                    MakeLibraryTile(viewModel);
                     viewModel.TileWidth = WideTileWidth;
                     viewModel.TileHeight = CommandTileSize;
                     break;
                 case SubsonicModelTypeEnum.LibraryArtists:
-                    MakeCommandTile(viewModel, MixRadioYellow(), "\uE13D");
+                    MakeLibraryTile(viewModel);
                     viewModel.TileWidth = CommandTileSize;
                     viewModel.TileHeight = CommandTileSize;
                     break;
                 case SubsonicModelTypeEnum.LibraryGenres:
-                    MakeCommandTile(viewModel, MixRadioGreen(), "\uE00B");
+                    MakeLibraryTile(viewModel);
                     viewModel.TileWidth = CommandTileSize;
                     viewModel.TileHeight = CommandTileSize;
                     break;
                 case SubsonicModelTypeEnum.LibraryPlaylists:
                 case SubsonicModelTypeEnum.Playlist:
-                    MakeCommandTile(viewModel, MixRadioTeal(), "\uE14C");
+                    MakeLibraryTile(viewModel);
                     viewModel.TileWidth = CommandTileSize;
                     viewModel.TileHeight = CommandTileSize;
                     break;
                 case SubsonicModelTypeEnum.LibraryFavourites:
-                    MakeCommandTile(viewModel, MixRadioYellow(), "\uE113");
+                    MakeLibraryTile(viewModel);
                     viewModel.TileWidth = WideTileWidth;
                     viewModel.TileHeight = CommandTileSize;
                     break;
                 case SubsonicModelTypeEnum.LibraryRadio:
-                    MakeCommandTile(viewModel, MixRadioTeal(), "\uE189");
+                    MakeLibraryTile(viewModel);
                     viewModel.TileWidth = WideTileWidth;
                     viewModel.TileHeight = CommandTileSize;
                     break;
@@ -136,9 +136,23 @@ namespace Subsonic8.Framework.Extensions
             viewModel.IsCommandTile = true;
         }
 
+        private static void MakeLibraryTile(MenuItemViewModel viewModel)
+        {
+            viewModel.AccentBrush = MixRadioTileBackground();
+            viewModel.CaptionBrush = MixRadioDarkMagenta();
+            viewModel.Glyph = null;
+            viewModel.ImageOpacity = 0;
+            viewModel.IsCommandTile = true;
+        }
+
         private static SolidColorBrush MixRadioDarkCaption()
         {
             return BrushFromArgb(0xD9, 0x00, 0x00, 0x00);
+        }
+
+        private static SolidColorBrush MixRadioDarkMagenta()
+        {
+            return BrushFromArgb(0xFF, 0x8A, 0x12, 0x48);
         }
 
         private static SolidColorBrush MixRadioGreen()
@@ -159,6 +173,11 @@ namespace Subsonic8.Framework.Extensions
         private static SolidColorBrush MixRadioYellow()
         {
             return BrushFromArgb(0xFF, 0xD7, 0xC9, 0x00);
+        }
+
+        private static SolidColorBrush MixRadioTileBackground()
+        {
+            return BrushFromArgb(0xFF, 0x1F, 0x1F, 0x1F);
         }
 
         #endregion

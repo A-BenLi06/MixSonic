@@ -107,3 +107,9 @@
 - Retested the desktop launch and found WinRT XAML still could not resolve the MixRadio palette from a sibling merged dictionary while parsing `LightStandardStyles.xaml`.
 - Merged `MixRadioResources.xaml` directly inside `LightStandardStyles.xaml` so its own first-level theme brushes can resolve the palette locally.
 - Preserved the existing desktop palette values and kept the change limited to resource dictionary visibility.
+
+## 2026-07-05 18:56:49 +08:00
+
+- Compared the live desktop home screenshot against the MixRadio desktop references after the startup fix.
+- Removed the duplicate pink play tile from the left playback area so the title block sits beside the cover art, and widened the left content rail to push library sections toward the MixRadio reference position.
+- Changed non-play library command tiles from full-color dashboard blocks to dark MixRadio-style tiles with a magenta caption band, while keeping the existing Navidrome entry points and tile commands intact.
