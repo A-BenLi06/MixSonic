@@ -35,3 +35,9 @@
 - Audited the Windows Phone `NowPlayingPage` against the WP MixRadio music-list direction.
 - Reworked active server playback rows from a pure text status list into cover-art media rows with title, artist, activity, and a subtle divider.
 - Updated the Stitch structure notes so Now Playing is specified as a lightweight music list rather than a status feed.
+
+## 2026-07-05 17:46:08 +08:00
+
+- Audited the Windows Phone home page against the WP MixRadio references, especially the horizontal home sweep with cover collage, bright play tile, and separate music/search panels.
+- Reworked `MainPage` into a panorama-like horizontal canvas: first screen for cover collage and recently played, second screen for music entry tiles, and third screen for search/featured actions.
+- Kept the existing Navidrome entry points and counts intact while making the albums entry return to the first screen instead of behaving like a desktop-scaled menu.

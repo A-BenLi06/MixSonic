@@ -15,395 +15,644 @@
         </CommandBar>
     </Page.BottomAppBar>
 
-    <Grid Background="Black">
+    <Grid x:Name="RootGrid" Background="Black">
         <Image x:Name="HeroBackgroundImage"
                Source="/Assets/CoverArtPlaceholderLarge.jpg"
                Stretch="UniformToFill"
-               Opacity="0.52" />
+               Opacity="0.50" />
 
-        <Rectangle Fill="#44000000" />
+        <Rectangle Fill="#50000000" />
         <Rectangle>
             <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#11000000" Offset="0" />
-                    <GradientStop Color="#55000000" Offset="0.44" />
+                    <GradientStop Color="#22000000" Offset="0" />
+                    <GradientStop Color="#44000000" Offset="0.42" />
                     <GradientStop Color="#F2000000" Offset="1" />
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <ScrollViewer x:Name="HomePanoramaScrollViewer"
+                      HorizontalScrollMode="Enabled"
+                      HorizontalScrollBarVisibility="Hidden"
+                      HorizontalSnapPointsAlignment="Near"
+                      HorizontalSnapPointsType="MandatorySingle"
+                      VerticalScrollMode="Disabled"
+                      VerticalScrollBarVisibility="Disabled"
+                      ZoomMode="Disabled">
+            <StackPanel Orientation="Horizontal">
+                <Grid Width="{Binding ActualWidth, ElementName=RootGrid}"
+                      MinWidth="320">
+                    <Grid Margin="12,10,12,22">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="0" Margin="12,10,12,10">
-                <TextBlock Text="MixRadio" Style="{StaticResource MixRadioWordmarkTextStyle}" />
+                        <StackPanel Grid.Row="0">
+                            <TextBlock Text="MixRadio"
+                                       Style="{StaticResource MixRadioWordmarkTextStyle}" />
+                            <StackPanel Orientation="Horizontal" Margin="1,-4,0,0">
+                                <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
+                                    <TextBlock Text="&#xE102;"
+                                               Style="{StaticResource MixRadioSectionIconTextStyle}"
+                                               Margin="1,0,0,0" />
+                                </Border>
+                                <TextBlock Text="3"
+                                           Style="{StaticResource BodyTextStyle}"
+                                           Foreground="White"
+                                           FontSize="18"
+                                           Margin="7,-3,0,0" />
+                            </StackPanel>
+                        </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Margin="1,-4,0,10">
-                    <Border Width="19"
-                            Height="19"
-                            BorderBrush="White"
-                            BorderThickness="2"
-                            CornerRadius="9.5">
-                        <TextBlock Text="&#xE102;"
-                                   FontFamily="Segoe UI Symbol"
-                                   FontSize="8"
-                                   Foreground="White"
-                                   Margin="1,0,0,0"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center" />
-                    </Border>
-                    <TextBlock Text="my music"
-                               Style="{StaticResource BodyTextStyle}"
-                               Foreground="White"
-                               Margin="7,-1,0,0" />
-                </StackPanel>
+                        <Grid Grid.Row="1" Margin="0,12,0,8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.16*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                <Button Style="{StaticResource MixRadioSearchButtonStyle}"
-                        Click="OnSearchClick">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="&#xE11A;"
-                                   FontFamily="Segoe UI Symbol"
-                                   FontSize="20"
-                                   Foreground="White"
-                                   VerticalAlignment="Center" />
-                        <TextBlock Grid.Column="1"
-                                   Text="Find artists, music or gigs"
-                                   FontSize="18"
-                                   Foreground="White"
-                                   TextTrimming="CharacterEllipsis"
-                                   VerticalAlignment="Center"
-                                   Margin="12,0,0,1" />
+                            <Button Grid.Row="0"
+                                    Grid.RowSpan="2"
+                                    Grid.Column="0"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioPanelAltBrush}"
+                                    Click="OnAlbumsHubClick"
+                                    Margin="0,0,3,3">
+                                <Grid>
+                                    <Image x:Name="AlbumTileImage"
+                                           Stretch="UniformToFill"
+                                           Opacity="0.86" />
+                                    <Rectangle Fill="#26000000" />
+                                    <TextBlock Text="recent"
+                                               FontSize="20"
+                                               Foreground="White"
+                                               VerticalAlignment="Bottom"
+                                               Margin="0,0,0,2" />
+                                    <Rectangle Height="4"
+                                               Fill="{StaticResource MixRadioTealBrush}"
+                                               VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Button>
+
+                            <Button Grid.Row="0"
+                                    Grid.Column="1"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioPanelAltBrush}"
+                                    Click="OnArtistsClick"
+                                    Margin="3,0,0,3">
+                                <Grid>
+                                    <Image x:Name="ArtistTileImage"
+                                           Stretch="UniformToFill"
+                                           Opacity="0.74" />
+                                    <Rectangle Fill="#33000000" />
+                                    <TextBlock Text="artists"
+                                               FontSize="17"
+                                               Foreground="White"
+                                               VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Button>
+
+                            <Button Grid.Row="1"
+                                    Grid.Column="1"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioPanelAltBrush}"
+                                    Click="OnGenresClick"
+                                    Margin="3,3,0,3">
+                                <Grid>
+                                    <Image x:Name="GenreTileImage"
+                                           Stretch="UniformToFill"
+                                           Opacity="0.74" />
+                                    <Rectangle Fill="#33000000" />
+                                    <TextBlock Text="genres"
+                                               FontSize="17"
+                                               Foreground="White"
+                                               VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Button>
+
+                            <Button Grid.Row="2"
+                                    Grid.Column="0"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioPanelAltBrush}"
+                                    Click="OnFavouritesClick"
+                                    Margin="0,3,3,0">
+                                <Grid>
+                                    <Image x:Name="FavouriteTileImage"
+                                           Stretch="UniformToFill"
+                                           Opacity="0.74" />
+                                    <Rectangle Fill="#33000000" />
+                                    <TextBlock Text="favourites"
+                                               FontSize="17"
+                                               Foreground="White"
+                                               VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Button>
+
+                            <Button Grid.Row="2"
+                                    Grid.Column="1"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioTealBrush}"
+                                    Click="OnSearchClick"
+                                    Margin="3,3,0,0">
+                                <Grid>
+                                    <TextBlock Text="&#xE11A;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="28"
+                                               Foreground="White"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Top"
+                                               Opacity="0.78" />
+                                    <TextBlock Text="search"
+                                               FontSize="17"
+                                               Foreground="White"
+                                               VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Button>
+
+                            <Button Grid.Row="1"
+                                    Grid.Column="0"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioAccentBrush}"
+                                    Width="118"
+                                    Height="118"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Click="OnPlayMeClick">
+                                <StackPanel VerticalAlignment="Center"
+                                            HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE102;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="54"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               Margin="6,0,0,0" />
+                                    <TextBlock Text="play me"
+                                               FontSize="17"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,4,0,0" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
+                        <Grid Grid.Row="2" MinHeight="126">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0"
+                                       Text="recently played"
+                                       Style="{StaticResource BodyTextStyle}"
+                                       Foreground="White"
+                                       Margin="0,0,0,5" />
+
+                            <ListView x:Name="AlbumListView"
+                                      Grid.Row="1"
+                                      Height="96"
+                                      ItemsSource="{Binding Albums}"
+                                      SelectionMode="None"
+                                      IsItemClickEnabled="True"
+                                      ItemClick="OnAlbumClick">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        <Setter Property="Padding" Value="0" />
+                                        <Setter Property="Margin" Value="0" />
+                                        <Setter Property="MinHeight" Value="48" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,6"
+                                              MinHeight="46"
+                                              Background="Transparent">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="46" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <Image Grid.Column="0"
+                                                   Width="46"
+                                                   Height="46"
+                                                   Source="{Binding CoverArt}"
+                                                   Stretch="UniformToFill" />
+
+                                            <StackPanel Grid.Column="1"
+                                                        VerticalAlignment="Center"
+                                                        Margin="10,0,0,0">
+                                                <TextBlock Text="{Binding Name}"
+                                                           Style="{StaticResource TitleTextStyle}"
+                                                           FontSize="17"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           MaxLines="1" />
+                                                <TextBlock Text="{Binding Artist}"
+                                                           Style="{StaticResource BodyTextStyle}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           MaxLines="1" />
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </Grid>
                     </Grid>
-                </Button>
+                </Grid>
 
-                <Grid Margin="0,8,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="106" />
-                        <RowDefinition Height="106" />
-                        <RowDefinition Height="88" />
-                        <RowDefinition Height="76" />
-                        <RowDefinition Height="76" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                <Grid Width="{Binding ActualWidth, ElementName=RootGrid}"
+                      MinWidth="320">
+                    <Grid Margin="12,10,12,22">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
 
-                    <Button Grid.Row="0"
-                            Grid.RowSpan="2"
-                            Grid.Column="0"
-                            Style="{StaticResource PhoneHubTileButtonStyle}"
-                            Background="{StaticResource MixRadioAccentBrush}"
-                            Click="OnPlayMeClick"
-                            Margin="0,0,3,3">
-                        <Grid>
-                            <TextBlock Text="&#xE102;"
-                                       FontFamily="Segoe UI Symbol"
-                                       FontSize="68"
-                                       Foreground="White"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Margin="4,0,0,18" />
-                            <StackPanel VerticalAlignment="Bottom">
-                                <TextBlock Text="play me"
-                                           FontSize="26"
-                                           FontWeight="SemiLight"
-                                           Foreground="White" />
-                                <TextBlock Text="random mix"
-                                           Style="{StaticResource CaptionTextStyle}" />
+                        <StackPanel Grid.Row="0">
+                            <TextBlock Text="MixRadio"
+                                       Style="{StaticResource MixRadioWordmarkTextStyle}" />
+                            <StackPanel Orientation="Horizontal" Margin="1,-4,0,18">
+                                <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
+                                    <TextBlock Text="&#xE102;"
+                                               Style="{StaticResource MixRadioSectionIconTextStyle}"
+                                               Margin="1,0,0,0" />
+                                </Border>
+                                <TextBlock Text="my music"
+                                           Style="{StaticResource BodyTextStyle}"
+                                           Foreground="White"
+                                           Margin="7,-1,0,0" />
                             </StackPanel>
-                        </Grid>
-                    </Button>
+                        </StackPanel>
 
-                    <Button Grid.Row="0"
-                            Grid.Column="1"
-                            Style="{StaticResource PhoneHubTileButtonStyle}"
-                            Background="{StaticResource MixRadioTealBrush}"
-                            Click="OnAlbumsHubClick"
-                            Margin="3,0,0,3">
-                        <Grid>
-                            <Image x:Name="AlbumTileImage"
-                                   Stretch="UniformToFill"
-                                   Opacity="0.64" />
-                            <Rectangle Fill="#4D000000" />
-                            <Rectangle Height="34"
-                                       VerticalAlignment="Bottom"
-                                       Fill="{StaticResource MixRadioTealBrush}"
-                                       Opacity="0.92" />
-                            <TextBlock Text="&#xE142;"
-                                       FontFamily="Segoe UI Symbol"
-                                       FontSize="26"
-                                       Foreground="White"
-                                       HorizontalAlignment="Right"
-                                       VerticalAlignment="Top"
-                                       Opacity="0.78" />
-                            <StackPanel VerticalAlignment="Bottom">
-                                <TextBlock Text="albums" FontSize="22" Foreground="White" />
-                                <TextBlock x:Name="AlbumCountText"
-                                           Text="loading"
-                                           Style="{StaticResource CaptionTextStyle}" />
-                            </StackPanel>
-                        </Grid>
-                    </Button>
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="108" />
+                                <RowDefinition Height="108" />
+                                <RowDefinition Height="108" />
+                                <RowDefinition Height="78" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                    <Button Grid.Row="1"
-                            Grid.Column="1"
-                            Style="{StaticResource PhoneHubTileButtonStyle}"
-                            Background="{StaticResource MixRadioYellowBrush}"
-                            Click="OnArtistsClick"
-                            Margin="3,3,0,3">
-                        <Grid>
-                            <Image x:Name="ArtistTileImage"
-                                   Stretch="UniformToFill"
-                                   Opacity="0.58" />
-                            <Rectangle Fill="#59000000" />
-                            <Rectangle Height="34"
-                                       VerticalAlignment="Bottom"
-                                       Fill="{StaticResource MixRadioYellowBrush}"
-                                       Opacity="0.92" />
-                            <TextBlock Text="&#xE13D;"
-                                       FontFamily="Segoe UI Symbol"
-                                       FontSize="26"
-                                       Foreground="White"
-                                       HorizontalAlignment="Right"
-                                       VerticalAlignment="Top"
-                                       Opacity="0.78" />
-                            <StackPanel VerticalAlignment="Bottom">
-                                <TextBlock Text="artists" FontSize="22" Foreground="White" />
-                                <TextBlock x:Name="ArtistCountText"
-                                           Text="loading"
-                                           Style="{StaticResource CaptionTextStyle}" />
-                            </StackPanel>
-                        </Grid>
-                    </Button>
+                            <Button Grid.Row="0"
+                                    Grid.Column="0"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioTealBrush}"
+                                    Click="OnAlbumsHubClick"
+                                    Margin="0,0,3,3">
+                                <Grid>
+                                    <TextBlock Text="&#xE142;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="36"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,0,18" />
+                                    <StackPanel VerticalAlignment="Bottom">
+                                        <TextBlock Text="albums" FontSize="18" Foreground="White" />
+                                        <TextBlock x:Name="AlbumCountText"
+                                                   Text="loading"
+                                                   Style="{StaticResource CaptionTextStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
 
-                    <Button Grid.Row="2"
-                            Grid.Column="0"
-                            Grid.ColumnSpan="2"
-                            Style="{StaticResource PhoneHubTileButtonStyle}"
-                            Background="{StaticResource MixRadioTealBrush}"
-                            Click="OnFavouritesClick"
-                            Margin="0,3,0,3">
-                        <Grid>
-                            <Image x:Name="FavouriteTileImage"
-                                   Stretch="UniformToFill"
-                                   Opacity="0.44" />
-                            <Rectangle Fill="#66000000" />
-                            <TextBlock Text="&#xE113;"
-                                       FontFamily="Segoe UI Symbol"
-                                       FontSize="40"
-                                       Foreground="White"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Opacity="0.92"
-                                       Margin="0,0,0,20" />
-                            <StackPanel VerticalAlignment="Bottom">
-                                <TextBlock Text="favourites" FontSize="22" Foreground="White" />
-                                <TextBlock x:Name="FavouriteCountText"
-                                       Text="loading"
-                                       Style="{StaticResource CaptionTextStyle}" />
-                            </StackPanel>
-                            <Rectangle Height="4"
-                                       Fill="{StaticResource MixRadioAccentBrush}"
-                                       VerticalAlignment="Bottom" />
-                        </Grid>
-                    </Button>
+                            <Button Grid.Row="0"
+                                    Grid.Column="1"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioTealBrush}"
+                                    Click="OnArtistsClick"
+                                    Margin="3,0,0,3">
+                                <Grid>
+                                    <TextBlock Text="&#xE13D;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="36"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,0,18" />
+                                    <StackPanel VerticalAlignment="Bottom">
+                                        <TextBlock Text="artists" FontSize="18" Foreground="White" />
+                                        <TextBlock x:Name="ArtistCountText"
+                                                   Text="loading"
+                                                   Style="{StaticResource CaptionTextStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
 
-                    <Button Grid.Row="3"
-                            Grid.Column="1"
-                            Style="{StaticResource PhoneHubTileButtonStyle}"
-                            Background="{StaticResource MixRadioGreenBrush}"
-                            Click="OnGenresClick"
-                            Margin="3,3,0,3">
-                        <Grid>
-                            <Image x:Name="GenreTileImage"
-                                   Stretch="UniformToFill"
-                                   Opacity="0.58" />
-                            <Rectangle Fill="#59000000" />
-                            <Rectangle Height="34"
-                                       VerticalAlignment="Bottom"
-                                       Fill="{StaticResource MixRadioGreenBrush}"
-                                       Opacity="0.92" />
-                            <TextBlock Text="&#xE12F;"
-                                       FontFamily="Segoe UI Symbol"
-                                       FontSize="25"
-                                       Foreground="White"
-                                       HorizontalAlignment="Right"
-                                       VerticalAlignment="Top"
-                                       Opacity="0.76" />
-                            <StackPanel VerticalAlignment="Bottom">
-                                <TextBlock Text="genres" FontSize="22" Foreground="White" />
-                                <TextBlock x:Name="GenreCountText"
-                                       Text="loading"
-                                       Style="{StaticResource CaptionTextStyle}" />
-                            </StackPanel>
-                        </Grid>
-                    </Button>
+                            <Button Grid.Row="1"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioYellowBrush}"
+                                    Click="OnFavouritesClick"
+                                    Margin="0,3,0,3">
+                                <Grid>
+                                    <TextBlock Text="&#xE113;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="56"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,0,18" />
+                                    <StackPanel VerticalAlignment="Bottom">
+                                        <TextBlock Text="favourites" FontSize="18" Foreground="White" />
+                                        <TextBlock x:Name="FavouriteCountText"
+                                                   Text="loading"
+                                                   Style="{StaticResource CaptionTextStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
 
-                    <Button Grid.Row="3"
-                            Grid.Column="0"
-                            Style="{StaticResource PhoneHubTileButtonStyle}"
-                            Background="{StaticResource MixRadioAccentDarkBrush}"
-                            Click="OnPlaylistsClick"
-                            Margin="0,3,3,3">
-                        <Grid>
-                            <TextBlock Text="&#xE14C;"
-                                       FontFamily="Segoe UI Symbol"
-                                       FontSize="25"
-                                       Foreground="White"
-                                       HorizontalAlignment="Right"
-                                       VerticalAlignment="Top"
-                                       Opacity="0.76" />
-                            <StackPanel VerticalAlignment="Bottom">
-                                <TextBlock Text="playlists" FontSize="22" Foreground="White" />
-                                <TextBlock x:Name="PlaylistCountText"
-                                       Text="loading"
-                                       Style="{StaticResource CaptionTextStyle}" />
-                            </StackPanel>
-                        </Grid>
-                    </Button>
+                            <Button Grid.Row="2"
+                                    Grid.Column="0"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioGreenBrush}"
+                                    Click="OnGenresClick"
+                                    Margin="0,3,3,3">
+                                <Grid>
+                                    <TextBlock Text="&#xE12F;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="34"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,0,18" />
+                                    <StackPanel VerticalAlignment="Bottom">
+                                        <TextBlock Text="genres" FontSize="18" Foreground="White" />
+                                        <TextBlock x:Name="GenreCountText"
+                                                   Text="loading"
+                                                   Style="{StaticResource CaptionTextStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
 
-                    <Button Grid.Row="4"
-                            Grid.Column="1"
-                            Style="{StaticResource PhoneHubTileButtonStyle}"
-                            Background="{StaticResource MixRadioTealBrush}"
-                            Click="OnRadioClick"
-                            Margin="3,3,0,0">
-                        <Grid>
-                            <TextBlock Text="&#xE189;"
-                                       FontFamily="Segoe UI Symbol"
-                                       FontSize="25"
-                                       Foreground="White"
-                                       HorizontalAlignment="Right"
-                                       VerticalAlignment="Top"
-                                       Opacity="0.72" />
-                            <StackPanel VerticalAlignment="Bottom">
-                                <TextBlock Text="radio" FontSize="23" Foreground="White" />
-                                <TextBlock x:Name="RadioCountText"
-                                           Text="loading"
-                                           Style="{StaticResource CaptionTextStyle}" />
-                            </StackPanel>
-                        </Grid>
-                    </Button>
+                            <Button Grid.Row="2"
+                                    Grid.Column="1"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioAccentBrush}"
+                                    Click="OnPlaylistsClick"
+                                    Margin="3,3,0,3">
+                                <Grid>
+                                    <TextBlock Text="&#xE14C;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="34"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,0,18" />
+                                    <StackPanel VerticalAlignment="Bottom">
+                                        <TextBlock Text="playlists" FontSize="18" Foreground="White" />
+                                        <TextBlock x:Name="PlaylistCountText"
+                                                   Text="loading"
+                                                   Style="{StaticResource CaptionTextStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
 
-                    <Button Grid.Row="4"
-                            Grid.Column="0"
-                            Style="{StaticResource PhoneHubTileButtonStyle}"
-                            Background="{StaticResource MixRadioAccentBrush}"
-                            Click="OnNowPlayingClick"
-                            Margin="0,3,3,0">
-                        <Grid>
-                            <TextBlock Text="&#xE102;"
-                                       FontFamily="Segoe UI Symbol"
-                                       FontSize="25"
-                                       Foreground="White"
-                                       HorizontalAlignment="Right"
-                                       VerticalAlignment="Top"
-                                       Opacity="0.72" />
-                            <StackPanel VerticalAlignment="Bottom">
-                                <TextBlock Text="now playing" FontSize="20" Foreground="White" />
-                                <TextBlock x:Name="NowPlayingCountText"
-                                           Text="loading"
-                                           Style="{StaticResource CaptionTextStyle}" />
-                            </StackPanel>
+                            <Button Grid.Row="3"
+                                    Grid.Column="0"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioAccentDarkBrush}"
+                                    Click="OnRadioClick"
+                                    Margin="0,3,3,0">
+                                <Grid>
+                                    <TextBlock Text="&#xE189;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="25"
+                                               Foreground="White"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Top"
+                                               Opacity="0.72" />
+                                    <StackPanel VerticalAlignment="Bottom">
+                                        <TextBlock Text="radio" FontSize="17" Foreground="White" />
+                                        <TextBlock x:Name="RadioCountText"
+                                                   Text="loading"
+                                                   Style="{StaticResource CaptionTextStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+
+                            <Button Grid.Row="3"
+                                    Grid.Column="1"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioAccentDarkBrush}"
+                                    Click="OnNowPlayingClick"
+                                    Margin="3,3,0,0">
+                                <Grid>
+                                    <TextBlock Text="&#xE102;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="25"
+                                               Foreground="White"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Top"
+                                               Opacity="0.72" />
+                                    <StackPanel VerticalAlignment="Bottom">
+                                        <TextBlock Text="now playing" FontSize="16" Foreground="White" />
+                                        <TextBlock x:Name="NowPlayingCountText"
+                                                   Text="loading"
+                                                   Style="{StaticResource CaptionTextStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
                         </Grid>
-                    </Button>
+                    </Grid>
+                </Grid>
+
+                <Grid Width="{Binding ActualWidth, ElementName=RootGrid}"
+                      MinWidth="320">
+                    <Grid Margin="12,10,12,22">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0">
+                            <TextBlock Text="MixRadio"
+                                       Style="{StaticResource MixRadioWordmarkTextStyle}" />
+                            <StackPanel Orientation="Horizontal" Margin="1,-4,0,18">
+                                <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
+                                    <TextBlock Text="&#xE11A;"
+                                               Style="{StaticResource MixRadioSectionIconTextStyle}" />
+                                </Border>
+                                <TextBlock Text="search"
+                                           Style="{StaticResource BodyTextStyle}"
+                                           Foreground="White"
+                                           Margin="7,-1,0,0" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Button Grid.Row="1"
+                                Style="{StaticResource MixRadioSearchButtonStyle}"
+                                Click="OnSearchClick"
+                                Margin="0,0,0,18">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Find artists, music or gigs"
+                                           FontSize="18"
+                                           Foreground="White"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="2"
+                                           Text="&#xE11A;"
+                                           FontFamily="Segoe UI Symbol"
+                                           FontSize="20"
+                                           Foreground="White"
+                                           VerticalAlignment="Center"
+                                           Margin="12,0,0,0" />
+                            </Grid>
+                        </Button>
+
+                        <Grid Grid.Row="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="96" />
+                                <RowDefinition Height="96" />
+                                <RowDefinition Height="96" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Row="0"
+                                    Grid.Column="0"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioYellowBrush}"
+                                    Click="OnPlayMeClick"
+                                    Margin="0,0,3,3">
+                                <Grid>
+                                    <TextBlock Text="&#xE102;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="34"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,0,16" />
+                                    <TextBlock Text="play me"
+                                               FontSize="17"
+                                               Foreground="White"
+                                               VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Button>
+
+                            <Button Grid.Row="0"
+                                    Grid.Column="1"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioYellowBrush}"
+                                    Click="OnFavouritesClick"
+                                    Margin="3,0,0,3">
+                                <Grid>
+                                    <TextBlock Text="&#xE113;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="34"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,0,16" />
+                                    <TextBlock Text="favourites"
+                                               FontSize="17"
+                                               Foreground="White"
+                                               VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Button>
+
+                            <Button Grid.Row="1"
+                                    Grid.Column="0"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioGreenBrush}"
+                                    Click="OnGenresClick"
+                                    Margin="0,3,3,3">
+                                <Grid>
+                                    <TextBlock Text="&#xE12F;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="32"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,0,16" />
+                                    <TextBlock Text="genres"
+                                               FontSize="17"
+                                               Foreground="White"
+                                               VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Button>
+
+                            <Button Grid.Row="1"
+                                    Grid.Column="1"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioGreenBrush}"
+                                    Click="OnRadioClick"
+                                    Margin="3,3,0,3">
+                                <Grid>
+                                    <TextBlock Text="&#xE189;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="32"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,0,16" />
+                                    <TextBlock Text="radio"
+                                               FontSize="17"
+                                               Foreground="White"
+                                               VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Button>
+
+                            <Button Grid.Row="2"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="2"
+                                    Style="{StaticResource PhoneHubTileButtonStyle}"
+                                    Background="{StaticResource MixRadioTealBrush}"
+                                    Click="OnNowPlayingClick"
+                                    Margin="0,3,0,0">
+                                <Grid>
+                                    <TextBlock Text="&#xE102;"
+                                               FontFamily="Segoe UI Symbol"
+                                               FontSize="34"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,0,16" />
+                                    <TextBlock Text="now playing"
+                                               FontSize="17"
+                                               Foreground="White"
+                                               VerticalAlignment="Bottom" />
+                                </Grid>
+                            </Button>
+                        </Grid>
+                    </Grid>
                 </Grid>
             </StackPanel>
+        </ScrollViewer>
 
-            <Grid Grid.Row="1" Margin="0,0,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
+        <ProgressRing x:Name="LoadingIndicator"
+                      IsActive="False"
+                      Width="60"
+                      Height="60"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center" />
 
-                <TextBlock Grid.Row="0"
-                           Text="recently played"
-                           Style="{StaticResource SubHeaderTextStyle}"
-                           Margin="12,0,12,8" />
-
-                <ListView x:Name="AlbumListView"
-                          Grid.Row="1"
-                          ItemsSource="{Binding Albums}"
-                          SelectionMode="None"
-                          IsItemClickEnabled="True"
-                          ItemClick="OnAlbumClick">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                            <Setter Property="Padding" Value="0" />
-                            <Setter Property="Margin" Value="0" />
-                            <Setter Property="MinHeight" Value="74" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="12,0,12,10"
-                                  MinHeight="72"
-                                  Background="Transparent">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="1" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="64" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-
-                                <Image Grid.Column="0"
-                                       Width="64"
-                                       Height="64"
-                                       Source="{Binding CoverArt}"
-                                       Stretch="UniformToFill"
-                                       VerticalAlignment="Top" />
-
-                                <StackPanel Grid.Column="1"
-                                            VerticalAlignment="Center"
-                                            Margin="12,0,0,0">
-                                    <TextBlock Text="{Binding Name}"
-                                               Style="{StaticResource TitleTextStyle}"
-                                               TextTrimming="CharacterEllipsis"
-                                               MaxLines="1" />
-                                    <TextBlock Text="{Binding Artist}"
-                                               Style="{StaticResource BodyTextStyle}"
-                                               TextTrimming="CharacterEllipsis"
-                                               MaxLines="1" />
-                                </StackPanel>
-
-                                <Rectangle Grid.Row="1"
-                                           Grid.Column="1"
-                                           Fill="#26FFFFFF" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-
-                <ProgressRing x:Name="LoadingIndicator"
-                              Grid.RowSpan="2"
-                              IsActive="False"
-                              Width="60"
-                              Height="60"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center" />
-
-                <TextBlock x:Name="EmptyStateText"
-                           Grid.RowSpan="2"
-                           Text="Set up your Navidrome server in settings."
-                           Visibility="Collapsed"
-                           Style="{StaticResource BodyTextStyle}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           TextWrapping="Wrap"
-                           TextAlignment="Center"
-                           Margin="36" />
-            </Grid>
-        </Grid>
+        <TextBlock x:Name="EmptyStateText"
+                   Text="Set up your Navidrome server in settings."
+                   Visibility="Collapsed"
+                   Style="{StaticResource BodyTextStyle}"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Bottom"
+                   TextWrapping="Wrap"
+                   TextAlignment="Center"
+                   Margin="36,0,36,42" />
     </Grid>
 </Page>
