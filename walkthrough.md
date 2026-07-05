@@ -71,3 +71,9 @@
 - Audited the desktop playlist item row used by playback queues and playlist lists against the MixRadio queue/media-row references.
 - Reworked the row from a single `Artist - Title` text run into a cover-art media row with title, artist, duration, and a subtle divider.
 - Kept the existing cover art, title, artist, duration, and playing-state bindings intact while making the row easier to scan in the dark MixRadio layout.
+
+## 2026-07-05 18:22:02 +08:00
+
+- Audited the desktop playback filter surface against MixRadio's search-on-media visual language.
+- Reworked `Filter.xaml` from a plain form under album art into a cover-art overlay with dark gradient, large light title, teal search input, and a pink icon-only done button.
+- Preserved the existing realtime `FilterText` binding, Enter-key handling, and `DoneFiltering()` action while removing the old typo-prone instruction text.
