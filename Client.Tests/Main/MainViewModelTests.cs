@@ -121,7 +121,10 @@
 
             await Subject.Populate();
 
-            Subject.MenuItems.Should().HaveCount(2);
+            Subject.MenuItems.Should().HaveCount(5);
+            Subject.MenuItems.Select(item => item.Title)
+                .Should()
+                .Contain(new[] { "play me", "albums", "artists", "genres", "playlists" });
         }
 
         #endregion

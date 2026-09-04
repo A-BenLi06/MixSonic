@@ -20,6 +20,7 @@
         public MainViewModel()
         {
             MenuItems = new BindableCollection<MenuItemViewModel>();
+            UpdateDisplayName = () => DisplayName = "my music";
         }
 
         #endregion
@@ -59,7 +60,49 @@
 
         protected override IEnumerable<IMediaModel> GetItemsToDisplay(IList<MusicFolder> result)
         {
-            return result;
+            return new IMediaModel[]
+                       {
+                           new LibraryCommand(
+                               "random",
+                               "play me",
+                               "random mix",
+                               SubsonicModelTypeEnum.LibraryRandomSongs),
+                           new LibraryCommand(
+                               string.Empty,
+                               "albums",
+                               "album wall",
+                               SubsonicModelTypeEnum.LibraryAlbums),
+                           new LibraryCommand(
+                               "artists",
+                               "artists",
+                               "album artists",
+                               SubsonicModelTypeEnum.LibraryArtists),
+                           new LibraryCommand(
+                               "genres",
+                               "genres",
+                               "categories",
+                               SubsonicModelTypeEnum.LibraryGenres),
+                           new LibraryCommand(
+                               "playlists",
+                               "playlists",
+                               "remote lists",
+                               SubsonicModelTypeEnum.LibraryPlaylists),
+                           new LibraryCommand(
+                               "favourites",
+                               "favourites",
+                               "starred songs",
+                               SubsonicModelTypeEnum.LibraryFavourites),
+                           new LibraryCommand(
+                               "radio",
+                               "radio",
+                               "internet stations",
+                               SubsonicModelTypeEnum.LibraryRadio),
+                           new LibraryCommand(
+                               "now-playing",
+                               "now playing",
+                               "server activity",
+                               SubsonicModelTypeEnum.LibraryNowPlaying)
+                       };
         }
 
         protected override IServiceResultBase<IList<MusicFolder>> GetResult(bool parameter)
@@ -69,12 +112,16 @@
 
         protected override Task AfterPopulate(bool parameter)
         {
-            if (MenuItems.Count == 1)
-            {
-                NavigationService.NavigateToViewModel<IndexViewModel>(MenuItems[0].Item.Id);
-            }
-
             return base.AfterPopulate(parameter);
+        }
+
+        protected async override void OnActivate()
+        {
+            base.OnActivate();
+            if (MenuItems.Count == 0)
+            {
+                await Populate();
+            }
         }
 
         private async Task<bool> ShouldPopulate()

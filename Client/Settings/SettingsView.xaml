@@ -7,54 +7,120 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <StackPanel HorizontalAlignment="Stretch">
-        <TextBlock Text="Primary URL" Style="{StaticResource SettingsTextStyle}" />
-        <TextBox x:Name="Configuration_SubsonicServiceConfiguration_PrimaryUrl"
-                 PlaceholderText="e.g. http://192.168.1.100:4040"
-                 Style="{StaticResource SettingsTextBoxStyle}"
-                 cal:Message.Attach="[Event TextChanged]=[Action PrimaryUrlChanged($source)]" />
-
-        <TextBlock Text="Secondary URL" Style="{StaticResource SettingsTextStyle}" />
-        <TextBox x:Name="Configuration_SubsonicServiceConfiguration_SecondaryUrl"
-                 PlaceholderText="e.g. https://music.example.com"
-                 Style="{StaticResource SettingsTextBoxStyle}"
-                 cal:Message.Attach="[Event TextChanged]=[Action SecondaryUrlChanged($source)]" />
-
-        <TextBlock x:Name="UrlValidationMessage" 
-                   Foreground="Red" 
-                   Visibility="Collapsed"
-                   Text="At least one URL is required"
+    <StackPanel HorizontalAlignment="Stretch" Background="Transparent" Margin="0,0,18,0">
+        <TextBlock Text="MixRadio"
+                   Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                   FontFamily="Segoe UI Light"
+                   FontSize="36" />
+        <TextBlock Text="navidrome settings"
+                   Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                   FontFamily="Segoe UI Light"
+                   FontSize="20"
+                   Margin="0,-2,0,12" />
+        <Rectangle Width="64"
+                   Height="4"
+                   Fill="{StaticResource MixRadioAccentBrush}"
+                   HorizontalAlignment="Left"
                    Margin="0,0,0,10" />
 
-        <TextBlock Text="Username" Style="{StaticResource SettingsTextStyle}" />
-        <TextBox Text="{Binding Path=Configuration.SubsonicServiceConfiguration.Username}"
-                 Style="{StaticResource SettingsTextBoxStyle}"
-                 cal:Message.Attach="[Event TextChanged]=[Action UsernameChanged($source)]" />
+        <Border Background="#33000000" Margin="0,2,0,10" Padding="12,8,12,10">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="4"
+                               Height="28"
+                               Fill="{StaticResource MixRadioTealBrush}"
+                               Margin="0,4,10,0" />
+                    <TextBlock Text="server"
+                               Foreground="{StaticResource MixRadioTealBrush}"
+                               FontFamily="Segoe UI Light"
+                               FontSize="24" />
+                </StackPanel>
 
-        <TextBlock Text="Password" Style="{StaticResource SettingsTextStyle}" />
-        <PasswordBox Password="{Binding Path=Configuration.SubsonicServiceConfiguration.Password}"
-                     Style="{StaticResource PasswordTextBoxStyle}"
-                     cal:Message.Attach="[Event PasswordChanged]=[Action PasswordChanged($source)]" />
+                <TextBlock Text="Primary URL" Style="{StaticResource SettingsTextStyle}" />
+                <TextBox x:Name="Configuration_SubsonicServiceConfiguration_PrimaryUrl"
+                         PlaceholderText="e.g. http://192.168.1.100:4040"
+                         Style="{StaticResource SettingsTextBoxStyle}"
+                         cal:Message.Attach="[Event TextChanged]=[Action PrimaryUrlChanged($source)]" />
 
-        <ToggleSwitch Header="Enable notifications on song change" IsOn="{Binding Path=Configuration.UseToastNotifications, Mode=TwoWay}"
-                      Margin="0,10" OffContent="Off" OnContent="On" Style="{StaticResource LightToggleSwitch}">
-            <ToggleSwitch.HeaderTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding}" Style="{StaticResource SettingsTextStyle}" />
-                </DataTemplate>
-            </ToggleSwitch.HeaderTemplate>
-        </ToggleSwitch>
+                <TextBlock Text="Secondary URL" Style="{StaticResource SettingsTextStyle}" />
+                <TextBox x:Name="Configuration_SubsonicServiceConfiguration_SecondaryUrl"
+                         PlaceholderText="e.g. https://music.example.com"
+                         Style="{StaticResource SettingsTextBoxStyle}"
+                         cal:Message.Attach="[Event TextChanged]=[Action SecondaryUrlChanged($source)]" />
 
-        <ToggleSwitch Header="Compatible Mode (Transcode lossless to MP3 320kbps)" IsOn="{Binding Path=Configuration.SubsonicServiceConfiguration.CompatibleMode, Mode=TwoWay}"
-                      Margin="0,10" OffContent="Off" OnContent="On" Style="{StaticResource LightToggleSwitch}">
-            <ToggleSwitch.HeaderTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding}" Style="{StaticResource SettingsTextStyle}" />
-                </DataTemplate>
-            </ToggleSwitch.HeaderTemplate>
-        </ToggleSwitch>
+                <TextBlock x:Name="UrlValidationMessage"
+                           Foreground="{StaticResource MixRadioAccentBrush}"
+                           Visibility="Collapsed"
+                           Text="At least one URL is required"
+                           TextWrapping="Wrap"
+                           Margin="0,8,0,0" />
+            </StackPanel>
+        </Border>
 
-        <Button x:Name="ApplyChanges" Style="{StaticResource LightButton}" Width="100" Content="Save"
-                HorizontalAlignment="Right" />
+        <Border Background="#33000000" Margin="0,0,0,10" Padding="12,8,12,10">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="4"
+                               Height="28"
+                               Fill="{StaticResource MixRadioYellowBrush}"
+                               Margin="0,4,10,0" />
+                    <TextBlock Text="account"
+                               Foreground="{StaticResource MixRadioYellowBrush}"
+                               FontFamily="Segoe UI Light"
+                               FontSize="24" />
+                </StackPanel>
+
+                <TextBlock Text="Username" Style="{StaticResource SettingsTextStyle}" />
+                <TextBox Text="{Binding Path=Configuration.SubsonicServiceConfiguration.Username}"
+                         Style="{StaticResource SettingsTextBoxStyle}"
+                         cal:Message.Attach="[Event TextChanged]=[Action UsernameChanged($source)]" />
+
+                <TextBlock Text="Password" Style="{StaticResource SettingsTextStyle}" />
+                <PasswordBox Password="{Binding Path=Configuration.SubsonicServiceConfiguration.Password}"
+                             Style="{StaticResource PasswordTextBoxStyle}"
+                             cal:Message.Attach="[Event PasswordChanged]=[Action PasswordChanged($source)]" />
+            </StackPanel>
+        </Border>
+
+        <Border Background="#33000000" Margin="0,0,0,12" Padding="12,8,12,10">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Width="4"
+                               Height="28"
+                               Fill="{StaticResource MixRadioAccentBrush}"
+                               Margin="0,4,10,0" />
+                    <TextBlock Text="playback"
+                               Foreground="{StaticResource MixRadioAccentBrush}"
+                               FontFamily="Segoe UI Light"
+                               FontSize="24" />
+                </StackPanel>
+
+                <ToggleSwitch Header="Enable notifications on song change" IsOn="{Binding Path=Configuration.UseToastNotifications, Mode=TwoWay}"
+                              Margin="0,8,0,0" OffContent="Off" OnContent="On" Style="{StaticResource LightToggleSwitch}">
+                    <ToggleSwitch.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Style="{StaticResource SettingsTextStyle}" />
+                        </DataTemplate>
+                    </ToggleSwitch.HeaderTemplate>
+                </ToggleSwitch>
+
+                <ToggleSwitch Header="Compatible Mode (Transcode lossless to MP3 320kbps)" IsOn="{Binding Path=Configuration.SubsonicServiceConfiguration.CompatibleMode, Mode=TwoWay}"
+                              Margin="0,8,0,0" OffContent="Off" OnContent="On" Style="{StaticResource LightToggleSwitch}">
+                    <ToggleSwitch.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding}" Style="{StaticResource SettingsTextStyle}" />
+                        </DataTemplate>
+                    </ToggleSwitch.HeaderTemplate>
+                </ToggleSwitch>
+            </StackPanel>
+        </Border>
+
+        <Button x:Name="ApplyChanges"
+                Style="{StaticResource LightButton}"
+                Width="128"
+                MinHeight="38"
+                Content="save"
+                HorizontalAlignment="Right"
+                Margin="0,2,0,0" />
     </StackPanel>
 </UserControl>

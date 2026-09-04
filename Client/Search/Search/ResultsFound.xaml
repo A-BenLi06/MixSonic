@@ -15,34 +15,74 @@
         </DataTemplate>
     </ContentControl.Resources>
 
-    <GridView Margin="0,-3,0,0" Padding="116,0,116,46" SelectionMode="Multiple"
-              ItemsSource="{Binding Source={StaticResource GroupedSource}}"
-              behaviors:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-              ItemTemplate="{StaticResource MenuItemTemplate}"
-              IsItemClickEnabled="True"
-              cal:Message.Attach="[Event ItemClick] = [Action ChildClick($eventArgs)];">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="92" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-        <GridView.ItemsPanel>
-            <ItemsPanelTemplate>
-                <StackPanel Orientation="Horizontal" />
-            </ItemsPanelTemplate>
-        </GridView.ItemsPanel>
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    Margin="116,20,116,0">
+            <Rectangle Width="5"
+                       Height="50"
+                       Fill="{StaticResource MixRadioAccentBrush}"
+                       Margin="0,6,18,0" />
+            <StackPanel>
+                <TextBlock Text="results"
+                           Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                           FontFamily="Segoe UI Light"
+                           FontSize="34" />
+                <TextBlock Text="{Binding SearchQueryCaption}"
+                           Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                           FontFamily="Segoe UI Light"
+                           FontSize="18"
+                           TextTrimming="WordEllipsis" />
+            </StackPanel>
+        </StackPanel>
 
-        <GridView.GroupStyle>
-            <GroupStyle>
-                <GroupStyle.HeaderTemplate>
-                    <DataTemplate>
-                        <TextBlock Margin="20,20,0,0" Text="{Binding Key}"
-                                   Style="{StaticResource PageSubheaderTextStyle}" />
-                    </DataTemplate>
-                </GroupStyle.HeaderTemplate>
+        <GridView Grid.Row="1"
+                  Margin="0,0,0,0"
+                  Padding="116,6,116,46"
+                  SelectionMode="Multiple"
+                  ItemsSource="{Binding Source={StaticResource GroupedSource}}"
+                  behaviors:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
+                  ItemTemplate="{StaticResource MenuItemTemplate}"
+                  IsItemClickEnabled="True"
+                  cal:Message.Attach="[Event ItemClick] = [Action ChildClick($eventArgs)];">
 
-                <GroupStyle.Panel>
-                    <ItemsPanelTemplate>
-                        <VariableSizedWrapGrid />
-                    </ItemsPanelTemplate>
-                </GroupStyle.Panel>
-            </GroupStyle>
-        </GridView.GroupStyle>
-    </GridView>
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
+
+            <GridView.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.HeaderTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="20,8,24,18">
+                                <TextBlock Text="{Binding Key}"
+                                           Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                                           FontFamily="Segoe UI Light"
+                                           FontSize="32"
+                                           TextTrimming="WordEllipsis" />
+                                <Rectangle Width="64"
+                                           Height="4"
+                                           Fill="{StaticResource MixRadioAccentBrush}"
+                                           HorizontalAlignment="Left"
+                                           Margin="0,8,0,0" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </GroupStyle.HeaderTemplate>
+
+                    <GroupStyle.Panel>
+                        <ItemsPanelTemplate>
+                            <VariableSizedWrapGrid Orientation="Vertical" MaximumRowsOrColumns="2" />
+                        </ItemsPanelTemplate>
+                    </GroupStyle.Panel>
+                </GroupStyle>
+            </GridView.GroupStyle>
+        </GridView>
+    </Grid>
 </ContentControl>

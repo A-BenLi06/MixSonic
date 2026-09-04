@@ -14,6 +14,14 @@
 
         IBottomBarViewModel BottomBar { get; set; }
 
+        string EmptyStateSubtitle { get; }
+
+        string EmptyStateTitle { get; }
+
+        bool HasItems { get; }
+
+        bool IsEmpty { get; }
+
         BindableCollection<MenuItemViewModel> MenuItems { get; set; }
 
         TParameter Parameter { get; set; }

@@ -26,9 +26,9 @@ namespace Subsonic8.Phone.Services
 
         public void Configure(string baseUrl, string username, string password)
         {
-            _baseUrl = baseUrl.TrimEnd('/');
-            _username = username;
-            _password = password;
+            _baseUrl = (baseUrl ?? string.Empty).TrimEnd('/');
+            _username = username ?? string.Empty;
+            _password = password ?? string.Empty;
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Subsonic8.Phone.Services
 
         private string BuildApiUrl(string method, Dictionary<string, string> parameters = null)
         {
-            var url = $"{_baseUrl}/rest/{method}?u={Uri.EscapeDataString(_username)}&p={Uri.EscapeDataString(_password)}&v=1.16.1&c=Subsonic8WP&f=xml";
+            var url = $"{_baseUrl}/rest/{method}?u={Uri.EscapeDataString(_username)}&p={Uri.EscapeDataString(_password)}&v=1.16.1&c=MixRadioWP&f=xml";
             
             if (parameters != null)
             {
@@ -130,6 +130,109 @@ namespace Subsonic8.Phone.Services
             });
         }
 
+        public async Task<List<InternetRadioStation>> GetInternetRadioStationsAsync()
+        {
+            var stations = new List<InternetRadioStation>();
+            var url = BuildApiUrl("getInternetRadioStations");
+
+            try
+            {
+                var responseXml = await _httpClient.GetStringAsync(url);
+                var doc = XDocument.Parse(responseXml);
+                var root = doc.Root;
+
+                if (root == null) return stations;
+
+                var ns = root.Name.Namespace;
+                var stationsElement = root.Element(ns + "internetRadioStations");
+
+                if (stationsElement == null) return stations;
+
+                foreach (var stationElement in stationsElement.Elements(ns + "internetRadioStation"))
+                {
+                    stations.Add(new InternetRadioStation
+                    {
+                        Id = stationElement.Attribute("id")?.Value,
+                        Name = stationElement.Attribute("name")?.Value,
+                        StreamUrl = stationElement.Attribute("streamUrl")?.Value,
+                        HomePageUrl = stationElement.Attribute("homePageUrl")?.Value
+                    });
+                }
+            }
+            catch
+            {
+            }
+
+            return stations;
+        }
+
+        public async Task<List<Song>> GetStarredSongsAsync()
+        {
+            var songs = new List<Song>();
+            var url = BuildApiUrl("getStarred2");
+
+            try
+            {
+                var responseXml = await _httpClient.GetStringAsync(url);
+                var doc = XDocument.Parse(responseXml);
+                var root = doc.Root;
+
+                if (root == null) return songs;
+
+                var ns = root.Name.Namespace;
+                var starredElement = root.Element(ns + "starred2");
+
+                if (starredElement == null) return songs;
+
+                foreach (var songElement in starredElement.Elements(ns + "song"))
+                {
+                    songs.Add(ParseSong(songElement));
+                }
+            }
+            catch
+            {
+            }
+
+            return songs;
+        }
+
+        public async Task<List<NowPlayingEntry>> GetNowPlayingAsync()
+        {
+            var entries = new List<NowPlayingEntry>();
+            var url = BuildApiUrl("getNowPlaying");
+
+            try
+            {
+                var responseXml = await _httpClient.GetStringAsync(url);
+                var doc = XDocument.Parse(responseXml);
+                var root = doc.Root;
+
+                if (root == null) return entries;
+
+                var ns = root.Name.Namespace;
+                var nowPlayingElement = root.Element(ns + "nowPlaying");
+
+                if (nowPlayingElement == null) return entries;
+
+                foreach (var entryElement in nowPlayingElement.Elements(ns + "entry"))
+                {
+                    entries.Add(new NowPlayingEntry
+                    {
+                        Song = ParseSong(entryElement),
+                        Username = entryElement.Attribute("username")?.Value,
+                        PlayerId = entryElement.Attribute("playerId")?.Value,
+                        PlayerName = entryElement.Attribute("playerName")?.Value,
+                        MinutesAgo = ParseInt(entryElement.Attribute("minutesAgo")?.Value)
+                    });
+                }
+            }
+            catch
+            {
+            }
+
+            return entries;
+        }
+
         public async Task<List<Album>> GetAlbumsAsync(string artistId)
         {
             var albums = new List<Album>();
@@ -187,15 +290,7 @@ namespace Subsonic8.Phone.Services
                 
                 foreach (var songElement in albumElement.Elements(ns + "song"))
                 {
-                    songs.Add(new Song
-                    {
-                        Id = songElement.Attribute("id")?.Value,
-                        Title = songElement.Attribute("title")?.Value,
-                        Artist = songElement.Attribute("artist")?.Value,
-                        Album = songElement.Attribute("album")?.Value,
-                        CoverArt = songElement.Attribute("coverArt")?.Value,
-                        Duration = ParseInt(songElement.Attribute("duration")?.Value)
-                    });
+                    songs.Add(ParseSong(songElement));
                 }
             }
             catch
@@ -216,5 +311,35 @@ namespace Subsonic8.Phone.Services
             int result;
             return int.TryParse(value, out result) ? result : 0;
         }
+
+        private static Song ParseSong(XElement songElement)
+        {
+            return new Song
+            {
+                Id = songElement.Attribute("id")?.Value,
+                Title = songElement.Attribute("title")?.Value,
+                Artist = songElement.Attribute("artist")?.Value,
+                Album = songElement.Attribute("album")?.Value,
+                CoverArt = songElement.Attribute("coverArt")?.Value,
+                Duration = ParseInt(songElement.Attribute("duration")?.Value)
+            };
+        }
+    }
+
+    public class InternetRadioStation
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string StreamUrl { get; set; }
+        public string HomePageUrl { get; set; }
+    }
+
+    public class NowPlayingEntry
+    {
+        public Song Song { get; set; }
+        public string Username { get; set; }
+        public string PlayerId { get; set; }
+        public string PlayerName { get; set; }
+        public int MinutesAgo { get; set; }
     }
 }

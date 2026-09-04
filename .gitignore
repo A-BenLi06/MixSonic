@@ -45,6 +45,7 @@ TestResults/*.*
 # Windows store
 Client/Client_StoreKey.pfx
 Client/AppPackages/*.*
+*/BundleArtifacts/
 
 Client/Package.StoreAssociation.xml
 Client/Subsonic8Key.pfx
@@ -53,3 +54,6 @@ PublishAssets/*
 #StyleCop
 *StyleCop.cache
 */AppPackages/*
+
+# ZCode session scratch
+.tmp/

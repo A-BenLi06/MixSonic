@@ -10,6 +10,124 @@
 
     <Page.Resources>
         <cal:BooleanToVisibilityConverter x:Name="BooleanToVisibilityConverter" />
+
+        <Style x:Key="MixRadioPlaybackCircleButtonStyle" TargetType="ButtonBase">
+            <Setter Property="Width" Value="58" />
+            <Setter Property="Height" Value="58" />
+            <Setter Property="MinWidth" Value="58" />
+            <Setter Property="MinHeight" Value="58" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="9,0" />
+            <Setter Property="FontFamily" Value="Segoe UI Symbol" />
+            <Setter Property="FontSize" Value="23" />
+            <Setter Property="Foreground" Value="{StaticResource ApplicationForegroundThemeBrush}" />
+            <Setter Property="Background" Value="#22000000" />
+            <Setter Property="BorderBrush" Value="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ButtonBase">
+                        <Grid Width="{TemplateBinding Width}"
+                              Height="{TemplateBinding Height}">
+                            <Ellipse x:Name="ButtonChrome"
+                                     Fill="{TemplateBinding Background}"
+                                     Stroke="{TemplateBinding BorderBrush}"
+                                     StrokeThickness="{TemplateBinding BorderThickness}" />
+                            <ContentPresenter Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="PointerOver">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonChrome"
+                                                                           Storyboard.TargetProperty="Stroke">
+                                                <DiscreteObjectKeyFrame KeyTime="0"
+                                                                        Value="{StaticResource ApplicationForegroundThemeBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonChrome"
+                                                                           Storyboard.TargetProperty="Fill">
+                                                <DiscreteObjectKeyFrame KeyTime="0"
+                                                                        Value="{StaticResource MixRadioAccentBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ButtonChrome"
+                                                                           Storyboard.TargetProperty="Stroke">
+                                                <DiscreteObjectKeyFrame KeyTime="0"
+                                                                        Value="{StaticResource ApplicationForegroundThemeBrush}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ButtonChrome"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             To="0.32"
+                                                             Duration="0" />
+                                        </Storyboard>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MixRadioPlaybackPrimaryButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource MixRadioPlaybackCircleButtonStyle}">
+            <Setter Property="Width" Value="72" />
+            <Setter Property="Height" Value="72" />
+            <Setter Property="MinWidth" Value="72" />
+            <Setter Property="MinHeight" Value="72" />
+            <Setter Property="FontSize" Value="31" />
+            <Setter Property="Margin" Value="12,0" />
+            <Setter Property="Background" Value="{StaticResource MixRadioAccentBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ApplicationForegroundThemeBrush}" />
+        </Style>
+
+        <Style x:Key="MixRadioPreviousCircleButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource MixRadioPlaybackCircleButtonStyle}">
+            <Setter Property="Content" Value="&#xE100;" />
+        </Style>
+
+        <Style x:Key="MixRadioPlayCircleButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource MixRadioPlaybackPrimaryButtonStyle}">
+            <Setter Property="Content" Value="&#xE102;" />
+        </Style>
+
+        <Style x:Key="MixRadioPauseCircleButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource MixRadioPlaybackPrimaryButtonStyle}">
+            <Setter Property="Content" Value="&#xE103;" />
+        </Style>
+
+        <Style x:Key="MixRadioStopCircleButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource MixRadioPlaybackCircleButtonStyle}">
+            <Setter Property="Content" Value="&#xE15B;" />
+            <Setter Property="Width" Value="42" />
+            <Setter Property="Height" Value="42" />
+            <Setter Property="MinWidth" Value="42" />
+            <Setter Property="MinHeight" Value="42" />
+            <Setter Property="FontSize" Value="17" />
+            <Setter Property="Margin" Value="9,15,9,0" />
+        </Style>
+
+        <Style x:Key="MixRadioNextCircleButtonStyle"
+               TargetType="ButtonBase"
+               BasedOn="{StaticResource MixRadioPlaybackCircleButtonStyle}">
+            <Setter Property="Content" Value="&#xE101;" />
+        </Style>
     </Page.Resources>
 
     <Grid>
@@ -19,18 +137,28 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Image Source="{Binding CoverArt}" Style="{StaticResource PlaybackBigCoverArtStyle}" effects:Tilt.IsTiltEnabled="True" />
+        <Grid HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Width="320"
+              Height="324">
+            <Image Source="{Binding CoverArt}"
+                   Style="{StaticResource PlaybackBigCoverArtStyle}"
+                   effects:Tilt.IsTiltEnabled="True" />
+            <Rectangle Height="4"
+                       Fill="{StaticResource MixRadioAccentBrush}"
+                       VerticalAlignment="Bottom" />
+        </Grid>
         <playback:ProgressIndicatorView Grid.Row="1" cal:Bind.Model="{Binding ProgressIndicatorViewModel}" />
         <StackPanel Grid.Row="2" Style="{StaticResource PlaybackControlsPanelStyle}"
                     Visibility="{Binding Path=PlaybackControlsVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Button Style="{StaticResource PreviousAppBarButtonStyle}"
+            <Button Style="{StaticResource MixRadioPreviousCircleButtonStyle}"
                     cal:Message.Attach="[Event Click] = [Action Previous]" />
-            <ic:AppBarToggleButton Style="{StaticResource PlayAppBarButtonStyle}"
-                                   CheckedStyle="{StaticResource PauseAppBarButtonStyle}"
+            <ic:AppBarToggleButton Style="{StaticResource MixRadioPlayCircleButtonStyle}"
+                                   CheckedStyle="{StaticResource MixRadioPauseCircleButtonStyle}"
                                    cal:Message.Attach="[Event Click] = [Action PlayPause()]" AutoToggle="False"
                                    IsChecked="{Binding IsPlaying}" />
-            <Button Style="{StaticResource StopAppBarButtonStyle}" cal:Message.Attach="[Event Click] = [Action Stop]" />
-            <Button Style="{StaticResource NextAppBarButtonStyle}" cal:Message.Attach="[Event Click] = [Action Next]" />
+            <Button Style="{StaticResource MixRadioNextCircleButtonStyle}" cal:Message.Attach="[Event Click] = [Action Next]" />
+            <Button Style="{StaticResource MixRadioStopCircleButtonStyle}" cal:Message.Attach="[Event Click] = [Action Stop]" />
         </StackPanel>
     </Grid>
 </Page>

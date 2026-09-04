@@ -10,13 +10,54 @@
     <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
         <Grid x:Name="FullScreenView">
             <Grid.RowDefinitions>
-                <RowDefinition Height="140" />
+                <RowDefinition Height="148" />
+                <RowDefinition Height="48" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
+            <Image Grid.RowSpan="2"
+                   Source="/Assets/CoverArtPlaceholderLarge.jpg"
+                   Stretch="UniformToFill"
+                   Opacity="0.06" />
+            <Rectangle Grid.RowSpan="2"
+                       Fill="#F6000000" />
+
             <common:PageHeader DataContext="{Binding}" />
 
-            <ContentControl Grid.Row="1" cal:View.Context="{Binding State}" cal:View.Model="{Binding}" />
+            <Grid Grid.Row="1"
+                  Width="420"
+                  Height="36"
+                  Margin="0,0,116,0"
+                  HorizontalAlignment="Right"
+                  Background="{StaticResource MixRadioTealBrush}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="38" />
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="QueryInput"
+                         Margin="0"
+                         Padding="12,2,0,0"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                         FontFamily="Segoe UI Light"
+                         FontSize="18"
+                         VerticalAlignment="Stretch"
+                         PlaceholderText="Find artists, albums, and songs."
+                         KeyUp="OnQueryInputKeyUp" />
+                <Border Grid.Column="1"
+                        Background="Transparent"
+                        Tapped="OnSearchTapped">
+                    <TextBlock Text="&#xE11A;"
+                               FontFamily="Segoe UI Symbol"
+                               FontSize="16"
+                               Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" />
+                </Border>
+            </Grid>
+
+            <ContentControl Grid.Row="2" cal:View.Context="{Binding State}" cal:View.Model="{Binding}" />
         </Grid>
 
         <common:ExpandToFullScreen x:Name="SnappedView" Visibility="Collapsed"/>

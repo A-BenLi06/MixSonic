@@ -17,7 +17,7 @@
     <PackageCertificateKeyFile>Client.Common.Tests_TemporaryKey.pfx</PackageCertificateKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <PackageCertificateThumbprint>46359FE9CAF2B1421CC1FD7E0CB675338C5D985B</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>EC6D7DC1BC42B9BAC2E745FB92C2394F3128BA65</PackageCertificateThumbprint>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
     <TargetFrameworkVersion />

@@ -2,9 +2,160 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Circular Button Style -->
-    <Style x:Key="CircularButtonStyle" TargetType="Button">
+    <Color x:Key="MixRadioAccentColor">#FFFF2B86</Color>
+    <Color x:Key="MixRadioAccentDarkColor">#FF8A1248</Color>
+    <Color x:Key="MixRadioTealColor">#FF00AFAF</Color>
+    <Color x:Key="MixRadioYellowColor">#FFD7C900</Color>
+    <Color x:Key="MixRadioGreenColor">#FF78B800</Color>
+    <Color x:Key="MixRadioBlackColor">#FF000000</Color>
+    <Color x:Key="MixRadioPanelColor">#D9000000</Color>
+    <Color x:Key="MixRadioPanelAltColor">#E6171717</Color>
+    <Color x:Key="MixRadioCommandBarColor">#F2000000</Color>
+
+    <SolidColorBrush x:Key="ApplicationPageBackgroundThemeBrush" Color="{StaticResource MixRadioBlackColor}" />
+    <SolidColorBrush x:Key="ApplicationForegroundThemeBrush" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="PhoneForegroundBrush" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="PhoneMidBrush" Color="#FFCFCFCF" />
+    <SolidColorBrush x:Key="PhoneDisabledBrush" Color="#FF777777" />
+    <SolidColorBrush x:Key="PhoneAccentBrush" Color="{StaticResource MixRadioAccentColor}" />
+    <SolidColorBrush x:Key="MixRadioAccentBrush" Color="{StaticResource MixRadioAccentColor}" />
+    <SolidColorBrush x:Key="MixRadioAccentDarkBrush" Color="{StaticResource MixRadioAccentDarkColor}" />
+    <SolidColorBrush x:Key="MixRadioTealBrush" Color="{StaticResource MixRadioTealColor}" />
+    <SolidColorBrush x:Key="MixRadioYellowBrush" Color="{StaticResource MixRadioYellowColor}" />
+    <SolidColorBrush x:Key="MixRadioGreenBrush" Color="{StaticResource MixRadioGreenColor}" />
+    <SolidColorBrush x:Key="MixRadioPanelBrush" Color="{StaticResource MixRadioPanelColor}" />
+    <SolidColorBrush x:Key="MixRadioPanelAltBrush" Color="{StaticResource MixRadioPanelAltColor}" />
+    <SolidColorBrush x:Key="MixRadioCommandBarBrush" Color="{StaticResource MixRadioCommandBarColor}" />
+    <SolidColorBrush x:Key="MixRadioMutedBrush" Color="#FFB8B8B8" />
+
+    <Style x:Key="MixRadioWordmarkTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="48" />
+        <Setter Property="FontWeight" Value="SemiLight" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="LineHeight" Value="52" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+
+    <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="42" />
+        <Setter Property="FontWeight" Value="Light" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="LineHeight" Value="46" />
+    </Style>
+
+    <Style x:Key="SubHeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="25" />
+        <Setter Property="FontWeight" Value="SemiLight" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <Style x:Key="TitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <Style x:Key="BodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="Foreground" Value="{StaticResource MixRadioMutedBrush}" />
+    </Style>
+
+    <Style x:Key="CaptionTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Foreground" Value="#E6FFFFFF" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
+    <Style x:Key="MixRadioSectionIconBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="19" />
+        <Setter Property="Height" Value="19" />
+        <Setter Property="BorderBrush" Value="White" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="CornerRadius" Value="9.5" />
+    </Style>
+
+    <Style x:Key="MixRadioSectionIconTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe UI Symbol" />
+        <Setter Property="FontSize" Value="8" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="AlbumListItemStyle" TargetType="ListViewItem">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0,0,0,2" />
+        <Setter Property="MinHeight" Value="88" />
+    </Style>
+
+    <Style x:Key="MixRadioFlatButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Root" Background="{TemplateBinding Background}">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="PointerOver" />
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Root"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0.72"
+                                                         Duration="0" />
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Root"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0.36"
+                                                         Duration="0" />
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PhoneHubTileButtonStyle" TargetType="Button" BasedOn="{StaticResource MixRadioFlatButtonStyle}">
+        <Setter Property="Padding" Value="12" />
+    </Style>
+
+    <Style x:Key="MixRadioSearchButtonStyle" TargetType="Button" BasedOn="{StaticResource MixRadioFlatButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource MixRadioTealBrush}" />
+        <Setter Property="Padding" Value="14,0" />
+        <Setter Property="Height" Value="52" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+
+    <Style x:Key="PlayButtonStyle" TargetType="Button" BasedOn="{StaticResource MixRadioFlatButtonStyle}">
+        <Setter Property="Background" Value="{StaticResource MixRadioAccentBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Padding" Value="20,10" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style x:Key="CircularButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="#22000000" />
         <Setter Property="Foreground" Value="White" />
         <Setter Property="BorderBrush" Value="White" />
         <Setter Property="BorderThickness" Value="2" />
@@ -16,13 +167,15 @@
                 <ControlTemplate TargetType="Button">
                     <Grid>
                         <Ellipse x:Name="Ellipse"
-                                 Stroke="{TemplateBinding BorderBrush}" 
-                                 StrokeThickness="2" 
+                                 Stroke="{TemplateBinding BorderBrush}"
+                                 StrokeThickness="2"
                                  Fill="{TemplateBinding Background}"
                                  Width="{TemplateBinding Width}"
                                  Height="{TemplateBinding Height}" />
                         <ContentPresenter x:Name="ContentPresenter"
-                                          HorizontalAlignment="Center" 
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          HorizontalAlignment="Center"
                                           VerticalAlignment="Center" />
                         <VisualStateManager.VisualStateGroups>
                             <VisualStateGroup x:Name="CommonStates">
@@ -31,14 +184,17 @@
                                 <VisualState x:Name="Pressed">
                                     <Storyboard>
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Ellipse" Storyboard.TargetProperty="Stroke">
-                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource PhoneAccentBrush}" />
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource MixRadioAccentBrush}" />
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Ellipse" Storyboard.TargetProperty="Fill">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource MixRadioAccentBrush}" />
                                         </ObjectAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </VisualState>
                                 <VisualState x:Name="Disabled">
                                     <Storyboard>
                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Ellipse" Storyboard.TargetProperty="Stroke">
-                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource PhoneDisabledBrush}" />
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PhoneDisabledBrush}" />
                                         </ObjectAnimationUsingKeyFrames>
                                         <DoubleAnimation Storyboard.TargetName="ContentPresenter" Storyboard.TargetProperty="Opacity" To="0.4" Duration="0" />
                                     </Storyboard>
@@ -51,53 +207,45 @@
         </Setter>
     </Style>
 
-    <!-- Text Styles -->
-    <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="46" />
-        <Setter Property="FontWeight" Value="Light" />
-        <Setter Property="Margin" Value="12,0,0,0" />
-        <Setter Property="Foreground" Value="{ThemeResource PhoneForegroundBrush}" />
-    </Style>
-
-    <Style x:Key="SubHeaderTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="26" />
-        <Setter Property="FontWeight" Value="SemiLight" />
-        <Setter Property="Foreground" Value="{ThemeResource PhoneForegroundBrush}" />
-    </Style>
-
-    <Style x:Key="TitleTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="20" />
-        <Setter Property="Foreground" Value="{ThemeResource PhoneForegroundBrush}" />
-    </Style>
-
-    <Style x:Key="BodyTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="Foreground" Value="{ThemeResource PhoneMidBrush}" />
-    </Style>
-
-    <!-- ListView Item Style -->
-    <Style x:Key="AlbumListItemStyle" TargetType="ListViewItem">
-        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="Padding" Value="0,8" />
-    </Style>
-
-    <!-- Button Styles -->
-    <Style x:Key="PlayButtonStyle" TargetType="Button">
-        <Setter Property="Background" Value="{ThemeResource PhoneAccentBrush}" />
-        <Setter Property="Foreground" Value="White" />
-        <Setter Property="Padding" Value="20,10" />
-        <Setter Property="FontSize" Value="16" />
-    </Style>
-
-    <!-- Settings Styles -->
     <Style x:Key="SettingsTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="17" />
         <Setter Property="Margin" Value="0,12,0,4" />
-        <Setter Property="Foreground" Value="{ThemeResource PhoneForegroundBrush}" />
+        <Setter Property="Foreground" Value="White" />
     </Style>
 
-    <Style x:Key="SettingsTextBoxStyle" TargetType="TextBox">
+    <Style x:Key="MixRadioPhoneTextBoxStyle" TargetType="TextBox">
+        <Setter Property="MinHeight" Value="52" />
+        <Setter Property="Background" Value="{StaticResource MixRadioPanelBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderBrush" Value="{StaticResource MixRadioTealBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,3" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="FontSize" Value="18" />
+    </Style>
+
+    <Style x:Key="MixRadioPhonePasswordBoxStyle" TargetType="PasswordBox">
+        <Setter Property="MinHeight" Value="52" />
+        <Setter Property="Background" Value="{StaticResource MixRadioPanelBrush}" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="BorderBrush" Value="{StaticResource MixRadioTealBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,0,3" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="FontSize" Value="18" />
+    </Style>
+
+    <Style x:Key="MixRadioSearchTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource MixRadioPhoneTextBoxStyle}">
+        <Setter Property="MinHeight" Value="52" />
+        <Setter Property="Background" Value="{StaticResource MixRadioTealBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource MixRadioTealBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Margin" Value="0" />
+    </Style>
+
+    <Style x:Key="SettingsTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource MixRadioPhoneTextBoxStyle}">
         <Setter Property="Margin" Value="0,0,0,8" />
     </Style>
 
+    <Style x:Key="SettingsPasswordBoxStyle" TargetType="PasswordBox" BasedOn="{StaticResource MixRadioPhonePasswordBoxStyle}">
+        <Setter Property="Margin" Value="0,0,0,8" />
+    </Style>
 </ResourceDictionary>

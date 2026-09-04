@@ -15,6 +15,24 @@
         <DataTemplate x:Key="MenuItemTemplate">
             <ContentControl caliburn:View.Model="{Binding}" />
         </DataTemplate>
+        <CollectionViewSource x:Name="GroupedMenuItemsSource"
+                              IsSourceGrouped="True"
+                              Source="{Binding GroupedMenuItems}" />
+        <DataTemplate x:Key="LetterHeaderTemplate">
+            <Border Width="132"
+                    Height="34"
+                    Margin="0,0,0,14"
+                    HorizontalAlignment="Left"
+                    BorderBrush="{StaticResource MixRadioAccentBrush}"
+                    BorderThickness="2">
+                <TextBlock Text="{Binding Key}"
+                           Margin="8,0,0,0"
+                           VerticalAlignment="Center"
+                           Foreground="{StaticResource MixRadioAccentBrush}"
+                           FontFamily="Segoe UI Light"
+                           FontSize="20" />
+            </Border>
+        </DataTemplate>
     </UserControl.Resources>
 
     <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
@@ -51,14 +69,19 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="32" />
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Find artists, music or gigs"
-                       Margin="10,0,0,1"
-                       Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                       FontSize="12"
-                       VerticalAlignment="Center"
-                       TextTrimming="WordEllipsis" />
+            <TextBox x:Name="SearchInput"
+                     Margin="0"
+                     Padding="10,2,0,0"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                     PlaceholderText="Find artists, music or gigs"
+                     FontSize="12"
+                     VerticalAlignment="Stretch"
+                     KeyUp="OnSearchInputKeyUp" />
             <Border Grid.Column="1"
-                    Background="{StaticResource MixRadioAccentBrush}">
+                    Background="{StaticResource MixRadioAccentBrush}"
+                    Tapped="OnSearchTapped">
                 <TextBlock Text="&#xE11A;"
                            FontFamily="Segoe UI Symbol"
                            FontSize="14"
@@ -228,6 +251,28 @@
                    HorizontalAlignment="Left"
                    VerticalAlignment="Top" />
 
+        <GridView x:Name="GroupedItems"
+                  Grid.Row="1"
+                  Grid.Column="1"
+                  Margin="0"
+                  Padding="0,52,88,46"
+                  SelectionMode="Multiple"
+                  ItemTemplate="{StaticResource MenuItemTemplate}"
+                  Visibility="{Binding ShowGroupedItems, Converter={StaticResource BooleanToVisibilityConverter}}"
+                  behaviors:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
+                  IsItemClickEnabled="True" caliburn:Message.Attach="[Event ItemClick] = [ChildClick($eventArgs)]"
+                  ItemsSource="{Binding Source={StaticResource GroupedMenuItemsSource}}">
+            <GridView.GroupStyle>
+                <GroupStyle HeaderTemplate="{StaticResource LetterHeaderTemplate}">
+                    <GroupStyle.Panel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Vertical" MaximumRowsOrColumns="1" />
+                        </ItemsPanelTemplate>
+                    </GroupStyle.Panel>
+                </GroupStyle>
+            </GridView.GroupStyle>
+        </GridView>
+
         <GridView x:Name="MenuItems"
                   Grid.Row="1"
                   Grid.Column="1"
@@ -235,9 +280,9 @@
                   Padding="0,52,88,46"
                   SelectionMode="Multiple"
                   ItemTemplate="{StaticResource MenuItemTemplate}"
-                  Visibility="{Binding HasItems, Converter={StaticResource BooleanToVisibilityConverter}}"
+                  Visibility="{Binding ShowFlatItems, Converter={StaticResource BooleanToVisibilityConverter}}"
                   behaviors:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                  IsItemClickEnabled="True" caliburn:Message.Attach="[Event ItemClick] = [ChildClick($eventArgs)]">
+                  IsItemClickEnabled="True" caliburn:Message.Attach="[Event ItemClick] = [ChildClick($eventargs)]">
             <GridView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <VariableSizedWrapGrid Orientation="Vertical" MaximumRowsOrColumns="2" />

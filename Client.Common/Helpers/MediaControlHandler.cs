@@ -32,7 +32,7 @@
         {
             _eventAggregator.Subscribe(this);
             _mediaTransportControls = SystemMediaTransportControls.GetForCurrentView();
-            _mediaTransportControls.DisplayUpdater.AppMediaId = "Subsonic8";
+            _mediaTransportControls.DisplayUpdater.AppMediaId = "MixRadio";
             _mediaTransportControls.IsPlayEnabled = true;
             _mediaTransportControls.IsPauseEnabled = true;
             _mediaTransportControls.IsStopEnabled = true;

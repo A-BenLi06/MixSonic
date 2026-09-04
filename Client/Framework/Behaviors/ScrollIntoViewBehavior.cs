@@ -5,7 +5,7 @@
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
 
-    public class ScrollIntoViewBehavior : Behavior<ListView>
+    public class ScrollIntoViewBehavior : Behavior<ListViewBase>
     {
         #region Static Fields
 

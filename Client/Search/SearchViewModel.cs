@@ -22,7 +22,7 @@ namespace Subsonic8.Search
         public SearchViewModel()
         {
             State = SearchResultState.NoResultsFound;
-            UpdateDisplayName = () => DisplayName = string.Format("Searched for: \"{0}\"", Parameter ?? string.Empty);
+            UpdateDisplayName = () => DisplayName = "search";
         }
 
         #endregion
@@ -34,6 +34,16 @@ namespace Subsonic8.Search
             get
             {
                 return (from item in MenuItems group item by item.Type into gr orderby gr.Key select gr).ToList();
+            }
+        }
+
+        public string SearchQueryCaption
+        {
+            get
+            {
+                return string.IsNullOrWhiteSpace(Parameter)
+                           ? "Find artists, albums, and songs."
+                           : string.Format("\"{0}\"", Parameter);
             }
         }
 
@@ -58,6 +68,7 @@ namespace Subsonic8.Search
         public override async Task Populate()
         {
             State = SearchResultState.Busy;
+            NotifyOfPropertyChange(() => SearchQueryCaption);
             await base.Populate();
         }
 
@@ -77,9 +88,6 @@ namespace Subsonic8.Search
             var models = new List<IMediaModel>();
             if (result != null)
             {
-                RemoveCoverArt(result.Artists);
-                RemoveCoverArt(result.Albums);
-
                 models.AddRange(result.Artists);
                 models.AddRange(result.Albums);
                 models.AddRange(result.Songs);
@@ -91,14 +99,6 @@ namespace Subsonic8.Search
         protected override IServiceResultBase<SearchResultCollection> GetResult(string parameter)
         {
             return SubsonicService.Search(parameter);
-        }
-
-        private static void RemoveCoverArt(IEnumerable<IMediaModel> menuItemViewModels)
-        {
-            foreach (var menuItemViewModel in menuItemViewModels)
-            {
-                menuItemViewModel.CoverArt = null;
-            }
         }
 
         #endregion

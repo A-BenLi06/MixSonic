@@ -6,7 +6,35 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <TextBlock Text="No results were found..." Style="{StaticResource PageSubheaderTextStyle}" Margin="0,-3,0,0"
-               Padding="116,0,116,46" />
+    <Grid Margin="116,34,116,46">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Rectangle Width="96"
+                   Height="5"
+                   Fill="{StaticResource MixRadioAccentBrush}"
+                   HorizontalAlignment="Left" />
+        <TextBlock Grid.Row="1"
+                   Text="no results"
+                   Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                   FontFamily="Segoe UI Light"
+                   FontSize="48"
+                   Margin="0,20,0,0" />
+        <TextBlock Grid.Row="2"
+                   Text="{Binding SearchQueryCaption}"
+                   Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                   FontFamily="Segoe UI Light"
+                   FontSize="24"
+                   Margin="0,6,0,0"
+                   TextTrimming="WordEllipsis" />
+        <TextBlock Grid.Row="3"
+                   Text="Try another artist, album, song, or genre."
+                   Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                   FontSize="18"
+                   Margin="0,18,0,0" />
+    </Grid>
 
 </ContentControl>

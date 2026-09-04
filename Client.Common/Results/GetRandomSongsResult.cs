@@ -19,27 +19,40 @@
         {
             get
             {
-                return "getRandomSongs.view ";
+                return "getRandomSongs.view";
             }
         }
 
         public int NumberOfSongs { get; private set; }
 
+        public override string RequestUrl
+        {
+            get
+            {
+                return string.Format("{0}&size={1}", base.RequestUrl, NumberOfSongs);
+            }
+        }
+
         public override void HandleResponse(XDocument xDocument)
         {
+            var response = xDocument.Element(Namespace + "subsonic-response");
+            var randomSongsElement = response?.Element(Namespace + "randomSongs");
+            if (randomSongsElement == null)
+            {
+                Result = new List<Song>();
+                return;
+            }
+
             var xmlSerializer = new XmlSerializer(typeof(Song));
-            Result =
-                xDocument.Element(Namespace + "subsonic-response")
-                         .Element(Namespace + "randomSongs")
-                         .Descendants(Namespace + "song")
-                         .Select(
-                             song =>
-                             {
-                                 using (var xmlReader = song.CreateReader())
-                                 {
-                                     return (Song)xmlSerializer.Deserialize(xmlReader);
-                                 }
-                             }).ToList();
+            Result = randomSongsElement.Elements(Namespace + "song")
+                .Select(
+                    song =>
+                    {
+                        using (var xmlReader = song.CreateReader())
+                        {
+                            return (Song)xmlSerializer.Deserialize(xmlReader);
+                        }
+                    }).ToList();
         }
     }
 }

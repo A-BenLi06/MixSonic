@@ -31,7 +31,7 @@
         {
             get
             {
-                return string.Format("{0}&query={1}", base.RequestUrl, Uri.EscapeUriString(_query));
+                return string.Format("{0}&query={1}", base.RequestUrl, Uri.EscapeDataString(_query ?? string.Empty));
             }
         }
 
@@ -39,7 +39,7 @@
         {
             get
             {
-                return "search3.view ";
+                return "search3.view";
             }
         }
 
@@ -51,17 +51,21 @@
         {
             var xmlSerializer = new XmlSerializer(
                 typeof(SearchResultCollection), new[] { typeof(ExpandedArtist), typeof(Album), typeof(Song) });
-            Result =
-                xDocument.Element(Namespace + "subsonic-response")
-                         .Descendants(Namespace + "searchResult3")
-                         .Select(
-                             searchResult =>
-                                 {
-                                     using (var xmlReader = searchResult.CreateReader())
-                                     {
-                                         return (SearchResultCollection)xmlSerializer.Deserialize(xmlReader);
-                                     }
-                                 }).Single();
+            var searchResultElement = xDocument.Element(Namespace + "subsonic-response")
+                .Descendants(Namespace + "searchResult3")
+                .FirstOrDefault();
+
+            if (searchResultElement == null)
+            {
+                Result = new SearchResultCollection();
+            }
+            else
+            {
+                using (var xmlReader = searchResultElement.CreateReader())
+                {
+                    Result = (SearchResultCollection)xmlSerializer.Deserialize(xmlReader);
+                }
+            }
 
             Result.Query = _query;
         }

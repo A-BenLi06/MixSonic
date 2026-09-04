@@ -24,7 +24,7 @@
 
         protected ViewModelBase()
         {
-            UpdateDisplayName = () => DisplayName = "Subsonic8";
+            UpdateDisplayName = () => DisplayName = "MixRadio";
         }
 
         #endregion

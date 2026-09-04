@@ -7,54 +7,54 @@
     </ResourceDictionary.MergedDictionaries>
 
     <SolidColorBrush x:Key="LightToggleSwitchCurtainBackgroundThemeBrush"
-                     Color="{StaticResource SystemColorHighlightColor}" />
+                     Color="{StaticResource MixRadioAccentColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchCurtainDisabledBackgroundThemeBrush"
                      Color="{StaticResource SystemColorButtonFaceColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchCurtainPointerOverBackgroundThemeBrush"
-                     Color="{StaticResource SystemColorHighlightColor}" />
+                     Color="{StaticResource MixRadioAccentColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchCurtainPressedBackgroundThemeBrush"
-                     Color="{StaticResource SystemColorHighlightColor}" />
+                     Color="{StaticResource MixRadioAccentDarkColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchDisabledForegroundThemeBrush"
                      Color="{StaticResource SystemColorGrayTextColor}" />
-    <SolidColorBrush x:Key="LightToggleSwitchForegroundThemeBrush" Color="{StaticResource SystemColorButtonTextColor}" />
+    <SolidColorBrush x:Key="LightToggleSwitchForegroundThemeBrush" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="LightToggleSwitchHeaderDisabledForegroundThemeBrush"
                      Color="{StaticResource SystemColorGrayTextColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchHeaderForegroundThemeBrush"
-                     Color="{StaticResource SystemColorButtonTextColor}" />
+                     Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="LightToggleSwitchOuterBorderBorderThemeBrush"
-                     Color="{StaticResource SystemColorButtonTextColor}" />
+                     Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="LightToggleSwitchOuterBorderDisabledBorderThemeBrush"
                      Color="{StaticResource SystemColorGrayTextColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchThumbBackgroundThemeBrush"
-                     Color="{StaticResource SystemColorButtonTextColor}" />
-    <SolidColorBrush x:Key="LightToggleSwitchThumbBorderThemeBrush" Color="{StaticResource SystemColorButtonTextColor}" />
+                     Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="LightToggleSwitchThumbBorderThemeBrush" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="LightToggleSwitchThumbDisabledBackgroundThemeBrush"
                      Color="{StaticResource SystemColorGrayTextColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchThumbDisabledBorderThemeBrush"
                      Color="{StaticResource SystemColorGrayTextColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchThumbPointerOverBackgroundThemeBrush"
-                     Color="{StaticResource SystemColorHighlightColor}" />
+                     Color="{StaticResource MixRadioAccentColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchThumbPointerOverBorderThemeBrush"
-                     Color="{StaticResource SystemColorButtonTextColor}" />
+                     Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="LightToggleSwitchThumbPressedBackgroundThemeBrush"
-                     Color="{StaticResource SystemColorButtonFaceColor}" />
+                     Color="{StaticResource MixRadioPanelAltColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchThumbPressedForegroundThemeBrush"
-                     Color="{StaticResource SystemColorButtonTextColor}" />
+                     Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="LightToggleSwitchTrackBackgroundThemeBrush"
-                     Color="{StaticResource SystemColorButtonFaceColor}" />
+                     Color="#FF171717" />
     <SolidColorBrush x:Key="LightToggleSwitchTrackBorderThemeBrush" Color="Transparent" />
     <SolidColorBrush x:Key="LightToggleSwitchTrackDisabledBackgroundThemeBrush"
-                     Color="{StaticResource SystemColorButtonFaceColor}" />
+                     Color="#FF242424" />
     <SolidColorBrush x:Key="LightToggleSwitchTrackPointerOverBackgroundThemeBrush"
                      Color="{StaticResource SystemColorButtonFaceColor}" />
     <SolidColorBrush x:Key="LightToggleSwitchTrackPressedBackgroundThemeBrush"
-                     Color="{StaticResource SystemColorButtonFaceColor}" />
-    <SolidColorBrush x:Key="LightButtonBackgroundThemeBrush" Color="#B3B6B6B6" />
-    <SolidColorBrush x:Key="LightButtonForegroundThemeBrush" Color="#FF000000" />
-    <SolidColorBrush x:Key="LightButtonBorderThemeBrush" Color="#33000000" />
-    <SolidColorBrush x:Key="LightButtonPointerOverBackgroundThemeBrush" Color="#D1CDCDCD" />
-    <SolidColorBrush x:Key="LightButtonPointerOverForegroundThemeBrush" Color="#FF000000" />
-    <SolidColorBrush x:Key="LightButtonPressedBackgroundThemeBrush" Color="#FF000000" />
+                     Color="#FF171717" />
+    <SolidColorBrush x:Key="LightButtonBackgroundThemeBrush" Color="{StaticResource MixRadioAccentColor}" />
+    <SolidColorBrush x:Key="LightButtonForegroundThemeBrush" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="LightButtonBorderThemeBrush" Color="Transparent" />
+    <SolidColorBrush x:Key="LightButtonPointerOverBackgroundThemeBrush" Color="{StaticResource MixRadioAccentDarkColor}" />
+    <SolidColorBrush x:Key="LightButtonPointerOverForegroundThemeBrush" Color="#FFFFFFFF" />
+    <SolidColorBrush x:Key="LightButtonPressedBackgroundThemeBrush" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="LightButtonPressedForegroundThemeBrush" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="LightButtonDisabledBackgroundThemeBrush" Color="#66CACACA" />
     <SolidColorBrush x:Key="LightButtonDisabledBorderThemeBrush" Color="#1A000000" />
@@ -512,4 +512,3 @@
         </Setter>
     </Style>
 </ResourceDictionary>
-

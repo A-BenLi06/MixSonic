@@ -11,6 +11,26 @@
     public abstract class PlaylistViewModelBase : CollectionViewModelBase<object, PlaylistCollection>,
                                                   IPlaylistViewModel
     {
+        #region Public Properties
+
+        public override string EmptyStateSubtitle
+        {
+            get
+            {
+                return "Save the current queue as a remote playlist, then load it from any Navidrome client.";
+            }
+        }
+
+        public override string EmptyStateTitle
+        {
+            get
+            {
+                return "No remote playlists";
+            }
+        }
+
+        #endregion
+
         #region Methods
 
         protected override IEnumerable<IMediaModel> GetItemsToDisplay(PlaylistCollection result)

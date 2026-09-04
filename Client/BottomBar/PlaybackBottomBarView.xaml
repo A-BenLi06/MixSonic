@@ -10,12 +10,19 @@
         <cal:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
     </UserControl.Resources>
 
-    <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-            <Button Style="{StaticResource RemoveAppBarButtonStyle}"
-                    cal:Message.Attach="[Event Click] = [Action RemoveFromPlaylist()]"
-                    Visibility="{Binding CanRemoveFromPlaylist, Converter={StaticResource VisibilityConverter}}" />
-        </StackPanel>
-        <bottomBar:CommonButtons/>
+    <Grid Background="#F2000000">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Rectangle Fill="{StaticResource MixRadioAccentBrush}" Opacity="0.82" />
+        <Grid Grid.Row="1" Margin="88,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Button Style="{StaticResource RemoveAppBarButtonStyle}"
+                        cal:Message.Attach="[Event Click] = [Action RemoveFromPlaylist()]"
+                        Visibility="{Binding CanRemoveFromPlaylist, Converter={StaticResource VisibilityConverter}}" />
+            </StackPanel>
+            <bottomBar:CommonButtons VerticalAlignment="Center"/>
+        </Grid>
     </Grid>
 </UserControl>

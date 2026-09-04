@@ -43,7 +43,7 @@
 
         public ShellViewModel()
         {
-            DisplayName = "Subsonic8";
+            DisplayName = "MixRadio";
         }
 
         #endregion

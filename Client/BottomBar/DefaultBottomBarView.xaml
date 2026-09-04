@@ -8,19 +8,26 @@
     <Page.Resources>
         <cal:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
     </Page.Resources>
-    <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-            <Button Style="{StaticResource AddAllAppBarButtonStyle}"
-                    cal:Message.Attach="[Event Click] = [Action AddToPlaylist()]"
-                    Visibility="{Binding CanAddToPlaylist, Converter={StaticResource VisibilityConverter}}" />
-            <Button Style="{StaticResource PlayAllAppBarButtonStyle}"
-                    cal:Message.Attach="[Event Click] = [Action PlayAll()]"
-                    Visibility="{Binding CanAddToPlaylist, Converter={StaticResource VisibilityConverter}}" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-            <bottomBar:CommonButtons/>
-            <Button Style="{StaticResource ListAppBarButtonStyle}"
-                    cal:Message.Attach="[Event Click] = [Action NavigateToPlaylist()]" />
-        </StackPanel>
+    <Grid Background="#F2000000">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Rectangle Fill="{StaticResource MixRadioAccentBrush}" Opacity="0.82" />
+        <Grid Grid.Row="1" Margin="88,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Button Style="{StaticResource AddAllAppBarButtonStyle}"
+                        cal:Message.Attach="[Event Click] = [Action AddToPlaylist()]"
+                        Visibility="{Binding CanAddToPlaylist, Converter={StaticResource VisibilityConverter}}" />
+                <Button Style="{StaticResource PlayAllAppBarButtonStyle}"
+                        cal:Message.Attach="[Event Click] = [Action PlayAll()]"
+                        Visibility="{Binding CanAddToPlaylist, Converter={StaticResource VisibilityConverter}}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <bottomBar:CommonButtons/>
+                <Button Style="{StaticResource ListAppBarButtonStyle}"
+                        cal:Message.Attach="[Event Click] = [Action NavigateToPlaylist()]" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>

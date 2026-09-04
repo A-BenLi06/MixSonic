@@ -16,6 +16,26 @@ namespace Client.Common.Models
 
         Folder, 
 
-        Playlist
+        Playlist,
+
+        Genre,
+
+        LibraryAlbums,
+
+        LibraryArtists,
+
+        LibraryGenres,
+
+        LibraryRandomSongs,
+
+        LibraryPlaylists,
+
+        LibraryFavourites,
+
+        LibraryRadio,
+
+        InternetRadioStation,
+
+        LibraryNowPlaying
     }
 }

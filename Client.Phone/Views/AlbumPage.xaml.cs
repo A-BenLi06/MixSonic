@@ -13,6 +13,7 @@ namespace Subsonic8.Phone.Views
     using Windows.UI.Popups;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Media.Imaging;
     using Windows.UI.Xaml.Navigation;
 
     public sealed partial class AlbumPage : Page
@@ -27,6 +28,8 @@ namespace Subsonic8.Phone.Views
         private TextBlock _artistNameText;
         private TextBlock _songCountText;
         private ListView _songListView;
+        private Image _albumArtImage;
+        private Image _albumBackgroundImage;
 
         public ObservableCollection<SongDisplayItem> Songs { get; set; }
 
@@ -42,6 +45,8 @@ namespace Subsonic8.Phone.Views
             _artistNameText = FindName("ArtistNameText") as TextBlock;
             _songCountText = FindName("SongCountText") as TextBlock;
             _songListView = FindName("SongListView") as ListView;
+            _albumArtImage = FindName("AlbumArtImage") as Image;
+            _albumBackgroundImage = FindName("AlbumBackgroundImage") as Image;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -192,6 +197,9 @@ namespace Subsonic8.Phone.Views
                     _album = result.Result;
                     if (_albumNameText != null) _albumNameText.Text = _album.Name ?? "Unknown Album";
                     if (_artistNameText != null) _artistNameText.Text = _album.Artist ?? "Unknown Artist";
+                    var coverArt = _subsonicService.GetCoverArtForId(_album.CoverArt, ImageType.Original);
+                    SetImageSource(_albumArtImage, coverArt);
+                    SetImageSource(_albumBackgroundImage, coverArt);
 
                     Songs.Clear();
                     if (_album.Songs != null)
@@ -223,6 +231,19 @@ namespace Subsonic8.Phone.Views
             {
                 if (_loadingIndicator != null) _loadingIndicator.IsActive = false;
             }
+        }
+
+        private static void SetImageSource(Image image, string source)
+        {
+            if (image == null || string.IsNullOrEmpty(source))
+            {
+                return;
+            }
+
+            var uriKind = source.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                              ? UriKind.Absolute
+                              : UriKind.Relative;
+            image.Source = new BitmapImage(new Uri(source, uriKind));
         }
 
         private string FormatDuration(int seconds)
@@ -284,5 +305,6 @@ namespace Subsonic8.Phone.Views
         public int Duration { get; set; }
         public string DurationString { get; set; }
         public string CoverArt { get; set; }
+        public string StreamUrl { get; set; }
     }
 }

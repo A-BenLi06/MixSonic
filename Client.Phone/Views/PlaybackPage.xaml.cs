@@ -11,7 +11,6 @@ namespace Subsonic8.Phone.Views
     using Windows.Foundation.Collections;
     using Windows.Media.Playback;
     using Windows.Phone.UI.Input;
-    using Windows.Storage;
     using Windows.UI.Core;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
@@ -80,7 +79,7 @@ namespace Subsonic8.Phone.Views
             base.OnNavigatedTo(e);
             HardwareButtons.BackPressed += OnHardwareBackPressed;
 
-            InitializeService();
+            await InitializeService();
 
             // Subscribe to background audio events
             BackgroundMediaPlayer.MessageReceivedFromBackground += OnMessageReceivedFromBackground;
@@ -129,27 +128,21 @@ namespace Subsonic8.Phone.Views
             }
         }
 
-        private void InitializeService()
+        private async Task InitializeService()
         {
-            var settings = ApplicationData.Current.LocalSettings;
-            var baseUrl = settings.Values.ContainsKey("BaseUrl") ? settings.Values["BaseUrl"] as string : "";
-            var username = settings.Values.ContainsKey("Username") ? settings.Values["Username"] as string : "";
-            var password = settings.Values.ContainsKey("Password") ? settings.Values["Password"] as string : "";
-            var compatibleMode = settings.Values.ContainsKey("CompatibleMode") && (bool)settings.Values["CompatibleMode"];
-
-            _subsonicService = new WP8SubsonicService();
-            _subsonicService.Configure(baseUrl, username, password);
-            _subsonicService.CompatibleMode = compatibleMode;
+            _subsonicService = await PhoneSubsonicServiceFactory.CreatePlaybackServiceAsync();
         }
 
-        private async Task StartBackgroundPlayback(List<SongDisplayItem> playlist, int startIndex)
+        private Task StartBackgroundPlayback(List<SongDisplayItem> playlist, int startIndex)
         {
             // Convert to TrackInfo list
             var tracks = new List<TrackInfo>();
             foreach (var item in playlist)
             {
-                var url = _subsonicService.GetStreamUri(item.Id).ToString();
-                var coverUrl = !string.IsNullOrEmpty(item.CoverArt) ? _subsonicService.GetCoverArtUrl(item.CoverArt) : "";
+                var url = !string.IsNullOrEmpty(item.StreamUrl)
+                              ? item.StreamUrl
+                              : _subsonicService.GetStreamUri(item.Id).ToString();
+                var coverUrl = GetCoverArtUrl(item.CoverArt);
 
                 tracks.Add(new TrackInfo
                 {
@@ -185,6 +178,8 @@ namespace Subsonic8.Phone.Views
             startMessage.Add(BackgroundAudioMessages.StartPlayback, "");
             startMessage.Add(BackgroundAudioMessages.CurrentIndex, startIndex);
             BackgroundMediaPlayer.SendMessageToBackground(startMessage);
+
+            return Task.FromResult(true);
         }
 
         private async void OnMessageReceivedFromBackground(object sender, MediaPlayerDataReceivedEventArgs e)
@@ -231,7 +226,7 @@ namespace Subsonic8.Phone.Views
             // Update Image
             if (!string.IsNullOrEmpty(song.CoverArt) && _albumArtImage != null)
             {
-                var coverUrl = _subsonicService.GetCoverArtUrl(song.CoverArt);
+                var coverUrl = GetCoverArtUrl(song.CoverArt);
                 var image = new BitmapImage(new Uri(coverUrl));
                 _albumArtImage.Source = image;
                 if (_backgroundImage != null) _backgroundImage.Source = image;
@@ -256,6 +251,18 @@ namespace Subsonic8.Phone.Views
             var minutes = (int)(totalSeconds / 60);
             var seconds = (int)(totalSeconds % 60);
             return string.Format("{0}:{1:D2}", minutes, seconds);
+        }
+
+        private string GetCoverArtUrl(string coverArt)
+        {
+            if (string.IsNullOrEmpty(coverArt))
+            {
+                return string.Empty;
+            }
+
+            return coverArt.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                       ? coverArt
+                       : _subsonicService.GetCoverArtUrl(coverArt);
         }
 
         private void OnProgressTimerTick(object sender, object e)

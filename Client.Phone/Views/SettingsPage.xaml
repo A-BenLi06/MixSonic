@@ -5,85 +5,136 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Page.BottomAppBar>
+        <CommandBar Background="{StaticResource MixRadioCommandBarBrush}" Foreground="White">
+            <AppBarButton Icon="Save" Label="save" Click="OnSaveClick" />
+            <AppBarButton Icon="Sync" Label="test" Click="OnTestConnectionClick" />
+        </CommandBar>
+    </Page.BottomAppBar>
 
-        <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="24,17,24,28">
-            <TextBlock Text="SUBSONIC8" Style="{StaticResource BodyTextStyle}" />
-            <TextBlock Text="Settings" Style="{StaticResource HeaderTextStyle}" />
-        </StackPanel>
+    <Grid Background="Black">
+        <Image Source="/Assets/CoverArtPlaceholderLarge.jpg"
+               Stretch="UniformToFill"
+               Opacity="0.46" />
+        <Rectangle Fill="#66000000" />
+        <Rectangle>
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#11000000" Offset="0" />
+                    <GradientStop Color="#88000000" Offset="0.45" />
+                    <GradientStop Color="#FF000000" Offset="1" />
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
 
-        <!-- Settings Content -->
-        <ScrollViewer Grid.Row="1" Margin="24,0">
-            <StackPanel>
-                <!-- Primary URL -->
-                <TextBlock Text="Primary URL" Style="{StaticResource SettingsTextStyle}" />
-                <TextBox x:Name="PrimaryUrlTextBox" 
-                         PlaceholderText="e.g. http://192.168.1.100:4040"
-                         Style="{StaticResource SettingsTextBoxStyle}" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-                <!-- Secondary URL -->
-                <TextBlock Text="Secondary URL" Style="{StaticResource SettingsTextStyle}" />
-                <TextBox x:Name="SecondaryUrlTextBox" 
-                         PlaceholderText="e.g. https://music.example.com"
-                         Style="{StaticResource SettingsTextBoxStyle}" />
-
-                <!-- URL Validation Message -->
-                <TextBlock x:Name="UrlValidationMessage" 
-                           Foreground="Red" 
-                           Visibility="Collapsed"
-                           Text="At least one URL is required"
-                           Margin="0,0,0,8" />
-
-                <!-- Username -->
-                <TextBlock Text="Username" Style="{StaticResource SettingsTextStyle}" />
-                <TextBox x:Name="UsernameTextBox" 
-                         PlaceholderText="Enter username"
-                         Style="{StaticResource SettingsTextBoxStyle}" />
-
-                <!-- Password -->
-                <TextBlock Text="Password" Style="{StaticResource SettingsTextStyle}" />
-                <PasswordBox x:Name="PasswordBox" 
-                             PlaceholderText="Enter password"
-                             Margin="0,0,0,8" />
-
-                <!-- Compatible Mode -->
-                <ToggleSwitch x:Name="CompatibleModeToggle"
-                              Header="Compatible Mode"
-                              OffContent="Off"
-                              OnContent="On"
-                              Margin="0,12,0,0" />
-                <TextBlock Text="Transcode lossless audio to MP3 320kbps for better compatibility"
-                           Style="{StaticResource BodyTextStyle}"
-                           TextWrapping="Wrap"
-                           Margin="0,0,0,24" />
-
-                <!-- Save Button -->
-                <Button Content="Save Settings"
-                        Style="{StaticResource PlayButtonStyle}"
-                        HorizontalAlignment="Stretch"
-                        Click="OnSaveClick"
-                        Margin="0,12,0,0" />
-
-                <!-- Test Connection Button -->
-                <Button Content="Test Connection"
-                        HorizontalAlignment="Stretch"
-                        Click="OnTestConnectionClick"
-                        Margin="0,12,0,24" />
-
-                <!-- Connection Status -->
-                <TextBlock x:Name="StatusText"
-                           Text=""
-                           Style="{StaticResource BodyTextStyle}"
-                           TextWrapping="Wrap"
-                           Margin="0,0,0,24" />
+            <StackPanel Grid.Row="0" Margin="12,10,12,22">
+                <TextBlock Text="MixRadio"
+                           Style="{StaticResource MixRadioWordmarkTextStyle}" />
+                <StackPanel Orientation="Horizontal" Margin="1,-4,0,12">
+                    <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
+                        <TextBlock Text="&#xE115;"
+                                   Style="{StaticResource MixRadioSectionIconTextStyle}" />
+                    </Border>
+                    <TextBlock Text="navidrome"
+                               Style="{StaticResource BodyTextStyle}"
+                               Foreground="White"
+                               Margin="7,-1,0,0" />
+                </StackPanel>
+                <TextBlock Text="settings"
+                           FontSize="42"
+                           FontWeight="Light"
+                           Foreground="White" />
+                <Border Height="4"
+                        Width="64"
+                        Background="{StaticResource MixRadioAccentBrush}"
+                        HorizontalAlignment="Left"
+                        Margin="0,16,0,0" />
             </StackPanel>
-        </ScrollViewer>
+
+            <ScrollViewer Grid.Row="1" Margin="12,0,12,0">
+                <StackPanel Margin="0,0,0,96">
+                    <TextBlock Text="server"
+                               FontSize="24"
+                               FontWeight="Light"
+                               Foreground="{StaticResource MixRadioTealBrush}"
+                               Margin="0,0,0,6" />
+
+                    <TextBlock Text="Primary URL" Style="{StaticResource SettingsTextStyle}" />
+                    <TextBox x:Name="PrimaryUrlTextBox"
+                             PlaceholderText="http://192.168.1.100:4533"
+                             Style="{StaticResource SettingsTextBoxStyle}" />
+
+                    <TextBlock Text="Secondary URL" Style="{StaticResource SettingsTextStyle}" />
+                    <TextBox x:Name="SecondaryUrlTextBox"
+                             PlaceholderText="https://music.example.com"
+                             Style="{StaticResource SettingsTextBoxStyle}" />
+
+                    <TextBlock x:Name="UrlValidationMessage"
+                               Foreground="{StaticResource MixRadioAccentBrush}"
+                               Visibility="Collapsed"
+                               Text="At least one URL is required."
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,8" />
+
+                    <TextBlock Text="account"
+                               FontSize="24"
+                               FontWeight="Light"
+                               Foreground="{StaticResource MixRadioYellowBrush}"
+                               Margin="0,20,0,6" />
+
+                    <TextBlock Text="Username" Style="{StaticResource SettingsTextStyle}" />
+                    <TextBox x:Name="UsernameTextBox"
+                             PlaceholderText="Username"
+                             Style="{StaticResource SettingsTextBoxStyle}" />
+
+                    <TextBlock Text="Password" Style="{StaticResource SettingsTextStyle}" />
+                    <PasswordBox x:Name="PasswordBox"
+                                 PlaceholderText="Password"
+                                 Style="{StaticResource SettingsPasswordBoxStyle}" />
+
+                    <TextBlock Text="playback"
+                               FontSize="24"
+                               FontWeight="Light"
+                               Foreground="{StaticResource MixRadioAccentBrush}"
+                               Margin="0,20,0,6" />
+
+                    <ToggleSwitch x:Name="CompatibleModeToggle"
+                                  Header="Compatible Mode"
+                                  OffContent="Off"
+                                  OnContent="On"
+                                  Margin="0,8,0,0" />
+                    <TextBlock Text="Transcode lossless audio to MP3 320kbps for better compatibility."
+                               Style="{StaticResource BodyTextStyle}"
+                               TextWrapping="Wrap"
+                               Margin="0,0,0,18" />
+
+                    <Border Background="#33000000"
+                            Margin="0,8,0,24">
+                        <Grid MinHeight="58">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="4" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Rectangle Fill="{StaticResource MixRadioAccentBrush}" />
+                            <TextBlock x:Name="StatusText"
+                                       Grid.Column="1"
+                                       Text="Use the bottom bar to save or test the connection."
+                                       Style="{StaticResource BodyTextStyle}"
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center"
+                                       Margin="14,10,10,10" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Page>

@@ -11,7 +11,7 @@
         <cal:BooleanToVisibilityConverter x:Key="VisibilityConverter" />
     </UserControl.Resources>
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,8,0">
         <Button Style="{StaticResource ClearSelectionAppBarButtonStyle}"
                     cal:Message.Attach="[Event Click] = [Action ClearSelection]" Visibility="{Binding Path=SelectionExists, Converter={StaticResource VisibilityConverter}}"/>
         <bottomBar:PlaybackControlsView />

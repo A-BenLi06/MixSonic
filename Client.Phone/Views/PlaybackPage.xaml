@@ -7,178 +7,202 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <!-- Fade Out Animation -->
         <Storyboard x:Name="FadeOutStoryboard">
-            <DoubleAnimation 
-                Storyboard.TargetName="SongInfoPanel"
-                Storyboard.TargetProperty="Opacity"
-                From="1" To="0" Duration="0:0:0.15"/>
-            <DoubleAnimation 
-                Storyboard.TargetName="AlbumArtBorder"
-                Storyboard.TargetProperty="Opacity"
-                From="1" To="0" Duration="0:0:0.15"/>
+            <DoubleAnimation Storyboard.TargetName="SongInfoPanel"
+                             Storyboard.TargetProperty="Opacity"
+                             From="1"
+                             To="0"
+                             Duration="0:0:0.15" />
+            <DoubleAnimation Storyboard.TargetName="AlbumArtBorder"
+                             Storyboard.TargetProperty="Opacity"
+                             From="1"
+                             To="0"
+                             Duration="0:0:0.15" />
         </Storyboard>
-        
-        <!-- Fade In Animation -->
+
         <Storyboard x:Name="FadeInStoryboard">
-            <DoubleAnimation 
-                Storyboard.TargetName="SongInfoPanel"
-                Storyboard.TargetProperty="Opacity"
-                From="0" To="1" Duration="0:0:0.25"/>
-            <DoubleAnimation 
-                Storyboard.TargetName="AlbumArtBorder"
-                Storyboard.TargetProperty="Opacity"
-                From="0" To="1" Duration="0:0:0.25"/>
+            <DoubleAnimation Storyboard.TargetName="SongInfoPanel"
+                             Storyboard.TargetProperty="Opacity"
+                             From="0"
+                             To="1"
+                             Duration="0:0:0.25" />
+            <DoubleAnimation Storyboard.TargetName="AlbumArtBorder"
+                             Storyboard.TargetProperty="Opacity"
+                             From="0"
+                             To="1"
+                             Duration="0:0:0.25" />
         </Storyboard>
-        
-        <!-- Background Crossfade -->
+
         <Storyboard x:Name="BackgroundFadeStoryboard">
-            <DoubleAnimation 
-                Storyboard.TargetName="BackgroundImage"
-                Storyboard.TargetProperty="Opacity"
-                From="0.3" To="0.6" Duration="0:0:0.4"/>
+            <DoubleAnimation Storyboard.TargetName="BackgroundImage"
+                             Storyboard.TargetProperty="Opacity"
+                             From="0.18"
+                             To="0.48"
+                             Duration="0:0:0.4" />
         </Storyboard>
     </Page.Resources>
 
     <Grid Background="Black">
-        <!-- Full Screen Album Art Background -->
-        <Image x:Name="BackgroundImage" 
-               Stretch="UniformToFill" 
-               Opacity="0.6"/>
+        <Image x:Name="BackgroundImage"
+               Source="/Assets/CoverArtPlaceholderLarge.jpg"
+               Stretch="UniformToFill"
+               Opacity="0.52" />
 
-        <!-- Gradient Overlay -->
+        <Rectangle Fill="#66000000" />
         <Rectangle>
             <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#66000000" Offset="0"/>
-                    <GradientStop Color="#00000000" Offset="0.3"/>
-                    <GradientStop Color="#00000000" Offset="0.6"/>
-                    <GradientStop Color="#CC000000" Offset="1"/>
+                    <GradientStop Color="#33000000" Offset="0" />
+                    <GradientStop Color="#22000000" Offset="0.26" />
+                    <GradientStop Color="#AA000000" Offset="0.66" />
+                    <GradientStop Color="#F2000000" Offset="1" />
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
 
-        <!-- Main Content -->
-        <Grid Margin="24">
+        <Grid Margin="12,10,12,22">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!-- Album Art & Song Info Row -->
-            <Grid Grid.Row="0" VerticalAlignment="Bottom" Margin="0,0,0,20">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Album Art Card (with animation target name) -->
-                <Border x:Name="AlbumArtBorder"
-                        Grid.Column="0" 
-                        VerticalAlignment="Bottom"
-                        MaxHeight="150"
-                        MaxWidth="150"
-                        Background="#33FFFFFF">
-                    <Image x:Name="AlbumArtImage" 
-                           Stretch="Uniform"/>
-                </Border>
-
-                <!-- Song Info (Right of Album Art) -->
-                <StackPanel x:Name="SongInfoPanel"
-                            Grid.Column="1" 
-                            VerticalAlignment="Bottom" 
-                            Margin="16,0,0,0">
-                    <TextBlock x:Name="SongTitleText"
-                               Text="Song Title"
-                               FontSize="28"
-                               FontWeight="Bold"
+            <StackPanel Grid.Row="0">
+                <TextBlock Text="MixRadio"
+                           Style="{StaticResource MixRadioWordmarkTextStyle}" />
+                <StackPanel Orientation="Horizontal" Margin="1,-4,0,0">
+                    <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
+                        <TextBlock Text="&#xE102;"
+                                   Style="{StaticResource MixRadioSectionIconTextStyle}"
+                                   Margin="1,0,0,0" />
+                    </Border>
+                    <TextBlock Text="now playing"
+                               Style="{StaticResource BodyTextStyle}"
                                Foreground="White"
-                               TextWrapping="Wrap"
-                               MaxLines="2"/>
-                    <TextBlock x:Name="ArtistText"
-                               Text="Artist Name"
-                               FontSize="18"
-                               Foreground="#CCFFFFFF"
-                               Margin="0,4,0,0"/>
+                               Margin="7,-1,0,0" />
                 </StackPanel>
-            </Grid>
+            </StackPanel>
 
-            <!-- Progress Bar area -->
-            <Grid Grid.Row="1" Margin="0,0,0,24">
+            <Border x:Name="AlbumArtBorder"
+                    Grid.Row="1"
+                    Width="286"
+                    Height="286"
+                    MaxWidth="306"
+                    MaxHeight="306"
+                    Background="{StaticResource MixRadioPanelAltBrush}"
+                    HorizontalAlignment="Center"
+                    Margin="0,24,0,0">
+                <Grid>
+                    <Image x:Name="AlbumArtImage"
+                           Source="/Assets/CoverArtPlaceholder.jpg"
+                           Stretch="UniformToFill" />
+                    <Rectangle Height="4"
+                               Fill="{StaticResource MixRadioAccentBrush}"
+                               VerticalAlignment="Bottom" />
+                </Grid>
+            </Border>
+
+            <StackPanel x:Name="SongInfoPanel"
+                        Grid.Row="2"
+                        VerticalAlignment="Bottom"
+                        Margin="0,20,0,16">
+                <TextBlock x:Name="SongTitleText"
+                           Text="Song Title"
+                           FontSize="34"
+                           FontWeight="Light"
+                           Foreground="White"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           MaxLines="2" />
+                <TextBlock x:Name="ArtistText"
+                           Text="Artist Name"
+                           FontSize="20"
+                           Foreground="#E6FFFFFF"
+                           TextTrimming="CharacterEllipsis"
+                           TextAlignment="Center"
+                           MaxLines="1"
+                           Margin="0,4,0,0" />
+                <Rectangle Width="64"
+                           Height="4"
+                           Fill="{StaticResource MixRadioAccentBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,14,0,0" />
+            </StackPanel>
+
+            <Grid Grid.Row="3" Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock x:Name="CurrentTimeText" 
-                           Text="0:00" 
+                <TextBlock x:Name="CurrentTimeText"
+                           Text="0:00"
+                           Style="{StaticResource BodyTextStyle}"
                            Foreground="White"
-                           FontSize="14"
-                           VerticalAlignment="Center"/>
+                           VerticalAlignment="Center" />
 
                 <Slider x:Name="ProgressSlider"
                         Grid.Column="1"
                         Margin="12,0"
                         ValueChanged="OnProgressSliderChanged"
-                        Foreground="{ThemeResource PhoneAccentBrush}"
-                        Background="#66FFFFFF"/>
+                        Foreground="{StaticResource MixRadioAccentBrush}"
+                        Background="#66FFFFFF" />
 
-                <TextBlock x:Name="TotalTimeText" 
-                           Text="0:00" 
+                <TextBlock x:Name="TotalTimeText"
+                           Grid.Column="2"
+                           Text="0:00"
+                           Style="{StaticResource BodyTextStyle}"
                            Foreground="White"
-                           FontSize="14"
-                           VerticalAlignment="Center"
-                           Grid.Column="2"/>
+                           VerticalAlignment="Center" />
             </Grid>
 
-            <!-- Playback Controls -->
-            <Grid Grid.Row="2" Margin="0,0,0,36">
+            <Grid Grid.Row="4" Margin="0,0,0,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <!-- Previous -->
                 <Button Grid.Column="0"
                         Style="{StaticResource CircularButtonStyle}"
-                        Width="60" Height="60"
+                        Width="58"
+                        Height="58"
                         HorizontalAlignment="Right"
                         Margin="0,0,24,0"
                         Click="OnPreviousClick">
-                    <TextBlock Text="&#xE100;" 
-                               FontFamily="Segoe UI Symbol" 
-                               FontSize="24"/>
+                    <TextBlock Text="&#xE100;"
+                               FontFamily="Segoe UI Symbol"
+                               FontSize="24" />
                 </Button>
 
-                <!-- Play/Pause (Large) -->
                 <Button x:Name="PlayPauseButton"
                         Grid.Column="1"
                         Style="{StaticResource CircularButtonStyle}"
-                        Width="80" Height="80"
+                        Width="92"
+                        Height="92"
+                        Background="{StaticResource MixRadioAccentBrush}"
                         Click="OnPlayPauseClick">
-                    <TextBlock Text="&#xE102;" 
-                               FontFamily="Segoe UI Symbol" 
-                               FontSize="32"
-                               Margin="4,0,0,0"/>
+                    <TextBlock Text="&#xE102;"
+                               FontFamily="Segoe UI Symbol"
+                               FontSize="38"
+                               Margin="5,0,0,0" />
                 </Button>
 
-                <!-- Next -->
                 <Button Grid.Column="2"
                         Style="{StaticResource CircularButtonStyle}"
-                        Width="60" Height="60"
+                        Width="58"
+                        Height="58"
                         HorizontalAlignment="Left"
                         Margin="24,0,0,0"
                         Click="OnNextClick">
-                    <TextBlock Text="&#xE101;" 
-                               FontFamily="Segoe UI Symbol" 
-                               FontSize="24"/>
+                    <TextBlock Text="&#xE101;"
+                               FontFamily="Segoe UI Symbol"
+                               FontSize="24" />
                 </Button>
             </Grid>
         </Grid>
-
-        <!-- MediaElement removed for Background Audio integration -->
     </Grid>
 </Page>

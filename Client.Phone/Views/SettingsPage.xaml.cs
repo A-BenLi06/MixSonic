@@ -180,20 +180,20 @@ namespace Subsonic8.Phone.Views
                 {
                     if (_statusText != null)
                     {
-                        _statusText.Text = "✓ Connection successful!\nSelected: " + result.SelectedUrl;
+                        _statusText.Text = "Connection successful.\nSelected: " + result.SelectedUrl;
                     }
                 }
                 else
                 {
                     if (_statusText != null)
                     {
-                        _statusText.Text = "✗ Connection failed: " + result.FailureReason;
+                        _statusText.Text = "Connection failed: " + result.FailureReason;
                     }
                 }
             }
             catch (Exception ex)
             {
-                if (_statusText != null) _statusText.Text = "✗ Error: " + ex.Message;
+                if (_statusText != null) _statusText.Text = "Error: " + ex.Message;
             }
         }
     }

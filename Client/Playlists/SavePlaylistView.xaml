@@ -16,19 +16,56 @@
 
         <common:BrowseView/>
         
-        <Border BorderThickness="0,1,0,0" BorderBrush="{StaticResource SaveButtonBackgroundBrush}" Grid.Row="1"
-                Padding="10" x:Name="ActionBar">
+        <Border BorderThickness="0,2,0,0"
+                BorderBrush="{StaticResource MixRadioAccentBrush}"
+                Grid.Row="1"
+                Padding="0"
+                x:Name="ActionBar"
+                Background="#F2000000">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="88" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBox caliburn:Message.Attach="[Event TextChanged] = [PlaylistNameChanged($source)]" Height="30"
-                         Margin="60, 0, 10, 0" IsEnabled="{Binding Path=CanEdit}"
-                         Text="{Binding Path=PlaylistName, Mode=OneWay}" />
-                <StackPanel Orientation="Horizontal" Grid.Column="1" MinWidth="220">
-                    <Button x:Name="Save" Margin="10, 0" MinWidth="100" Background="{StaticResource SaveButtonBackgroundBrush}" Content="Save"/>
-                    <Button x:Name="Cancel" Margin="10, 0" MinWidth="100" IsEnabled="{Binding Path=CanEdit}" Content="Cancel"/>
+                <Rectangle Fill="{StaticResource MixRadioAccentBrush}" />
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Margin="18,0,28,0">
+                    <TextBlock Text="save"
+                               Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                               FontFamily="Segoe UI Light"
+                               FontSize="28" />
+                    <TextBlock Text=" playlist"
+                               Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                               FontFamily="Segoe UI Light"
+                               FontSize="28" />
+                </StackPanel>
+                <TextBox caliburn:Message.Attach="[Event TextChanged] = [PlaylistNameChanged($source)]"
+                         Grid.Column="2"
+                         Height="38"
+                         Margin="0,14,18,14"
+                         IsEnabled="{Binding Path=CanEdit}"
+                         Text="{Binding Path=PlaylistName, Mode=OneWay}"
+                         Style="{StaticResource SettingsTextBoxStyle}" />
+                <StackPanel Orientation="Horizontal"
+                            Grid.Column="3"
+                            MinWidth="220"
+                            VerticalAlignment="Center"
+                            Margin="0,0,76,0">
+                    <Button x:Name="Save"
+                            Margin="10,0"
+                            MinWidth="100"
+                            Style="{StaticResource LightButton}"
+                            Content="save"/>
+                    <Button x:Name="Cancel"
+                            Margin="10,0"
+                            MinWidth="100"
+                            IsEnabled="{Binding Path=CanEdit}"
+                            Style="{StaticResource LightButton}"
+                            Content="cancel"/>
                 </StackPanel>
             </Grid>
         </Border>

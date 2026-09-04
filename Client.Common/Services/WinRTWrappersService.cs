@@ -25,7 +25,7 @@
         public async Task<IStorageFile> GetNewStorageFile()
         {
             var fileSavePicker = new FileSavePicker();
-            fileSavePicker.FileTypeChoices.Add("Subsonic8 playlist", new List<string> { ".spls" });
+            fileSavePicker.FileTypeChoices.Add("MixRadio playlist", new List<string> { ".spls" });
             fileSavePicker.DefaultFileExtension = ".spls";
             fileSavePicker.SuggestedFileName = "playlist.spls";
             fileSavePicker.SettingsIdentifier = "PlaylistPicker";

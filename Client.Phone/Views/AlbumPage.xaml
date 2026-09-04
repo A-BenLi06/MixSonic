@@ -5,92 +5,176 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.BottomAppBar>
-        <CommandBar>
-            <AppBarButton Icon="Play" Label="Play All" Click="OnPlayAllClick" />
-            <AppBarButton Icon="Shuffle" Label="Shuffle" Click="OnShuffleClick" />
+        <CommandBar Background="{StaticResource MixRadioCommandBarBrush}" Foreground="White">
+            <AppBarButton Icon="Play" Label="play all" Click="OnPlayAllClick" />
+            <AppBarButton Icon="Shuffle" Label="shuffle" Click="OnShuffleClick" />
         </CommandBar>
     </Page.BottomAppBar>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Grid Background="Black">
+        <Image x:Name="AlbumBackgroundImage"
+               Source="/Assets/CoverArtPlaceholderLarge.jpg"
+               Stretch="UniformToFill"
+               Opacity="0.58" />
+        <Rectangle Fill="#66000000" />
+        <Rectangle>
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#11000000" Offset="0" />
+                    <GradientStop Color="#66000000" Offset="0.48" />
+                    <GradientStop Color="#F2000000" Offset="1" />
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
 
-        <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="24,17,24,12">
-            <TextBlock x:Name="AlbumNameText" 
-                       Text="Album" 
-                       Style="{StaticResource SubHeaderTextStyle}"
-                       TextTrimming="CharacterEllipsis"
-                       MaxLines="2" />
-            <TextBlock x:Name="ArtistNameText" 
-                       Text="Artist" 
-                       Style="{StaticResource BodyTextStyle}"
-                       Margin="0,4,0,0" />
-            <TextBlock x:Name="SongCountText" 
-                       Text="0 songs" 
-                       Style="{StaticResource BodyTextStyle}" />
-        </StackPanel>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-        <!-- Content -->
-        <Grid Grid.Row="1">
-            <!-- Loading Indicator -->
-            <ProgressRing x:Name="LoadingIndicator" 
-                          IsActive="False" 
-                          Width="60" Height="60" 
-                          HorizontalAlignment="Center" 
-                          VerticalAlignment="Center" />
+            <StackPanel Grid.Row="0" Margin="12,10,12,14">
+                <TextBlock Text="MixRadio"
+                           Style="{StaticResource MixRadioWordmarkTextStyle}" />
 
-            <!-- Song List -->
-            <ListView x:Name="SongListView"
-                      ItemsSource="{Binding Songs}"
-                      SelectionMode="None"
-                      IsItemClickEnabled="True"
-                      ItemClick="OnSongClick"
-                      ItemContainerStyle="{StaticResource AlbumListItemStyle}">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Margin="12,6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="40" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="1,-4,0,16">
+                    <Border Width="19"
+                            Height="19"
+                            BorderBrush="White"
+                            BorderThickness="2"
+                            CornerRadius="9.5">
+                        <TextBlock Text="&#xE142;"
+                                   FontFamily="Segoe UI Symbol"
+                                   FontSize="8"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="album"
+                               Style="{StaticResource BodyTextStyle}"
+                               Foreground="White"
+                               Margin="7,-1,0,0" />
+                </StackPanel>
 
-                            <!-- Track Number -->
-                            <TextBlock Grid.Column="0" 
-                                       Text="{Binding Track}"
-                                       Style="{StaticResource BodyTextStyle}"
-                                       VerticalAlignment="Center"
-                                       HorizontalAlignment="Center" />
+                <Border Width="222"
+                        Height="222"
+                        Background="{StaticResource MixRadioPanelAltBrush}"
+                        HorizontalAlignment="Center">
+                    <Grid>
+                        <Image x:Name="AlbumArtImage"
+                               Source="/Assets/CoverArtPlaceholder.jpg"
+                               Stretch="UniformToFill" />
+                        <Rectangle Height="4"
+                                   Fill="{StaticResource MixRadioAccentBrush}"
+                                   VerticalAlignment="Bottom" />
+                    </Grid>
+                </Border>
 
-                            <!-- Song Info -->
-                            <StackPanel Grid.Column="1" 
-                                        VerticalAlignment="Center">
-                                <TextBlock Text="{Binding Title}" 
-                                           Style="{StaticResource TitleTextStyle}"
-                                           TextTrimming="CharacterEllipsis"
-                                           MaxLines="1" />
-                                <TextBlock Text="{Binding Artist}" 
+                <TextBlock x:Name="AlbumNameText"
+                           Text="album"
+                           FontSize="32"
+                           FontWeight="Light"
+                           Foreground="White"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           MaxLines="2"
+                           Margin="0,14,0,0" />
+                <TextBlock x:Name="ArtistNameText"
+                           Text="artist"
+                           FontSize="19"
+                           Foreground="#E6FFFFFF"
+                           TextAlignment="Center"
+                           Margin="0,5,0,0"
+                           TextTrimming="CharacterEllipsis"
+                           MaxLines="1" />
+                <TextBlock x:Name="SongCountText"
+                           Text="0 songs"
+                           Style="{StaticResource BodyTextStyle}"
+                           TextAlignment="Center"
+                           Margin="0,2,0,0" />
+                <Rectangle Width="64"
+                           Height="4"
+                           Fill="{StaticResource MixRadioAccentBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,12,0,0" />
+            </StackPanel>
+
+            <Grid Grid.Row="1">
+                <ListView x:Name="SongListView"
+                          ItemsSource="{Binding Songs}"
+                          SelectionMode="None"
+                          IsItemClickEnabled="True"
+                          ItemClick="OnSongClick"
+                          Background="Transparent">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="MinHeight" Value="58" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="12,0,12,10"
+                                  MinHeight="58"
+                                  Background="Transparent">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="42" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0"
+                                           Text="{Binding Track}"
+                                           FontSize="18"
+                                           FontWeight="Light"
+                                           Foreground="{StaticResource MixRadioAccentBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+
+                                <StackPanel Grid.Column="1"
+                                            VerticalAlignment="Center"
+                                            Margin="0,0,12,0">
+                                    <TextBlock Text="{Binding Title}"
+                                               FontSize="23"
+                                               FontWeight="Light"
+                                               Foreground="White"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="1" />
+                                    <TextBlock Text="{Binding Artist}"
+                                               Style="{StaticResource BodyTextStyle}"
+                                               Foreground="#CCFFFFFF"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="1" />
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding DurationString}"
                                            Style="{StaticResource BodyTextStyle}"
-                                           TextTrimming="CharacterEllipsis"
-                                           MaxLines="1" />
-                            </StackPanel>
+                                           Foreground="#B3FFFFFF"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,4,0" />
+                                <Rectangle Grid.Column="1"
+                                           Grid.ColumnSpan="2"
+                                           Height="1"
+                                           Fill="#33FFFFFF"
+                                           VerticalAlignment="Bottom" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
 
-                            <!-- Duration -->
-                            <TextBlock Grid.Column="2" 
-                                       Text="{Binding DurationString}"
-                                       Style="{StaticResource BodyTextStyle}"
-                                       VerticalAlignment="Center"
-                                       Margin="8,0,0,0" />
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                <ProgressRing x:Name="LoadingIndicator"
+                              IsActive="False"
+                              Width="60"
+                              Height="60"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+            </Grid>
         </Grid>
     </Grid>
 </Page>

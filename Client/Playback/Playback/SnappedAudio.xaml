@@ -20,14 +20,14 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Style="{StaticResource SnappedAppNameStyle}">Subsonic8</TextBlock>
+        <TextBlock Style="{StaticResource SnappedAppNameStyle}">MixRadio</TextBlock>
 
         <Image Grid.Row="1" Source="{Binding CoverArt}" Stretch="Uniform"/>
 
         <StackPanel Grid.Row="2" Style="{StaticResource SnappedArtistDetailsPanelStyle}">
             <TextBlock Text="{Binding Path=ActiveItem.Artist}" Style="{StaticResource SnappedTitleStyle}" Visibility="{Binding Path=ActiveItem, Converter={StaticResource NullToVisibilityConverter}}"/>
             <TextBlock Text="{Binding Path=ActiveItem.Title}" Style="{StaticResource SnappedArtistStyle}" Visibility="{Binding Path=ActiveItem, Converter={StaticResource NullToVisibilityConverter}}"/>
-            <TextBlock Text="Nothing Playing" Style="{StaticResource SnappedTitleStyle}" Visibility="{Binding Path=ActiveItem, Converter={StaticResource InvertedNullToVisibilityConverter}}"/>
+            <TextBlock Text="nothing playing" Style="{StaticResource SnappedTitleStyle}" Visibility="{Binding Path=ActiveItem, Converter={StaticResource InvertedNullToVisibilityConverter}}"/>
         </StackPanel>
         <Grid Grid.Row="3" Style="{StaticResource SnappedPlaybackControlsGridStyle}"
             Visibility="{Binding Path=PlaybackControlsVisible, Converter={StaticResource BoolToVisibilityConverter}}">

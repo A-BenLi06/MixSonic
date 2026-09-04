@@ -210,7 +210,7 @@ namespace Client.Common.Services
             var baseUrl = (config.BaseUrl ?? string.Empty).TrimEnd('/');
             var username = config.Username ?? string.Empty;
             return string.Format(
-                "{0}/rest/ping.view?u={1}&p={2}&c=SubSonic8&v=1.13.0",
+                "{0}/rest/ping.view?u={1}&p={2}&c=MixRadio&v=1.13.0",
                 baseUrl,
                 Uri.EscapeDataString(username),
                 config.EncodedPassword);

@@ -119,3 +119,16 @@
 - Built the Windows Phone 8.1 target with VS2015 MSBuild successfully after the desktop layout pass.
 - Started the WP8.1 WVGA 4-inch emulator from XDE with the SDK `flash.vhd`, confirmed the emulator reached the app list, and enabled the stopped `PhoneSvc` service.
 - Runtime phone deployment is still blocked by the WP8.1 deployment stack: `AppDeployCmd`, VS `/Deploy`, and target index deployment all fail with `Object reference not set to an instance of an object`, while the physical device target reports no phone detected.
+
+## 2026-09-05 06:00 +08:00
+
+- Resumed from the July 5 state with a full end-to-end pass against the live Navidrome 0.58.5 server at 127.0.0.1:10011.
+- Fixed the Genres page crash: `Genre.Name` overrode the base `[XmlAttribute("name")]` property with `[XmlText]`, which `XmlSerializer` rejects ("member hides inherited member with different custom attributes"). The element text now lives in a `Value` property and `Name` is an `[XmlIgnore]` override that forwards to it.
+- Fixed the Internet radio crash: `InternetRadioStation` was missing `[XmlRoot("internetRadioStation")]`, so the per-element `XmlSerializer` rejected Navidrome's camelCase element ("error in XML document (0,0)").
+- Made search actually usable on Windows 10 (the old flow depended on the Win8.1 search charm): the header search box in `FullScreen.xaml` is now a real `TextBox` with Enter/button submit that navigates to `SearchViewModel`, and the search page gained its own query input pre-filled with the current query.
+- Stopped stripping cover art from search results, so album tiles in search show real covers like the rest of the app.
+- Added MixRadio-style letter group headers to the library browse pages: `GroupedMenuItems` on `CollectionViewModelBase` groups items by first character, and `FullScreen.xaml` renders a grouped `GridView` with pink-outlined letter headers per column. Song-based pages (random mix, genre songs, favourites) stay flat via an `IsGroupedView` override.
+- Added the missing `Client.csproj` compile/page entries for all July page folders (Artists, Favourites, Genres, NowPlaying, Radio, RandomSongs). They were never included, so only incremental builds ever succeeded and a clean rebuild failed.
+- Added a repeatable desktop deploy loop (`.tmp/run_desktop.ps1`): build Debug x86, expand the produced appx over the loose layout (packaging pulls in framework assets the loose output misses), re-register in place with `Add-AppxPackage -Register` (preserves LocalState/settings), and launch.
+- Replaced the expired signing certificate on Client.Common.Tests and Client.Tests so their test packages build again; left the remaining legacy test projects on their original certs. Running the WinRT MSTest suites still requires appcontainer deployment (admin/Trusted People), which this machine cannot do without elevation.
+- Rebuilt Client.Phone (x86 Release) with today's fixes; phone deployment remains blocked by the WP8.1 `AppDeployCmd` tooling crash ("value out of expected range" on /ListTargets), reconfirming the July 5 blocker.

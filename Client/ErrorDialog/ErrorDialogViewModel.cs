@@ -211,7 +211,7 @@
             {
                 dataRequest.Data.Properties.Title = "Error report";
                 dataRequest.Data.Properties.Description = "Share this with us by email";
-                dataRequest.Data.Properties.ApplicationName = "Subsonic8";
+                dataRequest.Data.Properties.ApplicationName = "MixRadio";
                 var dataBuilder = new StringBuilder();
                 var actionInformation =
                     string.Format(

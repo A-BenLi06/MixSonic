@@ -27,6 +27,12 @@
             Justification = "Reviewed. Suppression is OK here.")]
         private IIoCService _ioCService;
 
+        private bool _hasItems;
+
+        private bool _isEmpty;
+
+        private bool _loadedOnce;
+
         private BindableCollection<MenuItemViewModel> _menuItems;
 
         private TParameter _parameter;
@@ -59,6 +65,60 @@
             }
         }
 
+        public virtual string EmptyStateSubtitle
+        {
+            get
+            {
+                return "Try another section, start a random mix, or refresh your library.";
+            }
+        }
+
+        public virtual string EmptyStateTitle
+        {
+            get
+            {
+                return "Nothing here yet";
+            }
+        }
+
+        public bool HasItems
+        {
+            get
+            {
+                return _hasItems;
+            }
+
+            private set
+            {
+                if (value.Equals(_hasItems))
+                {
+                    return;
+                }
+
+                _hasItems = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
+        public bool IsEmpty
+        {
+            get
+            {
+                return _isEmpty;
+            }
+
+            private set
+            {
+                if (value.Equals(_isEmpty))
+                {
+                    return;
+                }
+
+                _isEmpty = value;
+                NotifyOfPropertyChange();
+            }
+        }
+
         public BindableCollection<MenuItemViewModel> MenuItems
         {
             get
@@ -75,6 +135,57 @@
 
                 _menuItems = value;
                 NotifyOfPropertyChange(() => MenuItems);
+                NotifyOfPropertyChange(() => GroupedMenuItems);
+                UpdateEmptyState();
+            }
+        }
+
+        /// <summary>
+        /// Menu items grouped by the first character of their title so browse pages can
+        /// render MixRadio-style letter headers (see FullScreen.xaml group style).
+        /// </summary>
+        public IEnumerable<IGrouping<string, MenuItemViewModel>> GroupedMenuItems
+        {
+            get
+            {
+                return (from item in MenuItems
+                        let title = item.Title ?? string.Empty
+                        let key = title.Length > 0 ? char.ToUpper(title[0]).ToString() : "#"
+                        group item by key into g
+                        orderby g.Key
+                        select g).ToList();
+            }
+        }
+
+        public virtual bool IsGroupedView
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public bool IsFlatView
+        {
+            get
+            {
+                return !IsGroupedView;
+            }
+        }
+
+        public bool ShowGroupedItems
+        {
+            get
+            {
+                return HasItems && IsGroupedView;
+            }
+        }
+
+        public bool ShowFlatItems
+        {
+            get
+            {
+                return HasItems && IsFlatView;
             }
         }
 
@@ -205,13 +316,25 @@
         private void PopulateMenuItems(TResult result)
         {
             MenuItems.Clear();
-            var children = GetItemsToDisplay(result);
+            var children = GetItemsToDisplay(result) ?? Enumerable.Empty<IMediaModel>();
             MenuItems.AddRange(children.Select(s => s.AsMenuItemViewModel()));
+            NotifyOfPropertyChange(() => GroupedMenuItems);
+            _loadedOnce = true;
+            UpdateEmptyState();
         }
 
         private void SetAppBottomBar()
         {
             EventAggregator.PublishOnUIThread(new ChangeBottomBarMessage { BottomBarViewModel = BottomBar });
+        }
+
+        private void UpdateEmptyState()
+        {
+            var hasItems = MenuItems != null && MenuItems.Count > 0;
+            HasItems = hasItems;
+            IsEmpty = _loadedOnce && !hasItems;
+            NotifyOfPropertyChange(() => ShowGroupedItems);
+            NotifyOfPropertyChange(() => ShowFlatItems);
         }
 
         private async void AwaitPopulate()

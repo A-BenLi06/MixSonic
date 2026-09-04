@@ -1,0 +1,155 @@
+<Page
+    x:Class="Subsonic8.Phone.Views.RadioStationsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.BottomAppBar>
+        <CommandBar Background="{StaticResource MixRadioCommandBarBrush}" Foreground="White">
+            <AppBarButton Icon="Refresh" Label="refresh" Click="OnRefreshClick" />
+        </CommandBar>
+    </Page.BottomAppBar>
+
+    <Grid Background="Black">
+        <Image Source="/Assets/CoverArtPlaceholderLarge.jpg" Stretch="UniformToFill" Opacity="0.48" />
+        <Rectangle Fill="#66000000" />
+        <Rectangle>
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#11000000" Offset="0" />
+                    <GradientStop Color="#88000000" Offset="0.52" />
+                    <GradientStop Color="#FF000000" Offset="1" />
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="12,10,12,18">
+                <TextBlock Text="MixRadio" Style="{StaticResource MixRadioWordmarkTextStyle}" />
+                <StackPanel Orientation="Horizontal" Margin="1,-4,0,12">
+                    <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
+                        <TextBlock Text="&#xE189;"
+                                   Style="{StaticResource MixRadioSectionIconTextStyle}" />
+                    </Border>
+                    <TextBlock Text="internet radio"
+                               Style="{StaticResource BodyTextStyle}"
+                               Foreground="White"
+                               Margin="7,-1,0,0" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="radio"
+                               FontSize="42"
+                               FontWeight="Light"
+                               Foreground="White"
+                               TextTrimming="CharacterEllipsis"
+                               MaxLines="1" />
+                    <TextBlock Text=" stations"
+                               FontSize="42"
+                               FontWeight="Light"
+                               Foreground="#99FFFFFF"
+                               TextTrimming="CharacterEllipsis"
+                               MaxLines="1" />
+                </StackPanel>
+                <TextBlock x:Name="StationCountText"
+                           Text="stations"
+                           Style="{StaticResource BodyTextStyle}"
+                           Margin="0,4,0,0" />
+                <Rectangle Width="72"
+                           Height="4"
+                           Fill="{StaticResource MixRadioTealBrush}"
+                           HorizontalAlignment="Left"
+                           Margin="0,16,0,0" />
+            </StackPanel>
+
+            <Grid Grid.Row="1">
+                <GridView ItemsSource="{Binding Stations}"
+                          SelectionMode="None"
+                          IsItemClickEnabled="True"
+                          ItemClick="OnStationClick"
+                          Margin="8,0,8,0">
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Vertical" MaximumRowsOrColumns="2" />
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+                    <GridView.ItemContainerStyle>
+                        <Style TargetType="GridViewItem">
+                            <Setter Property="Width" Value="216" />
+                            <Setter Property="Height" Value="158" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                        </Style>
+                    </GridView.ItemContainerStyle>
+                    <GridView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Width="208"
+                                  Height="150"
+                                  Margin="4"
+                                  Background="{StaticResource MixRadioYellowBrush}">
+                                <Image Source="/Assets/CoverArtPlaceholder.jpg"
+                                       Stretch="UniformToFill"
+                                       Opacity="0.2" />
+                                <Rectangle Fill="#22000000" />
+                                <TextBlock Text="&#xE189;"
+                                           FontFamily="Segoe UI Symbol"
+                                           FontSize="44"
+                                           Foreground="White"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,0,32" />
+                                <TextBlock Text="LIVE"
+                                           FontSize="13"
+                                           FontWeight="SemiBold"
+                                           Foreground="White"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Top"
+                                           Margin="0,10,10,0" />
+                                <Rectangle Height="52"
+                                           Fill="{StaticResource MixRadioTealBrush}"
+                                           VerticalAlignment="Bottom" />
+                                <StackPanel VerticalAlignment="Bottom" Margin="10,0,10,7">
+                                    <TextBlock Text="{Binding Name}"
+                                               FontSize="18"
+                                               Foreground="White"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="1" />
+                                    <TextBlock Text="{Binding Subtitle}"
+                                               FontSize="12"
+                                               Foreground="#E6FFFFFF"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxLines="1" />
+                                </StackPanel>
+                                <Rectangle Height="4"
+                                           Fill="{StaticResource MixRadioAccentBrush}"
+                                           VerticalAlignment="Bottom" />
+                            </Grid>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+
+                <ProgressRing x:Name="LoadingIndicator" IsActive="False" Width="60" Height="60" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock x:Name="EmptyStateText"
+                           Text="No radio stations found"
+                           FontSize="30"
+                           FontWeight="Light"
+                           Foreground="White"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           Margin="42"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

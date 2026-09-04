@@ -8,9 +8,34 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <StackPanel Orientation="Horizontal">
-        <TextBox x:Name="PlaylistNameTextBox" Style="{StaticResource PopupTextBoxStyle}"
-                 GotFocus="PlaylistNameTextBox_OnGotFocus" />
-        <Button x:Name="OkButton" Click="Ok_OnClick" Content="Ok" Style="{StaticResource LightButton}" />
-    </StackPanel>
+    <Grid Background="{StaticResource MixRadioPanelBrush}"
+          Margin="0"
+          MinWidth="390">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="4" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Rectangle Fill="{StaticResource MixRadioAccentBrush}" />
+        <StackPanel Grid.Column="1"
+                    Margin="14,10,10,12">
+            <TextBlock Text="rename playlist"
+                       Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                       FontFamily="Segoe UI Light"
+                       FontSize="22"
+                       Margin="0,0,0,8" />
+            <TextBox x:Name="PlaylistNameTextBox"
+                     Style="{StaticResource PopupTextBoxStyle}"
+                     GotFocus="PlaylistNameTextBox_OnGotFocus" />
+        </StackPanel>
+        <Button x:Name="OkButton"
+                Grid.Column="2"
+                Click="Ok_OnClick"
+                Content="ok"
+                Width="76"
+                Height="38"
+                Margin="0,40,14,0"
+                VerticalAlignment="Top"
+                Style="{StaticResource LightButton}" />
+    </Grid>
 </UserControl>

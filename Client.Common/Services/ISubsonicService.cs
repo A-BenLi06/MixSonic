@@ -21,7 +21,11 @@ namespace Client.Common.Services
 
         Func<IGetAllPlaylistsResult> GetAllPlaylists { get; set; }
 
+        Func<IGetAllArtistsResult> GetArtists { get; set; }
+
         Func<string, IGetArtistResult> GetArtist { get; set; }
+
+        Func<IGetGenresResult> GetGenres { get; set; }
 
         Func<string, IGetIndexResult> GetIndex { get; set; }
 
@@ -45,7 +49,15 @@ namespace Client.Common.Services
 
         Func<int, IGetRandomSongsResult> GetRandomSongs { get; set; }
 
+        Func<string, IGetSongsByGenreResult> GetSongsByGenre { get; set; }
+
         Func<string, IGetAlbumListResult> GetAlbumList { get; set; }
+
+        Func<IGetStarredSongsResult> GetStarredSongs { get; set; }
+
+        Func<IGetInternetRadioStationsResult> GetInternetRadioStations { get; set; }
+
+        Func<IGetNowPlayingResult> GetNowPlaying { get; set; }
 
         #endregion
 

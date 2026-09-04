@@ -22,7 +22,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <TextBlock Style="{StaticResource SnappedAppNameStyle}">Subsonic8</TextBlock>
+            <TextBlock Style="{StaticResource SnappedAppNameStyle}">MixRadio</TextBlock>
 
             <ContentControl Grid.Row="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
                 <videoPlayback:SnappedVideoPlaybackView cal:Bind.Model="{Binding Path=SnappedVideoPlaybackViewModel}" />
@@ -31,7 +31,7 @@
             <StackPanel Grid.Row="2" Style="{StaticResource SnappedVideoDetailsPanelStyle}">
                 <TextBlock Text="{Binding Path=ActiveItem.Artist}" Style="{StaticResource SnappedArtistStyle}" Visibility="{Binding Path=ActiveItem, Converter={StaticResource NullToVisibilityConverter}}"/>
                 <TextBlock Text="{Binding Path=ActiveItem.Title}" Style="{StaticResource SnappedTitleStyle}" Visibility="{Binding Path=ActiveItem, Converter={StaticResource NullToVisibilityConverter}}"/>
-                <TextBlock Text="Nothing Playing" Style="{StaticResource SnappedArtistStyle}" Visibility="{Binding Path=ActiveItem, Converter={StaticResource InvertedNullToVisibilityConverter}}"/>
+                <TextBlock Text="nothing playing" Style="{StaticResource SnappedArtistStyle}" Visibility="{Binding Path=ActiveItem, Converter={StaticResource InvertedNullToVisibilityConverter}}"/>
             </StackPanel>
         </Grid>
     </Grid>

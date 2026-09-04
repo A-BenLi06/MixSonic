@@ -34,6 +34,8 @@
             GetIndex = GetIndexImpl;
             Search = SearchImpl;
             GetAllPlaylists = GetAllPlaylistsImpl;
+            GetArtists = GetArtistsImpl;
+            GetGenres = GetGenresImpl;
             GetPlaylist = GetPlaylistImpl;
             DeletePlaylist = DeletePlaylistImpl;
             CreatePlaylist = CreatePlaylistImpl;
@@ -41,7 +43,11 @@
             RenamePlaylist = RenamePlaylistImpl;
             Ping = PingImpl;
             GetRandomSongs = GetRandomSongsImpl;
+            GetSongsByGenre = GetSongsByGenreImpl;
             GetAlbumList = GetAlbumListImpl;
+            GetStarredSongs = GetStarredSongsImpl;
+            GetInternetRadioStations = GetInternetRadioStationsImpl;
+            GetNowPlaying = GetNowPlayingImpl;
         }
 
         #endregion
@@ -70,7 +76,11 @@
 
         public Func<IGetAllPlaylistsResult> GetAllPlaylists { get; set; }
 
+        public Func<IGetAllArtistsResult> GetArtists { get; set; }
+
         public Func<string, IGetArtistResult> GetArtist { get; set; }
+
+        public Func<IGetGenresResult> GetGenres { get; set; }
 
         public Func<string, IGetIndexResult> GetIndex { get; set; }
 
@@ -100,7 +110,15 @@
 
         public Func<int, IGetRandomSongsResult> GetRandomSongs { get; set; }
 
+        public Func<string, IGetSongsByGenreResult> GetSongsByGenre { get; set; }
+
         public Func<string, IGetAlbumListResult> GetAlbumList { get; set; }
+
+        public Func<IGetStarredSongsResult> GetStarredSongs { get; set; }
+
+        public Func<IGetInternetRadioStationsResult> GetInternetRadioStations { get; set; }
+
+        public Func<IGetNowPlayingResult> GetNowPlaying { get; set; }
 
         public bool IsVideoPlaybackInitialized { get; set; }
 
@@ -200,9 +218,19 @@
             return new GetAllPlaylistsResult(_configuration);
         }
 
+        private IGetAllArtistsResult GetArtistsImpl()
+        {
+            return new GetAllArtistsResult(_configuration);
+        }
+
         private IGetArtistResult GetArtistImpl(string id)
         {
             return new GetArtistsResult(_configuration, id);
+        }
+
+        private IGetGenresResult GetGenresImpl()
+        {
+            return new GetGenresResult(_configuration);
         }
 
         private IGetIndexResult GetIndexImpl(string musicFolderId)
@@ -256,9 +284,29 @@
             return new GetRandomSongsResult(Configuration, numberOfSongs);
         }
 
+        private IGetSongsByGenreResult GetSongsByGenreImpl(string genre)
+        {
+            return new GetSongsByGenreResult(Configuration, genre);
+        }
+
         private IGetAlbumListResult GetAlbumListImpl(string musicFolderId)
         {
             return new GetAlbumListResult(Configuration, musicFolderId);
+        }
+
+        private IGetStarredSongsResult GetStarredSongsImpl()
+        {
+            return new GetStarredSongsResult(Configuration);
+        }
+
+        private IGetInternetRadioStationsResult GetInternetRadioStationsImpl()
+        {
+            return new GetInternetRadioStationsResult(Configuration);
+        }
+
+        private IGetNowPlayingResult GetNowPlayingImpl()
+        {
+            return new GetNowPlayingResult(Configuration);
         }
 
         #endregion

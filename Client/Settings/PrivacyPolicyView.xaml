@@ -6,7 +6,23 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid>
-        <TextBlock Text="{Binding Path=Text}" Style="{StaticResource SettingsTextStyle}" />
+    <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel Margin="0,0,18,0">
+            <TextBlock Text="MixRadio"
+                       Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                       FontFamily="Segoe UI Light"
+                       FontSize="36" />
+            <TextBlock Text="privacy"
+                       Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                       FontFamily="Segoe UI Light"
+                       FontSize="20"
+                       Margin="0,-2,0,12" />
+            <Rectangle Width="64"
+                       Height="4"
+                       Fill="{StaticResource MixRadioAccentBrush}"
+                       HorizontalAlignment="Left"
+                       Margin="0,0,0,10" />
+            <TextBlock Text="{Binding Path=Text}" Style="{StaticResource SettingsTextStyle}" />
+        </StackPanel>
     </Grid>
 </Page>
