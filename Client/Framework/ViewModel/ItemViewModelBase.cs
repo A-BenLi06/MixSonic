@@ -22,11 +22,25 @@
 
         #region Public Properties
 
+        /// <summary>
+        /// Image source used when the server does not provide cover art for this item
+        /// (e.g. the MixRadio pink smiley for artists).
+        /// </summary>
+        public string CoverArtFallback { get; set; }
+
         public string CoverArt
         {
             get
             {
-                return _coverArtUrl ?? (_coverArtUrl = SubsonicService.GetCoverArtForId(_coverArt));
+                if (_coverArtUrl == null)
+                {
+                    var url = SubsonicService.GetCoverArtForId(_coverArt);
+                    _coverArtUrl = string.IsNullOrEmpty(_coverArt) && !string.IsNullOrEmpty(CoverArtFallback)
+                                       ? CoverArtFallback
+                                       : url;
+                }
+
+                return _coverArtUrl;
             }
         }
 
@@ -40,6 +54,7 @@
             set
             {
                 _coverArt = value;
+                _coverArtUrl = null;
                 NotifyOfPropertyChange();
                 NotifyOfPropertyChange(() => CoverArt);
             }

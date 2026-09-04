@@ -262,11 +262,16 @@
                   behaviors:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
                   IsItemClickEnabled="True" caliburn:Message.Attach="[Event ItemClick] = [ChildClick($eventArgs)]"
                   ItemsSource="{Binding Source={StaticResource GroupedMenuItemsSource}}">
+            <GridView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <ItemsWrapGrid Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </GridView.ItemsPanel>
             <GridView.GroupStyle>
                 <GroupStyle HeaderTemplate="{StaticResource LetterHeaderTemplate}">
                     <GroupStyle.Panel>
                         <ItemsPanelTemplate>
-                            <ItemsWrapGrid Orientation="Vertical" MaximumRowsOrColumns="1" />
+                            <VariableSizedWrapGrid Orientation="Vertical" />
                         </ItemsPanelTemplate>
                     </GroupStyle.Panel>
                 </GroupStyle>

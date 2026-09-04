@@ -152,8 +152,7 @@
                         let title = item.Title ?? string.Empty
                         let key = title.Length > 0 ? char.ToUpper(title[0]).ToString() : "#"
                         group item by key into g
-                        orderby g.Key
-                        select g).ToList();
+                        select g).OrderBy(g => g.Key, StringComparer.Ordinal).ToList();
             }
         }
 

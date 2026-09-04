@@ -365,41 +365,76 @@
       <DependentUpon>MenuItemView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Framework\Interfaces\IPlayerControls.cs" />
-    <Compile Include="Search\SearchViewModel.cs" />
-    <Compile Include="Artists\ArtistsView.xaml.cs">
-      <DependentUpon>ArtistsView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Artists\ArtistsViewModel.cs" />
-    <Compile Include="Artists\IArtistsViewModel.cs" />
-    <Compile Include="Favourites\FavouritesView.xaml.cs">
-      <DependentUpon>FavouritesView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Favourites\FavouritesViewModel.cs" />
-    <Compile Include="Favourites\IFavouritesViewModel.cs" />
-    <Compile Include="Genres\GenreSongsView.xaml.cs">
-      <DependentUpon>GenreSongsView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Genres\GenreSongsViewModel.cs" />
-    <Compile Include="Genres\IGenreSongsViewModel.cs" />
-    <Compile Include="Genres\GenresView.xaml.cs">
-      <DependentUpon>GenresView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Genres\GenresViewModel.cs" />
-    <Compile Include="Genres\IGenresViewModel.cs" />
-    <Compile Include="NowPlaying\NowPlayingView.xaml.cs">
-      <DependentUpon>NowPlayingView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="NowPlaying\NowPlayingViewModel.cs" />
-    <Compile Include="NowPlaying\INowPlayingViewModel.cs" />
-    <Compile Include="Radio\RadioStationsView.xaml.cs">
-      <DependentUpon>RadioStationsView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Radio\RadioStationsViewModel.cs" />
-    <Compile Include="Radio\IRadioStationsViewModel.cs" />
-    <Compile Include="RandomSongs\RandomSongsView.xaml.cs">
-      <DependentUpon>RandomSongsView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="RandomSongs\RandomSongsViewModel.cs" />
+    <Compile Include="Search\SearchViewModel.cs" />
+
+    <Compile Include="Artists\ArtistsView.xaml.cs">
+
+      <DependentUpon>ArtistsView.xaml</DependentUpon>
+
+    </Compile>
+
+    <Compile Include="Artists\ArtistsViewModel.cs" />
+
+    <Compile Include="Artists\IArtistsViewModel.cs" />
+
+    <Compile Include="Favourites\FavouritesView.xaml.cs">
+
+      <DependentUpon>FavouritesView.xaml</DependentUpon>
+
+    </Compile>
+
+    <Compile Include="Favourites\FavouritesViewModel.cs" />
+
+    <Compile Include="Favourites\IFavouritesViewModel.cs" />
+
+    <Compile Include="Genres\GenreSongsView.xaml.cs">
+
+      <DependentUpon>GenreSongsView.xaml</DependentUpon>
+
+    </Compile>
+
+    <Compile Include="Genres\GenreSongsViewModel.cs" />
+
+    <Compile Include="Genres\IGenreSongsViewModel.cs" />
+
+    <Compile Include="Genres\GenresView.xaml.cs">
+
+      <DependentUpon>GenresView.xaml</DependentUpon>
+
+    </Compile>
+
+    <Compile Include="Genres\GenresViewModel.cs" />
+
+    <Compile Include="Genres\IGenresViewModel.cs" />
+
+    <Compile Include="NowPlaying\NowPlayingView.xaml.cs">
+
+      <DependentUpon>NowPlayingView.xaml</DependentUpon>
+
+    </Compile>
+
+    <Compile Include="NowPlaying\NowPlayingViewModel.cs" />
+
+    <Compile Include="NowPlaying\INowPlayingViewModel.cs" />
+
+    <Compile Include="Radio\RadioStationsView.xaml.cs">
+
+      <DependentUpon>RadioStationsView.xaml</DependentUpon>
+
+    </Compile>
+
+    <Compile Include="Radio\RadioStationsViewModel.cs" />
+
+    <Compile Include="Radio\IRadioStationsViewModel.cs" />
+
+    <Compile Include="RandomSongs\RandomSongsView.xaml.cs">
+
+      <DependentUpon>RandomSongsView.xaml</DependentUpon>
+
+    </Compile>
+
+    <Compile Include="RandomSongs\RandomSongsViewModel.cs" />
+
     <Compile Include="RandomSongs\IRandomSongsViewModel.cs" />
     <Compile Include="Shell\ShellStrings.cs">
       <AutoGen>True</AutoGen>
@@ -469,7 +504,8 @@
     </PRIResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\CoverArtPlaceholder.jpg" />
+    <Content Include="Assets\CoverArtPlaceholder.jpg" />
+    <Content Include="Assets\ArtistPlaceholder.png" />
     <Content Include="Assets\CoverArtPlaceholderLarge.jpg" />
     <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\StoreLogo.png" />
@@ -636,34 +672,62 @@
     <Page Include="Search\SearchView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Artists\ArtistsView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Favourites\FavouritesView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Genres\GenreSongsView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Genres\GenresView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="NowPlaying\NowPlayingView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Radio\RadioStationsView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="RandomSongs\RandomSongsView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
+    </Page>
+
+    <Page Include="Artists\ArtistsView.xaml">
+
+      <SubType>Designer</SubType>
+
+      <Generator>MSBuild:Compile</Generator>
+
+    </Page>
+
+    <Page Include="Favourites\FavouritesView.xaml">
+
+      <SubType>Designer</SubType>
+
+      <Generator>MSBuild:Compile</Generator>
+
+    </Page>
+
+    <Page Include="Genres\GenreSongsView.xaml">
+
+      <SubType>Designer</SubType>
+
+      <Generator>MSBuild:Compile</Generator>
+
+    </Page>
+
+    <Page Include="Genres\GenresView.xaml">
+
+      <SubType>Designer</SubType>
+
+      <Generator>MSBuild:Compile</Generator>
+
+    </Page>
+
+    <Page Include="NowPlaying\NowPlayingView.xaml">
+
+      <SubType>Designer</SubType>
+
+      <Generator>MSBuild:Compile</Generator>
+
+    </Page>
+
+    <Page Include="Radio\RadioStationsView.xaml">
+
+      <SubType>Designer</SubType>
+
+      <Generator>MSBuild:Compile</Generator>
+
+    </Page>
+
+    <Page Include="RandomSongs\RandomSongsView.xaml">
+
+      <SubType>Designer</SubType>
+
+      <Generator>MSBuild:Compile</Generator>
+
     </Page>
     <Page Include="Search\Search\Busy.xaml">
       <SubType>Designer</SubType>

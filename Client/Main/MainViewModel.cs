@@ -145,5 +145,13 @@
         }
 
         #endregion
+        public override bool IsGroupedView
+        {
+            get
+            {
+                return false;
+            }
+        }
+
     }
 }
