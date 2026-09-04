@@ -141,3 +141,9 @@
 - Verified interactively against the live server: now playing tile navigation (graceful "Nobody is playing right now" empty state), random-mix playback with auto-advance through the queue, and the queue drawer's save-playlist flow (system file picker opens with `Playlists.m3u`; scripted save-click timing prevented a byte-level file check, the dialog flow itself is wired).
 - Video playback and the artist-info biography panel remain Subsonic-server/LastFM-EchoNest legacy features: Navidrome answers getVideos with "endpoint will not be implemented" and artist bios require external API keys, so neither is reachable against Navidrome.
 - Phone deployment reconfirmed blocked at the tool level: `AppDeployCmd /ListTargets` crashes with "value out of expected range" before any device is queried. `.tmp/TrustCert-RunAsAdmin.ps1` was added; run it as administrator (or connect a physical WP device) to unblock phone package installation and verification.
+
+## 2026-09-05 07:35 +08:00
+
+- Completed the playlist save verification byte-for-byte: the queue drawer's save button writes `playlist.spls` into the picked folder — a 29 KB XML containing all 9 queued tracks with artist, title, duration, cover-art URL and stream URL. Note the save-as dialog advertises `*.m3u` while the payload is the app's `.spls` XML format that `LoadPlaylist` consumes; the extension mismatch is cosmetic (save/load pair works) and left as a known nit.
+- The test-signing certificate (EC6D7DC1..., CN=benli06, valid to 2031) is now trusted in CurrentUser\Root and My, so MSBuild signs test packages without APPX0108/0107 errors for the projects migrated to it.
+- Retried appcontainer test deployment after the trust import: still rejected (0x800B0109) because the AppX deployment service consults LocalMachine trust stores only, which requires elevation. `.tmp/TrustCert-RunAsAdmin.ps1` remains the single unblock step for both WP8.1 deployment and the WinRT MSTest suites.
