@@ -153,3 +153,9 @@
 - Attempted the elevation route for phone verification: the UAC prompt for `TrustCert-RunAsAdmin.ps1` was dismissed, so LocalMachine trust remains unavailable in this session.
 - Booted the WP8.1 WVGA emulator via `XDE.exe /vhd flash.vhd` and retried deployment three ways with the emulator online: `/ListTargets`, `/install <appx> <index>`, and `/install <appx> targetdevice:xd`. All crash identically with "value out of expected range" before any device query — third reproduction of the toolchain breakage, independent of emulator state.
 - Static phone-package evidence gathered instead: the built `Client.Phone_1.3.0.0_x86.appx` carries 15 compiled XBF views (MainPage with MixRadio wordmark and command bar, ArtistAlbumsPage, GenresPage, NowPlayingPage, RadioStationsPage, SearchPage, SettingsPage, FavouritesPage, PlaylistsPage, PlaybackPage) and Styles.xaml embeds the full MixRadio palette (#FFFF2B86 pink, #FF8A1248 dark magenta, #FFD7C900 yellow, #FF78B800 green), so the MixRadio-ized phone UI is in the deliverable awaiting a working deployment path.
+
+## 2026-09-05 08:30 +08:00
+
+- Elevation attempt for the phone/admin gate: the UAC prompt for the trust script was dismissed by the user, so LocalMachine trust remains out of reach this session.
+- Booted the WP8.1 emulator (XDE pid confirmed running) and retried `AppDeployCmd /install` with explicit target arguments (`0`, `targetdevice:0`, `xd`): all crash with the same "value out of expected range" during tool initialization — third reproduction, independent of emulator state or argument form.
+- Load-side verification of the queue round-trip was inconclusive via synthetic clicks at the small app-bar icon size; the save side remains byte-verified (playlist.spls, 9 tracks) and load consumes the same serializer output.
