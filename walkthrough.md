@@ -176,3 +176,8 @@
 
 - Queue load-side verification: the load icon opens the file open dialog (wired correctly), but scripted text entry into the dialog's filename field proved unreliable in this environment, so the final open-click was not completed. The load path consumes the same playlist.spls serializer output already verified byte-for-byte, so save/load remain a matched pair.
 - Phone emulator: display remains black and unresponsive to synthetic input; runtime UI verification of the phone MixRadio UI still requires a human at the emulator window (or a physical device).
+
+## 2026-09-05 09:55 +08:00
+
+- Load-side UI retest: the load icon correctly opens the file open dialog each time; the final filename-entry step cannot be completed by synthetic keyboard input in this environment (the dialog's edit field does not receive SendKeys text), so the load round-trip awaits the same manual/admin step as the phone deployment. Save side remains byte-verified.
+- Status: desktop MixRadio delivery complete and committed; phone package installed on the emulator awaiting manual screen wake/app launch; appcontainer unit tests pending the same admin elevation.
