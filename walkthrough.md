@@ -171,3 +171,8 @@
 - Breakthrough on the deployment toolchain: `AppDeployCmd.exe` is only a broken wrapper — the underlying managed API (`Microsoft.Phone.Tools.Deploy.Utils`, 32-bit) works. `GetDevices()` returns all 6 emulators plus device, `GetTargetedDevice("1")` connects to the running WVGA 512 MB emulator, and `InstallApplication(...)` completed successfully, so the current phone package IS installed on the emulator (first successful deployment since July).
 - Remaining phone runtime gap: the emulator's display stays black through taps, swipes, and power-button presses (GDI captures confirm real black, not a capture blind spot), so the MixRadio phone UI could not be observed yet; `cmdLaunch` via `DoXapDeployCommand` fails with an empty message. Likely first-boot/OOBE or display-off state that needs manual completion on the emulator window.
 - Serialization regression suite: installed at `tools/serializer-tests/run.cmd`, 22 model types + Genre/InternetRadioStation round-trips all green.
+
+## 2026-09-05 09:40 +08:00
+
+- Queue load-side verification: the load icon opens the file open dialog (wired correctly), but scripted text entry into the dialog's filename field proved unreliable in this environment, so the final open-click was not completed. The load path consumes the same playlist.spls serializer output already verified byte-for-byte, so save/load remain a matched pair.
+- Phone emulator: display remains black and unresponsive to synthetic input; runtime UI verification of the phone MixRadio UI still requires a human at the emulator window (or a physical device).
