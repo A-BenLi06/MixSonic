@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 // Types that are never XML-serialized by the app (in-memory only), so their
@@ -64,10 +65,51 @@ public static class SerializerTests
 
         DeserializeGenre();
         DeserializeRadioStation();
+        GenresHandleResponse();
+        RadioStationsHandleResponse();
 
         Console.WriteLine(_failures == 0 ? "ALL TESTS PASSED (" + modelTypes.Count + " model types)"
                                          : _failures + " FAILURES");
         Environment.Exit(_failures == 0 ? 0 : 1);
+    }
+
+    private static void GenresHandleResponse()
+    {
+        var config = new Client.Common.Services.DataStructures.SubsonicService.SubsonicServiceConfiguration
+        {
+            BaseUrl = "http://127.0.0.1:10011", Username = "u", Password = "p"
+        };
+        var result = new Client.Common.Results.GetGenresResult(config);
+        var xml = XDocument.Parse("<subsonic-response xmlns=\"http://subsonic.org/restapi\" status=\"ok\"><genres><genre songCount=\"1753\" albumCount=\"311\">Anime</genre><genre songCount=\"132\" albumCount=\"36\">Game</genre></genres></subsonic-response>");
+        result.HandleResponse(xml);
+        if (result.Result == null || result.Result.Count != 2 ||
+            result.Result[0].Name != "Anime" || result.Result[0].SongCount != 1753 ||
+            result.Result[1].Name != "Game")
+        {
+            _failures++;
+            Console.WriteLine("FAIL GetGenresResult.HandleResponse");
+            return;
+        }
+        Console.WriteLine("PASS GetGenresResult.HandleResponse: 2 genres (Anime 1753/311, Game 132/36)");
+    }
+
+    private static void RadioStationsHandleResponse()
+    {
+        var config = new Client.Common.Services.DataStructures.SubsonicService.SubsonicServiceConfiguration
+        {
+            BaseUrl = "http://127.0.0.1:10011", Username = "u", Password = "p"
+        };
+        var result = new Client.Common.Results.GetInternetRadioStationsResult(config);
+        var xml = XDocument.Parse("<subsonic-response xmlns=\"http://subsonic.org/restapi\" status=\"ok\"><internetRadioStations><internetRadioStation id=\"i1\" name=\"AsiaFM\" streamUrl=\"http://asiafm/hk\" /><internetRadioStation id=\"i2\" name=\"HITS FM\" streamUrl=\"https://sk.cri.cn/887.m3u8\" /></internetRadioStations></subsonic-response>");
+        result.HandleResponse(xml);
+        if (result.Result == null || result.Result.Count != 2 ||
+            result.Result[0].Name != "AsiaFM" || result.Result[1].StreamUrl != "https://sk.cri.cn/887.m3u8")
+        {
+            _failures++;
+            Console.WriteLine("FAIL GetInternetRadioStationsResult.HandleResponse");
+            return;
+        }
+        Console.WriteLine("PASS GetInternetRadioStationsResult.HandleResponse: 2 stations");
     }
 
     private static void DeserializeGenre()
