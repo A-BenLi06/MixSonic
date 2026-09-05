@@ -165,3 +165,9 @@
 - Delivered a real, executable serialization regression suite at `tools/serializer-tests/run.cmd`: it compiles the model/result sources for the desktop CLR (Caliburn reference + a desktop stub for the one WinRT visual-state result), asserts `XmlSerializer` construction for all 22 concrete model types, and round-trips Navidrome-shaped Genre and InternetRadioStation XML. It would have caught both of this round's crashes; run it after any change under Client.Common/Models or /Results.
 - Types that never pass through XmlSerializer (PlaylistItem/PlaylistItemCollection are DataContract-serialized into playlist.spls; GenericMediaModel and PlaylistHistoryStack are in-memory only) are explicitly skipped with the reason recorded.
 - Re-attempted the elevation route for the phone/admin gate; the UAC prompt was dismissed again, so LocalMachine trust and the appcontainer test/phone-deployment paths remain blocked on user action.
+
+## 2026-09-05 09:10 +08:00
+
+- Breakthrough on the deployment toolchain: `AppDeployCmd.exe` is only a broken wrapper — the underlying managed API (`Microsoft.Phone.Tools.Deploy.Utils`, 32-bit) works. `GetDevices()` returns all 6 emulators plus device, `GetTargetedDevice("1")` connects to the running WVGA 512 MB emulator, and `InstallApplication(...)` completed successfully, so the current phone package IS installed on the emulator (first successful deployment since July).
+- Remaining phone runtime gap: the emulator's display stays black through taps, swipes, and power-button presses (GDI captures confirm real black, not a capture blind spot), so the MixRadio phone UI could not be observed yet; `cmdLaunch` via `DoXapDeployCommand` fails with an empty message. Likely first-boot/OOBE or display-off state that needs manual completion on the emulator window.
+- Serialization regression suite: installed at `tools/serializer-tests/run.cmd`, 22 model types + Genre/InternetRadioStation round-trips all green.
