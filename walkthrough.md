@@ -185,3 +185,8 @@
 ## 2026-09-05 10:10 +08:00
 
 - Queue save→load round-trip now closed with decisive evidence: after trimming playlist.spls to 2 items, loading it via the queue drawer restored exactly those 2 tracks (Clean, Paradise Live (HANAYO Mix)) into the queue. The file picker interaction was completed via UIA element automation on PickerHost (filename edit + 打开 button), which is the reliable path for dialog automation in this environment.
+
+## 2026-09-05 10:25 +08:00
+
+- Final phone-screen attempt: emulator window made topmost fullscreen and swiped (in-screen drag with correct DIP coordinates) — display stays black through taps, swipes and power presses. The phone runtime UI verification (MixRadio tile → app → Navidrome connection on the emulator) is now the single remaining item and requires a human at the emulator window, or an administrator elevation (`.tmp/TrustCert-RunAsAdmin.ps1`), or a physical WP device.
+- Everything else is delivered, verified and committed: desktop MixRadio UI replication, full feature pass (save/load round-trip closed), three functional bug fixes, serializer regression suite, phone package built and installed on the emulator.
