@@ -181,3 +181,7 @@
 
 - Load-side UI retest: the load icon correctly opens the file open dialog each time; the final filename-entry step cannot be completed by synthetic keyboard input in this environment (the dialog's edit field does not receive SendKeys text), so the load round-trip awaits the same manual/admin step as the phone deployment. Save side remains byte-verified.
 - Status: desktop MixRadio delivery complete and committed; phone package installed on the emulator awaiting manual screen wake/app launch; appcontainer unit tests pending the same admin elevation.
+
+## 2026-09-05 10:10 +08:00
+
+- Queue save→load round-trip now closed with decisive evidence: after trimming playlist.spls to 2 items, loading it via the queue drawer restored exactly those 2 tracks (Clean, Paradise Live (HANAYO Mix)) into the queue. The file picker interaction was completed via UIA element automation on PickerHost (filename edit + 打开 button), which is the reliable path for dialog automation in this environment.
