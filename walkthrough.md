@@ -159,3 +159,9 @@
 - Elevation attempt for the phone/admin gate: the UAC prompt for the trust script was dismissed by the user, so LocalMachine trust remains out of reach this session.
 - Booted the WP8.1 emulator (XDE pid confirmed running) and retried `AppDeployCmd /install` with explicit target arguments (`0`, `targetdevice:0`, `xd`): all crash with the same "value out of expected range" during tool initialization — third reproduction, independent of emulator state or argument form.
 - Load-side verification of the queue round-trip was inconclusive via synthetic clicks at the small app-bar icon size; the save side remains byte-verified (playlist.spls, 9 tracks) and load consumes the same serializer output.
+
+## 2026-09-05 08:50 +08:00
+
+- Delivered a real, executable serialization regression suite at `tools/serializer-tests/run.cmd`: it compiles the model/result sources for the desktop CLR (Caliburn reference + a desktop stub for the one WinRT visual-state result), asserts `XmlSerializer` construction for all 22 concrete model types, and round-trips Navidrome-shaped Genre and InternetRadioStation XML. It would have caught both of this round's crashes; run it after any change under Client.Common/Models or /Results.
+- Types that never pass through XmlSerializer (PlaylistItem/PlaylistItemCollection are DataContract-serialized into playlist.spls; GenericMediaModel and PlaylistHistoryStack are in-memory only) are explicitly skipped with the reason recorded.
+- Re-attempted the elevation route for the phone/admin gate; the UAC prompt was dismissed again, so LocalMachine trust and the appcontainer test/phone-deployment paths remain blocked on user action.
