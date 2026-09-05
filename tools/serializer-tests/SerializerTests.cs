@@ -67,6 +67,8 @@ public static class SerializerTests
         DeserializeRadioStation();
         GenresHandleResponse();
         RadioStationsHandleResponse();
+        IndexesHandleResponse();
+        AlbumHandleResponse();
 
         Console.WriteLine(_failures == 0 ? "ALL TESTS PASSED (" + modelTypes.Count + " model types)"
                                          : _failures + " FAILURES");
@@ -110,6 +112,42 @@ public static class SerializerTests
             return;
         }
         Console.WriteLine("PASS GetInternetRadioStationsResult.HandleResponse: 2 stations");
+    }
+
+    private static void IndexesHandleResponse()
+    {
+        var config = new Client.Common.Services.DataStructures.SubsonicService.SubsonicServiceConfiguration
+        {
+            BaseUrl = "http://127.0.0.1:10011", Username = "u", Password = "p"
+        };
+        var result = new Client.Common.Results.GetIndexResult(config, "1");
+        var xml = XDocument.Parse("<subsonic-response xmlns=\"http://subsonic.org/restapi\" status=\"ok\"><indexes lastModified=\"1787910186000\" ignoredArticles=\"The El La\"><index name=\"#\"><artist id=\"12xz\" name=\"(测试艺人\" coverArt=\"ar-12xz_0\" /></index><index name=\"A\"><artist id=\"aq1\" name=\"Aqours\" coverArt=\"ar-aq1_0\" /></index></indexes></subsonic-response>");
+        result.HandleResponse(xml);
+        if (result.Result == null || result.Result.Artists == null || result.Result.Artists.Count != 2)
+        {
+            _failures++;
+            Console.WriteLine("FAIL GetIndexResult.HandleResponse");
+            return;
+        }
+        Console.WriteLine("PASS GetIndexResult.HandleResponse: " + result.Result.Artists.Count + " artists across index groups");
+    }
+
+    private static void AlbumHandleResponse()
+    {
+        var config = new Client.Common.Services.DataStructures.SubsonicService.SubsonicServiceConfiguration
+        {
+            BaseUrl = "http://127.0.0.1:10011", Username = "u", Password = "p"
+        };
+        var result = new Client.Common.Results.GetAlbumResult(config, "al-1");
+        var xml = XDocument.Parse("<subsonic-response xmlns=\"http://subsonic.org/restapi\" status=\"ok\"><album id=\"al-1\" name=\"アイコトバ!\" artist=\"Various Artists\" artistId=\"63sq\" songCount=\"11\" duration=\"2506\"><song id=\"s1\" parent=\"al-1\" title=\"アイコトバ!\" artist=\"Various Artists\" duration=\"231\" track=\"1\" /><song id=\"s2\" parent=\"al-1\" title=\"Second Song\" artist=\"Various Artists\" duration=\"200\" track=\"2\" /></album></subsonic-response>");
+        result.HandleResponse(xml);
+        if (result.Result == null)
+        {
+            _failures++;
+            Console.WriteLine("FAIL GetAlbumResult.HandleResponse");
+            return;
+        }
+        Console.WriteLine("PASS GetAlbumResult.HandleResponse: title=" + result.Result.Name);
     }
 
     private static void DeserializeGenre()
