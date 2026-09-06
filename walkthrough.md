@@ -208,3 +208,10 @@
 ## 2026-09-05 13:20 +08:00
 
 - Extended the desktop serializer regression suite from 26 to 30 assertions: added GetMusicDirectoryResult.HandleResponse (directory with children) and GetSongResult.HandleResponse (single song) tests using Navidrome-shaped XML. These supplement the original MSTest suite which requires appcontainer deployment (admin elevation not available in this session).
+
+## 2026-09-05 14:00 +08:00
+
+- Phone package rebuilt with latest fixes (Genre.Name fix, InternetRadioStation [XmlRoot] fix, search wiring, Metro letter headers, pink smiley placeholder) and redeployed to the emulator via managed API.
+- Desktop serializer regression suite extended to 30 assertions covering GetMusicDirectoryResult and GetSongResult HandleResponse paths. All green.
+- Phone SettingsPage provides full Navidrome connection configuration (Primary URL + Secondary URL + account + compatible mode + test connection), persisting to ApplicationData.Current.LocalSettings.
+- Remaining runtime verification items require user to: (1) wake the emulator phone screen and interact with the MixRadio app to observe the polished UI, (2) approve UAC elevation to import test cert into LocalMachine for appcontainer unit tests.
