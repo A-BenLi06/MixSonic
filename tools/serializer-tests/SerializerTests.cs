@@ -69,6 +69,8 @@ public static class SerializerTests
         RadioStationsHandleResponse();
         IndexesHandleResponse();
         AlbumHandleResponse();
+        MusicDirectoryHandleResponse();
+        SongHandleResponse();
 
         Console.WriteLine(_failures == 0 ? "ALL TESTS PASSED (" + modelTypes.Count + " model types)"
                                          : _failures + " FAILURES");
@@ -148,6 +150,42 @@ public static class SerializerTests
             return;
         }
         Console.WriteLine("PASS GetAlbumResult.HandleResponse: title=" + result.Result.Name);
+    }
+
+    private static void MusicDirectoryHandleResponse()
+    {
+        var config = new Client.Common.Services.DataStructures.SubsonicService.SubsonicServiceConfiguration
+        {
+            BaseUrl = "http://127.0.0.1:10011", Username = "u", Password = "p"
+        };
+        var result = new Client.Common.Results.GetMusicDirectoryResult(config, "dir-1");
+        var xml = System.Xml.Linq.XDocument.Parse("<subsonic-response xmlns=\"http://subsonic.org/restapi\" status=\"ok\"><directory id=\"dir-1\" name=\"Test Folder\"><child id=\"ch-1\" title=\"Album One\" artist=\"Artist A\" isDir=\"true\" /><child id=\"ch-2\" title=\"Song X\" artist=\"Artist A\" duration=\"200\" isDir=\"false\" /></directory></subsonic-response>");
+        result.HandleResponse(xml);
+        if (result.Result == null)
+        {
+            _failures++;
+            Console.WriteLine("FAIL GetMusicDirectoryResult.HandleResponse");
+            return;
+        }
+        Console.WriteLine("PASS GetMusicDirectoryResult.HandleResponse: " + result.Result.Id);
+    }
+
+    private static void SongHandleResponse()
+    {
+        var config = new Client.Common.Services.DataStructures.SubsonicService.SubsonicServiceConfiguration
+        {
+            BaseUrl = "http://127.0.0.1:10011", Username = "u", Password = "p"
+        };
+        var result = new Client.Common.Results.GetSongResult(config, "song-1");
+        var xml = System.Xml.Linq.XDocument.Parse("<subsonic-response xmlns=\"http://subsonic.org/restapi\" status=\"ok\"><song id=\"song-1\" title=\"Test Song\" artist=\"Test Artist\" duration=\"200\" track=\"1\" /></subsonic-response>");
+        result.HandleResponse(xml);
+        if (result.Result == null)
+        {
+            _failures++;
+            Console.WriteLine("FAIL GetSongResult.HandleResponse");
+            return;
+        }
+        Console.WriteLine("PASS GetSongResult.HandleResponse: " + result.Result.Name);
     }
 
     private static void DeserializeGenre()
