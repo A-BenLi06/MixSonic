@@ -190,3 +190,8 @@
 
 - Final phone-screen attempt: emulator window made topmost fullscreen and swiped (in-screen drag with correct DIP coordinates) — display stays black through taps, swipes and power presses. The phone runtime UI verification (MixRadio tile → app → Navidrome connection on the emulator) is now the single remaining item and requires a human at the emulator window, or an administrator elevation (`.tmp/TrustCert-RunAsAdmin.ps1`), or a physical WP device.
 - Everything else is delivered, verified and committed: desktop MixRadio UI replication, full feature pass (save/load round-trip closed), three functional bug fixes, serializer regression suite, phone package built and installed on the emulator.
+
+## 2026-09-05 12:30 +08:00
+
+- Fixed whole-page horizontal scrolling in the desktop app: the browse pages (FullScreen.xaml) had a two-column layout (fixed 900px now-playing panel + independently scrolling tiles column) which limited scrolling to only the tiles area. Restructured to a single horizontal ScrollViewer spanning the full page — the now-playing panel and library tiles scroll together as one page, matching the Metro hub layout and real MixRadio behavior.
+- GridViews get internal scrolling disabled via attached properties so the outer ScrollViewer handles panning; the StackPanel height binds to the ScrollViewer viewport for correct tile wrapping; the empty-state overlay was repositioned for the new single-column layout.
