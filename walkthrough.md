@@ -204,3 +204,7 @@
   - "Navidrome music" subtitle: FontSize 18 → 14 (typography.md: secondary metadata 9-11pt range; previous 18pt conflicted with section header sizing)
   - Playback page (MenuItems GridView) internal scroll disabled matching grouped GridView
 - Regression suite (26 assertions) confirmed green after all changes
+
+## 2026-09-05 13:20 +08:00
+
+- Extended the desktop serializer regression suite from 26 to 30 assertions: added GetMusicDirectoryResult.HandleResponse (directory with children) and GetSongResult.HandleResponse (single song) tests using Navidrome-shaped XML. These supplement the original MSTest suite which requires appcontainer deployment (admin elevation not available in this session).
