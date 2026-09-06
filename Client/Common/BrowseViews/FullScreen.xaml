@@ -19,19 +19,19 @@
                               IsSourceGrouped="True"
                               Source="{Binding GroupedMenuItems}" />
         <DataTemplate x:Key="LetterHeaderTemplate">
-            <Border Width="132"
-                    Height="34"
-                    Margin="0,0,0,14"
-                    HorizontalAlignment="Left"
-                    BorderBrush="{StaticResource MixRadioAccentBrush}"
-                    BorderThickness="2">
+            <StackPanel Margin="0,0,0,14"
+                        HorizontalAlignment="Left">
                 <TextBlock Text="{Binding Key}"
-                           Margin="8,0,0,0"
                            VerticalAlignment="Center"
                            Foreground="{StaticResource MixRadioAccentBrush}"
                            FontFamily="Segoe UI Light"
-                           FontSize="20" />
-            </Border>
+                           FontSize="26"
+                           Margin="0,0,0,6" />
+                <Rectangle Height="2"
+                           Width="44"
+                           HorizontalAlignment="Left"
+                           Fill="{StaticResource MixRadioAccentBrush}" />
+            </StackPanel>
         </DataTemplate>
     </UserControl.Resources>
 
@@ -39,7 +39,7 @@
                   VerticalScrollMode="Disabled"
                   HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Disabled">
-    <Grid Width="2560"
+    <Grid MinWidth="2560"
           Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="900" />
