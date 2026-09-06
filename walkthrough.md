@@ -195,3 +195,12 @@
 
 - Fixed whole-page horizontal scrolling in the desktop app: the browse pages (FullScreen.xaml) had a two-column layout (fixed 900px now-playing panel + independently scrolling tiles column) which limited scrolling to only the tiles area. Restructured to a single horizontal ScrollViewer spanning the full page — the now-playing panel and library tiles scroll together as one page, matching the Metro hub layout and real MixRadio behavior.
 - GridViews get internal scrolling disabled via attached properties so the outer ScrollViewer handles panning; the StackPanel height binds to the ScrollViewer viewport for correct tile wrapping; the empty-state overlay was repositioned for the new single-column layout.
+
+## 2026-09-05 13:00 +08:00
+
+- Systematic Metro compliance audit against windows81-metro-dev skill design references (metro-principles.md, typography.md, layout-grid.md, page-patterns.md, anti-patterns.md):
+  - Grid Width=2560 → MinWidth=2560: content canvas now adapts to wider screens (layout-grid.md: "content canvas" rule)
+  - LetterHeaderTemplate: removed decorative Border box (anti-patterns.md: "excessive borders"); replaced with accent-colored group letter + 44px underline rule matching real MixRadio letter headers
+  - "Navidrome music" subtitle: FontSize 18 → 14 (typography.md: secondary metadata 9-11pt range; previous 18pt conflicted with section header sizing)
+  - Playback page (MenuItems GridView) internal scroll disabled matching grouped GridView
+- Regression suite (26 assertions) confirmed green after all changes
