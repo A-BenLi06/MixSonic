@@ -36,29 +36,23 @@
     </UserControl.Resources>
 
     <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="900" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
             <RowDefinition Height="148" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Image Grid.ColumnSpan="2"
-               Grid.RowSpan="2"
+        <Image Grid.RowSpan="2"
                Source="/Assets/CoverArtPlaceholderLarge.jpg"
                Stretch="UniformToFill"
                Opacity="0.06" />
-        <Rectangle Grid.ColumnSpan="2"
-                   Grid.RowSpan="2"
+        <Rectangle Grid.RowSpan="2"
                    Fill="#F6000000" />
 
-        <common:PageHeader Grid.ColumnSpan="2"
+        <common:PageHeader Grid.Row="0"
                            DataContext="{Binding}"/>
 
-        <Grid Grid.Column="1"
+        <Grid Grid.Row="0"
               Margin="0,34,88,0"
               HorizontalAlignment="Right"
               VerticalAlignment="Top"
@@ -91,215 +85,232 @@
             </Border>
         </Grid>
 
-        <Grid Grid.Row="1"
-              Grid.Column="0"
-              Width="760"
-              Margin="88,0,32,46"
-              HorizontalAlignment="Left">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <!-- ============ 整页横滑：播放面板 + 磁贴区一起滚动 ============ -->
+        <ScrollViewer x:Name="ContentScroller"
+                      Grid.Row="1"
+                      Grid.RowSpan="2"
+                      HorizontalScrollMode="Enabled"
+                      VerticalScrollMode="Disabled"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled"
+                      BringIntoViewOnFocusChange="False">
 
-            <Grid Grid.Row="0"
-                  Margin="0,0,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="258" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal"
+                        Height="{Binding ViewportHeight, ElementName=ContentScroller}">
 
-                <Grid Width="258"
-                      Height="258"
-                      HorizontalAlignment="Left"
-                      Background="{StaticResource MixRadioPanelAltBrush}">
-                    <Image Source="/Assets/CoverArtPlaceholderLarge.jpg"
-                           Stretch="UniformToFill"
-                           Opacity="0.92" />
-                    <Rectangle Fill="#18000000" />
-                    <Rectangle Height="4"
-                               Fill="{StaticResource MixRadioAccentBrush}"
-                               VerticalAlignment="Bottom" />
-                </Grid>
-
-                <Grid Grid.Column="1"
-                      Margin="24,18,0,0"
-                      VerticalAlignment="Top">
+                <!-- ====== 正在播放面板（随页面一起横滑） ====== -->
+                <Grid Width="832"
+                      Margin="88,0,0,46">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0"
-                               Text="{Binding DisplayName}"
-                               Foreground="{StaticResource ApplicationForegroundThemeBrush}"
-                               FontFamily="Segoe UI Light"
-                               FontSize="32"
-                               Margin="0,0,0,0"
-                               TextWrapping="Wrap"
-                               TextTrimming="WordEllipsis" />
-                    <TextBlock Grid.Row="1"
-                               Text="Navidrome music"
+                    <Grid Grid.Row="0"
+                          Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="258" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Grid Width="258"
+                              Height="258"
+                              HorizontalAlignment="Left"
+                              Background="{StaticResource MixRadioPanelAltBrush}">
+                            <Image Source="/Assets/CoverArtPlaceholderLarge.jpg"
+                                   Stretch="UniformToFill"
+                                   Opacity="0.92" />
+                            <Rectangle Fill="#18000000" />
+                            <Rectangle Height="4"
+                                       Fill="{StaticResource MixRadioAccentBrush}"
+                                       VerticalAlignment="Bottom" />
+                        </Grid>
+
+                        <Grid Grid.Column="1"
+                              Margin="24,18,0,0"
+                              VerticalAlignment="Top">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0"
+                                       Text="{Binding DisplayName}"
+                                       Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                                       FontFamily="Segoe UI Light"
+                                       FontSize="32"
+                                       Margin="0,0,0,0"
+                                       TextWrapping="Wrap"
+                                       TextTrimming="WordEllipsis" />
+                            <TextBlock Grid.Row="1"
+                                       Text="Navidrome music"
+                                       Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                                       FontFamily="Segoe UI Light"
+                                       FontSize="18"
+                                       Margin="0,6,0,0"
+                                       TextWrapping="Wrap"
+                                       TextTrimming="WordEllipsis" />
+                        </Grid>
+                    </Grid>
+
+                    <Grid Grid.Row="1"
+                          Width="258"
+                          Height="12"
+                          HorizontalAlignment="Left"
+                          Margin="0,14,0,0">
+                        <Rectangle Height="4"
+                                   Fill="#FF2D2D2D"
+                                   VerticalAlignment="Center" />
+                        <Rectangle Width="26"
+                                   Height="4"
+                                   Fill="{StaticResource MixRadioAccentBrush}"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center" />
+                        <TextBlock Text="0:00"
+                                   Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                                   FontSize="10"
+                                   HorizontalAlignment="Left"
+                                   Margin="0,-16,0,0" />
+                        <TextBlock Text="3:32"
+                                   Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                                   FontSize="10"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,-16,0,0" />
+                    </Grid>
+
+                    <StackPanel Grid.Row="2"
+                                Orientation="Horizontal"
+                                Margin="0,24,0,0">
+                        <Border Width="52"
+                                Height="52"
+                                CornerRadius="26"
+                                BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                                BorderThickness="2"
+                                Margin="0,0,16,0">
+                            <TextBlock Text="&#xE100;"
+                                       FontFamily="Segoe UI Symbol"
+                                       FontSize="21"
+                                       Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                        <Border Width="62"
+                                Height="62"
+                                CornerRadius="31"
+                                BorderBrush="{StaticResource ApplicationForegroundThemeBrush}"
+                                BorderThickness="2"
+                                Margin="0,-5,16,0">
+                            <TextBlock Text="&#xE102;"
+                                       FontFamily="Segoe UI Symbol"
+                                       FontSize="28"
+                                       Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Margin="4,0,0,0" />
+                        </Border>
+                        <Border Width="52"
+                                Height="52"
+                                CornerRadius="26"
+                                BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                                BorderThickness="2"
+                                Margin="0,0,16,0">
+                            <TextBlock Text="&#xE101;"
+                                       FontFamily="Segoe UI Symbol"
+                                       FontSize="21"
+                                       Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                        <Border Width="38"
+                                Height="38"
+                                CornerRadius="19"
+                                BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                                BorderThickness="2"
+                                Margin="0,7,0,0">
+                            <TextBlock Text="&#xE14C;"
+                                       FontFamily="Segoe UI Symbol"
+                                       FontSize="17"
+                                       Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                    </StackPanel>
+
+                    <TextBlock Grid.Row="3"
+                               Text="recently played"
+                               Margin="0,28,0,0"
                                Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                               FontFamily="Segoe UI Light"
-                               FontSize="18"
-                               Margin="0,6,0,0"
-                               TextWrapping="Wrap"
+                               FontSize="15"
                                TextTrimming="WordEllipsis" />
                 </Grid>
-            </Grid>
 
-            <Grid Grid.Row="1"
-                  Width="258"
-                  Height="12"
-                  HorizontalAlignment="Left"
-                  Margin="0,14,0,0">
-                <Rectangle Height="4"
-                           Fill="#FF2D2D2D"
-                           VerticalAlignment="Center" />
-                <Rectangle Width="26"
-                           Height="4"
-                           Fill="{StaticResource MixRadioAccentBrush}"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Center" />
-                <TextBlock Text="0:00"
-                           Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                           FontSize="10"
-                           HorizontalAlignment="Left"
-                           Margin="0,-16,0,0" />
-                <TextBlock Text="3:32"
-                           Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                           FontSize="10"
-                           HorizontalAlignment="Right"
-                           Margin="0,-16,0,0" />
-            </Grid>
-
-            <StackPanel Grid.Row="2"
-                        Orientation="Horizontal"
-                        Margin="0,24,0,0">
-                <Border Width="52"
-                        Height="52"
-                        CornerRadius="26"
-                        BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                        BorderThickness="2"
-                        Margin="0,0,16,0">
-                    <TextBlock Text="&#xE100;"
-                               FontFamily="Segoe UI Symbol"
-                               FontSize="21"
-                               Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
-                </Border>
-                <Border Width="62"
-                        Height="62"
-                        CornerRadius="31"
-                        BorderBrush="{StaticResource ApplicationForegroundThemeBrush}"
-                        BorderThickness="2"
-                        Margin="0,-5,16,0">
-                    <TextBlock Text="&#xE102;"
-                               FontFamily="Segoe UI Symbol"
-                               FontSize="28"
+                <!-- ====== Library 磁贴区（跟在播放面板右侧） ====== -->
+                <Grid Margin="0,52,88,46">
+                    <TextBlock Text="library"
                                Foreground="{StaticResource ApplicationForegroundThemeBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Margin="4,0,0,0" />
-                </Border>
-                <Border Width="52"
-                        Height="52"
-                        CornerRadius="26"
-                        BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                        BorderThickness="2"
-                        Margin="0,0,16,0">
-                    <TextBlock Text="&#xE101;"
-                               FontFamily="Segoe UI Symbol"
-                               FontSize="21"
-                               Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
-                </Border>
-                <Border Width="38"
-                        Height="38"
-                        CornerRadius="19"
-                        BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                        BorderThickness="2"
-                        Margin="0,7,0,0">
-                    <TextBlock Text="&#xE14C;"
-                               FontFamily="Segoe UI Symbol"
-                               FontSize="17"
-                               Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center" />
-                </Border>
+                               FontFamily="Segoe UI Light"
+                               FontSize="24"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Top"
+                               Margin="0,-38,0,0" />
+
+                    <GridView x:Name="GroupedItems"
+                              Margin="0"
+                              SelectionMode="Multiple"
+                              ItemTemplate="{StaticResource MenuItemTemplate}"
+                              Visibility="{Binding ShowGroupedItems, Converter={StaticResource BooleanToVisibilityConverter}}"
+                              behaviors:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
+                              IsItemClickEnabled="True" caliburn:Message.Attach="[Event ItemClick] = [ChildClick($eventArgs)]"
+                              ItemsSource="{Binding Source={StaticResource GroupedMenuItemsSource}}"
+                              ScrollViewer.HorizontalScrollMode="Disabled"
+                              ScrollViewer.VerticalScrollMode="Disabled"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                        <GridView.GroupStyle>
+                            <GroupStyle HeaderTemplate="{StaticResource LetterHeaderTemplate}">
+                                <GroupStyle.Panel>
+                                    <ItemsPanelTemplate>
+                                        <VariableSizedWrapGrid Orientation="Vertical" />
+                                    </ItemsPanelTemplate>
+                                </GroupStyle.Panel>
+                            </GroupStyle>
+                        </GridView.GroupStyle>
+                    </GridView>
+
+                    <GridView x:Name="MenuItems"
+                              Margin="0"
+                              SelectionMode="Multiple"
+                              ItemTemplate="{StaticResource MenuItemTemplate}"
+                              Visibility="{Binding ShowFlatItems, Converter={StaticResource BooleanToVisibilityConverter}}"
+                              behaviors:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
+                              IsItemClickEnabled="True" caliburn:Message.Attach="[Event ItemClick] = [ChildClick($eventargs)]"
+                              ScrollViewer.HorizontalScrollMode="Disabled"
+                              ScrollViewer.VerticalScrollMode="Disabled"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VariableSizedWrapGrid Orientation="Vertical" MaximumRowsOrColumns="2" />
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                    </GridView>
+                </Grid>
             </StackPanel>
+        </ScrollViewer>
 
-            <TextBlock Grid.Row="3"
-                       Text="recently played"
-                       Margin="0,28,0,0"
-                       Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                       FontSize="15"
-                       TextTrimming="WordEllipsis" />
-        </Grid>
-
-        <TextBlock Grid.Row="1"
-                   Grid.Column="1"
-                   Text="library"
-                   Foreground="{StaticResource ApplicationForegroundThemeBrush}"
-                   FontFamily="Segoe UI Light"
-                   FontSize="24"
-                   Margin="0,0,88,0"
-                   HorizontalAlignment="Left"
-                   VerticalAlignment="Top" />
-
-        <GridView x:Name="GroupedItems"
-                  Grid.Row="1"
-                  Grid.Column="1"
-                  Margin="0"
-                  Padding="0,52,88,46"
-                  SelectionMode="Multiple"
-                  ItemTemplate="{StaticResource MenuItemTemplate}"
-                  Visibility="{Binding ShowGroupedItems, Converter={StaticResource BooleanToVisibilityConverter}}"
-                  behaviors:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                  IsItemClickEnabled="True" caliburn:Message.Attach="[Event ItemClick] = [ChildClick($eventArgs)]"
-                  ItemsSource="{Binding Source={StaticResource GroupedMenuItemsSource}}">
-            <GridView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <ItemsWrapGrid Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-            </GridView.ItemsPanel>
-            <GridView.GroupStyle>
-                <GroupStyle HeaderTemplate="{StaticResource LetterHeaderTemplate}">
-                    <GroupStyle.Panel>
-                        <ItemsPanelTemplate>
-                            <VariableSizedWrapGrid Orientation="Vertical" />
-                        </ItemsPanelTemplate>
-                    </GroupStyle.Panel>
-                </GroupStyle>
-            </GridView.GroupStyle>
-        </GridView>
-
-        <GridView x:Name="MenuItems"
-                  Grid.Row="1"
-                  Grid.Column="1"
-                  Margin="0"
-                  Padding="0,52,88,46"
-                  SelectionMode="Multiple"
-                  ItemTemplate="{StaticResource MenuItemTemplate}"
-                  Visibility="{Binding ShowFlatItems, Converter={StaticResource BooleanToVisibilityConverter}}"
-                  behaviors:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                  IsItemClickEnabled="True" caliburn:Message.Attach="[Event ItemClick] = [ChildClick($eventargs)]">
-            <GridView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <VariableSizedWrapGrid Orientation="Vertical" MaximumRowsOrColumns="2" />
-                </ItemsPanelTemplate>
-            </GridView.ItemsPanel>
-        </GridView>
-
+        <!-- 空状态提示（覆盖层） -->
         <Grid Grid.Row="1"
-              Grid.Column="1"
+              Grid.RowSpan="2"
               Width="560"
               MinHeight="230"
-              Margin="0,58,88,46"
+              Margin="88,116,0,46"
               HorizontalAlignment="Left"
               VerticalAlignment="Top"
               Visibility="{Binding IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}">
