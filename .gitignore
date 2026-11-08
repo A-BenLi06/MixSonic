@@ -60,3 +60,6 @@ PublishAssets/*
 
 # Local reference tooling caches
 tools/mixradio/__pycache__/
+
+# Original phone reference packages stay local.
+*.xap

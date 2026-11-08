@@ -82,6 +82,36 @@ Downloads, library-based artist mixes, supported lyrics, and richer artist
 details need their own implementation and capability checks. Record them as
 gaps; do not add inert controls or imply that a random list is personalized.
 
+## Implementation and acceptance status
+
+The queue implementation in `4506fd6` and desktop implementation in `e9c84ad`
+address the starting gaps. These are independently implemented client changes;
+original decompiled application code/assets are not included in them.
+
+| Area | Current implementation | Verified evidence |
+| --- | --- | --- |
+| Context queue, shuffle and repeat | Ordered replacement at the selected index; explicit append; off/all/one repeat; complete shuffle cycles; safe queue mutation | Production-source playback assertions |
+| Desktop browse and search | Real player/library/recent Hub sections; vertical 320/500px views; visible typed search, Enter/button/Ctrl+F; stale-result guard | Windows 8.1 Debug x86 build; native input/layout remains unverified |
+| Live player | Current art/title, state, elapsed/duration, transport, queue and options; visible focus and scrolling in short player sections | Build; actual media and XAML synchronization remain unverified |
+| Recent listening | Bounded 100-song deduplicated history from first actual Playing state; account-scoped persistence, metadata/IDs and replay | Core model/account-key tests and build; runtime events, persistence failure and restart need native evidence |
+| Favourites | Encoded star/unstar protocol; confirmed response updates the captured target song; failed responses preserve state | Protocol/model tests and build; real mutation/rollback UI remains unverified |
+| Queue files | Existing `.spls` XML format; transaction writes, import validation/error feedback; original URI escaping | XML metadata/order/Unicode/URI round-trip, old-file compatibility, invalid-import preservation and build; pickers need native evidence |
+| Theme and copy | Reference pink `#FFFF2E80`; new English text in resource keys | Resource/source review and build; screenshot comparison remains unverified |
+
+The current source regression run passes 517 playback/history/favourite/import
+assertions. The serializer runner inspects 22 concrete model types, excludes only
+two intentionally in-memory types, and includes queue XML scenarios. Earlier
+walkthrough claims that queue exports use DataContractSerializer or advertise
+`.m3u` are superseded: picker save/load use XmlSerializer and `.spls`; session
+state uses DataContractSerializer.
+
+[acceptance-workflow.md](acceptance-workflow.md) and
+[the quality tools](../../tools/mixradio/README.md) provide a 30-case required
+gate, a scored rubric, immutable copied evidence, PNG comparison/review, and
+defect tracking. Seeking, offline downloads and local artist mixes are explicit
+roadmap cases. A successful build/source suite does not certify full client or
+visual acceptance.
+
 ## Verification limits
 
 The existing desktop client builds with MSBuild 14.0 and the legacy SDKs on this

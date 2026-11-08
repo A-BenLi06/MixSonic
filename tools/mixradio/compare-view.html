@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference comparison</title>
+<style>
+  body { margin: 24px; background: #151515; color: #eee; font: 16px/1.5 system-ui, sans-serif; }
+  h1 { font-size: 28px; font-weight: 500; }
+  label { display: inline-flex; gap: 8px; align-items: center; margin: 8px 16px 8px 0; }
+  button, select, input, textarea { font: inherit; color: inherit; background: #292929; border: 1px solid #777; padding: 8px; }
+  button { cursor: pointer; } input[type=number] { width: 76px; } input[type=range] { padding: 0; }
+  textarea { display: block; width: min(800px, 90%); height: 100px; }
+  :focus-visible { outline: 3px solid #ff2e80; outline-offset: 2px; }
+  .notice { color: #ffc485; } .muted { color: #bbb; } .panels { display: flex; gap: 20px; align-items: flex-start; }
+  figure { flex: 1; min-width: 0; margin: 0; } figcaption { margin: 8px 0; overflow-wrap: anywhere; }
+  canvas { display: block; max-width: 100%; height: auto; background: #222; }
+  #composite { max-width: 100%; } .actual-pixels canvas, .actual-pixels #composite { max-width: none; }
+  .image-scroll { overflow: auto; max-height: 75vh; } [hidden] { display: none !important; }
+  fieldset { display: inline-block; margin: 12px 12px 12px 0; border: 1px solid #555; }
+  #export { white-space: pre-wrap; max-height: 320px; overflow: auto; }
+  @media (max-width: 800px) { .panels { flex-direction: column; } figure { width: 100%; } }
+</style>
+<h1 id="title"></h1>
+<p id="provenance" class="muted"></p>
+<p id="notice" class="notice"></p>
+<label>View <select id="mode"><option value="side">Side by side</option><option value="overlay">Overlay</option><option value="wipe">Wipe</option><option value="diff">Difference</option></select></label>
+<label>Overlay / wipe <input id="amount" type="range" min="0" max="100" value="50"><output id="amountValue">50%</output></label>
+<label>Changed pixel threshold <input id="threshold" type="number" min="0" max="255" value="12"></label>
+<label><input id="actualPixels" type="checkbox"> Actual pixels</label>
+<details><summary>Compare app-content crops without resizing</summary><div id="cropControls"></div><button id="applyCrops">Apply crops</button> <button id="resetCrops">Reset</button></details>
+<p id="metrics" class="muted">Pixel difference is a diagnostic; acceptance needs a recorded observation.</p>
+<div class="panels" id="sidePanels">
+  <figure><figcaption id="referenceCaption"></figcaption><div class="image-scroll"><canvas id="referenceCanvas"></canvas></div></figure>
+  <figure><figcaption id="candidateCaption"></figcaption><div class="image-scroll"><canvas id="candidateCanvas"></canvas></div></figure>
+</div>
+<div id="compositePanel" class="image-scroll" hidden><canvas id="composite"></canvas></div>
+<p class="muted">Different crop dimensions disable overlay and metrics. Artwork and changing text may legitimately differ; inspect comparable regions.</p>
+<h2>Review observation</h2>
+<label>Reviewer <input id="reviewer" type="text" autocomplete="name"></label>
+<textarea id="notes" aria-label="Review observation" placeholder="Record alignment, typography, hierarchy, commands, state differences and any limitations."></textarea>
+<label>Decision <select id="decision"><option value="">Unreviewed</option><option value="pass">Pass</option><option value="fail">Fail</option><option value="blocked">Blocked</option></select></label>
+<button id="saveReview">Export review JSON</button> <button id="saveDiff">Export difference PNG</button>
+<pre id="export" hidden></pre>
+<script id="payload" type="application/json">__PAYLOAD__</script>
+<script>
+  const payload = JSON.parse(document.querySelector('#payload').textContent);
+  const byId = id => document.getElementById(id);
+  const images = {}, canvases = {}, originalCrops = structuredClone(payload.crops);
+  const metadata = { ...payload, images: Object.fromEntries(Object.entries(payload.images).map(([role, image]) => {
+    if (!image) return [role, null];
+    const { dataUrl, ...description } = image;
+    return [role, description];
+  })) };
+  const kindLabel = kind => ({ runtime: 'Runtime capture', mockup: 'Design mockup', synthetic: 'Synthetic fixture', missing: 'Missing capture' })[kind];
+  byId('title').textContent = payload.title;
+  document.title = payload.title;
+  byId('provenance').textContent = `${kindLabel(payload.referenceKind)} → ${kindLabel(payload.candidateKind)}. Inputs are identified by SHA-256; no visual pass is inferred.`;
+
+  function setCropControls() {
+    byId('cropControls').replaceChildren();
+    for (const role of ['reference', 'candidate']) {
+      if (!images[role]) continue;
+      const fieldset = document.createElement('fieldset'), legend = document.createElement('legend');
+      legend.textContent = `${role} crop`; fieldset.append(legend);
+      for (const key of ['x', 'y', 'width', 'height']) {
+        const label = document.createElement('label'), input = document.createElement('input');
+        label.textContent = key; input.type = 'number'; input.min = key === 'width' || key === 'height' ? 1 : 0;
+        input.value = metadata.crops[role][key]; input.dataset.role = role; input.dataset.key = key;
+        input.setAttribute('aria-label', `${role} crop ${key}`); label.append(input); fieldset.append(label);
+      }
+      byId('cropControls').append(fieldset);
+    }
+  }
+
+  function readCrops() {
+    const crops = structuredClone(metadata.crops);
+    byId('cropControls').querySelectorAll('input').forEach(input => crops[input.dataset.role][input.dataset.key] = Number(input.value));
+    for (const [role, crop] of Object.entries(crops)) {
+      if (!crop) continue;
+      if (!Object.values(crop).every(Number.isInteger) || crop.x < 0 || crop.y < 0 || crop.width < 1 || crop.height < 1 ||
+          crop.x + crop.width > images[role].width || crop.y + crop.height > images[role].height) throw new Error(`${role} crop is outside its input image.`);
+    }
+    metadata.crops = crops;
+  }
+
+  function drawSource(role) {
+    const canvas = canvases[role], crop = metadata.crops[role];
+    canvas.width = crop.width; canvas.height = crop.height;
+    canvas.getContext('2d').drawImage(images[role], crop.x, crop.y, crop.width, crop.height, 0, 0, crop.width, crop.height);
+    const item = metadata.images[role];
+    byId(role + 'Caption').textContent = `${role}: ${item.name} · ${crop.width}×${crop.height}px · SHA-256 ${item.sha256}`;
+  }
+
+  function difference() {
+    const a = canvases.reference, b = canvases.candidate;
+    if (!a || a.width !== b.width || a.height !== b.height) return null;
+    const first = a.getContext('2d').getImageData(0, 0, a.width, a.height), second = b.getContext('2d').getImageData(0, 0, b.width, b.height);
+    const pixels = new ImageData(a.width, a.height), threshold = Number(byId('threshold').value);
+    if (!Number.isFinite(threshold) || threshold < 0 || threshold > 255) throw new Error('Threshold must be between 0 and 255.');
+    let total = 0, squares = 0, changed = 0;
+    for (let index = 0; index < first.data.length; index += 4) {
+      let maximum = 0;
+      for (let channel = 0; channel < 4; channel++) {
+        const delta = Math.abs(first.data[index + channel] - second.data[index + channel]);
+        total += delta; squares += delta * delta; maximum = Math.max(maximum, delta);
+      }
+      if (maximum > threshold) changed++;
+      const heat = Math.min(255, maximum * 4);
+      pixels.data.set([heat, heat / 4, heat / 2, 255], index);
+    }
+    const count = a.width * a.height;
+    metadata.metrics = { width: a.width, height: a.height, meanAbsoluteRGBA: total / (count * 4),
+      rootMeanSquareRGBA: Math.sqrt(squares / (count * 4)), changedPixelPercent: 100 * changed / count,
+      threshold, computedAt: new Date().toISOString() };
+    return pixels;
+  }
+
+  function render() {
+    for (const role of Object.keys(images)) drawSource(role);
+    const comparable = images.reference && canvases.reference.width === canvases.candidate.width && canvases.reference.height === canvases.candidate.height;
+    byId('mode').querySelectorAll('option').forEach(option => option.disabled = option.value !== 'side' && !comparable);
+    if (!comparable) byId('mode').value = 'side';
+    metadata.metrics = null;
+    const diff = comparable ? difference() : null;
+    byId('notice').textContent = !images.reference ? 'Reference screenshot missing. Visual parity is unverified.' :
+      !comparable ? 'Different crop dimensions. Side-by-side inspection is available; overlay and metrics are disabled.' :
+      payload.referenceKind !== 'runtime' || payload.candidateKind !== 'runtime' ? 'Mockups and synthetic fixtures cannot satisfy runtime visual acceptance.' : '';
+    const mode = byId('mode').value, amount = Number(byId('amount').value) / 100;
+    byId('amountValue').textContent = `${Math.round(amount * 100)}%`;
+    byId('sidePanels').hidden = mode !== 'side'; byId('compositePanel').hidden = mode === 'side';
+    byId('saveDiff').disabled = !comparable;
+    if (metadata.metrics) {
+      const metrics = metadata.metrics;
+      byId('metrics').textContent = `Mean absolute RGBA difference: ${metrics.meanAbsoluteRGBA.toFixed(2)}/255 · RMS: ${metrics.rootMeanSquareRGBA.toFixed(2)} · Changed pixels: ${metrics.changedPixelPercent.toFixed(2)}% at threshold ${metrics.threshold}. This is not an acceptance score.`;
+    } else byId('metrics').textContent = 'No comparable pixel metric. No automatic resizing has been applied.';
+    if (mode !== 'side') {
+      const canvas = byId('composite'); canvas.width = canvases.candidate.width; canvas.height = canvases.candidate.height;
+      const context = canvas.getContext('2d');
+      if (mode === 'diff') context.putImageData(diff, 0, 0);
+      else {
+        context.drawImage(canvases.reference, 0, 0);
+        if (mode === 'overlay') { context.globalAlpha = amount; context.drawImage(canvases.candidate, 0, 0); context.globalAlpha = 1; }
+        else { context.save(); context.beginPath(); context.rect(0, 0, canvas.width * amount, canvas.height); context.clip(); context.drawImage(canvases.candidate, 0, 0); context.restore(); }
+      }
+    }
+  }
+
+  function download(blob, name) {
+    const anchor = document.createElement('a'), url = URL.createObjectURL(blob);
+    anchor.href = url; anchor.download = name; anchor.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  for (const id of ['mode', 'amount', 'threshold']) byId(id).addEventListener('input', () => { try { render(); } catch (error) { byId('notice').textContent = error.message; } });
+  byId('actualPixels').addEventListener('change', event => document.body.classList.toggle('actual-pixels', event.target.checked));
+  byId('applyCrops').addEventListener('click', () => { try { readCrops(); render(); } catch (error) { byId('notice').textContent = error.message; } });
+  byId('resetCrops').addEventListener('click', () => { metadata.crops = structuredClone(originalCrops); setCropControls(); render(); });
+  byId('saveReview').addEventListener('click', () => {
+    if (!byId('notes').value.trim() || !byId('decision').value || !byId('reviewer').value.trim()) { byId('notice').textContent = 'Record an observation, decision and reviewer before exporting a review.'; return; }
+    metadata.reviewer = byId('reviewer').value.trim();
+    metadata.notes = byId('notes').value.trim(); metadata.decision = byId('decision').value;
+    metadata.reviewed = true; metadata.reviewedAt = new Date().toISOString();
+    const text = JSON.stringify(metadata, null, 2); byId('export').hidden = false; byId('export').textContent = text;
+    download(new Blob([text], { type: 'application/json' }), 'comparison-review.json');
+  });
+  byId('saveDiff').addEventListener('click', () => {
+    try {
+      const pixels = difference(); if (!pixels) return;
+      const canvas = document.createElement('canvas'); canvas.width = pixels.width; canvas.height = pixels.height;
+      canvas.getContext('2d').putImageData(pixels, 0, 0); canvas.toBlob(blob => download(blob, 'difference.png'));
+    } catch (error) { byId('notice').textContent = error.message; }
+  });
+  Promise.all(Object.entries(payload.images).filter(([, image]) => image).map(([role, description]) => new Promise((resolve, reject) => {
+    const image = new Image(); image.onload = () => { images[role] = image; canvases[role] = byId(role + 'Canvas'); resolve(); };
+    image.onerror = () => reject(new Error(`Could not decode ${role} PNG.`)); image.src = description.dataUrl;
+  }))).then(() => { setCropControls(); render(); }).catch(error => byId('notice').textContent = error.message);
+</script>
+</html>

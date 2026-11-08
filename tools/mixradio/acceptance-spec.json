@@ -1,0 +1,1005 @@
+{
+  "schemaVersion": 1,
+  "title": "MixRadio desktop acceptance",
+  "target": {"platform": "Windows 8.1 Store", "architecture": "x86", "configuration": "Debug"},
+  "scope": "Windows 8.1 Store client on Windows 10; PC 2.2.0.7933 is the desktop reference, WP 4.5.3.470 supplies interaction evidence.",
+  "thresholds": {
+    "overall": 85,
+    "requireAllRequiredCases": true,
+    "requireCleanTrackedFiles": true,
+    "requireNoUntrackedFiles": true,
+    "blockingPriorities": [
+      "P0",
+      "P1"
+    ]
+  },
+  "dimensions": {
+    "functionality": {
+      "weight": 40,
+      "minimum": 3,
+      "label": "Feature correctness"
+    },
+    "visual": {
+      "weight": 25,
+      "minimum": 3,
+      "label": "Reference fidelity"
+    },
+    "interaction": {
+      "weight": 15,
+      "minimum": 3,
+      "label": "Interaction and navigation"
+    },
+    "resilience": {
+      "weight": 10,
+      "minimum": 3,
+      "label": "Failure handling and state"
+    },
+    "accessibility": {
+      "weight": 10,
+      "minimum": 3,
+      "label": "Keyboard, touch and readability"
+    }
+  },
+  "scoreAnchors": {
+    "0": "Broken, missing, or not verified.",
+    "1": "A fragment works; the task cannot be completed.",
+    "2": "The task completes with material defects.",
+    "3": "Every stated criterion is met with reproducible evidence.",
+    "4": "Criteria also hold across the specified alternate states, repeated runs, and measured limits."
+  },
+  "evidenceKinds": [
+    "test_log",
+    "source_note",
+    "reference_inventory",
+    "client_screenshot",
+    "reference_screenshot",
+    "comparison_report",
+    "manual_record",
+    "runtime_log",
+    "video"
+  ],
+  "cases": [
+    {
+      "id": "REF-PC",
+      "title": "Installed PC package provenance",
+      "dimension": "resilience",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-HOME",
+        "PC-THEME"
+      ],
+      "steps": [
+        "Run inspect_reference.py against the installed PC directory.",
+        "Inspect its inventory and decoded XBF coverage."
+      ],
+      "expected": [
+        "Identity is 2.2.0.7933 x86; input hashes are recorded.",
+        "98 XBF v1 trees decode; static evidence is labelled separately from runtime screenshots."
+      ],
+      "evidence": [
+        [
+          "reference_inventory"
+        ],
+        [
+          "source_note"
+        ]
+      ]
+    },
+    {
+      "id": "REF-WP",
+      "title": "Phone package provenance",
+      "dimension": "resilience",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "WP-HOME",
+        "WP-PLAYER"
+      ],
+      "steps": [
+        "Run inspect_reference.py against the supplied XAP.",
+        "Inspect recovered XAML and application/audio decompilation."
+      ],
+      "expected": [
+        "Identity is 4.5.3.470 and the input SHA-256 matches.",
+        "73 application XAML documents are recovered; phone patterns do not become desktop containers."
+      ],
+      "evidence": [
+        [
+          "reference_inventory"
+        ],
+        [
+          "source_note"
+        ]
+      ]
+    },
+    {
+      "id": "BUILD-PC",
+      "title": "Fresh desktop build",
+      "dimension": "resilience",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-HOME"
+      ],
+      "steps": [
+        "Build Client.csproj Debug x86 with MSBuild 14.0.",
+        "Inspect the emitted manifest and appx."
+      ],
+      "expected": [
+        "Build exits zero using the legacy 8.1 target.",
+        "Every new source/view/resource is included in the project; warnings are recorded."
+      ],
+      "evidence": [
+        [
+          "test_log"
+        ]
+      ]
+    },
+    {
+      "id": "XML-MODELS",
+      "title": "Fresh serializer regressions",
+      "dimension": "resilience",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-PLAYER"
+      ],
+      "steps": [
+        "Run tools/serializer-tests/run.ps1.",
+        "Confirm it compiles the current production sources before running."
+      ],
+      "expected": [
+        "Genre, radio, getSong, directory and playlist serialization assertions pass.",
+        "The runner does not inspect a stale prebuilt assembly."
+      ],
+      "evidence": [
+        [
+          "test_log"
+        ],
+        [
+          "source_note"
+        ]
+      ]
+    },
+    {
+      "id": "QUEUE-CONTEXT",
+      "title": "Selected context and append are distinct",
+      "dimension": "functionality",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-QUEUE"
+      ],
+      "steps": [
+        "Start with another queue.",
+        "Click song C in an ordered A/B/C/D source; use Previous and Next.",
+        "Append one song with Add to queue."
+      ],
+      "expected": [
+        "Context queue is A/B/C/D with index C; Previous reaches B.",
+        "Appending keeps existing order; invalid indices leave the queue intact."
+      ],
+      "evidence": [
+        [
+          "test_log"
+        ],
+        [
+          "source_note"
+        ]
+      ]
+    },
+    {
+      "id": "QUEUE-REMOVE",
+      "title": "Queue mutation and clear",
+      "dimension": "functionality",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-QUEUE"
+      ],
+      "steps": [
+        "Remove the active entry while playing.",
+        "Remove the last item and clear the queue."
+      ],
+      "expected": [
+        "Active removal advances to a valid successor; the removed item stops.",
+        "Clear stops playback, clears current item, and invalidates stale shuffle history."
+      ],
+      "evidence": [
+        [
+          "test_log"
+        ],
+        [
+          "source_note"
+        ]
+      ]
+    },
+    {
+      "id": "QUEUE-SHUFFLE",
+      "title": "Complete shuffle cycles",
+      "dimension": "functionality",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-QUEUE"
+      ],
+      "steps": [
+        "Shuffle an 11-entry queue with repeat off.",
+        "Repeat complete cycles with repeat all.",
+        "Test empty and single-entry queues."
+      ],
+      "expected": [
+        "Every entry, including the last, is played once per cycle.",
+        "No immediate repeat at a boundary when alternatives exist.",
+        "Off stops at cycle end; empty and single-entry cases stay valid."
+      ],
+      "evidence": [
+        [
+          "test_log"
+        ],
+        [
+          "source_note"
+        ]
+      ]
+    },
+    {
+      "id": "QUEUE-REPEAT",
+      "title": "Off, all, one, and manual skip",
+      "dimension": "functionality",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-QUEUE",
+        "WP-PLAYER"
+      ],
+      "steps": [
+        "Cycle repeat through off/all/one/off.",
+        "Send natural media-end and manual Next separately.",
+        "Save and restore repeat and shuffle state."
+      ],
+      "expected": [
+        "Off stops at the queue end; all wraps; one repeats the current entry.",
+        "Manual Next escapes repeat one.",
+        "Restoration keeps repeat mode separately from shuffle."
+      ],
+      "evidence": [
+        [
+          "test_log"
+        ],
+        [
+          "source_note"
+        ]
+      ]
+    },
+    {
+      "id": "HISTORY-MODEL",
+      "title": "Bounded recent-listening model",
+      "dimension": "functionality",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-RECENT",
+        "WP-HISTORY"
+      ],
+      "steps": [
+        "Record more than 100 distinct listens.",
+        "Replay an existing entry and serialize/restore the model."
+      ],
+      "expected": [
+        "At most 100 entries remain, newest first, without duplicate song IDs.",
+        "Metadata and artwork IDs round-trip; streaming URLs and passwords are absent."
+      ],
+      "evidence": [
+        [
+          "test_log"
+        ],
+        [
+          "source_note"
+        ]
+      ]
+    },
+    {
+      "id": "FAV-PROTOCOL",
+      "title": "Star/unstar protocol",
+      "dimension": "functionality",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "WP-HISTORY"
+      ],
+      "steps": [
+        "Run protocol regressions with encoded IDs and successful/failed responses."
+      ],
+      "expected": [
+        "star.view and unstar.view receive an encoded song ID.",
+        "Only status=ok confirms the change; failed responses keep the previous state."
+      ],
+      "evidence": [
+        [
+          "test_log"
+        ],
+        [
+          "source_note"
+        ]
+      ]
+    },
+    {
+      "id": "HOME-WIDE",
+      "comparisonScope": "full_frame",
+      "title": "Desktop Hub visual comparison",
+      "dimension": "visual",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-HOME",
+        "PC-THEME"
+      ],
+      "steps": [
+        "Capture matching app-content crops of original PC and client at 1366x768, 100% scale.",
+        "Compare sections, typography, spacing, accent, content and command hierarchy with compare.py.",
+        "Repeat with a playing item and an empty queue."
+      ],
+      "expected": [
+        "Real Hub sections pan together with no fabricated minimum canvas.",
+        "Artwork, titles, progress and empty state represent live data.",
+        "Accent is #FFFF2E80; alignment and command density follow the PC reference."
+      ],
+      "evidence": [
+        [
+          "reference_screenshot"
+        ],
+        [
+          "client_screenshot"
+        ],
+        [
+          "comparison_report"
+        ],
+        [
+          "manual_record"
+        ]
+      ],
+      "viewport": {
+        "width": 1366,
+        "height": 768,
+        "scale": 1
+      }
+    },
+    {
+      "id": "HOME-LARGE",
+      "comparisonScope": "full_frame",
+      "title": "Large desktop visual comparison",
+      "dimension": "visual",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-HOME"
+      ],
+      "steps": [
+        "Compare the same states at 1920x1080 without scaling typography."
+      ],
+      "expected": [
+        "Content fills the canvas naturally; no excessive blank scroll area.",
+        "Type roles, artwork and sections keep their intended sizes and alignment."
+      ],
+      "evidence": [
+        [
+          "reference_screenshot"
+        ],
+        [
+          "client_screenshot"
+        ],
+        [
+          "comparison_report"
+        ],
+        [
+          "manual_record"
+        ]
+      ],
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "scale": 1
+      }
+    },
+    {
+      "id": "VIEW-320",
+      "title": "320px recomposition",
+      "dimension": "accessibility",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-THEME"
+      ],
+      "steps": [
+        "Resize client app content to 320x768.",
+        "Browse, search, play/pause, open queue and playback options.",
+        "Navigate back and restore the wide view."
+      ],
+      "expected": [
+        "Readable vertical lists and a compact live player replace the expansion prompt.",
+        "Search and primary actions remain reachable; targets are at least 44 logical pixels.",
+        "No clipped commands, lost selection, or unintended playback reset."
+      ],
+      "evidence": [
+        [
+          "client_screenshot"
+        ],
+        [
+          "manual_record"
+        ]
+      ],
+      "viewport": {
+        "width": 320,
+        "height": 768,
+        "scale": 1
+      }
+    },
+    {
+      "id": "VIEW-500",
+      "title": "500px recomposition",
+      "dimension": "accessibility",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-THEME"
+      ],
+      "steps": [
+        "Repeat narrow-view navigation at 500x768."
+      ],
+      "expected": [
+        "The page is usable without maximizing.",
+        "Search, lists, playback options and queue remain operable."
+      ],
+      "evidence": [
+        [
+          "client_screenshot"
+        ],
+        [
+          "manual_record"
+        ]
+      ],
+      "viewport": {
+        "width": 500,
+        "height": 768,
+        "scale": 1
+      }
+    },
+    {
+      "id": "VIEW-PORTRAIT",
+      "title": "Portrait and height changes",
+      "dimension": "interaction",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-HOME"
+      ],
+      "steps": [
+        "Resize to 768x1024 and then a short landscape window during playback."
+      ],
+      "expected": [
+        "Content reflows without lost scroll/selection or duplicate playback.",
+        "Commands remain reachable through panning or scrolling."
+      ],
+      "evidence": [
+        [
+          "client_screenshot"
+        ],
+        [
+          "manual_record"
+        ]
+      ],
+      "viewport": {
+        "width": 768,
+        "height": 1024,
+        "scale": 1
+      }
+    },
+    {
+      "id": "SEARCH-TYPED",
+      "title": "Discoverable typed search",
+      "dimension": "interaction",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-SEARCH"
+      ],
+      "steps": [
+        "Use Ctrl+F, type a padded query, submit with Enter and then the search button.",
+        "Query matches artists, albums, songs, Unicode and a no-results term."
+      ],
+      "expected": [
+        "Search is visible before panning; whitespace is trimmed.",
+        "Typed groups and real cover art appear; newer results win over slower earlier requests.",
+        "No-results and recoverable errors are distinct; Back returns to browsing."
+      ],
+      "evidence": [
+        [
+          "client_screenshot"
+        ],
+        [
+          "manual_record",
+          "runtime_log",
+          "video"
+        ]
+      ]
+    },
+    {
+      "id": "BROWSE-LIBRARY",
+      "title": "Browse the Navidrome library",
+      "dimension": "functionality",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-HOME"
+      ],
+      "steps": [
+        "Use artists, albums, genres, playlists and favourites.",
+        "Open an album and a genre; play a selected song."
+      ],
+      "expected": [
+        "Server-backed lists and titles appear; letter grouping is meaningful.",
+        "All song actions produce the intended context queue."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log",
+          "video"
+        ],
+        [
+          "client_screenshot"
+        ]
+      ]
+    },
+    {
+      "id": "PLAYER-LIVE",
+      "title": "Actual media and transport",
+      "dimension": "functionality",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-PLAYER"
+      ],
+      "steps": [
+        "Play, pause, resume, previous, next and stop actual audio.",
+        "Observe the same track on the home page and queue."
+      ],
+      "expected": [
+        "Art, title, artist, elapsed/duration and play/pause state are live.",
+        "Progress freezes during pause; transport controls change actual audio.",
+        "A failed media open does not appear as a successful listen."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log",
+          "video"
+        ],
+        [
+          "client_screenshot"
+        ]
+      ]
+    },
+    {
+      "id": "HISTORY-RUNTIME",
+      "title": "Recent listening survives restart",
+      "dimension": "functionality",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-RECENT",
+        "WP-HISTORY"
+      ],
+      "steps": [
+        "Start three actual tracks, pause/resume, and cause a media-open failure.",
+        "Restart and replay a recent entry."
+      ],
+      "expected": [
+        "Successful media starts appear newest first; resume does not duplicate an entry.",
+        "Failed opens add no history.",
+        "Restart restores history and replay fetches current stream/art data."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log",
+          "video"
+        ],
+        [
+          "client_screenshot"
+        ]
+      ]
+    },
+    {
+      "id": "HISTORY-ACCOUNT",
+      "title": "Account isolation and persistence failure",
+      "dimension": "resilience",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-RECENT"
+      ],
+      "steps": [
+        "Use two local fixture accounts/libraries; change password without changing account.",
+        "Test missing/corrupt history and a failed write."
+      ],
+      "expected": [
+        "Different server/account combinations have separate histories.",
+        "Password changes keep history; old-account results do not leak into the new account.",
+        "Write failure preserves the last committed file and shows a recoverable message."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log"
+        ],
+        [
+          "source_note"
+        ]
+      ]
+    },
+    {
+      "id": "FAV-RUNTIME",
+      "title": "Confirmed favourites and rollback",
+      "dimension": "functionality",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "WP-HISTORY"
+      ],
+      "steps": [
+        "Star/unstar a fixture song through playback options, then reopen Favourites.",
+        "Reject a mutation at the fixture server; change tracks while a mutation is pending."
+      ],
+      "expected": [
+        "Confirmed server state appears in Favourites.",
+        "Failed requests preserve the previous state and expose the error.",
+        "A pending operation updates its target song without toggling the newly playing song."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log",
+          "video"
+        ],
+        [
+          "client_screenshot"
+        ]
+      ]
+    },
+    {
+      "id": "PLAYLIST-ROUNDTRIP",
+      "title": "Queue save/load and cancellation",
+      "dimension": "functionality",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-QUEUE"
+      ],
+      "steps": [
+        "Save a two-entry queue through the picker, clear it and load it.",
+        "Cancel both pickers; load malformed content."
+      ],
+      "expected": [
+        "Titles, IDs and order round-trip.",
+        "Displayed extension matches the real payload; cancellation preserves the queue.",
+        "Malformed input has a recoverable error and does not destroy a valid queue."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log"
+        ],
+        [
+          "source_note"
+        ]
+      ]
+    },
+    {
+      "id": "PLAYLIST-SERVER",
+      "title": "Remote playlist management",
+      "dimension": "functionality",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-QUEUE"
+      ],
+      "steps": [
+        "Create, rename, edit and delete an owned fixture playlist; reject one request."
+      ],
+      "expected": [
+        "Server playlist state follows confirmed operations.",
+        "Failure retains state and remains recoverable."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log"
+        ]
+      ]
+    },
+    {
+      "id": "RADIO",
+      "title": "Configured internet stations",
+      "dimension": "functionality",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-PLAYER"
+      ],
+      "steps": [
+        "Use a fixture station and an empty radio response."
+      ],
+      "expected": [
+        "Configured stations play through transport controls.",
+        "Empty/unsupported station responses are honest and recoverable."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log"
+        ]
+      ]
+    },
+    {
+      "id": "SETTINGS",
+      "title": "Connection configuration",
+      "dimension": "resilience",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-HOME"
+      ],
+      "steps": [
+        "Set primary/secondary URLs and a local fixture account, test, restart.",
+        "Test invalid credentials, unreachable server, and missing configuration."
+      ],
+      "expected": [
+        "Connection settings persist and account identity remains consistent.",
+        "Errors do not produce blank grids or crash the app; retry is reachable.",
+        "Credentials do not appear in acceptance evidence."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log"
+        ]
+      ]
+    },
+    {
+      "id": "FAILURE-STATES",
+      "title": "Loading, empty, error and offline",
+      "dimension": "resilience",
+      "priority": "P0",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-PLAYER",
+        "PC-SEARCH"
+      ],
+      "steps": [
+        "Delay responses, return empty data, reject a request and disconnect.",
+        "Recover and retry while keeping a valid queue."
+      ],
+      "expected": [
+        "Loading, empty and error are distinguishable.",
+        "Recovery is possible; failed responses do not fabricate content or destroy the queue."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log"
+        ],
+        [
+          "client_screenshot"
+        ]
+      ]
+    },
+    {
+      "id": "BACK-NAV",
+      "title": "Back, mouse and transient UI",
+      "dimension": "interaction",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-HOME",
+        "WP-PLAYER"
+      ],
+      "steps": [
+        "Use Back, Alt+Left and mouse navigation after search/detail.",
+        "Open/close playback options and resize."
+      ],
+      "expected": [
+        "Back closes transient UI or restores the prior page coherently.",
+        "No duplicate navigation, stuck flyout, or playback restart."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "video"
+        ]
+      ]
+    },
+    {
+      "id": "KEYBOARD-DPI",
+      "title": "Keyboard, focus and high DPI",
+      "dimension": "accessibility",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-THEME"
+      ],
+      "steps": [
+        "Complete browsing, search and playback with Tab/Enter/Space.",
+        "Repeat at 150% and 200% display scale with long metadata."
+      ],
+      "expected": [
+        "Focus is visible; automation names match actions.",
+        "No hover-only primary controls, overlaps or unreadable text.",
+        "Logical touch targets remain at least 44px."
+      ],
+      "evidence": [
+        [
+          "manual_record"
+        ],
+        [
+          "client_screenshot"
+        ]
+      ]
+    },
+    {
+      "id": "BACKGROUND",
+      "title": "Background playback",
+      "dimension": "functionality",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-PLAYER"
+      ],
+      "steps": [
+        "Minimize during audio, use system transport and reactivate."
+      ],
+      "expected": [
+        "Playback and current track remain coherent; pause/resume works.",
+        "History records the actual start once and the UI resynchronizes."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log",
+          "video"
+        ]
+      ]
+    },
+    {
+      "id": "TEXT-RESOURCES",
+      "title": "English defaults and localized resources",
+      "dimension": "visual",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceIds": [
+        "PC-THEME",
+        "WP-THEME"
+      ],
+      "steps": [
+        "Inspect and build resources; switch to an unsupported OS language.",
+        "Review the current app's new visible copy and labels."
+      ],
+      "expected": [
+        "Default English resources resolve through the default resource map.",
+        "New user-visible language is resource-backed.",
+        "No gigs/personalization promises or project acceptance requirements appear in the app."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "client_screenshot"
+        ],
+        [
+          "manual_record"
+        ]
+      ]
+    },
+    {
+      "id": "SEEK",
+      "title": "Audio scrubbing",
+      "dimension": "functionality",
+      "priority": "P2",
+      "required": false,
+      "weight": 1,
+      "referenceIds": [
+        "PC-PLAYER"
+      ],
+      "steps": [
+        "Seek within a supported stream and repeat near boundaries."
+      ],
+      "expected": [
+        "Position changes actual audio and stays coherent after pause/resume."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log"
+        ]
+      ]
+    },
+    {
+      "id": "OFFLINE",
+      "title": "Local downloads and offline library",
+      "dimension": "functionality",
+      "priority": "P2",
+      "required": false,
+      "weight": 1,
+      "referenceIds": [
+        "PC-HOME"
+      ],
+      "steps": [
+        "Download a library item, restart offline, play, cancel and delete a download."
+      ],
+      "expected": [
+        "Persistent download state, cancellation, quota/error handling and offline playback work."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log"
+        ]
+      ]
+    },
+    {
+      "id": "ARTIST-MIX",
+      "title": "Library-based artist mixes",
+      "dimension": "functionality",
+      "priority": "P2",
+      "required": false,
+      "weight": 1,
+      "referenceIds": [
+        "WP-HOME"
+      ],
+      "steps": [
+        "Seed a mix from local artists with sufficient and sparse libraries."
+      ],
+      "expected": [
+        "The mix uses documented local-library rules and does not imply proprietary recommendations."
+      ],
+      "evidence": [
+        [
+          "manual_record",
+          "runtime_log"
+        ]
+      ]
+    }
+  ]
+}

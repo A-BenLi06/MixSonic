@@ -44,6 +44,6 @@
         {
             return SubsonicService.GetStarredSongs();
         }
-        public override bool IsGroupedView        {            get            {                return false;            }        }
+        public override bool IsGroupedView        {            get            {                return false;            }        }
     }
 }
