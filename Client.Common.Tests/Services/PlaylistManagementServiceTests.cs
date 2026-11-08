@@ -78,13 +78,13 @@
         #region GetNextTrackNumber
 
         [TestMethod]
-        public void GetNextTrackNumber_ShuffleOffAndCurrentItemIsLastItem_Returns0()
+        public void GetNextTrackNumber_RepeatOffAndCurrentItemIsLastItem_ReturnsMinus1()
         {
             _subject.Items.AddRange(GeneratePlaylistItems());
             _subject.Handle(new JumpToNextMessage());
             _subject.Handle(new JumpToNextMessage());
 
-            _subject.GetNextTrackNumber().Should().Be(0);
+            _subject.GetNextTrackNumber().Should().Be(-1);
         }
 
         [TestMethod]
@@ -269,26 +269,32 @@
         }
 
         [TestMethod]
-        public void HandlePlayNext_RepeatOn_ReturnsTheCurrentTrackNumber()
+        public void HandlePlayNext_RepeatOne_ReplaysTheCurrentTrack()
         {
+            _subject.Items.AddRange(GeneratePlaylistItems(3));
+            _subject.StartPlayback(1);
+            _subject.Handle(new ToggleRepeatMessage());
             _subject.Handle(new ToggleRepeatMessage());
             var currentTrackNumber = _subject.CurrentTrackNumber;
 
             _subject.Handle(new PlayNextMessage());
 
-            _subject.GetNextTrackNumber().Should().Be(currentTrackNumber);
+            _subject.CurrentTrackNumber.Should().Be(currentTrackNumber);
         }
 
         [TestMethod]
-        public void HandlePlayNext_ShuffleOnRepeatOn_ReturnsTheCurrentTrackNumber()
+        public void HandlePlayNext_ShuffleOnRepeatOne_ReplaysTheCurrentTrack()
         {
+            _subject.Items.AddRange(GeneratePlaylistItems(3));
+            _subject.StartPlayback(1);
             _subject.Handle(new ToggleShuffleMessage());
+            _subject.Handle(new ToggleRepeatMessage());
             _subject.Handle(new ToggleRepeatMessage());
             var currentTrackNumber = _subject.CurrentTrackNumber;
             
             _subject.Handle(new PlayNextMessage());
 
-            _subject.GetNextTrackNumber().Should().Be(currentTrackNumber);
+            _subject.CurrentTrackNumber.Should().Be(currentTrackNumber);
         }
 
         #endregion

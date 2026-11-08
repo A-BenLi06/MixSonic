@@ -1,6 +1,7 @@
 ﻿namespace Client.Common.Services
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.IO;
     using System.Linq;
@@ -36,7 +37,15 @@
 
         private bool _wasEmpty;
 
-        private bool _repeatOn;
+        private PlaybackRepeatMode _repeatMode;
+
+        private PlaylistItem _currentItem;
+
+        private readonly List<PlaylistItem> _shuffleRemaining = new List<PlaylistItem>();
+
+        private bool _shuffleCycleStarted;
+
+        private bool _isGoingBack;
 
         #endregion
 
@@ -64,7 +73,17 @@
 
         #region Public Properties
 
-        public PlaylistItem CurrentItem { get; private set; }
+        public PlaylistItem CurrentItem
+        {
+            get { return _currentItem; }
+            private set
+            {
+                if (ReferenceEquals(value, _currentItem)) return;
+                _currentItem = value;
+                NotifyOfPropertyChange(() => CurrentItem);
+                NotifyOfPropertyChange(() => CurrentTrackNumber);
+            }
+        }
 
         public int CurrentTrackNumber
         {
@@ -165,24 +184,25 @@
                 }
 
                 _shuffleOn = value;
+                ResetShuffleCycle();
                 NotifyOfPropertyChange();
             }
         }
 
         public bool RepeatOn
         {
-            get
-            {
-                return _repeatOn;
-            }
+            get { return RepeatMode != PlaybackRepeatMode.Off; }
+        }
+
+        public PlaybackRepeatMode RepeatMode
+        {
+            get { return _repeatMode; }
             private set
             {
-                if (value.Equals(_repeatOn))
-                {
-                    return;
-                }
-                _repeatOn = value;
-                NotifyOfPropertyChange();
+                if (value == _repeatMode) return;
+                _repeatMode = value;
+                NotifyOfPropertyChange(() => RepeatMode);
+                NotifyOfPropertyChange(() => RepeatOn);
             }
         }
 
@@ -208,11 +228,11 @@
             }
             else if (ShuffleOn)
             {
-                result = _randomNumberGenerator.Next(Items.Count - 1);
+                result = GetNextShuffleTrackNumber();
             }
             else if (CurrentTrackNumber == (Items.Count - 1))
             {
-                result = 0;
+                result = RepeatMode == PlaybackRepeatMode.All ? 0 : NoTrackTrackNumber;
             }
             else
             {
@@ -229,7 +249,7 @@
 
         public void Handle(JumpToNextMessage message)
         {
-            StartPlaybackAction(GetNextTrackNumberFunc());
+            PlayOrStop(GetNextTrackNumberFunc());
         }
 
         public void Handle(JumpToPreviousMessage message)
@@ -237,8 +257,22 @@
             var previousTrackNumber = GetPreviousTrackNumberFunc();
             if (previousTrackNumber > NoTrackTrackNumber)
             {
-                StartPlaybackAction(previousTrackNumber);
+                _isGoingBack = true;
+                try { StartPlaybackAction(previousTrackNumber); }
+                finally { _isGoingBack = false; }
             }
+        }
+
+        public void Handle(PlayQueueMessage message)
+        {
+            if (message.Queue == null || message.Queue.Count == 0 ||
+                message.StartIndex < 0 || message.StartIndex >= message.Queue.Count) return;
+
+            var queue = message.Queue.ToList();
+            StopPlaybackAction();
+            Items.Clear();
+            Items.AddRange(queue);
+            StartPlaybackAction(message.StartIndex);
         }
 
         public void Handle(AddItemsMessage message)
@@ -253,9 +287,18 @@
 
         public void Handle(RemoveItemsMessage message)
         {
-            foreach (var item in message.Queue)
+            if (message.Queue == null) return;
+            var removed = message.Queue.ToList();
+            var removedCurrent = removed.Contains(CurrentItem);
+            var currentIndex = CurrentTrackNumber;
+            var wasPlaying = IsPlaying;
+            foreach (var item in removed)
             {
                 Items.Remove(item);
+            }
+            if (removedCurrent && wasPlaying && Items.Count > 0)
+            {
+                StartPlaybackAction(Math.Min(currentIndex, Items.Count - 1));
             }
         }
 
@@ -295,7 +338,9 @@
 
         public void Handle(ToggleRepeatMessage message)
         {
-            RepeatOn = !RepeatOn;
+            RepeatMode = RepeatMode == PlaybackRepeatMode.Off ? PlaybackRepeatMode.All :
+                         RepeatMode == PlaybackRepeatMode.All ? PlaybackRepeatMode.One :
+                         PlaybackRepeatMode.Off;
         }
 
         public void Handle(PlayNextMessage message)
@@ -305,7 +350,7 @@
             {
                 result = NoTrackTrackNumber;
             }
-            else if (RepeatOn)
+            else if (RepeatMode == PlaybackRepeatMode.One)
             {
                 result = CurrentTrackNumber == NoTrackTrackNumber ? 0 : CurrentTrackNumber;
             }
@@ -314,7 +359,7 @@
                 result = GetNextTrackNumberFunc();
             }
 
-            StartPlaybackAction(result);
+            PlayOrStop(result);
         }
 
         public void LoadPlaylist(PlaylistItemCollection playlistItemCollection)
@@ -337,7 +382,8 @@
                                                CurrentTrackNumber = CurrentTrackNumber,
                                                IsShuffleOn = ShuffleOn,
                                                Items = Items,
-                                               IsPlaying = IsPlaying
+                                               IsPlaying = IsPlaying,
+                                               RepeatMode = RepeatMode
                                            };
             var serializer = GetStateSerializer();
             using (var memoryStream = new MemoryStream())
@@ -363,16 +409,21 @@
                 }
                 catch (Exception)
                 {
+                    memoryStream.Position = 0;
                     var serializer = GetLegacyStateSerializer();
                     state = (PlaylistServiceState)serializer.Deserialize(memoryStream);
                 }
             }
 
+            StopPlaybackAction();
             Items.Clear();
-            Items.AddRange(state.Items);
-            CurrentItem = state.CurrentTrackNumber > NoTrackTrackNumber ? Items.ElementAt(state.CurrentTrackNumber) : null;
+            if (state.Items != null) Items.AddRange(state.Items);
+            CurrentItem = state.CurrentTrackNumber >= 0 && state.CurrentTrackNumber < Items.Count
+                              ? Items[state.CurrentTrackNumber] : null;
             ShuffleOn = state.IsShuffleOn;
-            if (state.IsPlaying)
+            RepeatMode = Enum.IsDefined(typeof(PlaybackRepeatMode), state.RepeatMode)
+                             ? state.RepeatMode : PlaybackRepeatMode.Off;
+            if (state.IsPlaying && CurrentItem != null)
             {
                 Play();
             }
@@ -428,19 +479,20 @@
 
         public void StartPlayback(int trackNumber)
         {
-            if (trackNumber == NoTrackTrackNumber)
+            if (trackNumber < 0 || trackNumber >= Items.Count)
             {
                 return;
             }
             
             var previousTrackNumber = CurrentTrackNumber;
-            if (previousTrackNumber != NoTrackTrackNumber && previousTrackNumber != trackNumber)
+            if (!_isGoingBack && previousTrackNumber != NoTrackTrackNumber && previousTrackNumber != trackNumber)
             {
                 PlaylistHistory.Push(previousTrackNumber);
             }
 
             StopPlaybackAction();
             CurrentItem = Items.ElementAt(trackNumber);
+            _shuffleRemaining.Remove(CurrentItem);
             StartCurrentItemPlayback();
         }
 
@@ -473,16 +525,20 @@
 
         private void PlaylistChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
+            PlaylistHistory.Clear();
+            ResetShuffleCycle();
             var totalElements = Items.Count;
 
             var becameNotEmpty = totalElements > 0 && _wasEmpty;
             var becameEmpty = totalElements == 0 && !_wasEmpty;
 
-            if (becameEmpty)
+            if (CurrentItem != null && !Items.Contains(CurrentItem))
             {
                 StopPlayback();
                 CurrentItem = null;
             }
+            NotifyOfPropertyChange(() => HasElements);
+            NotifyOfPropertyChange(() => CurrentTrackNumber);
 
             if (becameNotEmpty || becameEmpty)
             {
@@ -496,6 +552,37 @@
             _eventAggregator.PublishOnUIThreadAsync(new StartPlaybackMessage(CurrentItem) { Options = options });
             CurrentItem.PlayingState = PlaylistItemState.Playing;
             IsPlaying = true;
+        }
+
+        private void PlayOrStop(int trackNumber)
+        {
+            if (trackNumber == NoTrackTrackNumber) StopPlaybackAction();
+            else StartPlaybackAction(trackNumber);
+        }
+
+        private void ResetShuffleCycle()
+        {
+            _shuffleRemaining.Clear();
+            _shuffleCycleStarted = false;
+        }
+
+        private int GetNextShuffleTrackNumber()
+        {
+            if (!_shuffleCycleStarted)
+            {
+                _shuffleRemaining.AddRange(Items.Where(item => !ReferenceEquals(item, CurrentItem)));
+                _shuffleCycleStarted = true;
+            }
+            if (_shuffleRemaining.Count == 0)
+            {
+                if (RepeatMode != PlaybackRepeatMode.All) return NoTrackTrackNumber;
+                _shuffleRemaining.AddRange(Items);
+            }
+            var candidates = _shuffleRemaining.Where(item => _shuffleRemaining.Count == 1 ||
+                                                        !ReferenceEquals(item, CurrentItem)).ToList();
+            var next = candidates[_randomNumberGenerator.Next(candidates.Count)];
+            _shuffleRemaining.Remove(next);
+            return Items.IndexOf(next);
         }
 
         #endregion

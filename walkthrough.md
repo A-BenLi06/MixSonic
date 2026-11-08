@@ -224,3 +224,10 @@
 - Confirmed the starting desktop build succeeds with MSBuild 14.0. Identified static playback decorations, missing history/favourite actions, incorrect shuffle eligibility, ambiguous repeat semantics, and narrow-view/search gaps for the implementation pass.
 - Original PC activation succeeds through the registered app identity; native capture times out, so the reference report explicitly distinguishes static analysis from unverified runtime screenshots.
 - Set local Git author/committer identity to A-BenLi06 <ben_li06@outlook.com> as requested.
+
+## 2026-11-08 23:45:59 +08:00
+- Implemented reference-backed queue semantics: context playback replaces the queue without rotating its order, while Add to queue remains an explicit append action. The selected index is preserved.
+- Replaced ambiguous repeat with Off / All / One, persisted independently from shuffle. Natural media-end handling repeats one track; manual skip advances. Repeat off now stops at the queue boundary.
+- Implemented shuffle cycles that include every queue entry exactly once and avoid immediate repeats between cycles. Queue edits invalidate stale navigation indices; repeated Previous follows actual playback history. Removing an active entry advances safely and Clear resets the player.
+- Added a PowerShell 7 regression runner that compiles production shared sources into ignored .tmp output. All 497 playback assertions pass, including whole shuffle cycles, repeat transitions, queue mutations, and state restoration. Updated legacy assertions for the explicit semantics.
+- Verified the Windows 8.1 desktop Debug x86 build with MSBuild 14.0; the appx package was created successfully. Existing generated-XAML and obsolete-API warnings remain.

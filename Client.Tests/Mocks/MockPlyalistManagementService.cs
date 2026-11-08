@@ -30,6 +30,10 @@ namespace Client.Tests.Mocks
 
         public bool IsPlaying { get; set; }
 
+        public bool IsPaused { get; set; }
+
+        public PlaybackRepeatMode RepeatMode { get; set; }
+
         public PlaylistItemCollection Items { get; set; }
 
         public int LoadPlaylistCallCount { get; set; }
@@ -60,6 +64,10 @@ namespace Client.Tests.Mocks
         }
 
         public void Handle(AddItemsMessage message)
+        {
+        }
+
+        public void Handle(PlayQueueMessage message)
         {
         }
 

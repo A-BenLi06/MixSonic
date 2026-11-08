@@ -253,23 +253,20 @@
                     var clickedIndex = allItems.IndexOf(subsonicModel);
                     if (clickedIndex < 0) clickedIndex = 0;
 
-                    // Reorder: clicked item first, then remaining items in order
-                    var orderedItems = allItems.Skip(clickedIndex).Concat(allItems.Take(clickedIndex)).ToList();
-
                     // Load all playlist items
                     var playlistItems = new List<PlaylistItem>();
-                    foreach (var item in orderedItems)
+                    foreach (var item in allItems)
                     {
                         var playlistItem = await LoadPlaylistItem(item);
                         playlistItems.Add(playlistItem);
                     }
 
-                    var addItemsMessage = new AddItemsMessage
+                    var playQueueMessage = new PlayQueueMessage
                     {
                         Queue = playlistItems,
-                        StartPlaying = true
+                        StartIndex = clickedIndex
                     };
-                    EventAggregator.PublishOnUIThread(addItemsMessage);
+                    EventAggregator.PublishOnUIThread(playQueueMessage);
                 }
             }
 

@@ -11,5 +11,7 @@
         public int CurrentTrackNumber { get; set; }
 
         public bool IsPlaying { get; set; }
+
+        public PlaybackRepeatMode RepeatMode { get; set; }
     }
 }

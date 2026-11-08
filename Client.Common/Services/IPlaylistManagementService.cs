@@ -10,6 +10,7 @@
     public interface IPlaylistManagementService : IHandle<JumpToNextMessage>,
                                                   IHandle<JumpToPreviousMessage>,
                                                   IHandle<PlayNextMessage>,
+                                                  IHandle<PlayQueueMessage>,
                                                   IHandle<AddItemsMessage>,
                                                   IHandle<ToggleShuffleMessage>,
                                                   IHandle<RemoveItemsMessage>,
@@ -32,6 +33,10 @@
         PlaylistItemCollection Items { get; }
 
         bool ShuffleOn { get; }
+
+        PlaybackRepeatMode RepeatMode { get; }
+
+        bool IsPaused { get; }
 
         #endregion
 

@@ -106,6 +106,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="EventAggregatorMessages\PlayNextMessage.cs" />
+    <Compile Include="EventAggregatorMessages\PlayQueueMessage.cs" />
+    <Compile Include="Models\PlaybackRepeatMode.cs" />
     <Compile Include="EventAggregatorMessages\ToggleRepeatMessage.cs" />
     <Compile Include="Results\SubsonicApiCallErrorResponseHandler.cs" />
     <Compile Include="SubsonicCommonModule.cs" />
