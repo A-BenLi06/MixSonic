@@ -1,4 +1,4 @@
-﻿namespace Client.Common.Services
+namespace Client.Common.Services
 {
     using System;
     using System.Collections.Generic;
@@ -46,6 +46,7 @@
             GetSongsByGenre = GetSongsByGenreImpl;
             GetAlbumList = GetAlbumListImpl;
             GetStarredSongs = GetStarredSongsImpl;
+            SetStarred = (id, starred) => new SetStarredResult(Configuration, id, starred);
             GetInternetRadioStations = GetInternetRadioStationsImpl;
             GetNowPlaying = GetNowPlayingImpl;
         }
@@ -115,6 +116,8 @@
         public Func<string, IGetAlbumListResult> GetAlbumList { get; set; }
 
         public Func<IGetStarredSongsResult> GetStarredSongs { get; set; }
+
+        public Func<string, bool, ISetStarredResult> SetStarred { get; set; }
 
         public Func<IGetInternetRadioStationsResult> GetInternetRadioStations { get; set; }
 

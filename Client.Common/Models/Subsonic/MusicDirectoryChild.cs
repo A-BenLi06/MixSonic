@@ -1,4 +1,4 @@
-﻿namespace Client.Common.Models.Subsonic
+namespace Client.Common.Models.Subsonic
 {
     using System;
     using System.Xml.Serialization;
@@ -13,6 +13,9 @@
 
         [XmlAttribute("artist")]
         public string Artist { get; set; }
+
+        [XmlAttribute("starred")]
+        public string Starred { get; set; }
 
         [XmlAttribute("duration")]
         public int Duration { get; set; }

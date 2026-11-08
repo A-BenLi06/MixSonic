@@ -369,9 +369,15 @@
                 return;
             }
 
+            var imported = playlistItemCollection.ToList();
+            if (imported.Any(item => item == null || item.Uri == null || !item.Uri.IsAbsoluteUri))
+            {
+                throw new InvalidDataException("A playlist entry has no absolute media URI.");
+            }
+
             StopPlaybackAction();
             Items.Clear();
-            Items.AddRange(playlistItemCollection);
+            Items.AddRange(imported);
         }
 
         public string GetStateAsString()

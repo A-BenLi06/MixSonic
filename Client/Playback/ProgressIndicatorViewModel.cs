@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Playback
+namespace Subsonic8.Playback
 {
     using System;
     using Windows.UI.Xaml;
@@ -26,6 +26,12 @@
             get { return _audioPlayerViewModel; }
             set
             {
+                if (_audioPlayerViewModel != null)
+                {
+                    _audioPlayerViewModel.PlaybackPaused -= AudioPlayerViewModelOnPlaybackPaused;
+                    _audioPlayerViewModel.PlaybackStarted -= AudioPlayerViewModelOnPlaybackStarted;
+                    _audioPlayerViewModel.PlaybackStoped -= AudioPlayerViewModelOnPlaybackStoped;
+                }
                 _audioPlayerViewModel = value;
                 HookAudioPlayer();
             }
@@ -39,6 +45,7 @@
                 if (value.Equals(_itemDurationInSeconds)) return;
                 _itemDurationInSeconds = value;
                 NotifyOfPropertyChange();
+                NotifyOfPropertyChange(() => DurationText);
             }
         }
 
@@ -50,7 +57,17 @@
                 if (value.Equals(_playbackProgressInSeconds)) return;
                 _playbackProgressInSeconds = value;
                 NotifyOfPropertyChange();
+                NotifyOfPropertyChange(() => PositionText);
             }
+        }
+
+        public string PositionText { get { return FormatTime(PlaybackProgressInSeconds); } }
+        public string DurationText { get { return FormatTime(ItemDurationInSeconds); } }
+
+        private static string FormatTime(double seconds)
+        {
+            var time = TimeSpan.FromSeconds(Math.Max(0, seconds));
+            return time.ToString(time.TotalHours >= 1 ? @"h\:mm\:ss" : @"m\:ss");
         }
 
         public double ProgressStepFrequency
@@ -96,13 +113,16 @@
 
         private void AudioPlayerViewModelOnPlaybackPaused(object sender, EventArgs eventArgs)
         {
-            _progressTimer.Stop();
+            StopProgressTimer();
         }
 
         private void StartProgressTimer()
         {
-            _progressTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
-            _progressTimer.Tick += OnProgressTimerTick;
+            if (_progressTimer == null)
+            {
+                _progressTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
+                _progressTimer.Tick += OnProgressTimerTick;
+            }
             _progressTimer.Start();
         }
 

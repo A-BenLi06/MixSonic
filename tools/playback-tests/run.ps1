@@ -27,6 +27,8 @@ $sources += @(
     'Client.Common\Services\DataStructures\PlaylistManagementService\PlaybackState.cs',
     'tools\serializer-tests\VisualStateResultStub.cs',
     'tools\playback-tests\PlaybackTests.cs'
+    'Client\Listening\RecentTrack.cs'
+    'Client\Listening\ListeningHistory.cs'
 ) | ForEach-Object { Join-Path $projectRoot $_ }
 $sources = $sources | Select-Object -Unique
 $executable = Join-Path $outputDirectory 'playback-tests.exe'

@@ -10,14 +10,14 @@
     {
         public FavouritesViewModel()
         {
-            UpdateDisplayName = () => DisplayName = "favourites";
+            UpdateDisplayName = () => DisplayName = MixRadioText.Get("Favourites");
         }
 
         public override string EmptyStateSubtitle
         {
             get
             {
-                return "Star songs in Navidrome and they will gather here for a quick MixRadio-style set.";
+                return MixRadioText.Get("FavouritesEmptySubtitle");
             }
         }
 
@@ -25,7 +25,7 @@
         {
             get
             {
-                return "No favourites yet";
+                return MixRadioText.Get("FavouritesEmptyTitle");
             }
         }
 
@@ -44,13 +44,6 @@
         {
             return SubsonicService.GetStarredSongs();
         }
-        public override bool IsGroupedView
-        {
-            get
-            {
-                return false;
-            }
-        }
-
+        public override bool IsGroupedView        {            get            {                return false;            }        }
     }
 }

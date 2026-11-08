@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Framework.ViewModel
+namespace Subsonic8.Framework.ViewModel
 {
     using System;
     using System.Collections.Generic;
@@ -16,6 +16,7 @@
     using Subsonic8.Framework.Services;
     using Subsonic8.MenuItem;
     using Windows.UI.Xaml.Controls;
+    using Subsonic8.BrowsePlayer;
 
     public abstract class CollectionViewModelBase<TParameter, TResult> : ViewModelBase, ICollectionViewModel<TParameter>
     {
@@ -37,6 +38,9 @@
 
         private TParameter _parameter;
 
+        private bool _isLoading;
+        private int _populateVersion;
+
         #endregion
 
         #region Constructors and Destructors
@@ -50,6 +54,21 @@
         #endregion
 
         #region Public Properties
+
+        [Inject] public IBrowsePlayerViewModel PlayerSummary { get; set; }
+
+        public virtual bool ShowRecentListening { get { return false; } }
+
+        public bool IsLoading
+        {
+            get { return _isLoading; }
+            private set
+            {
+                _isLoading = value;
+                NotifyOfPropertyChange(() => IsLoading);
+                UpdateEmptyState();
+            }
+        }
 
         public IBottomBarViewModel BottomBar
         {
@@ -69,7 +88,7 @@
         {
             get
             {
-                return "Try another section, start a random mix, or refresh your library.";
+                return MixRadioText.Get("CollectionEmptySubtitle");
             }
         }
 
@@ -77,7 +96,7 @@
         {
             get
             {
-                return "Nothing here yet";
+                return MixRadioText.Get("CollectionEmptyTitle");
             }
         }
 
@@ -144,7 +163,7 @@
         /// Menu items grouped by the first character of their title so browse pages can
         /// render MixRadio-style letter headers (see FullScreen.xaml group style).
         /// </summary>
-        public IEnumerable<IGrouping<string, MenuItemViewModel>> GroupedMenuItems
+        public virtual IEnumerable<IGrouping<string, MenuItemViewModel>> GroupedMenuItems
         {
             get
             {
@@ -258,6 +277,7 @@
                     foreach (var item in allItems)
                     {
                         var playlistItem = await LoadPlaylistItem(item);
+                        if (playlistItem == null) return;
                         playlistItems.Add(playlistItem);
                     }
 
@@ -275,9 +295,21 @@
 
         public virtual async Task Populate()
         {
-            await GetResult(Parameter).WithErrorHandler(ErrorDialogViewModel).OnSuccess(OnResultSuccessfull).Execute();
-            await AfterPopulate(Parameter);
-            UpdateDisplayName();
+            var version = ++_populateVersion;
+            var parameter = Parameter;
+            IsLoading = true;
+            try
+            {
+                if (PlayerSummary != null) await PlayerSummary.LoadRecentAsync();
+                await GetResult(parameter).WithErrorHandler(ErrorDialogViewModel)
+                    .OnSuccess(result => { if (version == _populateVersion) OnResultSuccessfull(result); }).Execute();
+                if (version == _populateVersion)
+                {
+                    await AfterPopulate(parameter);
+                    UpdateDisplayName();
+                }
+            }
+            finally { if (version == _populateVersion) IsLoading = false; }
         }
 
         #endregion
@@ -328,7 +360,7 @@
         {
             var hasItems = MenuItems != null && MenuItems.Count > 0;
             HasItems = hasItems;
-            IsEmpty = _loadedOnce && !hasItems;
+            IsEmpty = _loadedOnce && !_isLoading && !hasItems;
             NotifyOfPropertyChange(() => ShowGroupedItems);
             NotifyOfPropertyChange(() => ShowFlatItems);
         }

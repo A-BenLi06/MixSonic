@@ -124,3 +124,9 @@ Client.Common/EventAggregatorMessages/StopPlaybackMessage.cs
 Client.Common/EventAggregatorMessages/ToggleRepeatMessage.cs
 Client.Common/EventAggregatorMessages/ToggleShuffleMessage.cs
 Common/Exceptions/ApiException.cs
+Client.Common/Services/AccountIdentity.cs
+Client.Common/Results/ISetStarredResult.cs
+Client.Common/Results/SetStarredResult.cs
+Client.Common/EventAggregatorMessages/TrackPlaybackStartedMessage.cs
+Client.Common/Models/PlaybackRepeatMode.cs
+Client.Common/EventAggregatorMessages/PlayQueueMessage.cs

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.IO;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -18,10 +17,6 @@ public static class SerializerTests
     {
         "Client.Common.Models.PlaylistHistoryStack",
         "Client.Common.Models.Subsonic.GenericMediaModel",
-        // PlaylistItem/PlaylistItemCollection are DataContract-serialized (playlist.spls),
-        // they are covered by the DataContractSerializer assertions below instead.
-        "Client.Common.Models.PlaylistItem",
-        "Client.Common.Models.PlaylistItemCollection",
     };
 
     private static int _failures;
@@ -35,7 +30,8 @@ public static class SerializerTests
         catch (ReflectionTypeLoadException ex)
         {
             allTypes = ex.Types.Where(t => t != null).ToArray();
-            Console.WriteLine("NOTE: skipped " + ex.LoaderExceptions.Length + " unloadable Caliburn-bound types");
+            _failures += ex.LoaderExceptions.Length;
+            Console.WriteLine("FAIL: " + ex.LoaderExceptions.Length + " production types could not load");
         }
 
         var modelTypes = allTypes
@@ -43,6 +39,12 @@ public static class SerializerTests
             .Where(t => t.Namespace != null && t.Namespace.StartsWith("Client.Common.Models"))
             .OrderBy(t => t.FullName)
             .ToList();
+
+        if (modelTypes.Count == 0)
+        {
+            _failures++;
+            Console.WriteLine("FAIL: no production model types were discovered");
+        }
 
         foreach (var t in modelTypes)
         {
@@ -71,10 +73,86 @@ public static class SerializerTests
         AlbumHandleResponse();
         MusicDirectoryHandleResponse();
         SongHandleResponse();
+        PlaylistXmlRoundTrip();
 
         Console.WriteLine(_failures == 0 ? "ALL TESTS PASSED (" + modelTypes.Count + " model types)"
                                          : _failures + " FAILURES");
         Environment.Exit(_failures == 0 ? 0 : 1);
+    }
+
+    private static void PlaylistXmlRoundTrip()
+    {
+        try
+        {
+            var queue = new Client.Common.Models.PlaylistItemCollection
+            {
+                new Client.Common.Models.PlaylistItem
+                {
+                    SongId = "song&1", CoverArtId = "cover-1", AccountKey = "http://localhost/fixture\nreviewer",
+                    Title = "R&D <Live>", Artist = "测试 artist", Duration = 219,
+                    Uri = new Uri("http://localhost/fixture/stream?id=song%261"),
+                    CoverArtUrl = "http://localhost/fixture/art?id=cover-1&size=200", IsStarred = true,
+                    PlayingState = Client.Common.Models.PlaylistItemState.Playing
+                },
+                new Client.Common.Models.PlaylistItem
+                {
+                    SongId = "song-2", Title = "Second", Artist = "Artist B", Duration = 301,
+                    Uri = new Uri("http://localhost/fixture/stream?id=song-2")
+                }
+            };
+            var serializer = new XmlSerializer(typeof(Client.Common.Models.PlaylistItemCollection));
+            string xml;
+            using (var output = new StringWriter())
+            {
+                serializer.Serialize(output, queue);
+                xml = output.ToString();
+            }
+            Client.Common.Models.PlaylistItemCollection restored;
+            using (var input = new StringReader(xml))
+                restored = (Client.Common.Models.PlaylistItemCollection)serializer.Deserialize(input);
+            if (restored.Count != 2) throw new Exception("Queue order/count did not round-trip.");
+            for (var index = 0; index < queue.Count; index++)
+            {
+                var before = queue[index];
+                var after = restored[index];
+                AssertSame(before.Title, after.Title, "Title");
+                AssertSame(before.Artist, after.Artist, "Artist");
+                AssertSame(before.Duration, after.Duration, "Duration");
+                AssertSame(before.SongId, after.SongId, "SongId");
+                AssertSame(before.CoverArtId, after.CoverArtId, "CoverArtId");
+                AssertSame(before.AccountKey, after.AccountKey, "AccountKey");
+                AssertSame(before.Uri, after.Uri, "Uri");
+                AssertSame(before.CoverArtUrl, after.CoverArtUrl, "CoverArtUrl");
+                AssertSame(before.IsStarred, after.IsStarred, "IsStarred");
+                AssertSame(Client.Common.Models.PlaylistItemState.NotPlaying, after.PlayingState, "PlayingState");
+            }
+            // Older .spls files omit the new ID/account/favourite fields.
+            var legacy = XDocument.Parse(xml);
+            legacy.Descendants().Where(element => new[] { "SongId", "CoverArtId", "AccountKey", "IsStarred" }
+                .Contains(element.Name.LocalName)).Remove();
+            using (var input = new StringReader(legacy.ToString()))
+            {
+                var imported = (Client.Common.Models.PlaylistItemCollection)serializer.Deserialize(input);
+                if (imported.Count != 2 || imported[0].Title != queue[0].Title || imported[0].Uri != queue[0].Uri ||
+                    imported[0].SongId != null || imported[0].IsStarred)
+                    throw new Exception("Legacy .spls compatibility was lost.");
+            }
+            var rejected = false;
+            try { serializer.Deserialize(new StringReader("<ArrayOfPlaylistItem><PlaylistItem>")); }
+            catch (InvalidOperationException) { rejected = true; }
+            if (!rejected) throw new Exception("Malformed playlist XML must propagate an error.");
+            Console.WriteLine("PASS Playlist .spls XML: metadata/order/Unicode round-trip, legacy fields and malformed input");
+        }
+        catch (Exception ex)
+        {
+            _failures++;
+            Console.WriteLine("FAIL Playlist XML: " + ex.Message);
+        }
+    }
+
+    private static void AssertSame(object expected, object actual, string field)
+    {
+        if (!Equals(expected, actual)) throw new Exception("Queue " + field + " did not round-trip.");
     }
 
     private static void GenresHandleResponse()

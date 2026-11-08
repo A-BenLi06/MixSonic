@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.AudioPlayback
+namespace Subsonic8.AudioPlayback
 {
     using System;
 
@@ -24,6 +24,8 @@
         private Uri _source;
 
         private PlaylistItem _currentItem;
+
+        private bool _reportedMediaStart;
 
         #endregion
 
@@ -88,12 +90,12 @@
 
         public TimeSpan GetCurrentPosition()
         {
-            return _playerControls.GetCurrentPosition();
+            return _playerControls == null ? TimeSpan.Zero : _playerControls.GetCurrentPosition();
         }
 
         public TimeSpan GetDuration()
         {
-            return TimeSpan.FromSeconds(_currentItem.Duration);
+            return _currentItem == null ? TimeSpan.Zero : TimeSpan.FromSeconds(_currentItem.Duration);
         }
 
         public void Pause()
@@ -108,20 +110,25 @@
         public void Play(PlaylistItem item, object options = null)
         {
             _currentItem = item;
+            _reportedMediaStart = false;
             Source = item.Uri;
             _playerControls.Play();
-            if (PlaybackStarted != null)
-            {
-                PlaybackStarted(this, new EventArgs());
-            }
         }
 
         public void Resume()
         {
             _playerControls.Play();
-            if (PlaybackStarted != null)
+        }
+
+        public void MediaStateChanged(object sender, RoutedEventArgs args)
+        {
+            var media = sender as Windows.UI.Xaml.Controls.MediaElement;
+            if (media == null || media.CurrentState != Windows.UI.Xaml.Media.MediaElementState.Playing) return;
+            if (PlaybackStarted != null) PlaybackStarted(this, EventArgs.Empty);
+            if (!_reportedMediaStart && _currentItem != null)
             {
-                PlaybackStarted(this, new EventArgs());
+                _reportedMediaStart = true;
+                EventAggregator.PublishOnUIThread(new TrackPlaybackStartedMessage(_currentItem));
             }
         }
 
@@ -162,7 +169,7 @@
             PlayerControls = (IExtendedPlayerControls)view;
         }
 
-      
+
 
         #endregion
     }

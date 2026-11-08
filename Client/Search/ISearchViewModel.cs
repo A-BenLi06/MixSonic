@@ -9,7 +9,7 @@ namespace Subsonic8.Search
     {
         #region Public Properties
 
-        List<IGrouping<string, MenuItemViewModel>> GroupedMenuItems { get; }
+        IEnumerable<IGrouping<string, MenuItemViewModel>> GroupedMenuItems { get; }
 
         SearchResultState State { get; }
 

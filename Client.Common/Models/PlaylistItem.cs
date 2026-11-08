@@ -1,4 +1,4 @@
-﻿namespace Client.Common.Models
+namespace Client.Common.Models
 {
     using System;
     using System.Text.RegularExpressions;
@@ -38,6 +38,25 @@
         #endregion
 
         #region Public Properties
+
+        public string SongId { get; set; }
+
+        public string CoverArtId { get; set; }
+
+        public string AccountKey { get; set; }
+
+        private bool _isStarred;
+
+        public bool IsStarred
+        {
+            get { return _isStarred; }
+            set
+            {
+                if (value == _isStarred) return;
+                _isStarred = value;
+                NotifyOfPropertyChange(() => IsStarred);
+            }
+        }
 
         public string Artist
         {
@@ -171,7 +190,7 @@
         {
             get
             {
-                return Uri.ToString();
+                return Uri == null ? null : Uri.OriginalString;
             }
 
             set

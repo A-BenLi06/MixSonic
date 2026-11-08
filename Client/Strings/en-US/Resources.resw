@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="MyMusic" xml:space="preserve"><value>my music</value></data>
+  <data name="PlayMe" xml:space="preserve"><value>play me</value></data>
+  <data name="RandomMix" xml:space="preserve"><value>random mix</value></data>
+  <data name="Albums" xml:space="preserve"><value>albums</value></data>
+  <data name="AlbumWall" xml:space="preserve"><value>album wall</value></data>
+  <data name="Artists" xml:space="preserve"><value>artists</value></data>
+  <data name="AlbumArtists" xml:space="preserve"><value>album artists</value></data>
+  <data name="Genres" xml:space="preserve"><value>genres</value></data>
+  <data name="Categories" xml:space="preserve"><value>categories</value></data>
+  <data name="Playlists" xml:space="preserve"><value>playlists</value></data>
+  <data name="RemoteLists" xml:space="preserve"><value>server playlists</value></data>
+  <data name="Favourites" xml:space="preserve"><value>favourites</value></data>
+  <data name="StarredSongs" xml:space="preserve"><value>starred songs</value></data>
+  <data name="Radio" xml:space="preserve"><value>radio</value></data>
+  <data name="InternetStations" xml:space="preserve"><value>internet stations</value></data>
+  <data name="NowPlaying" xml:space="preserve"><value>now playing</value></data>
+  <data name="ServerActivity" xml:space="preserve"><value>server activity</value></data>
+  <data name="Search" xml:space="preserve"><value>Search</value></data>
+  <data name="SearchHint" xml:space="preserve"><value>Find artists, albums, and songs.</value></data>
+  <data name="LibrarySearchInput.PlaceholderText" xml:space="preserve"><value>Find artists, albums, and songs.</value></data>
+  <data name="CollectionEmptyTitle" xml:space="preserve"><value>Nothing here yet</value></data>
+  <data name="CollectionEmptySubtitle" xml:space="preserve"><value>Try another section or refresh your library.</value></data>
+  <data name="PlayerEmptyTitle" xml:space="preserve"><value>Choose your music</value></data>
+  <data name="PlayerEmptySubtitle" xml:space="preserve"><value>Select a song from your library or start Play Me.</value></data>
+  <data name="Play" xml:space="preserve"><value>Play</value></data>
+  <data name="Pause" xml:space="preserve"><value>Pause</value></data>
+  <data name="Previous" xml:space="preserve"><value>Previous track</value></data>
+  <data name="Next" xml:space="preserve"><value>Next track</value></data>
+  <data name="Queue" xml:space="preserve"><value>Open queue</value></data>
+  <data name="PlayerOptions.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Playback options</value></data>
+  <data name="RepeatOff" xml:space="preserve"><value>Repeat: off</value></data>
+  <data name="RepeatAll" xml:space="preserve"><value>Repeat: all tracks</value></data>
+  <data name="RepeatOne" xml:space="preserve"><value>Repeat: one track</value></data>
+  <data name="ShuffleOff" xml:space="preserve"><value>Shuffle: off</value></data>
+  <data name="ShuffleOn" xml:space="preserve"><value>Shuffle: on</value></data>
+  <data name="FavouriteAdd" xml:space="preserve"><value>Add to favourites</value></data>
+  <data name="FavouriteRemove" xml:space="preserve"><value>Remove from favourites</value></data>
+  <data name="FavouritesEmptyTitle" xml:space="preserve"><value>No favourites yet</value></data>
+  <data name="FavouritesEmptySubtitle" xml:space="preserve"><value>Use playback options to add a song to your favourites.</value></data>
+  <data name="RecentEmpty" xml:space="preserve"><value>Your recently played songs will appear here.</value></data>
+  <data name="HistoryReadError" xml:space="preserve"><value>Recently played could not be loaded. Try again.</value></data>
+  <data name="HistoryWriteError" xml:space="preserve"><value>This listen could not be saved. Recently played may be out of date after restarting.</value></data>
+  <data name="PlayerSection.Header" xml:space="preserve"><value>now playing</value></data>
+  <data name="RecentSection.Header" xml:space="preserve"><value>recently played</value></data>
+  <data name="SearchResults.Text" xml:space="preserve"><value>results</value></data>
+  <data name="PlaybackOptions.Content" xml:space="preserve"><value>Playback options</value></data>
+  <data name="PlaylistReadError" xml:space="preserve"><value>This playlist could not be opened. Check the file and try again.</value></data>
+  <data name="PlaylistWriteError" xml:space="preserve"><value>This playlist could not be saved. Choose a writable location and try again.</value></data>
+</root>

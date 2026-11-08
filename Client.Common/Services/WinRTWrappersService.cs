@@ -35,23 +35,14 @@
 
         public async Task<T> LoadFromFile<T>(IStorageFile storageFile) where T : new()
         {
-            var randomAccessStream = await storageFile.OpenReadAsync();
-            var xmlSerializer = new XmlSerializer(typeof(T));
-            var result = new T();
-            try
+            using (var randomAccessStream = await storageFile.OpenReadAsync())
+            using (var source = randomAccessStream.AsStreamForRead())
+            using (var buffer = new MemoryStream())
             {
-                result = (T)xmlSerializer.Deserialize(randomAccessStream.AsStreamForRead());
+                await source.CopyToAsync(buffer);
+                buffer.Position = 0;
+                return (T)new XmlSerializer(typeof(T)).Deserialize(buffer);
             }
-            catch (Exception exception)
-            {
-                Log.Error("Exception during deserializing object from file", exception);
-            }
-            finally
-            {
-                randomAccessStream.Dispose();
-            }
-
-            return result;
         }
 
         public async Task<IStorageFile> OpenStorageFile()
@@ -69,15 +60,21 @@
 
         public async Task SaveToFile<T>(IStorageFile storageFile, T @object)
         {
-            var randomAccessStream = await storageFile.OpenAsync(FileAccessMode.ReadWrite);
-            var outputStream = randomAccessStream.GetOutputStreamAt(0);
-
-            var xmlSerializer = new XmlSerializer(typeof(T));
-            xmlSerializer.Serialize(outputStream.AsStreamForWrite(), @object);
-            outputStream.Dispose();
-
-            await randomAccessStream.FlushAsync();
-            randomAccessStream.Dispose();
+            using (var buffer = new MemoryStream())
+            {
+                new XmlSerializer(typeof(T)).Serialize(buffer, @object);
+                buffer.Position = 0;
+                using (var transaction = await storageFile.OpenTransactedWriteAsync())
+                {
+                    transaction.Stream.Size = 0;
+                    using (var target = transaction.Stream.AsStreamForWrite())
+                    {
+                        await buffer.CopyToAsync(target);
+                        await target.FlushAsync();
+                        await transaction.CommitAsync();
+                    }
+                }
+            }
         }
 
         public void RegisterShareRequestHandler(Action<DataRequest> requestHandler)

@@ -20,12 +20,14 @@
         public MainViewModel()
         {
             MenuItems = new BindableCollection<MenuItemViewModel>();
-            UpdateDisplayName = () => DisplayName = "my music";
+            UpdateDisplayName = () => DisplayName = MixRadioText.Get("MyMusic");
         }
 
         #endregion
 
         #region Public Properties
+
+        public override bool ShowRecentListening { get { return true; } }
 
         [Inject]
         public IResourceService ResourceService { get; set; }
@@ -64,43 +66,43 @@
                        {
                            new LibraryCommand(
                                "random",
-                               "play me",
-                               "random mix",
+                               MixRadioText.Get("PlayMe"),
+                               MixRadioText.Get("RandomMix"),
                                SubsonicModelTypeEnum.LibraryRandomSongs),
                            new LibraryCommand(
                                string.Empty,
-                               "albums",
-                               "album wall",
+                               MixRadioText.Get("Albums"),
+                               MixRadioText.Get("AlbumWall"),
                                SubsonicModelTypeEnum.LibraryAlbums),
                            new LibraryCommand(
                                "artists",
-                               "artists",
-                               "album artists",
+                               MixRadioText.Get("Artists"),
+                               MixRadioText.Get("AlbumArtists"),
                                SubsonicModelTypeEnum.LibraryArtists),
                            new LibraryCommand(
                                "genres",
-                               "genres",
-                               "categories",
+                               MixRadioText.Get("Genres"),
+                               MixRadioText.Get("Categories"),
                                SubsonicModelTypeEnum.LibraryGenres),
                            new LibraryCommand(
                                "playlists",
-                               "playlists",
-                               "remote lists",
+                               MixRadioText.Get("Playlists"),
+                               MixRadioText.Get("RemoteLists"),
                                SubsonicModelTypeEnum.LibraryPlaylists),
                            new LibraryCommand(
                                "favourites",
-                               "favourites",
-                               "starred songs",
+                               MixRadioText.Get("Favourites"),
+                               MixRadioText.Get("StarredSongs"),
                                SubsonicModelTypeEnum.LibraryFavourites),
                            new LibraryCommand(
                                "radio",
-                               "radio",
-                               "internet stations",
+                               MixRadioText.Get("Radio"),
+                               MixRadioText.Get("InternetStations"),
                                SubsonicModelTypeEnum.LibraryRadio),
                            new LibraryCommand(
                                "now-playing",
-                               "now playing",
-                               "server activity",
+                               MixRadioText.Get("NowPlaying"),
+                               MixRadioText.Get("ServerActivity"),
                                SubsonicModelTypeEnum.LibraryNowPlaying)
                        };
         }
@@ -145,13 +147,6 @@
         }
 
         #endregion
-        public override bool IsGroupedView
-        {
-            get
-            {
-                return false;
-            }
-        }
-
+        public override bool IsGroupedView        {            get            {                return false;            }        }
     }
 }

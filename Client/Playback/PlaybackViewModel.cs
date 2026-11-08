@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Playback
+namespace Subsonic8.Playback
 {
     using System;
     using System.Collections.Generic;
@@ -355,6 +355,9 @@
         public IProgressIndicatorViewModel ProgressIndicatorViewModel { get; set; }
 
         [Inject]
+        public Subsonic8.BrowsePlayer.IBrowsePlayerViewModel PlayerSummary { get; set; }
+
+        [Inject]
         public ITileNotificationService TileNotificationService { get; set; }
 
         [Inject]
@@ -424,14 +427,20 @@
 
         public async Task LoadPlaylist()
         {
-            var storageFile = await WinRTWrappersService.OpenStorageFile();
-            if (storageFile == null)
+            try
             {
-                return;
+                var storageFile = await WinRTWrappersService.OpenStorageFile();
+                if (storageFile == null) return;
+                var items = await WinRTWrappersService.LoadFromFile<PlaylistItemCollection>(storageFile);
+                _playlistManagementService.LoadPlaylist(items);
             }
-
-            var playlistItemCollection = await WinRTWrappersService.LoadFromFile<PlaylistItemCollection>(storageFile);
-            _playlistManagementService.LoadPlaylist(playlistItemCollection);
+            catch (Exception)
+            {
+                await NotificationService.Show(new DialogNotificationOptions
+                {
+                    Message = MixRadioText.Get("PlaylistReadError")
+                });
+            }
         }
 
         public void LoadRemotePlaylist()
@@ -451,10 +460,18 @@
 
         public async Task SavePlaylist()
         {
-            var storageFile = await WinRTWrappersService.GetNewStorageFile();
-            if (storageFile != null)
+            try
             {
-                await WinRTWrappersService.SaveToFile(storageFile, PlaylistManagementService.Items);
+                var storageFile = await WinRTWrappersService.GetNewStorageFile();
+                if (storageFile != null)
+                    await WinRTWrappersService.SaveToFile(storageFile, PlaylistManagementService.Items);
+            }
+            catch (Exception)
+            {
+                await NotificationService.Show(new DialogNotificationOptions
+                {
+                    Message = MixRadioText.Get("PlaylistWriteError")
+                });
             }
         }
 

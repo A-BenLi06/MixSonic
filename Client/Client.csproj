@@ -185,6 +185,16 @@
     <Compile Include="Common\BrowseViews\FullScreen.xaml.cs">
       <DependentUpon>FullScreen.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MixRadioText.cs" />
+    <Compile Include="Listening\RecentTrack.cs" />
+    <Compile Include="Listening\ListeningHistory.cs" />
+    <Compile Include="Listening\IListeningHistoryService.cs" />
+    <Compile Include="Listening\ListeningHistoryService.cs" />
+    <Compile Include="Listening\RecentTrackViewModel.cs" />
+    <Compile Include="BrowsePlayer\IBrowsePlayerViewModel.cs" />
+    <Compile Include="BrowsePlayer\BrowsePlayerViewModel.cs" />
+    <Compile Include="BrowsePlayer\PlayerSummaryView.xaml.cs"><DependentUpon>PlayerSummaryView.xaml</DependentUpon></Compile>
+    <Compile Include="Common\LibrarySearch.xaml.cs"><DependentUpon>LibrarySearch.xaml</DependentUpon></Compile>
     <Compile Include="Common\BrowseViews\Snapped.xaml.cs">
       <DependentUpon>Snapped.xaml</DependentUpon>
     </Compile>
@@ -504,8 +514,7 @@
     </PRIResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\CoverArtPlaceholder.jpg" />
-    <Content Include="Assets\ArtistPlaceholder.png" />
+    <Content Include="Assets\CoverArtPlaceholder.jpg" />    <Content Include="Assets\ArtistPlaceholder.png" />
     <Content Include="Assets\CoverArtPlaceholderLarge.jpg" />
     <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\StoreLogo.png" />
@@ -592,6 +601,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="BrowsePlayer\PlayerSummaryView.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
+    <Page Include="Common\LibrarySearch.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
+    <PRIResource Include="Strings\en-US\Resources.resw" />
     <Page Include="Common\BrowseViews\Snapped.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -880,7 +892,7 @@
     <Error Condition="!Exists('..\packages\Microsoft.ApplicationInsights.0.14.0-build20632\build\portable-win81+wpa81\Microsoft.ApplicationInsights.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ApplicationInsights.0.14.0-build20632\build\portable-win81+wpa81\Microsoft.ApplicationInsights.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.ApplicationInsights.0.14.0-build20632\build\portable-win81+wpa81\Microsoft.ApplicationInsights.targets" Condition="Exists('..\packages\Microsoft.ApplicationInsights.0.14.0-build20632\build\portable-win81+wpa81\Microsoft.ApplicationInsights.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

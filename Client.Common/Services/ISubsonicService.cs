@@ -55,6 +55,8 @@ namespace Client.Common.Services
 
         Func<IGetStarredSongsResult> GetStarredSongs { get; set; }
 
+        Func<string, bool, ISetStarredResult> SetStarred { get; set; }
+
         Func<IGetInternetRadioStationsResult> GetInternetRadioStations { get; set; }
 
         Func<IGetNowPlayingResult> GetNowPlaying { get; set; }

@@ -5,6 +5,12 @@ using Caliburn.Micro;
 using Client.Common.EventAggregatorMessages;
 using Client.Common.Models;
 using Client.Common.Services;
+using Client.Common.Results;
+using Client.Common.Services.DataStructures.SubsonicService;
+using Subsonic8.Listening;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Xml.Linq;
 
 public static class PlaybackTests
 {
@@ -19,7 +25,10 @@ public static class PlaybackTests
             ShuffleCycles();
             PreviousHistory();
             QueueMutation();
+            ImportedQueueValidation();
             RestoreState();
+            RecentListening();
+            FavouriteProtocol();
             Console.WriteLine("PASS: " + _assertions + " playback assertions against production sources.");
             return 0;
         }
@@ -47,6 +56,33 @@ public static class PlaybackTests
     {
         _assertions++;
         if (!condition) throw new Exception(message);
+    }
+
+    private static void ImportedQueueValidation()
+    {
+        var service = Queue(2);
+        service.StartPlayback(1);
+        var original = service.Items.ToList();
+        foreach (var invalid in new[]
+        {
+            new PlaylistItemCollection { null },
+            new PlaylistItemCollection { new PlaylistItem { Title = "Missing URI" } },
+            new PlaylistItemCollection { new PlaylistItem { Uri = new Uri("relative", UriKind.Relative) } }
+        })
+        {
+            var rejected = false;
+            try { service.LoadPlaylist(invalid); }
+            catch (InvalidDataException) { rejected = true; }
+            Check(rejected, "Invalid imported media must be rejected before changing playback.");
+            Check(service.Items.SequenceEqual(original) && service.CurrentTrackNumber == 1 && service.IsPlaying,
+                "Rejected imports must preserve the valid queue and current playback.");
+        }
+        service.LoadPlaylist(null);
+        Check(service.Items.SequenceEqual(original), "Cancelled import must preserve the queue.");
+        var replacement = Queue(3).Items;
+        service.LoadPlaylist(replacement);
+        Check(service.Items.SequenceEqual(replacement) && !service.IsPlaying,
+            "Valid imports must replace in order without starting audio.");
     }
 
     private static void ContextPlayback()
@@ -167,6 +203,51 @@ public static class PlaybackTests
         Check(restored.CurrentTrackNumber == 1 && restored.Items.Count == 3, "Restore must retain the queue and selected index.");
         Check(restored.RepeatMode == PlaybackRepeatMode.One && restored.ShuffleOn, "Restore must retain repeat and shuffle separately.");
         Check(!restored.IsPlaying, "A stopped or paused saved queue must not auto-play.");
+    }
+
+    private static void RecentListening()
+    {
+        var history = new ListeningHistory();
+        for (var index = 0; index < 125; index++)
+            history.Record(new RecentTrack { SongId = "song-" + index, Title = "Fixture", PlayedAt = DateTimeOffset.Now });
+        Check(history.Entries.Count == ListeningHistory.MaximumEntries, "Listening history must stay bounded.");
+        Check(history.Entries[0].SongId == "song-124", "The latest listen must lead history.");
+        history.Record(new RecentTrack { SongId = "song-50", Title = "Replayed", CoverArtId = "cover-50", PlayedAt = DateTimeOffset.Now });
+        Check(history.Entries[0].SongId == "song-50" && history.Entries.Count(entry => entry.SongId == "song-50") == 1,
+              "Replaying a song must move its single entry to the front.");
+        history.Record(new RecentTrack());
+        Check(history.Entries.Count == ListeningHistory.MaximumEntries, "Missing song IDs must not enter history.");
+        using (var stream = new MemoryStream())
+        {
+            var serializer = new DataContractSerializer(typeof(ListeningHistory));
+            serializer.WriteObject(stream, history);
+            stream.Position = 0;
+            var restored = (ListeningHistory)serializer.ReadObject(stream);
+            Check(restored.Entries[0].Title == "Replayed" && restored.Entries[0].CoverArtId == "cover-50",
+                  "Persisted recent metadata must round-trip independently of streaming URLs.");
+        }
+        var configuration = new SubsonicServiceConfiguration { BaseUrl = "http://localhost/Music/", Username = "listener", Password = "fixture" };
+        var account = AccountIdentity.For(configuration);
+        configuration.Password = "changed";
+        Check(AccountIdentity.For(configuration) == account, "Changing a password must not lose listening history.");
+        configuration.Username = "another listener";
+        Check(AccountIdentity.For(configuration) != account, "Different users must have separate listening histories.");
+        configuration.Username = "listener";
+        configuration.BaseUrl = "http://localhost/music/";
+        Check(AccountIdentity.For(configuration) != account, "Case-sensitive server paths must identify separate libraries.");
+    }
+
+    private static void FavouriteProtocol()
+    {
+        var configuration = new SubsonicServiceConfiguration { BaseUrl = "http://localhost/", Username = "fixture", Password = "fixture" };
+        var star = new SetStarredResult(configuration, "song&1", true);
+        Check(star.ResourcePath == "star.view" && star.RequestUrl.Contains("id=song%261"), "Star must encode the song ID as a query value.");
+        star.HandleResponse(XDocument.Parse("<subsonic-response xmlns='http://subsonic.org/restapi' status='ok'/>"));
+        Check(star.Result, "Only a successful server response confirms a favourite.");
+        star.HandleResponse(XDocument.Parse("<subsonic-response xmlns='http://subsonic.org/restapi' status='failed'><error code='50'/></subsonic-response>"));
+        Check(!star.Result, "Failed favourite responses must not confirm a state change.");
+        var unstar = new SetStarredResult(configuration, "song-1", false);
+        Check(unstar.ResourcePath == "unstar.view", "Removing a favourite must use unstar.");
     }
 
     private sealed class RecordingEvents : IEventAggregator

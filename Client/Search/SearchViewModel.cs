@@ -22,14 +22,14 @@ namespace Subsonic8.Search
         public SearchViewModel()
         {
             State = SearchResultState.NoResultsFound;
-            UpdateDisplayName = () => DisplayName = "search";
+            UpdateDisplayName = () => DisplayName = MixRadioText.Get("Search");
         }
 
         #endregion
 
         #region Public Properties
 
-        public List<IGrouping<string, MenuItemViewModel>> GroupedMenuItems
+        public override IEnumerable<IGrouping<string, MenuItemViewModel>> GroupedMenuItems
         {
             get
             {
@@ -42,7 +42,7 @@ namespace Subsonic8.Search
             get
             {
                 return string.IsNullOrWhiteSpace(Parameter)
-                           ? "Find artists, albums, and songs."
+                           ? MixRadioText.Get("SearchHint")
                            : string.Format("\"{0}\"", Parameter);
             }
         }

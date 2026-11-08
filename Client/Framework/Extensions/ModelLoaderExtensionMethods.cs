@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Framework.Extensions
+namespace Subsonic8.Framework.Extensions
 {
     using System.Threading.Tasks;
     using Client.Common.Models;
@@ -12,6 +12,8 @@
         public static async Task<PlaylistItem> LoadPlaylistItemFromSong(this ISongLoader modelLoader, IId model)
         {
             PlaylistItem playlistItem = null;
+            var song = model as ISongModel;
+            if (song != null) return CreatePlaylistItemFromSong(song, modelLoader.SubsonicService);
             if (model != null)
             {
                 await
