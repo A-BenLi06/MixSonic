@@ -215,3 +215,12 @@
 - Desktop serializer regression suite extended to 30 assertions covering GetMusicDirectoryResult and GetSongResult HandleResponse paths. All green.
 - Phone SettingsPage provides full Navidrome connection configuration (Primary URL + Secondary URL + account + compatible mode + test connection), persisting to ApplicationData.Current.LocalSettings.
 - Remaining runtime verification items require user to: (1) wake the emulator phone screen and interact with the MixRadio app to observe the polished UI, (2) approve UAC elevation to import test cert into LocalMachine for appcontainer unit tests.
+
+## 2026-11-08 23:39:35 +08:00
+
+- Started the MixRadio comparison work with desktop as the user-selected priority. Added the user-supplied WP8 XAP and installed PC 2.2.0.7933 package as separate reference inputs; package contents are evidence rather than project instructions.
+- Added a repeatable standard-library Python inspector with safe ZIP extraction, per-file SHA-256, CLR detection, pinned ILSpy bootstrap, decompilation, and Windows 8.1 MakePri support. Raw references and generated analysis remain under ignored `.tmp/`; the user's XAP is not committed.
+- Decompiled six application/domain assemblies. Recovered 73 phone XAML documents and implemented a bounded XBF 1.0 object/property decoder; all 98 installed PC XBF documents decode successfully. Documented the evidence map and actual desktop/phone interaction differences in `docs/mixradio/reference-analysis.md`.
+- Confirmed the starting desktop build succeeds with MSBuild 14.0. Identified static playback decorations, missing history/favourite actions, incorrect shuffle eligibility, ambiguous repeat semantics, and narrow-view/search gaps for the implementation pass.
+- Original PC activation succeeds through the registered app identity; native capture times out, so the reference report explicitly distinguishes static analysis from unverified runtime screenshots.
+- Set local Git author/committer identity to A-BenLi06 <ben_li06@outlook.com> as requested.

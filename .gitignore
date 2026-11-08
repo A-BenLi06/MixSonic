@@ -57,3 +57,6 @@ PublishAssets/*
 
 # ZCode session scratch
 .tmp/
+
+# Local reference tooling caches
+tools/mixradio/__pycache__/
