@@ -203,9 +203,16 @@ commit intentionally fails the provenance gate.
 
 PC and WP static reverse engineering, desktop build/development registration,
 and production-source regressions are verified. Native screenshot capture
-returned timeouts and the original accessibility observation was empty; native
-task completion and visual parity have not been certified. The browser tool
-also rejected opening local `file://` HTML. The comparator's script is checked
-with an isolated DOM/Canvas harness; actual browser rendering remains unverified.
-These constraints leave the release gate open for evidence collection, with an
-honest **Not accepted** result until the required native cases are completed.
+returned timeouts and the client accessibility observation was empty; native
+task completion and visual parity have not been certified.
+
+The comparator is checked with an isolated DOM/Canvas harness and in the actual
+in-app browser over loopback HTTP. Synthetic PNGs verified its four modes,
+Actual pixels, crop rejection, unequal-size handling, a 500px browser viewport
+and real JSON/PNG downloads. This resolves the earlier browser verification
+limit caused by rejected `file://` navigation. It supplies tool evidence, not
+native client evidence.
+
+The release gate remains **Not accepted** until the required native cases are
+completed. Retain the report's missing-evidence status when handing the run to
+another reviewer.

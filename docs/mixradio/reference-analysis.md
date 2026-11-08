@@ -121,6 +121,11 @@ identity, but native capture returned `FrameArrived timed out` and then
 `window capture timed out`; live original screenshots have not been verified.
 Static C#/XBF/PRI evidence must remain distinct from runtime screenshot evidence.
 
+The comparison viewer runs in the in-app browser when served over loopback
+HTTP. Its modes, crops, narrow browser layout and JSON/PNG exports have been
+checked using synthetic fixtures. These tool checks do not establish original
+app rendering or current client visual parity.
+
 The XBF format decoder follows Microsoft's published
 [FileFormat.cs](https://github.com/microsoft/microsoft-ui-xaml/blob/main/dxaml/xcp/tools/DumpXbf/FileFormat.cs)
 and [XBFReader.cs](https://github.com/microsoft/microsoft-ui-xaml/blob/main/dxaml/xcp/tools/DumpXbf/XBFReader.cs).

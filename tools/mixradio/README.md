@@ -122,6 +122,16 @@ adjacent `.json` starts unreviewed. A reviewer records observations and exports
 `comparison-review.json` from the viewer. Input dimensions are preserved;
 unequal crops disable composite comparisons and metrics.
 
+Open the HTML directly in an ordinary browser. For browser automation that
+does not allow `file://`, serve only the comparison directory over loopback:
+
+```powershell
+python -m http.server 8765 --bind 127.0.0.1 --directory '.tmp/comparisons'
+```
+
+Open `http://127.0.0.1:8765/home-wide.html`. Choose another unused port if needed;
+Ctrl+C stops the server. The generated viewer remains a standalone HTML file.
+
 Declare `mockup` or `synthetic` for those image types. They are useful for design
 or tool tests, but the evaluator rejects them as runtime visual evidence. An
 omitted reference creates a candidate-only inspection with missing-reference
@@ -171,6 +181,15 @@ required cases, every dimension minimum, the 85% overall threshold and absence
 of unresolved P0/P1 defects are independent gates. Evidence tampering and
 commit/workspace/specification/reference changes also prevent acceptance.
 
+The report and its copied evidence can likewise be viewed through loopback:
+
+```powershell
+python -m http.server 8765 --bind 127.0.0.1 --directory $acceptanceRoot
+```
+
+Open `http://127.0.0.1:8765/report.html`. Keep the run directory intact so its
+relative evidence links continue to work.
+
 Exit codes for `quality.py`: **0** for a successful operation or accepted run,
 **2** for a valid run that is not accepted, **1** for invalid input.
 `compare.py` exits **0** when created and **1** on invalid input.
@@ -188,6 +207,11 @@ CLI behavior. The JavaScript harness exercises the production viewer script
 with known synthetic pixels, including exact difference statistics, crops,
 overlays, wipe and exports. Neither certifies native app or browser rendering.
 
-Current native app capture returns timeouts. The browser tool rejects opening
-`file://` HTML, so browser rendering has not been checked. Keep those limitations
-in the acceptance run; source and harness tests cannot close the visual gate.
+The viewer has also been exercised in the in-app browser over loopback HTTP:
+all four modes, Actual pixels, crop bounds, unequal-size disabling, a 500px
+browser viewport, review JSON download and difference PNG download. Those
+checks used synthetic PNGs and verify the tool's browser behavior.
+
+Current native app capture still returns timeouts. Original/client runtime
+comparison and native task acceptance remain unverified; neither synthetic
+browser checks nor source regressions close those gates.
