@@ -272,7 +272,24 @@
             StopPlaybackAction();
             Items.Clear();
             Items.AddRange(queue);
-            StartPlaybackAction(message.StartIndex);
+            if (message.Options == null) StartPlaybackAction(message.StartIndex);
+            else StartPlaybackWithOptions(message.StartIndex, message.Options);
+        }
+
+        public void InsertNext(IEnumerable<PlaylistItem> items)
+        {
+            var queue = items.ToList();
+            if (queue.Any(item => item == null)) throw new ArgumentException("Queue entries cannot be null.", "items");
+            var index = CurrentTrackNumber + 1;
+            foreach (var item in queue) Items.Insert(index++, item);
+        }
+
+        public void MoveItem(PlaylistItem item, int index)
+        {
+            var source = Items.IndexOf(item);
+            if (source < 0 || index < 0 || index >= Items.Count) throw new ArgumentOutOfRangeException("index");
+            Items.Move(source, index);
+            NotifyOfPropertyChange(() => CurrentTrackNumber);
         }
 
         public void Handle(AddItemsMessage message)
@@ -485,6 +502,11 @@
 
         public void StartPlayback(int trackNumber)
         {
+            StartPlaybackWithOptions(trackNumber, null);
+        }
+
+        private void StartPlaybackWithOptions(int trackNumber, object options)
+        {
             if (trackNumber < 0 || trackNumber >= Items.Count)
             {
                 return;
@@ -499,7 +521,7 @@
             StopPlaybackAction();
             CurrentItem = Items.ElementAt(trackNumber);
             _shuffleRemaining.Remove(CurrentItem);
-            StartCurrentItemPlayback();
+            StartCurrentItemPlayback(options);
         }
 
         public void StopPlayback()

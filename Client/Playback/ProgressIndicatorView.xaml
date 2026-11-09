@@ -12,13 +12,13 @@
         <converters:IntToTimeStringConverter x:Name="IntToTimeStringConverter" />
     </UserControl.Resources>
 
-    <ProgressBar Width="320"
-                 Height="8"
-                 MinHeight="8"
+    <Slider x:Uid="Navidrome_Seek" Width="320"
+                 Height="40"
                  HorizontalAlignment="Center"
                  VerticalAlignment="Center"
                  Margin="0,14,0,8"
-                 Maximum="{Binding ItemDurationInSeconds, Mode=TwoWay}"
+                 IsEnabled="{Binding CanSeek}"
+                 Maximum="{Binding ItemDurationInSeconds}"
                  Value="{Binding PlaybackProgressInSeconds, Mode=TwoWay}"
                  Foreground="{StaticResource MixRadioAccentBrush}"
                  Background="#FF3A3A3A"

@@ -132,3 +132,4 @@ Client.Common/Models/PlaybackRepeatMode.cs
 Client.Common/EventAggregatorMessages/PlayQueueMessage.cs
 Client.Common/Models/Subsonic/MediaMetadata.cs
 Client.Common/Services/Navidrome/SubsonicRequest.cs
+Client.Common/Models/PlaybackStartOptions.cs

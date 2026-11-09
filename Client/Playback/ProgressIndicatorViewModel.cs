@@ -13,6 +13,9 @@ namespace Subsonic8.Playback
         private double _playbackProgressInSeconds;
         private double _progressStepFrequency;
         private DispatcherTimer _progressTimer;
+        private bool _updatingProgress;
+
+        public bool CanSeek { get { return AudioPlayerViewModel != null && AudioPlayerViewModel.CanSeek; } }
 
         #region Fields
 
@@ -56,6 +59,7 @@ namespace Subsonic8.Playback
             {
                 if (value.Equals(_playbackProgressInSeconds)) return;
                 _playbackProgressInSeconds = value;
+                if (!_updatingProgress && CanSeek) AudioPlayerViewModel.Seek(TimeSpan.FromSeconds(value));
                 NotifyOfPropertyChange();
                 NotifyOfPropertyChange(() => PositionText);
             }
@@ -100,6 +104,7 @@ namespace Subsonic8.Playback
         private void AudioPlayerViewModelOnPlaybackStarted(object sender, EventArgs eventArgs)
         {
             ItemDurationInSeconds = AudioPlayerViewModel.GetDuration().TotalSeconds;
+            NotifyOfPropertyChange(() => CanSeek);
             UpdateCurrentItemProgress();
             StartProgressTimer();
         }
@@ -109,6 +114,7 @@ namespace Subsonic8.Playback
             StopProgressTimer();
             ItemDurationInSeconds = 0;
             PlaybackProgressInSeconds = 0;
+            NotifyOfPropertyChange(() => CanSeek);
         }
 
         private void AudioPlayerViewModelOnPlaybackPaused(object sender, EventArgs eventArgs)
@@ -136,7 +142,9 @@ namespace Subsonic8.Playback
 
         private void UpdateCurrentItemProgress()
         {
-            PlaybackProgressInSeconds = AudioPlayerViewModel.GetCurrentPosition().TotalSeconds;
+            _updatingProgress = true;
+            try { PlaybackProgressInSeconds = AudioPlayerViewModel.GetCurrentPosition().TotalSeconds; }
+            finally { _updatingProgress = false; }
         }
 
         #endregion

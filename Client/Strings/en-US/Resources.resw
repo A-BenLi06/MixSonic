@@ -52,4 +52,8 @@
   <data name="PlaybackOptions.Content" xml:space="preserve"><value>Playback options</value></data>
   <data name="PlaylistReadError" xml:space="preserve"><value>This playlist could not be opened. Check the file and try again.</value></data>
   <data name="PlaylistWriteError" xml:space="preserve"><value>This playlist could not be saved. Choose a writable location and try again.</value></data>
+  <data name="Navidrome_Seek.AutomationProperties.Name" xml:space="preserve"><value>Playback position</value></data>
+  <data name="Navidrome_ConfigureServer" xml:space="preserve"><value>Configure a music server in settings.</value></data>
+  <data name="Navidrome_AllLibraries" xml:space="preserve"><value>All libraries</value></data>
+  <data name="Navidrome_QueueContainsOtherMedia" xml:space="preserve"><value>This queue contains media from another account or a radio station.</value></data>
 </root>

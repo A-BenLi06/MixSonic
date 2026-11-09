@@ -41,6 +41,12 @@ namespace Client.Common.Models
 
         public string SongId { get; set; }
 
+        public string AlbumId { get; set; }
+
+        public string ArtistId { get; set; }
+
+        public int UserRating { get; set; }
+
         public string CoverArtId { get; set; }
 
         public string AccountKey { get; set; }

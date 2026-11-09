@@ -25,6 +25,7 @@ public static class PlaybackTests
             ShuffleCycles();
             PreviousHistory();
             QueueMutation();
+            QueuePositionAndReordering();
             ImportedQueueValidation();
             RestoreState();
             RecentListening();
@@ -100,6 +101,29 @@ public static class PlaybackTests
         Check(service.Items.Count == 5, "Invalid context indices must leave the queue intact.");
         service.StartPlayback(999);
         Check(service.CurrentTrackNumber == 1, "Invalid playback indices must be harmless.");
+    }
+
+    private static void QueuePositionAndReordering()
+    {
+        var events = new RecordingEvents();
+        var service = new PlaylistManagementService(events);
+        var original = Queue(3).Items.ToList();
+        var options = new PlaybackStartOptions { PositionMilliseconds = 12345 };
+        service.Handle(new PlayQueueMessage { Queue = original, StartIndex = 1, Options = options });
+        var start = events.Messages.OfType<StartPlaybackMessage>().Last();
+        Check(ReferenceEquals(start.Item, original[1]) && ReferenceEquals(start.Options, options),
+            "Server queue restoration must forward the selected occurrence and millisecond resume options.");
+        var next = Queue(2).Items.ToList();
+        service.InsertNext(next);
+        Check(service.Items.SequenceEqual(new[] { original[0], original[1], next[0], next[1], original[2] }),
+            "Play next must insert the complete selection in order immediately after the active item.");
+        service.MoveItem(original[1], 4);
+        Check(ReferenceEquals(service.CurrentItem, original[1]) && service.CurrentTrackNumber == 4 && service.IsPlaying,
+            "Reordering the playing occurrence must preserve media and update its queue index.");
+        var stopped = Queue(0);
+        stopped.InsertNext(next);
+        Check(stopped.Items.SequenceEqual(next) && !stopped.IsPlaying,
+            "Play next into an empty queue must retain order without fabricating playback.");
     }
 
     private static void RepeatModes()
@@ -252,9 +276,10 @@ public static class PlaybackTests
 
     private sealed class RecordingEvents : IEventAggregator
     {
+        public readonly List<object> Messages = new List<object>();
         public bool HandlerExistsFor(Type messageType) { return true; }
         public void Subscribe(object subscriber) { }
         public void Unsubscribe(object subscriber) { }
-        public void Publish(object message, Action<Action> marshal) { }
+        public void Publish(object message, Action<Action> marshal) { Messages.Add(message); }
     }
 }

@@ -42,7 +42,17 @@
 
         public TimeSpan GetCurrentDuration()
         {
-            return MediaElement.NaturalDuration.TimeSpan;
+            return MediaElement.NaturalDuration.HasTimeSpan ? MediaElement.NaturalDuration.TimeSpan : TimeSpan.Zero;
+        }
+
+        public bool CanSeek { get { return MediaElement.CanSeek; } }
+        public void Seek(TimeSpan position) { MediaElement.Position = position; }
+        public double Volume { get { return MediaElement.Volume; } set { MediaElement.Volume = value; } }
+        public bool IsMuted { get { return MediaElement.IsMuted; } set { MediaElement.IsMuted = value; } }
+        public double PlaybackRate
+        {
+            get { return MediaElement.PlaybackRate; }
+            set { MediaElement.DefaultPlaybackRate = value; MediaElement.PlaybackRate = value; }
         }
 
         #endregion
@@ -51,7 +61,8 @@
 
         private async Task RunOnDispatcher(Action action)
         {
-            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => action());
+            if (Dispatcher.HasThreadAccess) action();
+            else await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => action());
         }
 
         #endregion

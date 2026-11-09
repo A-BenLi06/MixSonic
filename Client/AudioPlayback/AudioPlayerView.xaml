@@ -9,7 +9,7 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <MediaElement x:Name="MediaElement" AudioCategory="BackgroundCapableMedia" AutoPlay="True"
+    <MediaElement x:Name="MediaElement" AudioCategory="BackgroundCapableMedia" AutoPlay="False"
                       Source="{Binding Path=Source}"
-                      micro:Message.Attach="[Event MediaEnded] = [Action SongEnded]; [Event MediaFailed] = [Action SongFailed($eventArgs)]; [Event CurrentStateChanged] = [Action MediaStateChanged($source, $eventArgs)]" />
+                      micro:Message.Attach="[Event MediaOpened] = [Action MediaOpened]; [Event MediaEnded] = [Action SongEnded]; [Event MediaFailed] = [Action SongFailed($eventArgs)]; [Event CurrentStateChanged] = [Action MediaStateChanged($source, $eventArgs)]" />
 </UserControl>

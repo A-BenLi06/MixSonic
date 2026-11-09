@@ -1,6 +1,7 @@
 ﻿namespace Client.Common.Services
 {
     using System.ComponentModel;
+    using System.Collections.Generic;
 
     using Caliburn.Micro;
 
@@ -43,6 +44,10 @@
         #region Public Methods and Operators
 
         void Clear();
+
+        void InsertNext(IEnumerable<PlaylistItem> items);
+
+        void MoveItem(PlaylistItem item, int index);
 
         void LoadPlaylist(PlaylistItemCollection playlistItemCollection);
 

@@ -55,6 +55,9 @@ namespace Client.Tests.Mocks
             ClearCallCount++;
         }
 
+        public void InsertNext(IEnumerable<PlaylistItem> items) { Items.AddRange(items); }
+        public void MoveItem(PlaylistItem item, int index) { Items.Move(Items.IndexOf(item), index); }
+
         public void Handle(JumpToNextMessage message)
         {
         }

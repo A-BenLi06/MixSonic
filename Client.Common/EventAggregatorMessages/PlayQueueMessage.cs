@@ -8,5 +8,7 @@ namespace Client.Common.EventAggregatorMessages
         public IList<PlaylistItem> Queue { get; set; }
 
         public int StartIndex { get; set; }
+
+        public PlaybackStartOptions Options { get; set; }
     }
 }

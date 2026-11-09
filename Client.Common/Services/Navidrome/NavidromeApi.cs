@@ -336,5 +336,17 @@ namespace Client.Common.Services.Navidrome
         { return (long)(timestamp.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalMilliseconds; }
 
         public Uri DownloadUri(string id) { return new Uri(Request("download").Add("id", Id(id)).Url); }
+
+        public PlaylistItem CreatePlaylistItem(Song song)
+        {
+            var service = new SubsonicService { Configuration = _configuration };
+            return new PlaylistItem
+            {
+                SongId = song.Id, AlbumId = song.AlbumId, ArtistId = song.ArtistId, UserRating = song.UserRating,
+                AccountKey = AccountKey, Title = song.Title, Artist = song.Artist, Duration = song.Duration,
+                CoverArtId = song.CoverArt, CoverArtUrl = service.GetCoverArtForId(song.CoverArt),
+                Uri = service.GetUriForFileWithId(song.Id), IsStarred = !string.IsNullOrEmpty(song.Starred), Type = PlaylistItemTypeEnum.Audio
+            };
+        }
     }
 }

@@ -456,6 +456,9 @@
     </Compile>
     <Compile Include="Shell\ShellViewModel.cs" />
     <Compile Include="StringsResources.cs" />
+    <Compile Include="Navidrome\NavidromeSessionService.cs" />
+    <Compile Include="Navidrome\NavidromeText.cs" />
+    <Compile Include="Navidrome\MediaQueueService.cs" />
     <Compile Include="VideoPlayback\SnappedVideoPlaybackView.xaml.cs">
       <DependentUpon>SnappedVideoPlaybackView.xaml</DependentUpon>
     </Compile>
