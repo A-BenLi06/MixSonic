@@ -61,7 +61,7 @@ queries, all three favorites and ratings, complete playlist entries and duplicat
 ordering, metadata/add/remove/reorder/delete, bookmark milliseconds, negotiated
 server queue indices, lyric variants, original WAV download, shares, scan state
 and playback report negotiation, including suppression of position-based false
-scrobbles and byte-identical streaming downloads. The 57 assertions also cover
+scrobbles and byte-identical streaming downloads. The 58 assertions also cover
 administrator station create/edit/delete, clearing a homepage, an actual rescan,
 disabled jukebox access and the absence of an acoustic provider. Successful
 acoustic response parsing and all jukebox action/parameter shapes use controlled
@@ -69,6 +69,8 @@ protocol responses; an enabled provider/server audio device needs native testing
 Negotiated direct WAV bytes must match the original download, and a 64 kbps MP3
 decision must produce actual media bytes. This verifies server output, not native
 MediaElement decoding.
+Account avatars use the authenticated current-user endpoint; the fixture confirms
+the real PNG placeholder returned when Gravatar is disabled.
 
 `run-services.ps1` compiles the actual desktop session, offline library and playback
 activity services with small CLR storage/event adapters. It uses the disposable

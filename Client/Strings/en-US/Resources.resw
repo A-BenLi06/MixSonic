@@ -401,4 +401,5 @@
   <data name="Navidrome_AuthenticationLabel.Text" xml:space="preserve"><value>Authentication</value></data>
   <data name="Navidrome_Authentication.AutomationProperties.Name" xml:space="preserve"><value>Authentication method</value></data>
   <data name="Navidrome_AuthenticationSecret.AutomationProperties.Name" xml:space="preserve"><value>Password or API key</value></data>
+  <data name="Navidrome_Avatar.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Profile image</value></data>
 </root>

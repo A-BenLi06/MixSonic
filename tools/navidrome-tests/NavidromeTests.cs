@@ -92,6 +92,9 @@ public static class NavidromeTests
         Throws<InvalidOperationException>(() => token.HandleResponse(Xml("<tokenInfo/>")), "Missing token identity cannot fabricate an account");
         var stored = LocalXml.Serialize(config);
         Check(!stored.Contains(config.Password) && stored.Contains("ApiKey"), "Authentication mode persists while its secret stays out of configuration XML");
+        var avatar = new Uri(new NavidromeApi(config).AvatarUrl());
+        Check(avatar.AbsolutePath.EndsWith("/getAvatar.view") && Param(avatar.Query, "username") == config.Username && Param(avatar.Query, "apiKey") == config.Password && Param(avatar.Query, "u") == null,
+            "Current-account avatars preserve opaque usernames and the chosen authentication mechanism");
     }
 
     private static void Transcoding()

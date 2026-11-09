@@ -147,6 +147,9 @@ public static class NavidromeIntegrationTests
         }
         using (var http = new HttpClient())
         {
+            var avatar = await http.GetByteArrayAsync(api.AvatarUrl());
+            Check(avatar.Length > 8 && avatar.Take(8).SequenceEqual(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 }),
+                "The account avatar endpoint returns the actual server PNG placeholder when Gravatar is disabled.");
             var bytes = await http.GetByteArrayAsync(api.DownloadUri(song.Id));
             Check(bytes.Length > 1000 && System.Text.Encoding.ASCII.GetString(bytes, 0, 4) == "RIFF", "Original download returns a real WAV file, not a response placeholder.");
             using (var target = new MemoryStream())

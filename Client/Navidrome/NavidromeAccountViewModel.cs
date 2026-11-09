@@ -26,6 +26,7 @@ namespace Subsonic8.Navidrome
             _timer.Tick += async (sender, args) => { if (IsScanning && !IsWorking && !_polling) await PollScan(); };
         }
         [Inject] public IDialogService DialogService { get; set; }
+        public string Avatar { get { return Session.IsConnected && Session.User != null ? Session.CreateApi().AvatarUrl() : null; } }
         public bool CanStartScan { get { return !IsLoading && !IsWorking && !IsScanning && Session.IsConnected && Session.User != null && Session.User.AdminRole; } }
         public bool CanJukebox { get { return !IsLoading && !IsWorking && Session.User != null && Session.User.JukeboxRole; } }
         public bool IsScanning { get { return _scan != null && _scan.Scanning; } }
@@ -64,7 +65,7 @@ namespace Subsonic8.Navidrome
         protected override void Changed()
         {
             base.Changed();
-            foreach (var name in new[] { "CanStartScan", "CanJukebox", "IsScanning", "ScanMessage", "LastScan", "Roles", "Extensions" }) NotifyOfPropertyChange(name);
+            foreach (var name in new[] { "Avatar", "CanStartScan", "CanJukebox", "IsScanning", "ScanMessage", "LastScan", "Roles", "Extensions" }) NotifyOfPropertyChange(name);
         }
         public override async Task Reload()
         {

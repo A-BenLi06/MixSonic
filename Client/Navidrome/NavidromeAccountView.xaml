@@ -19,7 +19,11 @@
             </Grid>
             <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Margin="0,16,0,12"/>
             <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}"/>
-            <TextBlock Text="{Binding Session.User.Username}" FontSize="32" FontFamily="Segoe UI Light" Margin="0,24,0,8"/>
+            <Grid Margin="0,24,0,8">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="80"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Image x:Uid="Navidrome_Avatar" Source="{Binding Avatar}" Width="64" Height="64" Stretch="UniformToFill" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="1" Text="{Binding Session.User.Username}" FontSize="32" FontFamily="Segoe UI Light" VerticalAlignment="Center" TextWrapping="Wrap"/>
+            </Grid>
             <TextBlock Text="{Binding Roles}" FontSize="18" TextWrapping="Wrap"/>
             <TextBlock Text="{Binding Session.UserError}" FontSize="15" TextWrapping="Wrap" Margin="0,8,0,0"/>
             <TextBlock x:Uid="Navidrome_ServerTitle" FontSize="28" FontFamily="Segoe UI Light" Margin="0,30,0,12"/>

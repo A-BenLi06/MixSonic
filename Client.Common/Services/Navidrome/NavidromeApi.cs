@@ -447,6 +447,7 @@ namespace Client.Common.Services.Navidrome
         }
 
         public string CoverArtUrl(string id) { return new SubsonicService { Configuration = _configuration }.GetCoverArtForId(id); }
+        public string AvatarUrl() { return Request("getAvatar").Add("username", _configuration.Username).Url; }
 
         public PlaylistItem CreatePlaylistItem(Song song)
         {

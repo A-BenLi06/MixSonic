@@ -63,7 +63,7 @@ Bookmark resume positions and duplicate server queue indices reach the native
 player. Shares use server default expiration on creation and preserve it when an
 update omits the date, matching `core/share.go`.
 
-The real 0.64.2 fixture verifies 57 API integration assertions against 125 synthetic
+The real 0.64.2 fixture verifies 58 API integration assertions against 125 synthetic
 tagged WAV files. Its version is recorded separately from the locked source.
 Playback activity now reports actual native states and counts real playing intervals
 independently of seek positions. Enhanced presence requests set `ignoreScrobble`;
@@ -98,6 +98,9 @@ An unopened HTTP song can retry once as MP3, with a visible compatibility state;
 local/radio/other-account sources and already-playing failures do not start that
 retry. Failed compatible opens retain both errors and do not create listening history.
 The Account page shows actual server roles, version/capabilities and scan state;
+its profile image uses the current account's authenticated `getAvatar` URL and is
+cleared when the session is invalidated. Gravatar configuration and the placeholder
+image remain server policy.
 only the returned administrator role enables starting a scan. Active scans refresh
 while the page is open. Explicit reconnect refreshes roles and restores library
 selection; optional extension/user errors remain visible without inventing support.
