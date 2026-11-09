@@ -38,7 +38,7 @@ public static class NavidromeTests
     {
         try
         {
-            Requests(); Metadata(); Extensions(); Pagination(); Lyrics(); Listening(); Queue(); Mutations(); Failures().GetAwaiter().GetResult();
+            Requests(); Metadata(); Extensions(); Pagination(); Lyrics(); Listening(); Offline(); Downloads().GetAwaiter().GetResult(); Queue(); Mutations(); Failures().GetAwaiter().GetResult();
             Console.WriteLine("PASS: " + _assertions + " Navidrome protocol/model assertions against production sources.");
         }
         catch (Exception error) { Console.Error.WriteLine(error); Environment.Exit(1); }
@@ -253,5 +253,118 @@ public static class NavidromeTests
         lyrics.GetResourceFunc = () => Task.FromResult(new HttpStreamResult { Exception = new IOException("fixture disconnect") });
         try { await lyrics.ReadAsync(); throw new Exception("Failure must propagate"); }
         catch (IOException) { Check(lyrics.Result == null, "Disconnected read does not invent an empty successful result"); }
+    }
+
+    private static void Offline()
+    {
+        var name = new string('a', 32) + "-original.flac";
+        var catalog = new OfflineCatalog { AccountKey = "account" };
+        catalog.Songs.Add(new DownloadedSong { Song = new Song { Id = "s", Title = "曲 & one", Artists = new List<MediaArtist> { new MediaArtist { Id = "ar", Name = "A" } } },
+            OriginalFile = name, OriginalSize = 5000, CompletedUtc = DateTime.UtcNow });
+        catalog.Validate("account");
+        var restored = LocalXml.Deserialize<OfflineCatalog>(LocalXml.Serialize(catalog)); restored.Validate("account");
+        Check(restored.Songs[0].Song.Artists[0].Id == "ar" && restored.Songs[0].Song.Title == "曲 & one", "Offline catalogs preserve full metadata and Unicode");
+        Throws<InvalidDataException>(() => restored.Validate("other"), "Offline catalog cannot cross accounts");
+        foreach (var invalid in new[] { "../outside.mp3", @"C:\outside.mp3", @"..\outside.mp3", "catalog.xml", name + ".partial", "https://host/track", "/root/file" })
+            Check(!OfflineCatalog.IsFileName(invalid), "Unsafe/pending catalog filename rejected: " + invalid);
+        Check(OfflineCatalog.Suffix("FLAC") == "flac" && OfflineCatalog.Suffix("../mp3") == "bin", "Server suffix cannot become a path");
+        var export = OfflineCatalog.ExportName(new Song { Title = "CON" });
+        Check(export == "_CON" && OfflineCatalog.ExportName(new Song { Title = "a/b:c" }) == "a_b_c", "Export names respect Windows path and device-name rules");
+        restored.Songs.Add(restored.Songs[0]); Throws<InvalidDataException>(() => restored.Validate("account"), "Duplicate offline song records rejected");
+        var localArt = "ms-appdata:///local/music/cover.jpg";
+        Check(new PlaylistItem { CoverArtUrl = localArt }.OriginalCoverArtUrl == localArt, "Offline artwork never receives a server size query");
+        var api = new NavidromeApi(Configuration());
+        Check(Param(api.StreamUri("id&one", "mp3").Query, "format") == "mp3" && Param(api.StreamUri("id&one", "mp3").Query, "id") == "id&one",
+            "Compatible offline stream requests retain format and opaque IDs");
+    }
+
+    private sealed class ChunkedStream : MemoryStream
+    {
+        public ChunkedStream(byte[] bytes) : base(bytes) { }
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, System.Threading.CancellationToken cancellation)
+        { return base.ReadAsync(buffer, offset, Math.Min(count, 37), cancellation); }
+    }
+    private sealed class MediaHandler : HttpMessageHandler
+    {
+        public byte[] Bytes;
+        public string Type = "application/octet-stream";
+        public long? DeclaredLength;
+        public System.Net.HttpStatusCode Status = System.Net.HttpStatusCode.OK;
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellation)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            var response = new HttpResponseMessage(Status) { Content = new StreamContent(new ChunkedStream(Bytes)) };
+            response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(Type);
+            response.Content.Headers.ContentLength = DeclaredLength ?? Bytes.Length;
+            return Task.FromResult(response);
+        }
+    }
+    private sealed class DirectProgress : IProgress<DownloadProgress>
+    {
+        public DownloadProgress Last;
+        public Action<DownloadProgress> Callback;
+        public void Report(DownloadProgress value) { Last = value; if (Callback != null) Callback(value); }
+    }
+    private static async Task Downloads()
+    {
+        var wave = new byte[12000];
+        Array.Copy(System.Text.Encoding.ASCII.GetBytes("RIFF"), 0, wave, 0, 4);
+        Array.Copy(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "), 0, wave, 8, 8);
+        Array.Copy(BitConverter.GetBytes((uint)16), 0, wave, 16, 4); wave[20] = 1;
+        using (var http = new HttpClient(new MediaHandler { Bytes = wave, Type = "audio/wav" }))
+        using (var target = new MemoryStream())
+        {
+            var progress = new DirectProgress();
+            var payload = await MediaDownload.CopyAsync(http, new Uri("https://fixture/media"), target, System.Threading.CancellationToken.None, progress, wave.Length);
+            Check(target.ToArray().SequenceEqual(wave) && payload.Length == wave.Length && payload.WindowsCompatible, "Chunked original PCM WAV downloads preserve actual bytes");
+            Check(progress.Last.Received == wave.Length && progress.Last.Total == wave.Length, "Download progress reports actual received and total bytes");
+        }
+        foreach (var body in new[] { "<subsonic-response status='failed'/>", "  {\"error\":\"denied\"}", "\uFEFF[\"error\"]", "<!DOCTYPE html><title>sign in</title>" })
+        using (var http = new HttpClient(new MediaHandler { Bytes = System.Text.Encoding.UTF8.GetBytes(body) }))
+        using (var target = new MemoryStream())
+        {
+            var failed = false;
+            try { await MediaDownload.CopyAsync(http, new Uri("https://fixture/media"), target, System.Threading.CancellationToken.None); }
+            catch (InvalidDataException) { failed = true; }
+            Check(failed && target.Length == 0, "HTTP 200 error documents cannot become media: " + body.Substring(0, 8));
+        }
+        var unicodeError = System.Text.Encoding.Unicode.GetPreamble().Concat(System.Text.Encoding.Unicode.GetBytes("<error/>")).ToArray();
+        foreach (var handler in new[] { new MediaHandler { Bytes = unicodeError }, new MediaHandler { Bytes = wave, Type = "application/xml" },
+            new MediaHandler { Bytes = wave, DeclaredLength = wave.Length + 1 }, new MediaHandler { Bytes = new byte[0] } })
+        using (var http = new HttpClient(handler))
+        using (var target = new MemoryStream())
+        {
+            var failed = false; try { await MediaDownload.CopyAsync(http, new Uri("https://fixture/media"), target, System.Threading.CancellationToken.None); }
+            catch (InvalidDataException) { failed = true; }
+            Check(failed, "UTF-16 errors, document MIME, incomplete or empty downloads are rejected");
+        }
+        using (var http = new HttpClient(new MediaHandler { Bytes = wave }))
+        using (var target = new MemoryStream())
+        {
+            var failed = false; try { await MediaDownload.CopyAsync(http, new Uri("https://fixture/media"), target, System.Threading.CancellationToken.None, null, wave.Length + 1); }
+            catch (InvalidDataException) { failed = true; }
+            Check(failed, "Original length is checked against server song metadata");
+        }
+        foreach (var bytes in new[] { wave, System.Text.Encoding.ASCII.GetBytes("fLaCfixture"), new byte[] { 255, 241, 1, 2 } })
+        using (var http = new HttpClient(new MediaHandler { Bytes = bytes }))
+        using (var target = new MemoryStream())
+        {
+            var failed = false; try { await MediaDownload.CopyAsync(http, new Uri("https://fixture/media"), target, System.Threading.CancellationToken.None, null, 0, true); }
+            catch (InvalidDataException) { failed = true; }
+            Check(failed && target.Length == 0, "Ignored MP3 format requests cannot create a falsely compatible copy");
+        }
+        using (var http = new HttpClient(new MediaHandler { Bytes = new byte[] { 255, 251, 144, 100, 1, 2 }, Type = "audio/mpeg" }))
+        using (var target = new MemoryStream())
+            Check((await MediaDownload.CopyAsync(http, new Uri("https://fixture/media"), target, System.Threading.CancellationToken.None, null, 0, true)).WindowsCompatible,
+                "MP3 frame headers are recognized for the requested compatible copy");
+        using (var cancellation = new System.Threading.CancellationTokenSource())
+        using (var http = new HttpClient(new MediaHandler { Bytes = wave }))
+        using (var target = new MemoryStream())
+        {
+            var progress = new DirectProgress { Callback = value => cancellation.Cancel() };
+            var cancelled = false; try { await MediaDownload.CopyAsync(http, new Uri("https://fixture/media"), target, cancellation.Token, progress); }
+            catch (OperationCanceledException) { cancelled = true; }
+            Check(cancelled && target.Length < wave.Length, "Cancellation interrupts streaming before completion");
+        }
     }
 }

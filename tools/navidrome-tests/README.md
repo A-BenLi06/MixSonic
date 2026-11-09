@@ -17,6 +17,7 @@ $env:PYTHONPATH = (Resolve-Path .tmp/navidrome-fixture/python-libs).Path
 python tools/navidrome-tests/fixture.py .tmp/navidrome-fixture/test-music
 ./tools/navidrome-tests/start-fixture.ps1
 ./tools/navidrome-tests/run-integration.ps1
+./tools/navidrome-tests/run-services.ps1
 ./tools/navidrome-tests/stop-fixture.ps1
 ```
 
@@ -29,7 +30,17 @@ Integration traverses 125 tagged songs beyond the first page, album/artist/genre
 queries, all three favorites and ratings, complete playlist entries and duplicate
 ordering, metadata/add/remove/reorder/delete, bookmark milliseconds, negotiated
 server queue indices, lyric variants, original WAV download, shares, scan state
-and playback report negotiation.
+and playback report negotiation, including suppression of position-based false
+scrobbles and byte-identical streaming downloads.
+
+`run-services.ps1` compiles the actual desktop session, offline library and playback
+activity services with small CLR storage/event adapters. It uses the disposable
+Navidrome fixture to verify completed catalogs, local queues, disconnected access,
+cancellation, missing/corrupt files, retry, account isolation and pending-listen
+synchronization. Synthetic binary responses cover the incompatible-original/MP3
+fallback and failed-transcoding branches. These synthetic headers are not decoded
+audio and cannot establish native playback or codec compatibility. WinRT storage,
+the native MediaElement and the actual XAML/pickers still require native acceptance.
 
 Navidrome's share behavior is explicit in `core/share.go`: a new share without
 a custom date uses `DefaultShareExpiration`, and an update without a date preserves

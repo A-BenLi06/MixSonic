@@ -71,7 +71,17 @@ The real fixture verifies that seeking to the end does not increase play counts.
 Pending records retry after network failures. The standard scrobble API has no
 idempotency key, so an accepted request whose response is lost can be resubmitted;
 local occurrence deduplication does not claim exactly-once server delivery.
-Lyric presentation, download storage/offline UI and preferences remain in progress.
+The Downloads section persists full song metadata, original files, optional compatible
+MP3 copies, artwork and lyric variants under an account-specific app-local folder.
+It validates completed file sizes, excludes partial files from playback and never
+stores stream or artwork request URLs in catalogs. Browsing, playback and original
+export work without `ConnectAsync`. Cancellation, retry, missing-file and corrupt
+catalog paths are covered by the production service harness. Unsupported Windows 8.1
+codecs request an MP3 stream; a transcoding failure retains the original for export
+and disables offline playback with an explicit error. Download work is foreground
+work and is interrupted if the process closes; incomplete files stay outside the
+catalog.
+Lyric presentation and preferences remain in progress.
 Native capture still times out and the
 client accessibility tree is empty through the installed helper; no native
 interaction or visual pass is inferred from successful source/build checks.

@@ -73,6 +73,7 @@ namespace Subsonic8.Framework.Extensions
                 case SubsonicModelTypeEnum.LibrarySongs:
                 case SubsonicModelTypeEnum.LibraryBookmarks:
                 case SubsonicModelTypeEnum.LibraryShares:
+                case SubsonicModelTypeEnum.LibraryDownloads:
                 case SubsonicModelTypeEnum.Playlist:
                     MakeLibraryTile(viewModel);
                     viewModel.TileWidth = CommandTileSize;

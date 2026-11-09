@@ -106,7 +106,8 @@
                                SubsonicModelTypeEnum.LibraryNowPlaying),
                            new LibraryCommand("songs", NavidromeText.Get("Sectionsongs"), NavidromeText.Get("AllSongs"), SubsonicModelTypeEnum.LibrarySongs),
                            new LibraryCommand("bookmarks", NavidromeText.Get("Sectionbookmarks"), NavidromeText.Get("SavedPositions"), SubsonicModelTypeEnum.LibraryBookmarks),
-                           new LibraryCommand("shares", NavidromeText.Get("Sectionshares"), NavidromeText.Get("SharedLinks"), SubsonicModelTypeEnum.LibraryShares)
+                           new LibraryCommand("shares", NavidromeText.Get("Sectionshares"), NavidromeText.Get("SharedLinks"), SubsonicModelTypeEnum.LibraryShares),
+                           new LibraryCommand("downloads", NavidromeText.Get("Downloads"), NavidromeText.Get("OfflineMusic"), SubsonicModelTypeEnum.LibraryDownloads)
                        };
         }
 

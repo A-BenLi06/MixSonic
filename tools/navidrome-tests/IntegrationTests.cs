@@ -144,6 +144,11 @@ public static class NavidromeIntegrationTests
         {
             var bytes = await http.GetByteArrayAsync(api.DownloadUri(song.Id));
             Check(bytes.Length > 1000 && System.Text.Encoding.ASCII.GetString(bytes, 0, 4) == "RIFF", "Original download returns a real WAV file, not a response placeholder.");
+            using (var target = new MemoryStream())
+            {
+                var payload = await MediaDownload.CopyAsync(http, api.DownloadUri(song.Id), target, System.Threading.CancellationToken.None, null, details.Size);
+                Check(payload.WindowsCompatible && payload.Length == details.Size && target.ToArray().SequenceEqual(bytes), "The production streaming downloader retains the complete original fixture file.");
+            }
         }
         var scan = await api.GetScanStatus().ReadAsync(); Check(scan.Count == 125 && !scan.Scanning, "Completed scan state and library count are real.");
         await api.GetRadio().ReadAsync(); await api.GetNowPlaying().ReadAsync();

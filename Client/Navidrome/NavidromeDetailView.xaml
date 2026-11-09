@@ -10,6 +10,7 @@
             <AppBarButton x:Name="Favourite" x:Uid="Navidrome_Favourite" Icon="Favorite"/>
             <AppBarButton x:Name="Reload" x:Uid="Navidrome_Refresh" Icon="Refresh"/>
             <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="Download" x:Uid="Navidrome_Download"/>
                 <AppBarButton x:Name="Unfavourite" x:Uid="Navidrome_Unfavourite"/>
                 <AppBarButton x:Uid="Navidrome_Rate" IsEnabled="{Binding CanRate}" cal:Message.Attach="[Event Click]=[Action Rate($source)]"/>
                 <AppBarButton x:Name="ArtistMix" x:Uid="Navidrome_ArtistMix"/>
@@ -43,6 +44,7 @@
                 <Image x:Name="Artwork" Source="{Binding ImageUrl}" Width="250" Height="250" Stretch="UniformToFill" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <StackPanel x:Name="Information" Grid.Column="1">
                     <TextBlock Text="{Binding Current.Subtitle}" FontSize="22" TextWrapping="Wrap"/>
+                    <TextBlock x:Uid="Navidrome_Starred" Text="★" FontSize="24" Foreground="{StaticResource MixRadioAccentBrush}" Visibility="{Binding Current.IsStarred, Converter={StaticResource NavidromeVisibility}}"/>
                     <ItemsControl ItemsSource="{Binding Metadata}" Margin="0,16,0,0">
                         <ItemsControl.ItemTemplate><DataTemplate><StackPanel Margin="0,0,0,10">
                             <TextBlock Text="{Binding Label}" Foreground="{StaticResource MixRadioAccentBrush}" FontSize="13"/>

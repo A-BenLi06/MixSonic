@@ -109,7 +109,9 @@ namespace Subsonic8.Navidrome
                 User = user.Error == null ? user.Result : null;
                 Folders.Add(new MusicFolder { Id = null, Name = NavidromeText.Get("AllLibraries") });
                 Folders.AddRange(folders.Result);
-                var saved = ApplicationData.Current.LocalSettings.Values["library-" + Hash(AccountKey)] as string;
+                object savedValue;
+                ApplicationData.Current.LocalSettings.Values.TryGetValue("library-" + Hash(AccountKey), out savedValue);
+                var saved = savedValue as string;
                 _selectedFolder = Folders.FirstOrDefault(folder => folder.Id == saved) ?? Folders.First();
                 Status = string.Join(" ", new[] { Capabilities.Type, Capabilities.ServerVersion }.Where(s => !string.IsNullOrEmpty(s)));
                 _ready = true;

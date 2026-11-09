@@ -9,6 +9,7 @@
     mc:Ignorable="d">
 
     <Page.Resources>
+        <cal:BooleanToVisibilityConverter x:Key="ShellBottomBarVisibility"/>
         <converters:InvertedBooleanConverter x:Key="InvertedBooleanConverter"/>
         <converters2:InvertedBooleanToVisibilityConverter x:Key="InvertedBooleanToVisibilityConverter"/>
     </Page.Resources>
@@ -40,7 +41,7 @@
         <ProgressBar VerticalAlignment="Top" VerticalContentAlignment="Top" x:Name="LoadingIndicator"
                      Visibility="Collapsed" IsIndeterminate="True" HorizontalAlignment="Stretch" />
 
-        <controls:CustomAppBar IsLightDismissEnabled="True" CanOpenInSnappedView="False" Background="{StaticResource MixRadioPanelAltBrush}" IsOpen="{Binding Path=BottomBar.IsOpened, Mode=TwoWay}" 
+        <controls:CustomAppBar Visibility="{Binding HasBottomBar, Converter={StaticResource ShellBottomBarVisibility}}" IsLightDismissEnabled="True" CanOpenInSnappedView="False" Background="{StaticResource MixRadioPanelAltBrush}" IsOpen="{Binding Path=BottomBar.IsOpened, Mode=TwoWay}"
                                CanDismiss="{Binding Path=BottomBar.CanDismiss, Converter={StaticResource InvertedBooleanConverter}}">
             <ContentControl x:Name="BottomBar" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
         </controls:CustomAppBar>

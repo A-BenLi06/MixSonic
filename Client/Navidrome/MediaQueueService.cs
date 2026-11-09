@@ -17,6 +17,8 @@ namespace Subsonic8.Navidrome
         Task<IList<Song>> ResolveAsync(IEnumerable<ISubsonicModel> items);
         void Play(NavidromeApi api, IEnumerable<Song> songs, int index = 0, long positionMilliseconds = 0);
         void Append(NavidromeApi api, IEnumerable<Song> songs, bool next);
+        void PlayLocal(IEnumerable<PlaylistItem> songs, int index = 0);
+        void AppendLocal(IEnumerable<PlaylistItem> songs);
         Task SaveServerQueueAsync();
         Task RestoreServerQueueAsync();
     }
@@ -91,6 +93,19 @@ namespace Subsonic8.Navidrome
             var index = _playlist.CurrentItem == null ? 0 : queue.IndexOf(_playlist.CurrentItem);
             var position = _playlist.CurrentItem == null ? 0 : (long)_audio.GetCurrentPosition().TotalMilliseconds;
             await api.SaveQueue(queue.Select(item => item.SongId), index, position, _session.Capabilities.Supports("indexBasedQueue")).ReadAsync();
+        }
+
+        public void PlayLocal(IEnumerable<PlaylistItem> songs, int index = 0)
+        {
+            var queue = songs.ToList();
+            if (queue.Any(item => item.AccountKey != _session.AccountKey || item.Uri == null || item.Uri.Scheme != "ms-appdata")) throw new OperationCanceledException();
+            if (queue.Count > 0) _events.PublishOnUIThread(new PlayQueueMessage { Queue = queue, StartIndex = index });
+        }
+        public void AppendLocal(IEnumerable<PlaylistItem> songs)
+        {
+            var queue = songs.ToList();
+            if (queue.Any(item => item.AccountKey != _session.AccountKey || item.Uri == null || item.Uri.Scheme != "ms-appdata")) throw new OperationCanceledException();
+            _events.PublishOnUIThread(new AddItemsMessage { Queue = queue });
         }
 
         public async Task RestoreServerQueueAsync()

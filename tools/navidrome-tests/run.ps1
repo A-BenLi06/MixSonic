@@ -20,6 +20,8 @@ $sources += @(
     'Client.Common\Services\Navidrome\LocalXml.cs',
     'Client.Common\Models\ListeningCounter.cs',
     'Client.Common\Models\PendingListening.cs',
+    'Client.Common\Models\Navidrome\OfflineCatalog.cs',
+    'Client.Common\Services\Navidrome\MediaDownload.cs',
     'tools\serializer-tests\VisualStateResultStub.cs',
     'tools\navidrome-tests\NavidromeTests.cs'
 )

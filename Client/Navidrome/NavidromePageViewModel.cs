@@ -19,6 +19,7 @@ namespace Subsonic8.Navidrome
         [Inject] public INavidromeSessionService Session { get; set; }
         [Inject] public IMediaQueueService MediaQueue { get; set; }
         [Inject] public INavidromeDialogService Dialogs { get; set; }
+        [Inject] public IOfflineLibraryService Offline { get; set; }
         public bool IsLoading { get { return _isLoading; } protected set { _isLoading = value; NotifyOfPropertyChange(); Changed(); } }
         public bool IsWorking { get { return _isWorking; } private set { _isWorking = value; NotifyOfPropertyChange(); Changed(); } }
         public string Error { get { return _error; } protected set { _error = value; NotifyOfPropertyChange(); NotifyOfPropertyChange(() => HasError); } }
@@ -53,14 +54,21 @@ namespace Subsonic8.Navidrome
 
         protected async Task RunOperation(Func<NavidromeApi, Task> operation)
         {
+            await RunLocalOperation(async () =>
+            {
+                await Session.ConnectAsync();
+                await operation(Session.CreateApi());
+            });
+        }
+
+        protected async Task RunLocalOperation(Func<Task> operation)
+        {
             if (IsWorking) return;
             IsWorking = true;
             Error = null;
             try
             {
-                await Session.ConnectAsync();
-                var api = Session.CreateApi();
-                await operation(api);
+                await operation();
             }
             catch (OperationCanceledException) { }
             catch (Exception exception) { Error = exception.Message; }

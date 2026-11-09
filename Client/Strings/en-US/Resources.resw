@@ -206,4 +206,36 @@
   <data name="Navidrome_ToYear.AutomationProperties.Name" xml:space="preserve"><value>To year</value></data>
   <data name="Navidrome_Text_ServerKeptExpiry" xml:space="preserve"><value>Shares use the server default expiration when no custom date is selected.</value></data>
   <data name="Navidrome_Text_ChangeExpiry" xml:space="preserve"><value>Change the expiration date</value></data>
+  <data name="Navidrome_Text_Downloads" xml:space="preserve"><value>downloads</value></data>
+  <data name="Navidrome_Text_OfflineMusic" xml:space="preserve"><value>music saved on this device</value></data>
+  <data name="Navidrome_Text_DownloadingUnavailable" xml:space="preserve"><value>Your account cannot download files.</value></data>
+  <data name="Navidrome_Text_DownloadQueued" xml:space="preserve"><value>Queued</value></data>
+  <data name="Navidrome_Text_DownloadDownloading" xml:space="preserve"><value>Downloading</value></data>
+  <data name="Navidrome_Text_DownloadCompleted" xml:space="preserve"><value>Saved on this device</value></data>
+  <data name="Navidrome_Text_DownloadFailed" xml:space="preserve"><value>Download failed</value></data>
+  <data name="Navidrome_Text_DownloadCancelled" xml:space="preserve"><value>Download cancelled</value></data>
+  <data name="Navidrome_Text_DownloadMissing" xml:space="preserve"><value>The saved file is missing or incomplete.</value></data>
+  <data name="Navidrome_Text_DownloadBytes" xml:space="preserve"><value>{0:N0} bytes received</value></data>
+  <data name="Navidrome_Text_DownloadOriginal" xml:space="preserve"><value>Saving the original file</value></data>
+  <data name="Navidrome_Text_DownloadCompatible" xml:space="preserve"><value>Saving a compatible playback copy</value></data>
+  <data name="Navidrome_Text_DownloadArtwork" xml:space="preserve"><value>Saving artwork</value></data>
+  <data name="Navidrome_Text_DownloadLyrics" xml:space="preserve"><value>Saving lyrics</value></data>
+  <data name="Navidrome_Text_OfflinePlaybackUnavailable" xml:space="preserve"><value>The original is saved for export. A compatible offline playback copy could not be created.</value></data>
+  <data name="Navidrome_Text_ArtworkCacheFailed" xml:space="preserve"><value>Artwork could not be saved.</value></data>
+  <data name="Navidrome_Text_LyricsCacheFailed" xml:space="preserve"><value>Lyrics could not be saved.</value></data>
+  <data name="Navidrome_Text_OfflineDataInvalid" xml:space="preserve"><value>The saved library data is invalid.</value></data>
+  <data name="Navidrome_Text_OfflineFileMissing" xml:space="preserve"><value>The completed offline playback file is unavailable. Retry the download.</value></data>
+  <data name="Navidrome_Text_ConfirmDeleteDownloads" xml:space="preserve"><value>Remove the selected downloads from this device and the local playback queue?</value></data>
+  <data name="Navidrome_Text_OriginalFile" xml:space="preserve"><value>Original audio file</value></data>
+  <data name="Navidrome_Text_ExportFailed" xml:space="preserve"><value>The exported file could not be saved.</value></data>
+  <data name="Navidrome_Download.Label" xml:space="preserve"><value>Download</value></data>
+  <data name="Navidrome_ExportOriginal.Label" xml:space="preserve"><value>Export original</value></data>
+  <data name="Navidrome_CancelDownload.Label" xml:space="preserve"><value>Cancel download</value></data>
+  <data name="Navidrome_RetryDownload.Label" xml:space="preserve"><value>Retry download</value></data>
+  <data name="Navidrome_DeleteDownload.Label" xml:space="preserve"><value>Remove download</value></data>
+  <data name="Navidrome_CancelAllDownloads.Label" xml:space="preserve"><value>Cancel all downloads</value></data>
+  <data name="Navidrome_NoDownloads.Text" xml:space="preserve"><value>No music has been downloaded for this account.</value></data>
+  <data name="Navidrome_Back.AutomationProperties.Name" xml:space="preserve"><value>Go back</value></data>
+  <data name="Navidrome_Starred.AutomationProperties.Name" xml:space="preserve"><value>Favourite</value></data>
+  <data name="Navidrome_Text_DownloadCleanupFailed" xml:space="preserve"><value>The new download is saved, but an older cached file could not be removed.</value></data>
 </root>

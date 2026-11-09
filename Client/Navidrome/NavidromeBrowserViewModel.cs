@@ -55,7 +55,8 @@ namespace Subsonic8.Navidrome
         public bool CanDelete { get { return !IsWorking && SelectedItems.Any() && SelectedItems.Cast<NavidromeItem>().All(item => item.Bookmark != null || IsOwnedShare(item)); } }
         public bool CanEditShare { get { return !IsWorking && SelectedItems.Count == 1 && IsOwnedShare((NavidromeItem)SelectedItems[0]); } }
         public bool CanCopyLink { get { return !IsWorking && SelectedItems.Count == 1 && ((NavidromeItem)SelectedItems[0]).Share != null; } }
-        public bool CanDetails { get { return !IsWorking && SelectedItems.Count == 1 && ((NavidromeItem)SelectedItems[0]).Media != null; } }
+        public bool CanDetails { get { return !IsWorking && SelectedItems.Count == 1 && ((NavidromeItem)SelectedItems[0]).Media != null &&
+            new[] { SubsonicModelTypeEnum.Song, SubsonicModelTypeEnum.Album, SubsonicModelTypeEnum.Artist, SubsonicModelTypeEnum.Playlist }.Contains(((NavidromeItem)SelectedItems[0]).Media.Type); } }
         private string[] Route { get { return NavidromeRoute.Parse(Parameter); } }
         protected override IList<NavidromeItem> CommandItems { get { return SelectedItems.Count > 0 ? SelectedItems.Cast<NavidromeItem>().ToList() : Items.Where(item => item.Media != null).ToList(); } }
         protected override IList<NavidromeItem> AnnotationItems { get { return SelectedItems.Cast<NavidromeItem>().ToList(); } }

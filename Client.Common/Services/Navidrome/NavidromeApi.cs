@@ -339,6 +339,13 @@ namespace Client.Common.Services.Navidrome
 
         public Uri DownloadUri(string id) { return new Uri(Request("download").Add("id", Id(id)).Url); }
 
+        public Uri StreamUri(string id, string format)
+        {
+            var request = Request("stream").Add("id", Id(id)).Add("format", format);
+            if (_configuration.MaximumBitRate > 0) request.Add("maxBitRate", _configuration.MaximumBitRate);
+            return new Uri(request.Url);
+        }
+
         public string CoverArtUrl(string id) { return new SubsonicService { Configuration = _configuration }.GetCoverArtForId(id); }
 
         public PlaylistItem CreatePlaylistItem(Song song)

@@ -6,17 +6,20 @@ namespace Subsonic8.Navidrome
     using System.Threading.Tasks;
     using Client.Common.Models;
     using Client.Common.Models.Subsonic;
+    using Client.Common.Services;
+    using MugenInjection.Attributes;
     using Subsonic8.Playback;
     using Windows.UI.Xaml;
 
     public abstract class NavidromeMediaPageViewModel : NavidromePageViewModel
     {
+        [Inject] public IPlaylistManagementService PlaylistQueue { get; set; }
         protected abstract IList<NavidromeItem> CommandItems { get; }
         protected virtual IList<NavidromeItem> AnnotationItems { get { return CommandItems; } }
         protected virtual Task<IList<Song>> ResolvePlaylistAsync() { return ResolveCommandAsync(); }
         protected virtual Task<IList<Song>> ResolveCommandAsync()
         { return MediaQueue.ResolveAsync(CommandItems.Where(item => item.Media != null).Select(item => (ISubsonicModel)item.Media).ToList()); }
-        public bool CanPlay { get { return !IsWorking && !IsLoading && CommandItems.Any(item => item.Media != null); } }
+        public bool CanPlay { get { return !IsWorking && !IsLoading && CommandItems.Any() && CommandItems.All(item => item.Media != null && IsPlayable(item.Media.Type)); } }
         public bool CanPlayNext { get { return CanPlay; } }
         public bool CanAppend { get { return CanPlay; } }
         public bool CanFavourite { get { return !IsWorking && !IsLoading && AnnotationItems.Any() && AnnotationItems.All(CanAnnotate); } }
@@ -25,6 +28,9 @@ namespace Subsonic8.Navidrome
         public bool CanCreatePlaylist { get { return !IsWorking; } }
         public bool CanAddToPlaylist { get { return CanPlay && AnnotationItems.Any(); } }
         public bool CanCreateShare { get { return CanPlay && AnnotationItems.Any() && Session.User != null && Session.User.ShareRole; } }
+        public bool CanDownload { get { return CanPlay && Session.User != null && Session.User.DownloadRole; } }
+        private static bool IsPlayable(SubsonicModelTypeEnum type)
+        { return type == SubsonicModelTypeEnum.Song || type == SubsonicModelTypeEnum.Album || type == SubsonicModelTypeEnum.Artist || type == SubsonicModelTypeEnum.Playlist || type == SubsonicModelTypeEnum.Genre; }
 
         private static bool CanAnnotate(NavidromeItem item)
         { return item.Media is Song || item.Media is Album || item.Media is ExpandedArtist || item.Media is Playlist; }
@@ -32,12 +38,21 @@ namespace Subsonic8.Navidrome
         protected override void Changed()
         {
             base.Changed();
-            foreach (var property in new[] { "CanPlay", "CanPlayNext", "CanAppend", "CanFavourite", "CanUnfavourite", "CanRate", "CanCreatePlaylist", "CanAddToPlaylist", "CanCreateShare" }) NotifyOfPropertyChange(property);
+            foreach (var property in new[] { "CanPlay", "CanPlayNext", "CanAppend", "CanFavourite", "CanUnfavourite", "CanRate", "CanCreatePlaylist", "CanAddToPlaylist", "CanCreateShare", "CanDownload" }) NotifyOfPropertyChange(property);
         }
 
         public Task Play() { return QueueCommand(true, false); }
         public Task PlayNext() { return QueueCommand(false, true); }
         public Task Append() { return QueueCommand(false, false); }
+        public Task Download()
+        {
+            return RunOperation(async api =>
+            {
+                var songs = await ResolveCommandAsync(); RequireAccount(api);
+                await Offline.EnqueueAsync(api, songs); RequireAccount(api);
+                NavigationService.NavigateToViewModel<NavidromeDownloadsViewModel>();
+            });
+        }
         private Task QueueCommand(bool play, bool next)
         {
             return RunOperation(async api =>
@@ -65,6 +80,8 @@ namespace Subsonic8.Navidrome
                     RequireAccount(api);
                     await api.SetStarred(item.Media, value).ReadAsync();
                     RequireAccount(api); item.UpdateStarred(value);
+                    if (item.Media.Type == SubsonicModelTypeEnum.Song)
+                        foreach (var queued in PlaylistQueue.Items.Where(queued => queued.AccountKey == api.AccountKey && queued.SongId == item.Media.Id)) queued.IsStarred = value;
                 }
             });
         }
@@ -81,6 +98,8 @@ namespace Subsonic8.Navidrome
                 {
                     RequireAccount(api); await api.SetRating(item.Media.Id, (int)field.Value).ReadAsync();
                     RequireAccount(api); ((SubsonicModelBase)item.Media).UserRating = (int)field.Value;
+                    if (item.Media.Type == SubsonicModelTypeEnum.Song)
+                        foreach (var queued in PlaylistQueue.Items.Where(queued => queued.AccountKey == api.AccountKey && queued.SongId == item.Media.Id)) queued.UserRating = (int)field.Value;
                 }
                 await Reload();
             });

@@ -39,6 +39,7 @@ namespace Client.Common.Models
         LibraryNowPlaying,
         LibrarySongs,
         LibraryBookmarks,
-        LibraryShares
+        LibraryShares,
+        LibraryDownloads
     }
 }

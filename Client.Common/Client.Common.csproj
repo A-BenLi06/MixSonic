@@ -111,6 +111,8 @@
     <Compile Include="Models\ListeningCounter.cs" />
     <Compile Include="Models\PendingListening.cs" />
     <Compile Include="Services\Navidrome\LocalXml.cs" />
+    <Compile Include="Models\Navidrome\OfflineCatalog.cs" />
+    <Compile Include="Services\Navidrome\MediaDownload.cs" />
     <Compile Include="Models\Subsonic\MediaMetadata.cs" />
     <Compile Include="Results\NavidromeResult.cs" />
     <Compile Include="Services\Navidrome\NavidromeApi.cs" />

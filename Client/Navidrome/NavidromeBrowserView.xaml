@@ -28,6 +28,7 @@
             </AppBarButton>
             <AppBarButton x:Name="Reload" x:Uid="Navidrome_Refresh" Icon="Refresh"/>
             <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="Download" x:Uid="Navidrome_Download"/>
                 <AppBarButton x:Name="Favourite" x:Uid="Navidrome_Favourite"/>
                 <AppBarButton x:Name="Unfavourite" x:Uid="Navidrome_Unfavourite"/>
                 <AppBarButton x:Uid="Navidrome_Rate" IsEnabled="{Binding CanRate}" cal:Message.Attach="[Event Click]=[Action Rate($source)]"/>

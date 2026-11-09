@@ -120,7 +120,7 @@ namespace Client.Common.Models
                 var strings = regex.Split(CoverArtUrl);
                 var result = strings[0];
                 var uri = new Uri(result, UriKind.RelativeOrAbsolute);
-                if (uri.IsAbsoluteUri)
+                if (uri.IsAbsoluteUri && (uri.Scheme == "http" || uri.Scheme == "https"))
                 {
                     result += string.Format("&size={0}", (int)ImageType.Original);
                 }

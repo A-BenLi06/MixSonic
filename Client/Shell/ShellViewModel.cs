@@ -66,10 +66,12 @@
 
                 _bottomBar = value;
                 NotifyOfPropertyChange();
+                NotifyOfPropertyChange(() => HasBottomBar);
             }
         }
 
         public Action<SearchResultCollection> NavigateToSearchResult { get; set; }
+        public bool HasBottomBar { get { return BottomBar != null; } }
 
 
         [Inject]
