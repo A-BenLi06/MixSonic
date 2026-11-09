@@ -58,8 +58,8 @@ PublishAssets/*
 # ZCode session scratch
 .tmp/
 
-# Local reference tooling caches
-tools/mixradio/__pycache__/
+# Local Python tooling caches
+__pycache__/
 
 # Original phone reference packages stay local.
 *.xap
