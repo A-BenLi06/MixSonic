@@ -42,6 +42,8 @@ namespace Subsonic8.Navidrome
             LyricVariants = new BindableCollection<LyricChoice>(); LyricLines = new BindableCollection<LyricLineItem>();
             Rates = new BindableCollection<NamedOption<double>>();
             foreach (var rate in new[] { 0.5, 0.75, 1.0, 1.25, 1.5, 2.0 }) Rates.Add(RateOption(rate));
+            GainModes = Enum.GetValues(typeof(ReplayGainMode)).Cast<ReplayGainMode>()
+                .Select(mode => new NamedOption<ReplayGainMode> { Value = mode, Name = NavidromeText.Get("GainMode" + mode) }).ToList();
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
             _timer.Tick += (sender, args) => UpdateTiming();
             UpdateDisplayName = () => { };
@@ -55,6 +57,13 @@ namespace Subsonic8.Navidrome
         public BindableCollection<LyricChoice> LyricVariants { get; private set; }
         public BindableCollection<LyricLineItem> LyricLines { get; private set; }
         public BindableCollection<NamedOption<double>> Rates { get; private set; }
+        public IList<NamedOption<ReplayGainMode>> GainModes { get; private set; }
+        public NamedOption<ReplayGainMode> SelectedGainMode
+        {
+            get { return GainModes.FirstOrDefault(mode => mode.Value == Audio.GainMode); }
+            set { if (value != null) Audio.GainMode = value.Value; NotifyOfPropertyChange(); }
+        }
+        public string PreAmplificationText { get { return string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("PreAmplificationValue"), Audio.PreAmplification); } }
         public PlaylistItem CurrentItem { get { return Audio != null && Audio.CurrentItem != null && PlaylistQueue.Items.Contains(Audio.CurrentItem) ? Audio.CurrentItem : null; } }
         public bool HasCurrentItem { get { return CurrentItem != null; } }
         public bool HasPlaybackError { get { return !string.IsNullOrEmpty(Audio.PlaybackError); } }
@@ -145,6 +154,8 @@ namespace Subsonic8.Navidrome
         private async void AudioChanged(object sender, PropertyChangedEventArgs args)
         {
             if (args.PropertyName == "CurrentItem") ApplyResumePosition();
+            if (args.PropertyName == "GainMode") NotifyOfPropertyChange(() => SelectedGainMode);
+            if (args.PropertyName == "PreAmplification") NotifyOfPropertyChange(() => PreAmplificationText);
             Changed();
             if (args.PropertyName == "CurrentItem" && PageActive) await Reload();
             if (args.PropertyName == "PlaybackRate")

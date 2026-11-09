@@ -359,4 +359,33 @@
   <data name="Navidrome_JukeboxHelp.Text" xml:space="preserve"><value>Playback uses the server's audio device. Choose a track, then press Play.</value></data>
   <data name="Navidrome_SonicMix.Label" xml:space="preserve"><value>Play acoustic recommendations</value></data>
   <data name="Navidrome_SonicPath.Label" xml:space="preserve"><value>Play acoustic path</value></data>
+  <data name="Navidrome_Text_GainModeNone" xml:space="preserve"><value>Off</value></data>
+  <data name="Navidrome_Text_GainModeTrack" xml:space="preserve"><value>Track</value></data>
+  <data name="Navidrome_Text_GainModeAlbum" xml:space="preserve"><value>Album</value></data>
+  <data name="Navidrome_Text_PreAmplificationValue" xml:space="preserve"><value>{0:+0.0;-0.0;0.0} dB</value></data>
+  <data name="Navidrome_Text_Decibels" xml:space="preserve"><value>{0:0.##} dB</value></data>
+  <data name="Navidrome_Text_InvalidRandomCount" xml:space="preserve"><value>Choose between 1 and 500 tracks.</value></data>
+  <data name="Navidrome_Text_MinutesAgo" xml:space="preserve"><value>{0} min ago</value></data>
+  <data name="Navidrome_Text_PlaybackStateplaying" xml:space="preserve"><value>Playing</value></data>
+  <data name="Navidrome_Text_PlaybackStatepaused" xml:space="preserve"><value>Paused</value></data>
+  <data name="Navidrome_Text_PlaybackStatestopped" xml:space="preserve"><value>Stopped</value></data>
+  <data name="Navidrome_Text_AlbumArtist" xml:space="preserve"><value>Album artist</value></data>
+  <data name="Navidrome_Text_Composer" xml:space="preserve"><value>Composer</value></data>
+  <data name="Navidrome_Text_Bpm" xml:space="preserve"><value>Beats per minute</value></data>
+  <data name="Navidrome_Text_ExplicitStatus" xml:space="preserve"><value>Content advisory</value></data>
+  <data name="Navidrome_Text_Moods" xml:space="preserve"><value>Moods</value></data>
+  <data name="Navidrome_Text_Isrc" xml:space="preserve"><value>ISRC</value></data>
+  <data name="Navidrome_Text_TrackGain" xml:space="preserve"><value>Track gain</value></data>
+  <data name="Navidrome_Text_AlbumGain" xml:space="preserve"><value>Album gain</value></data>
+  <data name="Navidrome_Text_TrackPeak" xml:space="preserve"><value>Track peak</value></data>
+  <data name="Navidrome_Text_AlbumPeak" xml:space="preserve"><value>Album peak</value></data>
+  <data name="Navidrome_ReplayGainLabel.Text" xml:space="preserve"><value>ReplayGain normalization</value></data>
+  <data name="Navidrome_ReplayGain.AutomationProperties.Name" xml:space="preserve"><value>ReplayGain mode</value></data>
+  <data name="Navidrome_PreAmplificationLabel.Text" xml:space="preserve"><value>Pre-amplification</value></data>
+  <data name="Navidrome_PreAmplification.AutomationProperties.Name" xml:space="preserve"><value>ReplayGain pre-amplification in decibels</value></data>
+  <data name="Navidrome_GainLimited.Text" xml:space="preserve"><value>ReplayGain requests more amplification than this player's maximum volume allows. Lower the volume or pre-amplification to leave more headroom.</value></data>
+  <data name="Navidrome_RandomCountLabel.Text" xml:space="preserve"><value>Number of tracks</value></data>
+  <data name="Navidrome_RandomCount.AutomationProperties.Name" xml:space="preserve"><value>Random mix track count</value></data>
+  <data name="Navidrome_RandomFilterHelp.Text" xml:space="preserve"><value>Leave the genre or either year blank to include all matching music.</value></data>
+  <data name="Navidrome_ActivityRefreshHelp.Text" xml:space="preserve"><value>Server activity refreshes every 30 seconds while no entries are selected.</value></data>
 </root>

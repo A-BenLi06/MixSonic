@@ -131,9 +131,20 @@ namespace Client.Common.Services.Navidrome
                 root => SubsonicXml.List<Song>(root.Element(Ns + "songsByGenre"), "song"));
         }
         public NavidromeResult<IList<Song>> GetRandomSongs(string folderId, int count = 100)
+        { return GetRandomSongs(new RandomSongQuery { MusicFolderId = folderId, Size = count }); }
+
+        public NavidromeResult<IList<Song>> GetRandomSongs(RandomSongQuery query)
         {
-            Page(0, count);
-            return Read(Request("getRandomSongs").Add("musicFolderId", folderId).Add("size", count),
+            if (query == null) throw new ArgumentNullException("query");
+            if (query.Size < 1 || query.Size > 500) throw new ArgumentOutOfRangeException("query", "The random selection size must be between 1 and 500.");
+            if (query.FromYear.HasValue && query.FromYear.Value < 0 || query.ToYear.HasValue && query.ToYear.Value < 0 ||
+                query.FromYear.HasValue && query.ToYear.HasValue && query.FromYear.Value > query.ToYear.Value)
+                throw new ArgumentOutOfRangeException("query", "The random selection year range is invalid.");
+            var request = Request("getRandomSongs").Add("musicFolderId", query.MusicFolderId).Add("size", query.Size)
+                .Add("genre", string.IsNullOrWhiteSpace(query.Genre) ? null : query.Genre);
+            if (query.FromYear.HasValue) request.Add("fromYear", query.FromYear.Value);
+            if (query.ToYear.HasValue) request.Add("toYear", query.ToYear.Value);
+            return Read(request,
                 root => SubsonicXml.List<Song>(root.Element(Ns + "randomSongs"), "song"));
         }
 
@@ -402,7 +413,8 @@ namespace Client.Common.Services.Navidrome
             return new PlaylistItem
             {
                 SongId = song.Id, AlbumId = song.AlbumId, ArtistId = song.ArtistId, UserRating = song.UserRating,
-                AccountKey = AccountKey, Title = song.Title, Artist = song.Artist, Duration = song.Duration,
+                AccountKey = AccountKey, Title = song.Title, Artist = string.IsNullOrWhiteSpace(song.DisplayArtist) ? song.Artist : song.DisplayArtist, Duration = song.Duration,
+                ReplayGain = song.ReplayGain,
                 CoverArtId = song.CoverArt, CoverArtUrl = service.GetCoverArtForId(song.CoverArt),
                 Uri = service.GetUriForFileWithId(song.Id), IsStarred = !string.IsNullOrEmpty(song.Starred), Type = PlaylistItemTypeEnum.Audio
             };

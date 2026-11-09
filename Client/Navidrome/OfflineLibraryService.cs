@@ -244,7 +244,8 @@ namespace Subsonic8.Navidrome
                     throw new InvalidOperationException(NavidromeText.Get("OfflineFileMissing"));
                 var song = record.Song;
                 queue.Add(new PlaylistItem { AccountKey = item.AccountKey, SongId = song.Id, AlbumId = song.AlbumId, ArtistId = song.ArtistId,
-                    CoverArtId = song.CoverArt, Title = song.Title, Artist = song.Artist, Duration = song.Duration, UserRating = song.UserRating,
+                    CoverArtId = song.CoverArt, Title = song.Title, Artist = string.IsNullOrWhiteSpace(song.DisplayArtist) ? song.Artist : song.DisplayArtist,
+                    ReplayGain = song.ReplayGain, Duration = song.Duration, UserRating = song.UserRating,
                     IsStarred = !string.IsNullOrEmpty(song.Starred), Type = PlaylistItemTypeEnum.Audio,
                     Uri = LocalUrl(item.AccountKey, record.PlaybackFile), CoverArtUrl = item.ImageUrl });
             }

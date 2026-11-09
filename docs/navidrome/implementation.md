@@ -63,7 +63,7 @@ Bookmark resume positions and duplicate server queue indices reach the native
 player. Shares use server default expiration on creation and preserve it when an
 update omits the date, matching `core/share.go`.
 
-The real 0.64.2 fixture verifies 51 API integration assertions against 125 synthetic
+The real 0.64.2 fixture verifies 53 API integration assertions against 125 synthetic
 tagged WAV files. Its version is recorded separately from the locked source.
 Playback activity now reports actual native states and counts real playing intervals
 independently of seek positions. Enhanced presence requests set `ignoreScrobble`;
@@ -127,6 +127,23 @@ disabled-jukebox/provider-absent failures; it does not supply an enabled server
 audio device or acoustic provider. Native capture still times out through the
 installed helper; no native interaction, decoding, background or visual pass is
 inferred from successful source/build checks.
+
+Random mixes expose the source-defined size (1–500), genre, optional lower/upper
+year and accessible-library filters. Blank filters are omitted. Server activity
+retains the reported player, age, playback state, millisecond position and rate;
+its entries use full song models and can be played in their displayed context.
+The page refreshes every 30 seconds while open and without a selection, stopping
+on navigation so a background response cannot replace another page/account.
+
+ReplayGain metadata reaches online and offline queue entries. Track/album modes
+and a persisted −15 to +15 dB pre-amplifier follow Navidrome's decibel calculation
+and reciprocal-peak clipping limit. Missing gain/peak stays neutral; explicit zero
+remains distinct from missing data. MediaElement volume has a 0–1 range: the
+effective volume combines user volume with the requested gain, and exceeding that
+range produces a visible limitation without changing the saved user volume.
+Actual native audio normalization remains unverified. Track details also retain
+server display artist/album-artist/composer credits, BPM, comments, moods, ISRC
+and content advisory values.
 
 The [Navidrome acceptance specification](../../tools/navidrome/acceptance-spec.json)
 adds these functional requirements to the preceding design/accessibility/resilience

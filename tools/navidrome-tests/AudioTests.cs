@@ -4,6 +4,7 @@ using System.Linq;
 using Caliburn.Micro;
 using Client.Common.EventAggregatorMessages;
 using Client.Common.Models;
+using Client.Common.Models.Subsonic;
 using Client.Common.Services;
 using Client.Common.Services.DataStructures.SubsonicService;
 using Subsonic8.AudioPlayback;
@@ -20,7 +21,7 @@ public static class NavidromeAudioTests
     {
         try
         {
-            Preferences(); Lifecycle(); Compatibility();
+            Preferences(); GainPreferences(); Lifecycle(); Compatibility();
             Console.WriteLine("PASS: " + _assertions + " production audio assertions with simulated native events. Decoding, XAML and background audio remain unverified.");
             return 0;
         }
@@ -43,6 +44,47 @@ public static class NavidromeAudioTests
         Check(restored.Volume == 1, "Volume respects the native control range.");
         settings.Clear();
     }
+    private static void GainPreferences()
+    {
+        var settings = Windows.Storage.ApplicationData.Current.LocalSettings.Values;
+        settings.Clear(); settings["AudioReplayGainMode"] = 1.5; settings["AudioPreAmplification"] = "invalid";
+        var controls = new Controls(); var events = new Events();
+        var audio = new AudioPlayerViewModel { PlayerControls = controls, EventAggregator = events };
+        Check(audio.GainMode == ReplayGainMode.None && audio.PreAmplification == 0, "Malformed normalization preferences use neutral defaults.");
+        var metadata = new ReplayGain { TrackGain = -6, TrackGainSpecified = true, TrackPeak = 0.8, TrackPeakSpecified = true,
+            AlbumGain = -3, AlbumGainSpecified = true, AlbumPeak = 0.5, AlbumPeakSpecified = true };
+        var song = new PlaylistItem { ReplayGain = metadata, Uri = new Uri("ms-appdata:///local/gain.wav") };
+        audio.Volume = 0.5; audio.Play(song);
+        Check(controls.Volume == 0.5, "Off leaves the user's volume unchanged.");
+        audio.GainMode = ReplayGainMode.Track;
+        Check(Math.Abs(controls.Volume - 0.5 * Math.Pow(10, -6.0 / 20)) < 0.000001, "Track ReplayGain uses decibels and user volume.");
+        audio.PreAmplification = 6;
+        Check(Math.Abs(controls.Volume - 0.5) < 0.000001 && audio.Volume == 0.5, "Pre-amplification changes normalization without rewriting user volume.");
+        audio.GainMode = ReplayGainMode.Album;
+        Check(Math.Abs(controls.Volume - 0.5 * Math.Pow(10, 3.0 / 20)) < 0.000001, "Album mode selects its own gain and peak.");
+        metadata.AlbumPeak = 1.4; audio.PreAmplification = 15;
+        Check(Math.Abs(controls.Volume - 0.5 / 1.4) < 0.000001, "The peak caps amplification to prevent clipping.");
+        metadata.AlbumGain = 20; metadata.AlbumPeak = 0.1; audio.PreAmplification = 0;
+        Check(controls.Volume == 1 && audio.IsGainLimited && audio.Volume == 0.5, "Native volume limits stay explicit instead of corrupting the requested volume.");
+        audio.Volume = 0.05;
+        Check(Math.Abs(controls.Volume - 0.5) < 0.000001 && !audio.IsGainLimited, "Available user-volume headroom permits positive normalization.");
+        var replacement = new Controls(); audio.PlayerControls = replacement;
+        Check(Math.Abs(replacement.Volume - 0.5) < 0.000001, "Replacement native controls receive the current normalization.");
+        var restored = new AudioPlayerViewModel();
+        Check(restored.GainMode == ReplayGainMode.Album && restored.PreAmplification == 0 && restored.Volume == 0.05, "Normalization preferences persist independently from source metadata.");
+        audio.PreAmplification = double.NaN; audio.GainMode = (ReplayGainMode)999;
+        Check(audio.PreAmplification == 0 && audio.GainMode == ReplayGainMode.Album, "Invalid normalization input cannot replace saved preferences.");
+        audio.Play(new PlaylistItem { Uri = new Uri("https://radio.example.com/live") });
+        Check(replacement.Volume == 0.05 && !audio.IsGainLimited, "A new source without gain metadata resets normalization.");
+        Check(ReplayGain.Calculate(new ReplayGain { TrackGainSpecified = true }, ReplayGainMode.Track, 0) == 1,
+            "A missing peak remains distinct from a zero peak and cannot invent normalization.");
+        Check(ReplayGain.Calculate(new ReplayGain { TrackGainSpecified = true, TrackPeakSpecified = true }, ReplayGainMode.Track, 0) == 1,
+            "Explicit zero gain/peak remain valid metadata.");
+        metadata.TrackGain = double.PositiveInfinity;
+        Check(ReplayGain.Calculate(metadata, ReplayGainMode.Track, 0) == 1, "Non-finite server gain cannot reach native controls.");
+        settings.Clear();
+    }
+
     private static void Lifecycle()
     {
         var events = new Events(); var controls = new Controls();

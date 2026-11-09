@@ -27,6 +27,7 @@ namespace Subsonic8.Navidrome
         private bool _moreAlbums, _moreArtists, _moreSongs;
         private NavidromeApi _loadedApi;
         private string _loadedFolder;
+        private readonly DispatcherTimer _activityTimer;
 
         public NavidromeBrowserViewModel()
         {
@@ -37,6 +38,10 @@ namespace Subsonic8.Navidrome
                 .Select(type => new NamedOption<AlbumListType> { Value = type, Name = NavidromeText.Get("Sort" + type) }).ToList();
             SelectedSort = AlbumSorts.First();
             FromYear = "1900"; ToYear = DateTime.Now.Year.ToString(CultureInfo.CurrentCulture);
+            RandomCount = "100";
+            _activityTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+            _activityTimer.Tick += async (sender, args) =>
+            { if (PageActive && IsActivity && !IsLoading && !IsWorking && SelectedItems.Count == 0) await Reload(); };
             UpdateDisplayName = () => { };
         }
 
@@ -49,7 +54,12 @@ namespace Subsonic8.Navidrome
         public string FromYear { get; set; }
         public string ToYear { get; set; }
         public string Query { get; set; }
+        public string RandomCount { get; set; }
+        public string RandomFromYear { get; set; }
+        public string RandomToYear { get; set; }
         public bool IsAlbums { get { return Route[0] == "albums"; } }
+        public bool IsRandom { get { return Route[0] == "random"; } }
+        public bool IsActivity { get { return Route[0] == "activity"; } }
         public bool CanLoadMore { get { return !IsLoading && !IsWorking && (_moreAlbums || _moreArtists || _moreSongs); } }
         public bool IsEmpty { get { return !IsLoading && !HasError && Items.Count == 0; } }
         public bool CanDelete { get { return !IsWorking && SelectedItems.Any() && SelectedItems.Cast<NavidromeItem>().All(item => item.Bookmark != null || IsOwnedShare(item)); } }
@@ -72,7 +82,30 @@ namespace Subsonic8.Navidrome
         protected override void Changed()
         {
             base.Changed();
-            foreach (var property in new[] { "CanLoadMore", "IsEmpty", "CanDelete", "CanEditShare", "CanCopyLink", "CanDetails", "IsAlbums", "CanCreateRadio", "CanEditRadio", "CanDeleteRadio" }) NotifyOfPropertyChange(property);
+            foreach (var property in new[] { "CanLoadMore", "IsEmpty", "CanDelete", "CanEditShare", "CanCopyLink", "CanDetails", "IsAlbums", "IsRandom", "IsActivity", "CanCreateRadio", "CanEditRadio", "CanDeleteRadio" }) NotifyOfPropertyChange(property);
+        }
+
+        protected override void OnActivate() { _activityTimer.Start(); base.OnActivate(); }
+        protected override void OnDeactivate(bool close) { _activityTimer.Stop(); base.OnDeactivate(close); }
+
+        private RandomSongQuery RandomQuery(string folder)
+        {
+            int count, from, to;
+            if (!int.TryParse(RandomCount, NumberStyles.Integer, CultureInfo.CurrentCulture, out count) || count < 1 || count > 500)
+                throw new InvalidOperationException(NavidromeText.Get("InvalidRandomCount"));
+            var query = new RandomSongQuery { MusicFolderId = folder, Size = count, Genre = GenreFilter };
+            if (!string.IsNullOrWhiteSpace(RandomFromYear))
+            {
+                if (!int.TryParse(RandomFromYear, NumberStyles.Integer, CultureInfo.CurrentCulture, out from) || from < 0) throw new InvalidOperationException(NavidromeText.Get("InvalidYears"));
+                query.FromYear = from;
+            }
+            if (!string.IsNullOrWhiteSpace(RandomToYear))
+            {
+                if (!int.TryParse(RandomToYear, NumberStyles.Integer, CultureInfo.CurrentCulture, out to) || to < 0) throw new InvalidOperationException(NavidromeText.Get("InvalidYears"));
+                query.ToYear = to;
+            }
+            if (query.FromYear.HasValue && query.ToYear.HasValue && query.FromYear.Value > query.ToYear.Value) throw new InvalidOperationException(NavidromeText.Get("InvalidYears"));
+            return query;
         }
 
         public override async Task Reload()
@@ -129,7 +162,7 @@ namespace Subsonic8.Navidrome
                 case "playlists": media.AddRange(await api.GetPlaylists().ReadAsync()); break;
                 case "radio": media.AddRange(await api.GetRadio().ReadAsync()); break;
                 case "activity": media.AddRange(await api.GetNowPlaying().ReadAsync()); break;
-                case "random": media.AddRange(await api.GetRandomSongs(folder).ReadAsync()); break;
+                case "random": media.AddRange(await api.GetRandomSongs(RandomQuery(folder)).ReadAsync()); break;
                 case "favourites":
                     var starred = await api.GetStarred(folder).ReadAsync();
                     media.AddRange(starred.Artists); media.AddRange(starred.Albums); media.AddRange(starred.Songs); break;

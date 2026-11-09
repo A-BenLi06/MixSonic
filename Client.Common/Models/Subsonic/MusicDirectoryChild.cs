@@ -28,6 +28,14 @@ namespace Client.Common.Models.Subsonic
         [XmlAttribute("size")] public long Size { get; set; }
         [XmlAttribute("path")] public string Path { get; set; }
         [XmlAttribute("musicBrainzId")] public string MusicBrainzId { get; set; }
+        [XmlAttribute("displayArtist")] public string DisplayArtist { get; set; }
+        [XmlAttribute("displayAlbumArtist")] public string DisplayAlbumArtist { get; set; }
+        [XmlAttribute("displayComposer")] public string DisplayComposer { get; set; }
+        [XmlAttribute("bpm")] public int Bpm { get; set; }
+        [XmlAttribute("comment")] public string Comment { get; set; }
+        [XmlAttribute("explicitStatus")] public string ExplicitStatus { get; set; }
+        [XmlElement("moods")] public System.Collections.Generic.List<string> Moods { get; set; }
+        [XmlElement("isrc")] public System.Collections.Generic.List<string> Isrc { get; set; }
         [XmlElement("artists")] public System.Collections.Generic.List<MediaArtist> Artists { get; set; }
         [XmlElement("albumArtists")] public System.Collections.Generic.List<MediaArtist> AlbumArtists { get; set; }
         [XmlElement("genres")] public System.Collections.Generic.List<MediaGenre> Genres { get; set; }

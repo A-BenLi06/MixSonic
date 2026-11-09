@@ -89,6 +89,19 @@ public static class NavidromeTests
         Check(song.Result.UserRating == 4 && !string.IsNullOrEmpty(song.Result.Starred), "Annotations deserialize");
         Check(song.Result.ReplayGain.TrackGainSpecified && song.Result.ReplayGain.TrackGain == -5.5, "Optional replay gain present");
         Check(!song.Result.ReplayGain.AlbumGainSpecified, "Missing gain is distinct from zero");
+        var gainQueueItem = api.CreatePlaylistItem(song.Result);
+        Check(gainQueueItem.ReplayGain.TrackGain == -5.5, "Online queue entries preserve ReplayGain metadata");
+        var enhanced = api.GetSong("s");
+        enhanced.HandleResponse(Xml("<song id='s' displayArtist='A &amp; B' displayAlbumArtist='Album artist' displayComposer='Composer' bpm='123' comment='Comment' explicitStatus='clean'><moods>Calm</moods><isrc>GBABC1234567</isrc><replayGain trackGain='0' trackPeak='0' baseGain='89' fallbackGain='-4'/></song>"));
+        Check(enhanced.Result.DisplayArtist == "A & B" && enhanced.Result.DisplayAlbumArtist == "Album artist" && enhanced.Result.DisplayComposer == "Composer", "Server display credits are retained");
+        Check(enhanced.Result.Bpm == 123 && enhanced.Result.Comment == "Comment" && enhanced.Result.Moods.Single() == "Calm" && enhanced.Result.Isrc.Single() == "GBABC1234567", "Enhanced track metadata is retained");
+        Check(enhanced.Result.ReplayGain.TrackGainSpecified && enhanced.Result.ReplayGain.TrackPeakSpecified && enhanced.Result.ReplayGain.BaseGain == 89 && enhanced.Result.ReplayGain.FallbackGain == -4,
+            "Explicit zero and all supplied ReplayGain values are retained");
+        var playing = api.GetNowPlaying();
+        playing.HandleResponse(Xml("<nowPlaying><entry id='s' title='Track' artistId='artist' username='Listener' playerName='Client' minutesAgo='2' state='paused' positionMs='1234' playbackRate='1.25'/></nowPlaying>"));
+        Check(playing.Result.Single() is Song && playing.Result.Single().ArtistId == "artist", "Now-playing entries are playable songs with complete IDs");
+        Check(playing.Result.Single().PlaybackState == "paused" && playing.Result.Single().PositionMilliseconds == 1234 && playing.Result.Single().PlaybackRate == 1.25,
+            "Now-playing state, millisecond position and rate deserialize");
         var artists = api.GetArtists(null);
         artists.HandleResponse(Xml("<artists><index name='A'><artist id='a' name='Artist' coverArt='ar-a' starred='2026-11-09T00:00:00Z' userRating='5'/></index></artists>"));
         Check(artists.Result[0].CoverArt == "ar-a" && artists.Result[0].UserRating == 5, "Artist artwork and annotations survive");
@@ -132,6 +145,14 @@ public static class NavidromeTests
         search.HandleResponse(Xml("<searchResult3><song id='s' title='S'/></searchResult3>"));
         Check(search.Result.Songs.Count == 1 && search.Result.Albums.Count == 0, "Paged results map");
         Throws<ArgumentOutOfRangeException>(() => api.GetAlbums(new AlbumQuery { Size = 501 }), "500 server maximum enforced");
+        var random = new Uri(api.GetRandomSongs(new RandomSongQuery { MusicFolderId = "folder&1", Size = 31, Genre = "R&B", FromYear = 1990, ToYear = 2025 }).RequestUrl).Query;
+        Check(Param(random, "size") == "31" && Param(random, "genre") == "R&B" && Param(random, "fromYear") == "1990" && Param(random, "toYear") == "2025" && Param(random, "musicFolderId") == "folder&1",
+            "Random mixes encode all source-defined filters and the actual library ID");
+        var allYears = new Uri(api.GetRandomSongs(new RandomSongQuery()).RequestUrl).Query;
+        Check(Param(allYears, "fromYear") == null && Param(allYears, "toYear") == null && Param(allYears, "genre") == null, "Unspecified random filters are omitted");
+        Throws<ArgumentOutOfRangeException>(() => api.GetRandomSongs(new RandomSongQuery { Size = 0 }), "Empty random requests are rejected");
+        Throws<ArgumentOutOfRangeException>(() => api.GetRandomSongs(new RandomSongQuery { Size = 501 }), "Random size respects the upstream maximum");
+        Throws<ArgumentOutOfRangeException>(() => api.GetRandomSongs(new RandomSongQuery { FromYear = 2025, ToYear = 1990 }), "An inverted random year range is rejected");
     }
 
     private static void Lyrics()

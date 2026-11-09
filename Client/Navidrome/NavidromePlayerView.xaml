@@ -14,6 +14,11 @@
                     <ToggleSwitch x:Uid="Navidrome_Mute" IsOn="{Binding Audio.IsMuted, Mode=TwoWay}"/>
                     <TextBlock x:Uid="Navidrome_PlaybackRateLabel" Margin="0,16,0,8"/>
                     <ComboBox x:Uid="Navidrome_PlaybackRate" ItemsSource="{Binding Rates}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedRate, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
+                    <TextBlock x:Uid="Navidrome_ReplayGainLabel" Margin="0,16,0,8"/>
+                    <ComboBox x:Uid="Navidrome_ReplayGain" ItemsSource="{Binding GainModes}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedGainMode, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
+                    <TextBlock x:Uid="Navidrome_PreAmplificationLabel" Margin="0,16,0,4"/>
+                    <Slider x:Uid="Navidrome_PreAmplification" Minimum="-15" Maximum="15" StepFrequency="0.5" Value="{Binding Audio.PreAmplification, Mode=TwoWay}"/>
+                    <TextBlock Text="{Binding PreAmplificationText}"/>
                 </StackPanel></Flyout></AppBarButton.Flyout>
             </AppBarButton>
             <CommandBar.SecondaryCommands>
@@ -62,6 +67,7 @@
                     <TextBlock Text="{Binding RatingText}" FontSize="13" Margin="0,6,0,0"/>
                     <ProgressBar IsIndeterminate="True" Margin="0,12,20,0" Visibility="{Binding Audio.IsBuffering, Converter={StaticResource NavidromeVisibility}}"/>
                     <TextBlock x:Uid="Navidrome_CompatibleStream" TextWrapping="Wrap" FontSize="13" Margin="0,8,20,0" Visibility="{Binding Audio.IsUsingCompatibleStream, Converter={StaticResource NavidromeVisibility}}"/>
+                    <TextBlock x:Uid="Navidrome_GainLimited" TextWrapping="Wrap" FontSize="13" Margin="0,8,20,0" Visibility="{Binding Audio.IsGainLimited, Converter={StaticResource NavidromeVisibility}}"/>
                     <Slider x:Name="SeekSlider" x:Uid="Navidrome_Seek" Margin="0,12,20,0" Minimum="0" Maximum="{Binding DurationSeconds}" Value="{Binding PositionSeconds, Mode=TwoWay}" IsEnabled="{Binding Audio.CanSeek}"/>
                     <Grid Margin="0,0,20,0">
                         <TextBlock Text="{Binding PositionText}" FontSize="13"/>

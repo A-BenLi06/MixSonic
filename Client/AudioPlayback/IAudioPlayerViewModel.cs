@@ -19,6 +19,10 @@
         double Volume { get; set; }
         bool IsMuted { get; set; }
         double PlaybackRate { get; set; }
+        Client.Common.Models.Subsonic.ReplayGainMode GainMode { get; set; }
+        double PreAmplification { get; set; }
+        double EffectiveVolume { get; }
+        bool IsGainLimited { get; }
         void Seek(TimeSpan position);
         void RestorePosition(long positionMilliseconds);
     }

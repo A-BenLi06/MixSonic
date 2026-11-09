@@ -9,6 +9,7 @@ namespace Subsonic8.AudioPlayback
 
     using Client.Common.EventAggregatorMessages;
     using Client.Common.Models;
+    using Client.Common.Models.Subsonic;
     using Client.Common.Services;
 
     using MugenInjection.Attributes;
@@ -35,6 +36,8 @@ namespace Subsonic8.AudioPlayback
         private double _volume = 1;
         private bool _isMuted;
         private double _rate = 1;
+        private ReplayGainMode _gainMode;
+        private double _preAmplification;
         private bool _stopped = true;
         private bool _opened;
         private bool _playWhenOpened;
@@ -47,6 +50,9 @@ namespace Subsonic8.AudioPlayback
             var settings = ApplicationData.Current.LocalSettings.Values;
             _volume = Math.Max(0, Math.Min(1, ReadNumber("AudioVolume", 1)));
             _rate = Math.Max(0.5, Math.Min(2, ReadNumber("AudioRate", 1)));
+            _preAmplification = Math.Max(-15, Math.Min(15, ReadNumber("AudioPreAmplification", 0)));
+            var savedGain = ReadNumber("AudioReplayGainMode", 0);
+            if (savedGain >= 0 && savedGain <= int.MaxValue && savedGain == Math.Truncate(savedGain) && Enum.IsDefined(typeof(ReplayGainMode), (int)savedGain)) _gainMode = (ReplayGainMode)(int)savedGain;
             object muted; bool value;
             if (settings.TryGetValue("AudioMuted", out muted) && bool.TryParse(Convert.ToString(muted, CultureInfo.InvariantCulture), out value)) _isMuted = value;
         }
@@ -85,7 +91,7 @@ namespace Subsonic8.AudioPlayback
             {
                 if (double.IsNaN(value) || double.IsInfinity(value)) return;
                 _volume = Math.Max(0, Math.Min(1, value));
-                if (_playerControls != null) _playerControls.Volume = _volume;
+                ApplyVolume();
                 ApplicationData.Current.LocalSettings.Values["AudioVolume"] = _volume;
                 NotifyOfPropertyChange(() => Volume);
             }
@@ -112,6 +118,37 @@ namespace Subsonic8.AudioPlayback
                 ApplicationData.Current.LocalSettings.Values["AudioRate"] = value;
                 NotifyOfPropertyChange(() => PlaybackRate);
             }
+        }
+
+        public ReplayGainMode GainMode
+        {
+            get { return _gainMode; }
+            set
+            {
+                if (!Enum.IsDefined(typeof(ReplayGainMode), value)) return;
+                _gainMode = value;
+                ApplicationData.Current.LocalSettings.Values["AudioReplayGainMode"] = (int)value;
+                NotifyOfPropertyChange(); ApplyVolume();
+            }
+        }
+        public double PreAmplification
+        {
+            get { return _preAmplification; }
+            set
+            {
+                if (double.IsNaN(value) || double.IsInfinity(value) || value < -15 || value > 15) return;
+                _preAmplification = value;
+                ApplicationData.Current.LocalSettings.Values["AudioPreAmplification"] = value;
+                NotifyOfPropertyChange(); ApplyVolume();
+            }
+        }
+        public double RequestedGain { get { return ReplayGain.Calculate(_currentItem == null ? null : _currentItem.ReplayGain, _gainMode, _preAmplification); } }
+        public double EffectiveVolume { get { return Math.Max(0, Math.Min(1, _volume * RequestedGain)); } }
+        public bool IsGainLimited { get { return _volume * RequestedGain > 1; } }
+        private void ApplyVolume()
+        {
+            if (_playerControls != null) _playerControls.Volume = EffectiveVolume;
+            NotifyOfPropertyChange(() => EffectiveVolume); NotifyOfPropertyChange(() => IsGainLimited);
         }
 
         #endregion
@@ -143,7 +180,7 @@ namespace Subsonic8.AudioPlayback
             set
             {
                 _playerControls = value;
-                if (value != null) { value.Volume = _volume; value.IsMuted = _isMuted; value.PlaybackRate = _rate; }
+                if (value != null) { ApplyVolume(); value.IsMuted = _isMuted; value.PlaybackRate = _rate; }
                 NotifyOfPropertyChange();
             }
         }
@@ -215,6 +252,7 @@ namespace Subsonic8.AudioPlayback
         {
             Stop();
             _currentItem = item;
+            ApplyVolume();
             _retriedCompatibleStream = false; _originalPlaybackError = null; IsUsingCompatibleStream = false;
             _currentStreamIsMp3 = false;
             if (CanResolveStream(item))

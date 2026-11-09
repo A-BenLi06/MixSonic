@@ -149,7 +149,14 @@ namespace Subsonic8.Navidrome
         }
         private void AddSongMetadata(Song song)
         {
-            AddMetadata("Artist", song.Artist); AddMetadata("Album", song.Album);
+            AddMetadata("Artist", string.IsNullOrWhiteSpace(song.DisplayArtist) ? song.Artist : song.DisplayArtist); AddMetadata("Album", song.Album);
+            AddMetadata("AlbumArtist", !string.IsNullOrWhiteSpace(song.DisplayAlbumArtist) ? song.DisplayAlbumArtist :
+                song.AlbumArtists == null ? null : string.Join(", ", song.AlbumArtists.Select(artist => artist.Name)));
+            AddMetadata("Composer", song.DisplayComposer); AddMetadata("Comment", song.Comment);
+            if (song.Bpm > 0) AddMetadata("Bpm", song.Bpm);
+            AddMetadata("ExplicitStatus", song.ExplicitStatus);
+            if (song.Moods != null) AddMetadata("Moods", string.Join(", ", song.Moods));
+            if (song.Isrc != null) AddMetadata("Isrc", string.Join(", ", song.Isrc));
             if (song.Track != 0) AddMetadata("Track", song.Track); if (song.DiscNumber != 0) AddMetadata("Disc", song.DiscNumber);
             if (song.Year != 0) AddMetadata("Year", song.Year);
             AddMetadata("Genre", song.Genres != null && song.Genres.Count > 0 ? string.Join(", ", song.Genres.Select(genre => genre.Name)) : song.Genre);
@@ -159,6 +166,14 @@ namespace Subsonic8.Navidrome
             if (song.BitDepth > 0) AddMetadata("BitDepth", song.BitDepth); if (song.ChannelCount > 0) AddMetadata("Channels", song.ChannelCount);
             if (song.Size > 0) AddMetadata("FileSize", string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("Bytes"), song.Size));
             AddMetadata("Path", song.Path); AddMetadata("MusicBrainzId", song.MusicBrainzId);
+            if (song.ReplayGain != null)
+            {
+                var gain = song.ReplayGain;
+                if (gain.TrackGainSpecified) AddMetadata("TrackGain", string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("Decibels"), gain.TrackGain));
+                if (gain.AlbumGainSpecified) AddMetadata("AlbumGain", string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("Decibels"), gain.AlbumGain));
+                if (gain.TrackPeakSpecified) AddMetadata("TrackPeak", gain.TrackPeak);
+                if (gain.AlbumPeakSpecified) AddMetadata("AlbumPeak", gain.AlbumPeak);
+            }
         }
 
         public void OpenRelated(ItemClickEventArgs args)

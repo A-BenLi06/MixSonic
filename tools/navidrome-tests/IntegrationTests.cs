@@ -79,6 +79,10 @@ public static class NavidromeIntegrationTests
         Check(years.Count == 3 && years.All(album => album.Year >= 2021 && album.Year <= 2023), "Year-filtered album lists use the requested range.");
         var electronic = await api.GetAlbums(new AlbumQuery { Type = AlbumListType.ByGenre, MusicFolderId = folder, Genre = "Electronic" }).ReadAsync();
         Check(electronic.Count == 2, "Genre-filtered album lists use the requested genre.");
+        var randomGenre = await api.GetRandomSongs(new RandomSongQuery { MusicFolderId = folder, Genre = details.Genre, Size = 13 }).ReadAsync();
+        Check(randomGenre.Count == 13 && randomGenre.All(item => item.Genre == details.Genre), "Random mixes honor the selected genre and size on the real server.");
+        var randomYear = await api.GetRandomSongs(new RandomSongQuery { MusicFolderId = folder, FromYear = details.Year, ToYear = details.Year, Size = 500 }).ReadAsync();
+        Check(randomYear.Count > 0 && randomYear.All(item => item.Year == details.Year), "Random mixes honor both year bounds on the real server.");
         foreach (var media in new IMediaModel[] { details, albumDetails, artistDetails })
         {
             await api.SetStarred(media, true).ReadAsync(); await api.SetRating(media.Id, 4).ReadAsync();

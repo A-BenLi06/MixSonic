@@ -44,6 +44,16 @@ namespace Client.Common.Models.Navidrome
         }
     }
 
+    public sealed class RandomSongQuery
+    {
+        public RandomSongQuery() { Size = 100; }
+        public string MusicFolderId { get; set; }
+        public int Size { get; set; }
+        public string Genre { get; set; }
+        public int? FromYear { get; set; }
+        public int? ToYear { get; set; }
+    }
+
     public sealed class SearchQuery
     {
         public SearchQuery() { ArtistCount = AlbumCount = SongCount = 100; }

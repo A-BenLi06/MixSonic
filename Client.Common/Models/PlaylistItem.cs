@@ -45,6 +45,8 @@ namespace Client.Common.Models
 
         public string ArtistId { get; set; }
 
+        public Subsonic.ReplayGain ReplayGain { get; set; }
+
         private int _userRating;
         public int UserRating
         {

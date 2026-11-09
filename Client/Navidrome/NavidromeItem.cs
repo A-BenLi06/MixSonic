@@ -40,14 +40,17 @@ namespace Subsonic8.Navidrome
             var item = new NavidromeItem { Media = media, Ordinal = ordinal,
                 Title = song == null ? media.Name : song.Title,
                 ImageUrl = api.CoverArtUrl(media.CoverArt), Kind = NavidromeText.Get(media.Type.ToString()) };
-            if (song != null) item.Subtitle = Join(song.Artist, song.Album, FormatTime(song.Duration));
+            if (song != null) item.Subtitle = Join(string.IsNullOrWhiteSpace(song.DisplayArtist) ? song.Artist : song.DisplayArtist, song.Album, FormatTime(song.Duration));
             else if (album != null) item.Subtitle = Join(album.Artist, album.Year == 0 ? null : album.Year.ToString(CultureInfo.CurrentCulture),
                 string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("TrackCount"), album.SongCount));
             else if (artist != null) item.Subtitle = string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("AlbumCount"), artist.AlbumCount);
             else if (playlist != null) item.Subtitle = Join(playlist.Owner, string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("TrackCount"), playlist.SongCount));
             else if (genre != null) item.Subtitle = string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("TrackCount"), genre.SongCount);
             else if (radio != null) item.Subtitle = radio.HomePageUrl;
-            if (playing != null) item.Subtitle = Join(playing.Username, playing.Artist, playing.Album);
+            if (playing != null) item.Subtitle = Join(playing.Username, playing.PlayerName, playing.Artist, playing.Album,
+                string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("MinutesAgo"), Math.Max(0, playing.MinutesAgo)),
+                string.IsNullOrWhiteSpace(playing.PlaybackState) ? null : NavidromeText.Get("PlaybackState" + playing.PlaybackState),
+                playing.PlaybackRate <= 0 ? null : FormatTime(playing.PositionMilliseconds / 1000.0));
             return item;
         }
 
