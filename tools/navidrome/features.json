@@ -1,0 +1,2384 @@
+{
+  "schemaVersion": 1,
+  "title": "Navidrome music-client functional inventory",
+  "scope": "Navidrome source defines music-client functionality. MixRadio is a separate component/layout/visual/design reference. Native web administration APIs and Windows Phone UI are separate scopes.",
+  "features": [
+    {
+      "id": "PASSWORD",
+      "title": "Password authentication and route selection",
+      "endpoints": [
+        "ping"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/middlewares.go"
+        },
+        {
+          "path": "server/subsonic/system.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "Ping"
+        },
+        {
+          "path": "Client.Common/Services/RouteSelectionService.cs",
+          "symbol": "PingUrlAsync"
+        },
+        {
+          "path": "Client/Settings/SettingsViewModel.cs",
+          "symbol": "SaveSettings"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:requests"
+          ],
+          "expected": [
+            "Proxy paths, credentials and opaque IDs retain their encoded values; requests use the actual client identity."
+          ]
+        },
+        {
+          "level": "service",
+          "proofs": [
+            "connection:routes"
+          ],
+          "expected": [
+            "HTTP 200 failed Subsonic XML is rejected; a successfully authenticated secondary route can win."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Save valid password credentials and both loopback/proxy routes.",
+          "Make the primary route return failed authentication; reconnect through the secondary.",
+          "Save invalid credentials, correct them, and reconnect."
+        ],
+        "expected": [
+          "The authenticated route opens the real library.",
+          "Authentication failures remain actionable; corrected credentials recover.",
+          "Saving and reconnecting preserve the selected route and credential-vault behavior."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "API-KEY",
+      "title": "OpenSubsonic API-key authentication",
+      "endpoints": [
+        "tokenInfo"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/middlewares.go"
+        },
+        {
+          "path": "server/subsonic/system.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetTokenInfo"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeSessionService.cs",
+          "symbol": "ConnectCore"
+        },
+        {
+          "path": "Client/Settings/SettingsViewModel.cs",
+          "symbol": "SelectedAuthentication"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:authentication"
+          ],
+          "expected": [
+            "The raw escaped apiKey is sent without password/user/Basic authentication; only the mode persists in configuration."
+          ]
+        },
+        {
+          "level": "service",
+          "proofs": [
+            "connection:api-key"
+          ],
+          "expected": [
+            "The production route and session reject another account's key and preserve external cancellation."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Select API Key in Settings on an API-key-enabled server and sign in.",
+          "Try a key belonging to another username.",
+          "Switch the secret or authentication mode during an outstanding connection."
+        ],
+        "expected": [
+          "Only the key owner reaches the library.",
+          "The key remains in the credential vault, and errors permit correction.",
+          "Late responses cannot connect or start a stream after the identity changes."
+        ],
+        "prerequisites": [
+          "A server implementing API-key authentication, two disposable key owners, and native Settings access."
+        ]
+      }
+    },
+    {
+      "id": "CAPABILITIES",
+      "title": "Reported server capabilities",
+      "endpoints": [
+        "getOpenSubsonicExtensions"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/opensubsonic.go"
+        },
+        {
+          "path": "server/subsonic/responses/responses.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetExtensions"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeSessionService.cs",
+          "symbol": "Capabilities"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:extensions"
+          ],
+          "expected": [
+            "The exact repeated XML extension/version shape and server metadata are parsed; unadvertised versions are unsupported."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:session"
+          ],
+          "expected": [
+            "The real fixture reports its version, advertised extensions and current account."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Open Account and inspect the server version and extension list.",
+          "Reconnect after changing an available server capability.",
+          "Make the extension request fail while library access remains valid."
+        ],
+        "expected": [
+          "Capabilities and their versions match returned server data.",
+          "Unavailable extensions use documented fallback or an explicit error.",
+          "Capability errors remain visible without fabricating support."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "LIBRARIES",
+      "title": "Accessible music libraries",
+      "endpoints": [
+        "getMusicFolders"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/browsing.go"
+        },
+        {
+          "path": "server/subsonic/helpers.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetMusicFolders"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeSessionService.cs",
+          "symbol": "SelectedFolder"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "service",
+          "proofs": [
+            "services:session"
+          ],
+          "expected": [
+            "The production session restores a selected accessible library after reconnect and clears it on identity changes."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:session",
+            "integration:browse"
+          ],
+          "expected": [
+            "Actual returned library IDs reach browsing and genre queries."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Choose each accessible music folder, including All Libraries.",
+          "Browse albums, artists, genres and search results.",
+          "Reconnect, restart the app, and change to an account with different access."
+        ],
+        "expected": [
+          "Every query uses the selected server library ID.",
+          "A still-accessible selection survives reconnect/restart.",
+          "A removed or different-account selection cannot leak into the new library."
+        ],
+        "prerequisites": [
+          "A server with at least two distinguishable music libraries and two disposable accounts."
+        ]
+      }
+    },
+    {
+      "id": "ALBUMS",
+      "title": "Complete album lists and filters",
+      "endpoints": [
+        "getAlbumList2"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/album_lists.go"
+        },
+        {
+          "path": "ui/src/album/albumLists.jsx"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetAlbums"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "LoadMore"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:pagination"
+          ],
+          "expected": [
+            "All album-list types encode their server parameters, offset, size and library; excessive pages are rejected."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:browse"
+          ],
+          "expected": [
+            "All fixture albums can be traversed in smaller pages; year and genre filters match tagged metadata."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Browse alphabetical-name/artist, newest, recent, frequent, random, starred, rating, year and genre lists.",
+          "Traverse a library beyond its first page and use Play All.",
+          "Change year direction, genre and library."
+        ],
+        "expected": [
+          "Sort/filter behavior matches Navidrome and no remaining page is silently truncated.",
+          "Play All resolves the complete context and selected occurrence.",
+          "Invalid filters have clear validation and changes reset the page offset."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "ARTISTS",
+      "title": "Artists and their albums",
+      "endpoints": [
+        "getArtists",
+        "getArtist"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/browsing.go"
+        },
+        {
+          "path": "ui/src/artist/ArtistShow.jsx"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetArtists"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeDetailViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:metadata"
+          ],
+          "expected": [
+            "Returned artist indices flatten to complete artist models."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:browse"
+          ],
+          "expected": [
+            "The real fixture returns both artists and resolves albums through actual artist IDs."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Open Artists, select an artist, then one of its albums.",
+          "Return to the artist and browse another library."
+        ],
+        "expected": [
+          "All returned artists and album entries are reachable.",
+          "Navigation preserves server IDs and the selected library."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "SEARCH",
+      "title": "Paged songs and typed search",
+      "endpoints": [
+        "search3"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/searching.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "Search"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "LoadMore"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:pagination"
+          ],
+          "expected": [
+            "Artist, album and song counts/offsets are independent; empty sync queries are preserved."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:search"
+          ],
+          "expected": [
+            "A real 125-song library crosses the 100-song page boundary without repeated IDs."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Search for artist, album and song results, including Unicode and punctuation.",
+          "Continue every result category beyond the first page.",
+          "Clear/change the query and play a selected song or the complete results."
+        ],
+        "expected": [
+          "Each category retains its own offset and context.",
+          "No stale query result or silent page limit replaces current results.",
+          "Empty, failed and successful queries remain distinguishable."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "GENRES",
+      "title": "Genres and filtered songs",
+      "endpoints": [
+        "getGenres",
+        "getSongsByGenre"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/browsing.go"
+        },
+        {
+          "path": "server/subsonic/album_lists.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetGenreSongs"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "server",
+          "proofs": [
+            "integration:browse"
+          ],
+          "expected": [
+            "Tagged genre counts and all 75 Jazz songs use the selected actual library."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Open every returned genre and traverse its songs.",
+          "Change the library, return to Genres, and play a selected occurrence."
+        ],
+        "expected": [
+          "Genre names/counts come from Navidrome.",
+          "Song pages and the playback context retain the selected genre/library."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "DETAILS",
+      "title": "Song and album metadata",
+      "endpoints": [
+        "getSong",
+        "getAlbum"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/browsing.go"
+        },
+        {
+          "path": "server/subsonic/responses/responses.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetSong"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeDetailViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:metadata"
+          ],
+          "expected": [
+            "Track/disc/year, quality, multiple credits and enhanced tag metadata deserialize with explicit missing values."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:metadata",
+            "integration:browse"
+          ],
+          "expected": [
+            "Actual metadata and all 25 album tracks round-trip from the fixture."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Open a song and its album/artist links.",
+          "Inspect track/disc/year, duration, bitrate, size, sample rate and available credits/tags.",
+          "Open an item with absent optional metadata."
+        ],
+        "expected": [
+          "Displayed values and links match returned metadata.",
+          "Album track order is complete.",
+          "Missing optional metadata is omitted or clearly empty."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "ARTWORK",
+      "title": "Cover artwork",
+      "endpoints": [
+        "getCoverArt"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/media_retrieval.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "CoverArtUrl"
+        },
+        {
+          "path": "Client.Common/Services/SubsonicService.cs",
+          "symbol": "GetCoverArtForId"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:information"
+          ],
+          "expected": [
+            "Opaque artwork IDs and requested image size are encoded."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:artwork"
+          ],
+          "expected": [
+            "A generated fixture album exposes a cover ID and its endpoint returns actual image content."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Inspect covers in album/song lists, details, player and completed downloads.",
+          "Test missing artwork and a server/network image failure.",
+          "Switch account while an image request is outstanding."
+        ],
+        "expected": [
+          "The native image control decodes actual returned artwork in each context.",
+          "Missing/failing artwork preserves a usable page.",
+          "Old-account images do not replace the new context."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "AVATAR",
+      "title": "Current-account avatar",
+      "endpoints": [
+        "getAvatar"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/media_retrieval.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "AvatarUrl"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeAccountViewModel.cs",
+          "symbol": "Avatar"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:authentication"
+          ],
+          "expected": [
+            "The avatar URL retains the encoded current username and selected authentication mechanism."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:avatar"
+          ],
+          "expected": [
+            "The actual server returns a PNG placeholder when Gravatar is disabled."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Open Account with Gravatar enabled and disabled.",
+          "Invalidate credentials or change the account while the image loads."
+        ],
+        "expected": [
+          "The server avatar or placeholder renders with an accessible name.",
+          "Disconnected/changed accounts clear the old source.",
+          "A missing image does not block account operations."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "FAVORITES",
+      "title": "Song, album and artist favorites",
+      "endpoints": [
+        "getStarred2",
+        "star",
+        "unstar"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/media_annotation.go"
+        },
+        {
+          "path": "server/subsonic/album_lists.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "SetStarred"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "Reload"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeMediaPageViewModel.cs",
+          "symbol": "Favourite"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:mutations",
+            "protocol:failures"
+          ],
+          "expected": [
+            "Each entity uses the correct star parameter and failed writes do not confirm success."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:annotations"
+          ],
+          "expected": [
+            "All three entity types can be starred, listed and unstarred on the real server."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Star and unstar a song, album and artist from details/player.",
+          "Inspect each category in Favorites and reconnect.",
+          "Make one write fail."
+        ],
+        "expected": [
+          "Confirmed changes and returned lists agree across views.",
+          "Failure leaves an actionable error and does not invent a successful favorite."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "RATINGS",
+      "title": "Ratings from zero to five",
+      "endpoints": [
+        "setRating"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/media_annotation.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "SetRating"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeMediaPageViewModel.cs",
+          "symbol": "Rate"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:mutations"
+          ],
+          "expected": [
+            "Values above five are rejected and zero clears a rating."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:annotations"
+          ],
+          "expected": [
+            "Song, album and artist ratings, including clearing to zero, round-trip."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Set and clear ratings for each supported entity from the native controls.",
+          "Refresh details and rating-sorted albums; make a write fail."
+        ],
+        "expected": [
+          "Only 0–5 reach the protocol.",
+          "Ratings update after confirmed success and failures recover."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "INFORMATION",
+      "title": "Artist biography and album notes",
+      "endpoints": [
+        "getArtistInfo2",
+        "getAlbumInfo2"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/browsing.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetArtistInfo"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeDetailViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:information"
+          ],
+          "expected": [
+            "Returned biography, notes and valid linked similar artists retain their data."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:information-empty"
+          ],
+          "expected": [
+            "Absent provider metadata remains a successful empty response."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Open artist/album information with supplied biography/notes, then with no provider data.",
+          "Follow a valid related artist and safe external information link."
+        ],
+        "expected": [
+          "Text and related IDs match the server; unsafe links/markup cannot become executable content.",
+          "Absence and failures remain distinguishable."
+        ],
+        "prerequisites": [
+          "Fixtures with populated provider metadata and absent metadata, plus native detail interaction."
+        ]
+      }
+    },
+    {
+      "id": "RELATED",
+      "title": "Top songs and similar songs",
+      "endpoints": [
+        "getTopSongs",
+        "getSimilarSongs2"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/browsing.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetTopSongs"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeDetailViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:information"
+          ],
+          "expected": [
+            "Artist names/optional IDs, recommendation counts, ordered song IDs and metadata survive requests/responses."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Open an artist's top songs and a song's related music.",
+          "Play a selected result in context; exercise empty and provider-failure responses."
+        ],
+        "expected": [
+          "Positive recommendations and their order come from Navidrome.",
+          "Empty or failed providers do not invent results.",
+          "The selected song and complete context reach the player."
+        ],
+        "prerequisites": [
+          "A configured metadata/recommendation provider with known positive results."
+        ]
+      }
+    },
+    {
+      "id": "RANDOM",
+      "title": "Random-song filters",
+      "endpoints": [
+        "getRandomSongs"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/album_lists.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetRandomSongs"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:pagination"
+          ],
+          "expected": [
+            "Size 1–500, optional genre/year bounds and real library IDs encode correctly; omitted filters stay absent."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:random"
+          ],
+          "expected": [
+            "The real fixture honors requested genre/size and both year bounds."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Create mixes with 1 and 500 requested songs, a genre, year bounds and each library.",
+          "Use blank filters and invalid size/year input.",
+          "Play a selected result."
+        ],
+        "expected": [
+          "Navidrome selects the returned songs using the stated filters.",
+          "Invalid input cannot start a disguised request.",
+          "The returned order/context reaches playback."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "TRANSPORT",
+      "title": "Native audio transport and controls",
+      "endpoints": [],
+      "sources": [
+        {
+          "path": "ui/src/audioplayer/Player.jsx"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client/AudioPlayback/AudioPlayerViewModel.cs",
+          "symbol": "MediaOpened"
+        },
+        {
+          "path": "Client/Navidrome/NavidromePlayerViewModel.cs",
+          "symbol": "PlayPause"
+        }
+      ],
+      "checks": [
+        {
+          "level": "service",
+          "proofs": [
+            "audio:lifecycle",
+            "audio:preferences",
+            "playback:context"
+          ],
+          "expected": [
+            "Simulated native opening, start/pause/stop/seek ordering, position clamping, volume/mute/rate and queue context follow production control logic."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Play native-supported WAV/MP3/AAC files; pause/resume, seek, skip and let a track end.",
+          "Adjust volume, mute and supported playback rates.",
+          "Buffer and fail a stream, then retry."
+        ],
+        "expected": [
+          "Native MediaElement decodes actual audio and reports correct duration/state.",
+          "Transport, elapsed position and audible controls behave correctly.",
+          "Opening/failure/seek do not create a false listen or duplicate completion."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "QUALITY",
+      "title": "Persisted streaming quality and fallback",
+      "endpoints": [
+        "stream"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/stream.go"
+        },
+        {
+          "path": "ui/src/audioplayer/Player.jsx"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "StreamUri"
+        },
+        {
+          "path": "Client/Settings/SettingsViewModel.cs",
+          "symbol": "SelectedFormat"
+        },
+        {
+          "path": "Client/AudioPlayback/AudioPlayerViewModel.cs",
+          "symbol": "SongFailed"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:requests"
+          ],
+          "expected": [
+            "Original/MP3/default format and bitrate preferences have the correct ordinary-stream parameters."
+          ]
+        },
+        {
+          "level": "service",
+          "proofs": [
+            "audio:compatibility"
+          ],
+          "expected": [
+            "Queued songs use current preferences; only eligible unopened online songs retry once as MP3, retaining both failures."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Save Automatic, Original and MP3/bitrate preferences and start already-queued songs.",
+          "Open an incompatible original and a failed compatible retry.",
+          "Test radio/local/already-playing failures."
+        ],
+        "expected": [
+          "Current persisted preferences affect each newly started song.",
+          "Only eligible failures use the bounded MP3 fallback.",
+          "Both errors remain visible and original/offline/radio choices preserve their meaning."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "TRANSCODING",
+      "title": "Negotiated direct play and transcoding",
+      "endpoints": [
+        "getTranscodeDecision",
+        "getTranscodeStream"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/transcode.go"
+        },
+        {
+          "path": "core/stream/codec.go"
+        },
+        {
+          "path": "core/stream/types.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetTranscodeDecision"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeStreamService.cs",
+          "symbol": "ResolveAsync"
+        },
+        {
+          "path": "Client/AudioPlayback/AudioPlayerViewModel.cs",
+          "symbol": "ResolveStreamAsync"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:transcoding"
+          ],
+          "expected": [
+            "JSON profiles, normalized PCM limits, bps units, decision details and escaped token/offset parameters follow the source contract."
+          ]
+        },
+        {
+          "level": "service",
+          "proofs": [
+            "connection:stream",
+            "audio:resolution"
+          ],
+          "expected": [
+            "Advertised support negotiates the same server; absent/explicit preferences fall back correctly, while cancellation, denial and identity changes suppress stale sources."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:transcoding"
+          ],
+          "expected": [
+            "A real direct WAV token returns byte-identical media and a 64 kbps decision returns actual MP3 media."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Use Automatic with native and incompatible source codecs on a configured server.",
+          "Change bitrate, pause/resume during negotiation and skip/stop before completion.",
+          "Expire a token and deny a decision."
+        ],
+        "expected": [
+          "Native playback decodes the chosen original/compatible stream and displays its actual mode.",
+          "Outstanding requests cannot replace the selected account/occurrence or lose the paused resume position.",
+          "Signed tokens stay transient and real denials remain errors."
+        ],
+        "prerequisites": [
+          "A server advertising transcoding with FFmpeg, native/incompatible media and a controlled denial/expiry path."
+        ]
+      }
+    },
+    {
+      "id": "REPLAYGAIN",
+      "title": "ReplayGain track and album modes",
+      "endpoints": [],
+      "sources": [
+        {
+          "path": "ui/src/utils/calculateReplayGain.js"
+        },
+        {
+          "path": "server/subsonic/responses/responses.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client/AudioPlayback/AudioPlayerViewModel.cs",
+          "symbol": "ReplayGainMode"
+        },
+        {
+          "path": "Client.Common/Models/PlaylistItem.cs",
+          "symbol": "ReplayGain"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:metadata"
+          ],
+          "expected": [
+            "ReplayGain values retain explicit zero and missing metadata."
+          ]
+        },
+        {
+          "level": "service",
+          "proofs": [
+            "audio:replay-gain"
+          ],
+          "expected": [
+            "Persisted modes/preamp use the source gain/peak formula independently of user volume; invalid values and native volume limits are handled explicitly."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Use tracks with known Track/Album gain and peaks; select Off/Track/Album and adjust preamp.",
+          "Test absent tags and a gain above native volume capacity.",
+          "Restart and test an offline copy."
+        ],
+        "expected": [
+          "Actual output/control gain agrees with the source calculation.",
+          "User volume is preserved and unsupported amplification is reported.",
+          "Mode/preamp and metadata survive restart/offline playback."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "LOCAL-QUEUE",
+      "title": "Complete local queue operations",
+      "endpoints": [],
+      "sources": [
+        {
+          "path": "ui/src/actions/player.js"
+        },
+        {
+          "path": "ui/src/audioplayer/Player.jsx"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/PlaylistManagementService.cs",
+          "symbol": "StartPlayback"
+        },
+        {
+          "path": "Client/Navidrome/NavidromePlayerViewModel.cs",
+          "symbol": "Remove"
+        }
+      ],
+      "checks": [
+        {
+          "level": "service",
+          "proofs": [
+            "playback:context",
+            "playback:mutation",
+            "playback:positions",
+            "playback:repeat",
+            "playback:shuffle",
+            "playback:previous"
+          ],
+          "expected": [
+            "Selected occurrences, replace/append/play-next, removal/reordering/clear, shuffle cycles, previous history and Off/All/One preserve production queue semantics."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Replace/append/play-next a complete context, including duplicate songs.",
+          "Select/reorder/remove current and noncurrent occurrences; clear the queue.",
+          "Exercise shuffle/previous and every repeat mode with natural endings and manual skips."
+        ],
+        "expected": [
+          "The exact selected occurrence and current transition are preserved.",
+          "Shuffle/repeat/history remain correct across mutations.",
+          "Native commands are reachable by keyboard and touch."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "SERVER-QUEUE",
+      "title": "Server queue and duplicate positions",
+      "endpoints": [
+        "getPlayQueue",
+        "getPlayQueueByIndex",
+        "savePlayQueue",
+        "savePlayQueueByIndex"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/bookmarks.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetQueue"
+        },
+        {
+          "path": "Client/Navidrome/MediaQueueService.cs",
+          "symbol": "RestoreServerQueueAsync"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:queue"
+          ],
+          "expected": [
+            "Queue entry order, duplicate indices and millisecond positions follow negotiated index-based/legacy contracts."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:server-queue"
+          ],
+          "expected": [
+            "The real fixture restores all three entries, the duplicate occurrence index and 3456 ms position."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Save a duplicate-containing queue at a nonzero position and restore it after restart.",
+          "Repeat with the index extension disabled and an empty queue.",
+          "Change account while restoration is pending."
+        ],
+        "expected": [
+          "The native player resumes the returned occurrence and bounded millisecond position.",
+          "Legacy ambiguity is handled explicitly.",
+          "No foreign-account or late queue replaces the current selection."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "LISTENING",
+      "title": "Listening reports and pending synchronization",
+      "endpoints": [
+        "scrobble",
+        "reportPlayback"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/media_annotation.go"
+        },
+        {
+          "path": "ui/src/common/playbackActions.js"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "ReportPlayback"
+        },
+        {
+          "path": "Client/Navidrome/PlaybackActivityService.cs",
+          "symbol": "SyncAsync"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:listening"
+          ],
+          "expected": [
+            "Presence/submission units, states, actual playing intervals and persisted occurrence records follow the source contract."
+          ]
+        },
+        {
+          "level": "service",
+          "proofs": [
+            "services:listening",
+            "playback:history"
+          ],
+          "expected": [
+            "Pending account-scoped real listens persist and synchronize after reconnect without local duplicate occurrences."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:playback-report"
+          ],
+          "expected": [
+            "Presence/seek-to-end does not increment real play counts; a qualifying submission increments once."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Open/fail/seek/pause/resume tracks and complete qualifying playback.",
+          "Listen offline, restart, reconnect and retry pending reports.",
+          "Change account with pending reports."
+        ],
+        "expected": [
+          "Only actual qualifying playback updates history/server play counts.",
+          "Pending timestamps and occurrence/account identity survive restart.",
+          "The standard API's lost-response/idempotency limit is not concealed."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "ACTIVITY",
+      "title": "Server now-playing activity",
+      "endpoints": [
+        "getNowPlaying"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/album_lists.go"
+        },
+        {
+          "path": "server/subsonic/responses/responses.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetNowPlaying"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:listening"
+          ],
+          "expected": [
+            "Now-playing entries retain full song metadata, player/state/position/rate."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:activity"
+          ],
+          "expected": [
+            "The actual fixture reports the current song/account/playing state/position/rate."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Open listening activity while another disposable client plays.",
+          "Leave the page open without selection, then select an item and deactivate the page.",
+          "Play a returned entry in context."
+        ],
+        "expected": [
+          "Displayed metadata and activity match the server.",
+          "Refresh preserves selection and stops on deactivation.",
+          "Activity entries reach playback with actual song IDs."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "LYRICS",
+      "title": "Structured, synchronized and legacy lyrics",
+      "endpoints": [
+        "getLyrics",
+        "getLyricsBySongId"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/media_retrieval.go"
+        },
+        {
+          "path": "server/subsonic/lyrics.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetLyrics"
+        },
+        {
+          "path": "Client/Navidrome/NavidromePlayerViewModel.cs",
+          "symbol": "ReloadLyrics"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:lyrics"
+          ],
+          "expected": [
+            "Variants, language, synced/untimed lines, ordering and extreme/duplicate offsets follow actual lyric metadata."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:lyrics"
+          ],
+          "expected": [
+            "Actual tagged/sidecar fixture lyrics are retrieved and time-select correctly."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Select lyric variants/languages during real playback and seek across timestamp boundaries.",
+          "Toggle follow, scroll manually, and use an offline copy.",
+          "Skip/change account while lyrics load; test empty and legacy responses."
+        ],
+        "expected": [
+          "Highlight and scrolling follow actual media milliseconds and offsets.",
+          "Late lyrics cannot replace a different song/account.",
+          "Empty/unsupported/error states and cached variants remain useful."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "PLAYLISTS",
+      "title": "Complete playlist management",
+      "endpoints": [
+        "getPlaylists",
+        "getPlaylist",
+        "createPlaylist",
+        "updatePlaylist",
+        "deletePlaylist"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/playlists.go"
+        },
+        {
+          "path": "ui/src/playlist/PlaylistEdit.jsx"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "UpdatePlaylist"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "Reload"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeDetailViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:metadata",
+            "protocol:mutations"
+          ],
+          "expected": [
+            "Playlist metadata/duplicates/readonly and repeated edit parameters preserve ownership and optional field semantics."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:playlists"
+          ],
+          "expected": [
+            "Create/read/rename/comment/public/add/remove/reorder/delete round-trip while metadata and duplicate order survive."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Create a playlist from selected/queued songs with duplicates; reopen and play it.",
+          "Edit name/comment/public state, add/remove/reorder entries, then delete.",
+          "Use another owner's and a smart/readonly playlist; fail one mutation."
+        ],
+        "expected": [
+          "All confirmed operations match server metadata and occurrence order.",
+          "Ownership gates metadata edits; readonly independently gates song edits.",
+          "Failed writes preserve recoverable state."
+        ],
+        "prerequisites": [
+          "Owned, foreign-owned, public and smart/readonly disposable playlists."
+        ]
+      }
+    },
+    {
+      "id": "DOWNLOADS",
+      "title": "Original export and offline downloads",
+      "endpoints": [
+        "download"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/media_retrieval.go"
+        },
+        {
+          "path": "server/subsonic/stream.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "DownloadUri"
+        },
+        {
+          "path": "Client/Navidrome/OfflineLibraryService.cs",
+          "symbol": "EnqueueAsync"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeDownloadsViewModel.cs",
+          "symbol": "Export"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:offline",
+            "protocol:downloads"
+          ],
+          "expected": [
+            "Catalog schema/account/file validation and HTTP/MIME/body/short-read/cancellation checks reject partial or fake media."
+          ]
+        },
+        {
+          "level": "service",
+          "proofs": [
+            "services:offline"
+          ],
+          "expected": [
+            "Production storage/event adapters cover completion, original retention, separate compatible copies, cancellation/retry, corrupt/missing files, offline access and account isolation."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:downloads"
+          ],
+          "expected": [
+            "Actual original WAV bytes are copied completely without replacing original export data."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Download originals with metadata/artwork/lyrics, cancel/retry, and export through the native picker.",
+          "Restart disconnected; browse/play completed local files and export originals.",
+          "Test incompatible originals, failed MP3 conversion, missing files, corrupt catalogs and another account."
+        ],
+        "expected": [
+          "Only completed validated files are playable; progress/cancel/retry/delete work natively.",
+          "Offline operations require no server handshake.",
+          "Original export remains byte-identical and cross-account access is rejected."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "BOOKMARKS",
+      "title": "Bookmark CRUD and resume",
+      "endpoints": [
+        "getBookmarks",
+        "createBookmark",
+        "deleteBookmark"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/bookmarks.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "SaveBookmark"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "Reload"
+        },
+        {
+          "path": "Client/Navidrome/NavidromePlayerViewModel.cs",
+          "symbol": "Bookmark"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:queue"
+          ],
+          "expected": [
+            "Bookmark and queue positions preserve millisecond units."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:bookmarks"
+          ],
+          "expected": [
+            "2345 ms/comments and deletion round-trip with actual song IDs."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Save a nonzero native playback position with a comment, reopen Bookmarks and resume it.",
+          "Delete the bookmark and repeat after an account change."
+        ],
+        "expected": [
+          "Resume applies the correct bounded position after media opens.",
+          "Comments/deletion and account isolation match server state."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "SHARES",
+      "title": "Share links and expiration",
+      "endpoints": [
+        "getShares",
+        "createShare",
+        "updateShare",
+        "deleteShare"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/sharing.go"
+        },
+        {
+          "path": "core/share.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "CreateShare"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:mutations"
+          ],
+          "expected": [
+            "Returned URLs/expiration and the epoch sentinel retain server semantics."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:shares"
+          ],
+          "expected": [
+            "Create/list/update/delete preserves real generated URLs, changed dates, omitted-update dates and default creation expiration."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Create a share from actual media IDs with explicit/default expiration.",
+          "List/open/copy/edit/delete the link.",
+          "Disable sharing or remove the role and repeat."
+        ],
+        "expected": [
+          "Links and dates come from Navidrome; omitted expiration never claims unlimited lifetime.",
+          "Disabled/denied operations stay explicit and recoverable."
+        ],
+        "prerequisites": [
+          "Sharing-enabled and sharing-disabled server policies with disposable shared media."
+        ]
+      }
+    },
+    {
+      "id": "RADIO",
+      "title": "Internet radio playback",
+      "endpoints": [
+        "getInternetRadioStations"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/radio.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetRadio"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "server",
+          "proofs": [
+            "integration:station-activity-reads"
+          ],
+          "expected": [
+            "The real station endpoint completes and an empty library remains valid."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Play a returned valid station, pause/stop and open its safe homepage.",
+          "Test empty stations, unsupported audio and a failed station URL."
+        ],
+        "expected": [
+          "Actual station stream URLs reach native playback without song-transcode substitution.",
+          "Empty/error states remain actionable."
+        ],
+        "prerequisites": [
+          "At least one controlled audible radio stream and a failed stream."
+        ]
+      }
+    },
+    {
+      "id": "RADIO-ADMIN",
+      "title": "Administrator radio CRUD",
+      "endpoints": [
+        "createInternetRadioStation",
+        "updateInternetRadioStation",
+        "deleteInternetRadioStation"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/radio.go"
+        },
+        {
+          "path": "server/subsonic/api.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "SaveRadio"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:optional-media"
+          ],
+          "expected": [
+            "Station mutations retain encoded full URLs, opaque IDs and optional homepage clearing."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:radio-administration"
+          ],
+          "expected": [
+            "A real administrator can create/edit/clear-homepage/delete and confirm the returned station."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "As administrator create/edit/delete a station and clear its homepage.",
+          "Use invalid URLs, cancel a form and change account/page during a delayed form.",
+          "Repeat as a nonadministrator."
+        ],
+        "expected": [
+          "Only an actual administrator can mutate stations.",
+          "Successful writes are confirmed and cancellation/stale forms cannot apply."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "SCAN",
+      "title": "Scan status and administrator start",
+      "endpoints": [
+        "getScanStatus",
+        "startScan"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/library_scanning.go"
+        },
+        {
+          "path": "server/subsonic/api.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetScanStatus"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeAccountViewModel.cs",
+          "symbol": "StartScan"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:optional-media"
+          ],
+          "expected": [
+            "Scan state/time metadata and the source-defined start endpoint are preserved."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:scan"
+          ],
+          "expected": [
+            "An actual administrator starts a scan and observes completion at the expected fixture count."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Open Account during idle/active scanning and start a scan as administrator.",
+          "Leave the page, reconnect, and repeat as a nonadministrator."
+        ],
+        "expected": [
+          "Actual scan count/status/time update while active.",
+          "Only the returned administrator role enables start, and polling stops on deactivation."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "ACCOUNT",
+      "title": "Current user and role gating",
+      "endpoints": [
+        "getUser"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/users.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetUser"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeAccountViewModel.cs",
+          "symbol": "Roles"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeSessionService.cs",
+          "symbol": "ResetConnection"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:extensions"
+          ],
+          "expected": [
+            "Returned user roles retain denied and allowed values."
+          ]
+        },
+        {
+          "level": "service",
+          "proofs": [
+            "services:session"
+          ],
+          "expected": [
+            "Reconnect restores actual roles and optional error states; changing credentials clears the negotiated account."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:session"
+          ],
+          "expected": [
+            "The real administrator/stream/download roles and username are reported."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Open Account with distinct administrator/download/share/jukebox roles.",
+          "Reconnect after changing permissions and make the user-info request fail."
+        ],
+        "expected": [
+          "Role labels and enabled commands match returned permissions.",
+          "Missing/failed user info does not grant privileged actions."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "JUKEBOX",
+      "title": "Server audio player and queue",
+      "endpoints": [
+        "jukeboxControl"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/jukebox.go"
+        },
+        {
+          "path": "server/subsonic/users.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "Jukebox"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeJukeboxViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:optional-media"
+          ],
+          "expected": [
+            "All command names, indices, second offsets and 0–1 gain use the correct parameter contracts."
+          ]
+        },
+        {
+          "level": "service",
+          "proofs": [
+            "jukebox:remote-player"
+          ],
+          "expected": [
+            "The production page preserves remote order/current-index guards, stale/cancelled operations and unapplied gain drafts."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:jukebox-disabled"
+          ],
+          "expected": [
+            "A disabled jukebox reports no role and the source-defined HTTP 501; this does not verify enabled device audio."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "On an enabled server player inspect the remote queue/status, transport, seek and gain.",
+          "Replace/append/remove/clear/shuffle, including duplicates and another client's concurrent changes.",
+          "Test missing role/disabled configuration and cancelled confirmation."
+        ],
+        "expected": [
+          "Actual audio comes from the server device and commands match remote state.",
+          "Indexed/destructive operations recheck order/current selection and keep honest race limits.",
+          "Role/disabled/stale/cancelled operations remain safe and explicit."
+        ],
+        "prerequisites": [
+          "An enabled jukebox with a real server audio device, another client and a disabled configuration."
+        ]
+      }
+    },
+    {
+      "id": "SONIC",
+      "title": "Acoustic similar tracks",
+      "endpoints": [
+        "getSonicSimilarTracks"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/sonic_similarity.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "GetSonicSimilarSongs"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeDetailViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:optional-media"
+          ],
+          "expected": [
+            "Seed/count and ordered acoustic match entries retain source IDs/metadata; malformed entries fail."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:sonic-disabled"
+          ],
+          "expected": [
+            "An unconfigured provider returns the source-defined HTTP 404; this does not establish positive acoustic results."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Request acoustic recommendations for actual songs on a configured provider.",
+          "Play a selected match, then remove the provider and repeat.",
+          "Skip/change account during a delayed response."
+        ],
+        "expected": [
+          "Positive match order and media come from the provider.",
+          "Absent/failed/stale results do not invent recommendations."
+        ],
+        "prerequisites": [
+          "A configured acoustic provider with known similar songs and a provider-absent configuration."
+        ]
+      }
+    },
+    {
+      "id": "SONIC-PATH",
+      "title": "Acoustic paths between songs",
+      "endpoints": [
+        "findSonicPath"
+      ],
+      "sources": [
+        {
+          "path": "server/subsonic/sonic_similarity.go"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client.Common/Services/Navidrome/NavidromeApi.cs",
+          "symbol": "FindSonicPath"
+        },
+        {
+          "path": "Client/Navidrome/NavidromeDetailViewModel.cs",
+          "symbol": "Reload"
+        }
+      ],
+      "checks": [
+        {
+          "level": "protocol",
+          "proofs": [
+            "protocol:optional-media"
+          ],
+          "expected": [
+            "Start/end/count encode independently and returned match songs retain their order."
+          ]
+        },
+        {
+          "level": "server",
+          "proofs": [
+            "integration:path-disabled"
+          ],
+          "expected": [
+            "An unconfigured path provider returns the source-defined HTTP 404; positive paths remain separate."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Choose actual current-account start/destination songs and request a positive path.",
+          "Play the resulting path; test absent providers and account/page changes."
+        ],
+        "expected": [
+          "The provider supplies the actual path songs/order.",
+          "Foreign/stale selections and absent providers cannot fabricate a playable path."
+        ],
+        "prerequisites": [
+          "A configured acoustic provider with a known path and at least two actual current-account songs."
+        ]
+      }
+    },
+    {
+      "id": "RECOVERY",
+      "title": "Native restart, state and background behavior",
+      "endpoints": [],
+      "sources": [
+        {
+          "path": "ui/src/actions/player.js"
+        },
+        {
+          "path": "ui/src/audioplayer/Player.jsx"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client/Navidrome/NavidromePlayerViewModel.cs",
+          "symbol": "LoadState"
+        },
+        {
+          "path": "Client/AudioPlayback/AudioPlayerViewModel.cs",
+          "symbol": "RestorePosition"
+        }
+      ],
+      "checks": [
+        {
+          "level": "service",
+          "proofs": [
+            "playback:restore",
+            "playback:import",
+            "audio:lifecycle",
+            "audio:resolution"
+          ],
+          "expected": [
+            "Production queue/state validation and simulated source opening preserve account, occurrence and bounded positions."
+          ]
+        }
+      ],
+      "native": {
+        "steps": [
+          "Restart/restore with a paused duplicate queue, lyrics-follow setting and nonzero position.",
+          "Exercise native suspend/resume, background playback and system media controls.",
+          "Restore corrupt or other-account state and change selection before media opens."
+        ],
+        "expected": [
+          "Actual native lifecycle preserves the intended account/queue/position without duplicate listens.",
+          "Background/system controls work on the declared Windows 8.1 target.",
+          "Corrupt or stale state cannot cause an unintended seek or wrong-account playback."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    },
+    {
+      "id": "ACCESS",
+      "title": "Functional navigation, keyboard and narrow views",
+      "endpoints": [],
+      "sources": [
+        {
+          "path": "ui/src/audioplayer/keyHandlers.jsx"
+        },
+        {
+          "path": "ui/src/audioplayer/Player.jsx"
+        }
+      ],
+      "client": [
+        {
+          "path": "Client/Navidrome/NavidromeBrowserViewModel.cs",
+          "symbol": "NavidromeBrowserViewModel"
+        },
+        {
+          "path": "Client/Navidrome/NavidromePlayerViewModel.cs",
+          "symbol": "NavidromePlayerViewModel"
+        }
+      ],
+      "checks": [],
+      "native": {
+        "steps": [
+          "Reach each function from Home, detail pages, player and Account; navigate back with keyboard/touch.",
+          "Exercise focus and accessible labels at wide, narrow and scaled native viewports.",
+          "Repeat with loading, empty, selected and failed states."
+        ],
+        "expected": [
+          "Every required action is reachable without hidden or covered commands.",
+          "Focus and keyboard/touch operations complete the same functions.",
+          "Native reflow preserves readable controls and task completion; visual fidelity remains a separate design audit."
+        ],
+        "prerequisites": [
+          "A disposable Navidrome account and the registered desktop client."
+        ]
+      }
+    }
+  ],
+  "aliases": [
+    {
+      "endpoint": "getIndexes",
+      "featureId": "ARTISTS",
+      "alternatives": [
+        "getArtists"
+      ],
+      "reason": "Both expose Navidrome artist indices; the client uses its ID3 model."
+    },
+    {
+      "endpoint": "getMusicDirectory",
+      "featureId": "DETAILS",
+      "alternatives": [
+        "getArtist",
+        "getAlbum"
+      ],
+      "reason": "The source builds virtual artist/album directories, covered by ID3 detail navigation."
+    },
+    {
+      "endpoint": "getAlbumList",
+      "featureId": "ALBUMS",
+      "alternatives": [
+        "getAlbumList2"
+      ],
+      "reason": "The legacy list shape is an alternative to the complete ID3 album-list function."
+    },
+    {
+      "endpoint": "getStarred",
+      "featureId": "FAVORITES",
+      "alternatives": [
+        "getStarred2"
+      ],
+      "reason": "The ID3 favorite list covers the same three annotation entity types."
+    },
+    {
+      "endpoint": "getAlbumInfo",
+      "featureId": "INFORMATION",
+      "alternatives": [
+        "getAlbumInfo2"
+      ],
+      "reason": "Both registrations invoke GetAlbumInfo."
+    },
+    {
+      "endpoint": "getArtistInfo",
+      "featureId": "INFORMATION",
+      "alternatives": [
+        "getArtistInfo2"
+      ],
+      "reason": "The client uses the artist-ID3 information variant."
+    },
+    {
+      "endpoint": "getSimilarSongs",
+      "featureId": "RELATED",
+      "alternatives": [
+        "getSimilarSongs2"
+      ],
+      "reason": "The client uses the ID3 song-recommendation variant."
+    },
+    {
+      "endpoint": "search2",
+      "featureId": "SEARCH",
+      "alternatives": [
+        "search3"
+      ],
+      "reason": "The ID3 search exposes the same typed music search function."
+    },
+    {
+      "endpoint": "getUsers",
+      "featureId": "ACCOUNT",
+      "alternatives": [
+        "getUser"
+      ],
+      "reason": "GetUsers returns only the logged-in user in the locked source; it is not a user directory."
+    }
+  ],
+  "fixedCompatibility": [
+    {
+      "endpoint": "getLicense",
+      "source": "server/subsonic/system.go",
+      "reason": "The locked handler always returns Valid:true and has no license-management music task."
+    }
+  ],
+  "upstreamUnavailable": {
+    "h501": [
+      "getPodcasts",
+      "getNewestPodcasts",
+      "refreshPodcasts",
+      "createPodcastChannel",
+      "deletePodcastChannel",
+      "deletePodcastEpisode",
+      "downloadPodcastEpisode",
+      "createUser",
+      "updateUser",
+      "deleteUser",
+      "changePassword"
+    ],
+    "h410": [
+      "search",
+      "getChatMessages",
+      "addChatMessage",
+      "getVideos",
+      "getVideoInfo",
+      "getCaptions",
+      "hls"
+    ]
+  },
+  "externalAdministration": "Native web user/library/transcoding/plugin administration does not use the standard music-client API. Existing generic video code cannot establish Navidrome video support.",
+  "proofSources": {
+    "protocol": "tools/navidrome-tests/NavidromeTests.cs",
+    "audio": "tools/navidrome-tests/AudioTests.cs",
+    "connection": "tools/navidrome-tests/ConnectionTests.cs",
+    "services": "tools/navidrome-tests/ServiceTests.cs",
+    "integration": "tools/navidrome-tests/IntegrationTests.cs",
+    "jukebox": "tools/navidrome-tests/JukeboxTests.cs",
+    "playback": "tools/playback-tests/PlaybackTests.cs"
+  }
+}

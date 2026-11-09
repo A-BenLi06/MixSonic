@@ -28,7 +28,7 @@ reference inventory hashes their actual bytes and records each route registratio
 | Artist and album information | `browsing.go` | Server biography/notes, safe external links, similar artists and top/similar songs; metadata absence is a valid empty state |
 | Playback | `stream.go`, `transcode.go`; `ui/src/audioplayer/Player.jsx` | Stream, seek, pause/resume, previous/next, volume/mute, supported rate/format/bitrate settings; preserve actual playback state |
 | Queue | `bookmarks.go`; `ui/src/actions/player.js` | Replace/play at index, append, play next, reorder/remove, shuffle/repeat, save/restore server queue and position; use index queue extension to preserve duplicates |
-| Listening activity | `media_annotation.go`; `ui/src/hooks` | Report actual playback to Navidrome; no false listen on failed media open or seek; local recent history remains account-scoped |
+| Listening activity | `media_annotation.go`; `ui/src/common/playbackActions.js` | Report actual playback to Navidrome; no false listen on failed media open or seek; local recent history remains account-scoped |
 | Lyrics | `media_retrieval.go`, `lyrics.go`; `responses/responses.go` | Retrieve supplied lyric variants, synchronized timestamps and offsets; useful empty/unsupported/error states |
 | Playlists | `playlists.go`; `ui/src/playlist` | Create, view, rename, comment/public metadata, add/remove/reorder songs and delete; honor ownership and server smart-playlist constraints |
 | Downloads | `media_retrieval.go`, `stream.go` | Actual original-file download/export, visible errors/cancellation; offline listening is a client capability and must use completed local files |
@@ -63,7 +63,7 @@ Bookmark resume positions and duplicate server queue indices reach the native
 player. Shares use server default expiration on creation and preserve it when an
 update omits the date, matching `core/share.go`.
 
-The real 0.64.2 fixture verifies 58 API integration assertions against 125 synthetic
+The real 0.64.2 fixture verifies 65 API integration assertions against 125 synthetic
 tagged WAV files. Its version is recorded separately from the locked source.
 Playback activity now reports actual native states and counts real playing intervals
 independently of seek positions. Enhanced presence requests set `ignoreScrobble`;
@@ -100,8 +100,8 @@ retry. Failed compatible opens retain both errors and do not create listening hi
 The Account page shows actual server roles, version/capabilities and scan state;
 its profile image uses the current account's authenticated `getAvatar` URL and is
 cleared when the session is invalidated. Gravatar configuration and the placeholder
-image remain server policy.
-only the returned administrator role enables starting a scan. Active scans refresh
+image remain server policy. Only the returned administrator role enables starting
+a scan. Active scans refresh
 while the page is open. Explicit reconnect refreshes roles and restores library
 selection; optional extension/user errors remain visible without inventing support.
 The radio page now exposes administrator-gated station creation, editing and
@@ -147,9 +147,10 @@ Protocol/model tests, simulated native audio events and controlled loopback
 jukebox responses remain separate from actual native acceptance. The fixture
 verifies station administration, an administrator-triggered scan, and explicit
 disabled-jukebox/provider-absent failures; it does not supply an enabled server
-audio device or acoustic provider. Native capture still times out through the
-installed helper; no native interaction, decoding, background or visual pass is
-inferred from successful source/build checks.
+audio device or acoustic provider. Earlier capture timeouts describe their
+historical source only; native interaction, decoding, background and visual
+behavior require current observations. Successful source/build checks cannot
+establish those passes.
 
 Random mixes expose the source-defined size (1–500), genre, optional lower/upper
 year and accessible-library filters. Blank filters are omitted. Server activity
@@ -169,20 +170,19 @@ server display artist/album-artist/composer credits, BPM, comments, moods, ISRC
 and content advisory values.
 
 The [Navidrome acceptance specification](../../tools/navidrome/acceptance-spec.json)
-adds these functional requirements to the preceding design/accessibility/resilience
-checks. Its reference inventory must contain both `functionality` and `design`
-authorities. Source tests, server integration, actual native interaction and visual
-comparison remain distinct evidence; a passing compile cannot pass a native UI case.
-The preceding `91e82a0` report (10/30 cases, 22.5%) describes its old scope only.
-Seeking, downloads and artist discovery are required here, rather than optional
-MixRadio roadmap credit.
+now derives from a reviewed inventory of 38 functions and complete accounting for
+86 distinct endpoints (91 route registrations). Its 115 required cases separate
+77 automated source/protocol/service/server checks from 38 native tasks. Only the
+locked `functionality` reference is required; MixRadio design comparison is
+independent. Source presence remains structural coverage, and a passing compile
+cannot pass a native task. Earlier combined-design reports describe their old
+scope only. Seeking, downloads and artist discovery remain required functions.
 
-The current specification contains 53 required cases, including separate server
-player and acoustic-discovery cases. Run [verify.ps1](../../tools/navidrome/verify.ps1)
-from a clean commit to build/deploy and bind fresh logs to that commit; service
-mutation suites run sequentially against the disposable fixture.
-[report.py](../../tools/navidrome/report.py) revalidates the original functional
-and design references, bundles those logs and the current native observation, and
-generates a Navidrome report using the existing evidence evaluator. It can pass
-source/server checks while retaining native cases as blocked. Record actual native
-interaction and screenshots through the normal evaluator workflow when available.
+Follow [the functional acceptance guide](acceptance.md). Run
+[verify.ps1](../../tools/navidrome/verify.ps1) from a clean commit to build/register
+and bind fresh hashed logs to that commit; service mutation suites run sequentially
+against the disposable fixture. [report.py](../../tools/navidrome/report.py)
+revalidates the source/inventory/log bytes and creates a new preserved run without
+original MixRadio packages. Native cases default to `not_run` when current
+observations are absent. Record actual native interaction and runtime evidence
+through the evaluator before accepting those tasks.

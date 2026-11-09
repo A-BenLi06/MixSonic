@@ -25,7 +25,7 @@ $sources += @(
     'tools\serializer-tests\VisualStateResultStub.cs',
     'tools\navidrome-tests\NavidromeTests.cs'
 )
-$sources = $sources | Select-Object -Unique | ForEach-Object { Join-Path $projectRoot $_ }
+$sources = $sources | ForEach-Object { [IO.Path]::GetFullPath((Join-Path $projectRoot $_)) } | Select-Object -Unique
 $executable = Join-Path $outputDirectory 'navidrome-tests.exe'
 & $CompilerPath /nologo /main:NavidromeTests "/out:$executable" @sources "/r:$($caliburn.FullName)" /r:System.Net.Http.dll /r:System.ServiceModel.dll /r:System.Runtime.Serialization.dll /r:System.Xml.dll /r:System.Xml.Linq.dll /r:Microsoft.CSharp.dll
 if ($LASTEXITCODE -ne 0) { throw 'Navidrome production-source compilation failed.' }

@@ -1,8 +1,9 @@
 # MixRadio desktop design acceptance workflow
 
-Use the [Navidrome functional baseline](../navidrome/implementation.md) and
-[extended specification](../../tools/navidrome/acceptance-spec.json) for complete
-client acceptance. This earlier workflow continues to describe design comparison
+Use the [Navidrome functional baseline](../navidrome/implementation.md),
+[functional acceptance guide](../navidrome/acceptance.md) and
+[specification](../../tools/navidrome/acceptance-spec.json) to check client functions.
+This earlier workflow continues to describe design comparison
 and evidence recording. MixRadio supplies design evidence; Navidrome supplies
 functional requirements, including seeking, downloads and artist discovery.
 

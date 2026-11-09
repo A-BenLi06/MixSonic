@@ -19,7 +19,7 @@ Copy-Item -LiteralPath $caliburn.FullName -Destination $outputDirectory -Force
 $sources = Get-Content -LiteralPath (Join-Path $projectRoot 'tools\serializer-tests\sources.txt') | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
 $sources += @('Client.Common\Models\Navidrome\NavidromeModels.cs', 'Client.Common\Results\NavidromeResult.cs', 'Client.Common\Services\Navidrome\NavidromeApi.cs', 'Client.Common\Services\Navidrome\SubsonicXml.cs', 'tools\serializer-tests\VisualStateResultStub.cs', 'tools\navidrome-tests\IntegrationTests.cs')
 $sources += 'Client.Common\Services\Navidrome\MediaDownload.cs'
-$sources = $sources | Select-Object -Unique | ForEach-Object { Join-Path $projectRoot $_ }
+$sources = $sources | ForEach-Object { [IO.Path]::GetFullPath((Join-Path $projectRoot $_)) } | Select-Object -Unique
 $executable = Join-Path $outputDirectory 'navidrome-integration.exe'
 & $CompilerPath /nologo /main:NavidromeIntegrationTests "/out:$executable" @sources "/r:$($caliburn.FullName)" /r:System.Net.Http.dll /r:System.ServiceModel.dll /r:System.Runtime.Serialization.dll /r:System.Xml.dll /r:System.Xml.Linq.dll /r:Microsoft.CSharp.dll
 if ($LASTEXITCODE -ne 0) { throw 'Integration compilation failed.' }

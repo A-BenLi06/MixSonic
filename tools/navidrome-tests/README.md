@@ -61,7 +61,7 @@ queries, all three favorites and ratings, complete playlist entries and duplicat
 ordering, metadata/add/remove/reorder/delete, bookmark milliseconds, negotiated
 server queue indices, lyric variants, original WAV download, shares, scan state
 and playback report negotiation, including suppression of position-based false
-scrobbles and byte-identical streaming downloads. The 58 assertions also cover
+scrobbles and byte-identical streaming downloads. The 65 assertions also cover
 administrator station create/edit/delete, clearing a homepage, an actual rescan,
 disabled jukebox access and the absence of an acoustic provider. Successful
 acoustic response parsing and all jukebox action/parameter shapes use controlled
@@ -90,16 +90,31 @@ From a clean committed checkout, `./tools/navidrome/verify.ps1` runs the fresh
 desktop build/deployment and all production checks, writes per-step SHA-256 logs
 and binds `.tmp/navidrome-audit/verification.json` to the same commit at both ends.
 The fixture must already be running. It does not launch or automate the client.
-`report.py` takes this proof, a current native observation and explicit original
-MixRadio package paths; it retains native cases as blocked and generates a report
-for the Navidrome specification. Exit 2 is a valid report that is not accepted.
+`report.py` takes this proof and generates the 38-function, 115-case Navidrome
+report without MixRadio package paths. Native tasks default to `not_run`; an
+optional schema-2 record may describe a current-commit native gap. Earlier capture
+failures cannot certify the current source. Exit 2 is a valid report that is not
+accepted. See [the functional acceptance guide](../../docs/navidrome/acceptance.md).
 
 ```powershell
 ./tools/navidrome/verify.ps1
-python tools/navidrome/report.py --phone-package '<original XAP path>' --desktop-package '<installed PC package directory>'
+python tools/navidrome/report.py
 python tools/mixradio/quality.py --spec tools/navidrome/acceptance-spec.json evaluate --run '<new run directory>/run.json'
 ```
 
 `check-client.py` now checks XAML namescopes and project-owned StaticResource
 references as well as string lookups/project entries. SDK theme resources and
 actual XAML loading remain the responsibility of the build and native acceptance.
+
+Each production suite emits scoped `ND-CHECK:<suite>:<group>` markers only after
+its named assertions finish. Integration also emits sanitized server-version and
+extension facts. These markers map the 77 automated acceptance cases to specific
+claims; disabled-provider/device markers do not certify successful optional
+functions. Model serialization includes the actual production XML helper and
+Navidrome contracts, including the concrete transcoding-reasons collection.
+
+`python tools/navidrome/test_acceptance.py` runs 23 isolated acceptance-tool
+tests for endpoint accounting, generated requirements, balanced request parsing,
+missing/duplicate proofs, changed logs/code and historical native rejection.
+The generic evaluator's own tests run separately. Native task completion and
+MixRadio design comparison are independent of these tool self-tests.

@@ -24,12 +24,14 @@ public static class NavidromeAudioTests
     {
         try
         {
-            Preferences(); GainPreferences(); Lifecycle(); Compatibility(); Resolution().GetAwaiter().GetResult();
+            Verify("preferences", Preferences); Verify("replay-gain", GainPreferences); Verify("lifecycle", Lifecycle);
+            Verify("compatibility", Compatibility); Verify("resolution", () => Resolution().GetAwaiter().GetResult());
             Console.WriteLine("PASS: " + _assertions + " production audio assertions with simulated native events. Decoding, XAML and background audio remain unverified.");
             return 0;
         }
         catch (Exception exception) { Console.Error.WriteLine(exception); return 1; }
     }
+    private static void Verify(string group, Action action) { action(); Console.WriteLine("ND-CHECK:audio:" + group); }
     private static void Preferences()
     {
         var settings = Windows.Storage.ApplicationData.Current.LocalSettings.Values;

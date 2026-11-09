@@ -49,6 +49,7 @@ def inspect(source, design_index, output):
                 "registration": kind,
                 "line": api_text.count("\n", 0, match.start()) + 1,
                 "status": {"h501": "not_implemented_or_disabled", "h410": "deprecated"}.get(kind, "implemented"),
+                "handler": next(iter(re.findall(r'api\.(\w+)', body)), None),
             })
     if not registrations or "getLyricsBySongId" not in {r["endpoint"] for r in registrations}:
         raise ValueError("Subsonic registration inventory is incomplete")
@@ -60,6 +61,15 @@ def inspect(source, design_index, output):
                                ("ui/src/common", "*Lyrics*"), ("ui/src/hooks", "*Scrobbl*")):
         selected.extend(p for p in (source / directory).glob(pattern) if "test" not in p.name.lower())
     selected.extend(source / path for path in ("ui/src/App.jsx", "ui/src/actions/player.js", "ui/src/utils/calculateReplayGain.js"))
+    features_path = Path(__file__).with_name("features.json")
+    if features_path.is_file():
+        features = json.loads(features_path.read_text(encoding="utf-8-sig"))
+        for feature in features["features"]:
+            for item in feature["sources"]:
+                path = (source / item["path"]).resolve()
+                if not path.is_relative_to(source) or not path.is_file():
+                    raise ValueError("Missing or escaping functional source: " + item["path"])
+                selected.append(path)
     files = [{"path": p.relative_to(source).as_posix(), "sha256": digest(p)}
              for p in sorted(set(selected)) if p.is_file()]
     functionality = {

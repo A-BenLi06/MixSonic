@@ -46,6 +46,7 @@ public static class NavidromeConnectionTests
             Check(selected.Success && selected.SelectedUrl == good.Url, "A 200 authentication error cannot beat a successfully authenticated route.");
             Check(!(await routes.SelectBestRouteAsync(bad.Url, null, config.Username, config.Password)).Success, "A single 200 failed Subsonic response is rejected.");
             Check(good.Requests.All(request => request.Parameter("c") == SubsonicRequest.ClientName && request.Parameter("v") == SubsonicRequest.ProtocolVersion), "Route discovery identifies the actual client and protocol.");
+            Console.WriteLine("ND-CHECK:connection:routes");
             config.PrimaryUrl = good.Url; config.SecondaryUrl = null; config.AuthenticationMode = SubsonicAuthenticationMode.ApiKey; config.Password = "fixture-key&+";
             selected = await routes.SelectBestRouteAsync(config);
             Check(selected.Success && good.Requests.Last().Uri.AbsolutePath.EndsWith("tokenInfo.view"), "API-key route discovery checks the returned account identity.");
@@ -65,6 +66,7 @@ public static class NavidromeConnectionTests
             var session = new NavidromeSessionService(subsonic);
             await session.ConnectAsync();
             Check(session.IsConnected && session.User.Username == "fixture", "The production session confirms the API-key account before loading its library.");
+            Console.WriteLine("ND-CHECK:connection:api-key");
             var service = new NavidromeStreamService(session, subsonic);
             var item = new PlaylistItem { SongId = "song&音", AccountKey = session.AccountKey, Uri = subsonic.GetUriForFileWithId("song&音") };
             config.MaximumBitRate = 192;
@@ -108,6 +110,7 @@ public static class NavidromeConnectionTests
             config.Username = "another";
             failed = false; try { await service.ResolveAsync(item, CancellationToken.None); } catch (OperationCanceledException) { failed = true; }
             Check(failed, "An old account cannot negotiate with a new account's credentials.");
+            Console.WriteLine("ND-CHECK:connection:stream");
         }
     }
     private sealed class Network : INetworkDetectionService

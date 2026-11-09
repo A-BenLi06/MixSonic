@@ -7,6 +7,7 @@ import math
 from pathlib import Path
 import struct
 import wave
+import zlib
 from mutagen.wave import WAVE
 from mutagen.id3 import TIT2, TPE1, TPE2, TALB, TCON, TDRC, TRCK, TPOS, USLT
 
@@ -16,11 +17,16 @@ args = parser.parse_args()
 args.music.mkdir(parents=True, exist_ok=True)
 rate = 22050
 pcm = b''.join(struct.pack('<h', int(1800 * math.sin(2 * math.pi * 440 * index / rate))) for index in range(rate * 6))
+def png_chunk(kind, content):
+    return struct.pack('>I', len(content)) + kind + content + struct.pack('>I', zlib.crc32(kind + content) & 0xffffffff)
+cover = (b'\x89PNG\r\n\x1a\n' + png_chunk(b'IHDR', struct.pack('>IIBBBBB', 2, 2, 8, 2, 0, 0, 0))
+         + png_chunk(b'IDAT', zlib.compress((b'\0' + b'\x31\x90\xce' * 2) * 2)) + png_chunk(b'IEND', b''))
 for index in range(125):
     album = index // 25
     artist = 'Fixture artist ' + str(album % 2 + 1)
     folder = args.music / artist / ('Fixture album ' + str(album + 1))
     folder.mkdir(parents=True, exist_ok=True)
+    (folder / 'cover.png').write_bytes(cover)
     path = folder / ('Track ' + str(index + 1).zfill(3) + '.wav')
     with wave.open(str(path), 'wb') as output:
         output.setnchannels(1)

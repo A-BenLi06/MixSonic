@@ -30,6 +30,9 @@ public static class NavidromeServiceTests
         try
         {
             using (var pump = new Pump()) pump.Run(() => Run(args[0], args[1]));
+            Console.WriteLine("ND-CHECK:services:session");
+            Console.WriteLine("ND-CHECK:services:offline");
+            Console.WriteLine("ND-CHECK:services:listening");
             Console.WriteLine("PASS: " + _assertions + " production-service assertions with CLR storage/event adapters and a real Navidrome fixture. Native UI/audio remain unverified.");
             return 0;
         }

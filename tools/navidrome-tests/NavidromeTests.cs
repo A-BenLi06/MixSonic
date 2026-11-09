@@ -38,10 +38,36 @@ public static class NavidromeTests
     {
         try
         {
-            Requests(); Authentication(); Transcoding(); Metadata(); Extensions(); Pagination(); Lyrics(); Listening(); Offline(); Downloads().GetAwaiter().GetResult(); Queue(); Mutations(); OptionalMedia(); Failures().GetAwaiter().GetResult();
+            Verify("requests", Requests); Verify("authentication", Authentication); Verify("transcoding", Transcoding);
+            Verify("metadata", Metadata); Verify("extensions", Extensions); Verify("pagination", Pagination);
+            Verify("lyrics", Lyrics); Verify("listening", Listening); Verify("offline", Offline);
+            Verify("downloads", () => Downloads().GetAwaiter().GetResult()); Verify("queue", Queue);
+            Verify("mutations", Mutations); Verify("optional-media", OptionalMedia); Verify("information", Information);
+            Verify("failures", () => Failures().GetAwaiter().GetResult());
             Console.WriteLine("PASS: " + _assertions + " Navidrome protocol/model assertions against production sources.");
         }
         catch (Exception error) { Console.Error.WriteLine(error); Environment.Exit(1); }
+    }
+
+    private static void Verify(string group, Action action) { action(); Console.WriteLine("ND-CHECK:protocol:" + group); }
+
+    private static void Information()
+    {
+        var api = new NavidromeApi(Configuration());
+        var artist = api.GetArtistInfo("artist&1");
+        artist.HandleResponse(Xml("<artistInfo2><biography>Fixture biography</biography><musicBrainzId>mb-artist</musicBrainzId><similarArtist id='other' name='Other'/></artistInfo2>"));
+        Check(artist.Result.Biography == "Fixture biography" && artist.Result.SimilarArtists.Single().Id == "other", "Artist information retains biography and server-linked similar artists");
+        var album = api.GetAlbumInfo("album&1");
+        album.HandleResponse(Xml("<albumInfo><notes>Fixture notes</notes><musicBrainzId>mb-album</musicBrainzId></albumInfo>"));
+        Check(album.Result.Notes == "Fixture notes", "Album information retains supplied notes");
+        var similar = api.GetSimilarSongs("song&1", 17);
+        similar.HandleResponse(Xml("<similarSongs2><song id='related' title='Related' albumId='album'/></similarSongs2>"));
+        Check(similar.Result.Single().Id == "related" && Param(new Uri(similar.RequestUrl).Query, "id") == "song&1" && Param(new Uri(similar.RequestUrl).Query, "count") == "17", "Related-song requests and their full song responses are preserved");
+        var top = api.GetTopSongs("Artist & 音", "artist&1", 12);
+        top.HandleResponse(Xml("<topSongs><song id='top' title='Top'/></topSongs>"));
+        Check(top.Result.Single().Id == "top" && Param(new Uri(top.RequestUrl).Query, "artist") == "Artist & 音" && Param(new Uri(top.RequestUrl).Query, "id") == "artist&1", "Top-song requests retain artist names and optional server IDs");
+        var art = new Uri(api.CoverArtUrl("art&音"));
+        Check(Param(art.Query, "id") == "art&音" && !string.IsNullOrEmpty(Param(art.Query, "size")), "Artwork requests use the actual encoded artwork ID and size");
     }
 
     private static void Requests()

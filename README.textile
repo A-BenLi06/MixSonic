@@ -5,13 +5,13 @@ A simple client app for the popular "Subsonic":http://www.subsonic.org media ser
 h1. Requirements
 
 # Windows 8, 8.1 or 10
-# Subsonic server premium version >= 4.7
+# Subsonic-compatible music server; Navidrome does not require a Subsonic premium license
 
 To be able to build the source code you need to install the Player Framework addin for Visual Studio which can be found in the libs folder and also you need to have nuget installed in Visual Studio to fetch all the other dependencies.
 
-h1. MixRadio desktop development and verification
+h1. Navidrome desktop development and verification
 
-Navidrome source defines complete client functionality. MixRadio is the component, layout, UI and design reference. See the "locked Navidrome baseline":docs/navidrome/implementation.md and "reference/verification commands":tools/navidrome/README.md for the full functional checklist.
+Navidrome source defines complete client functionality. MixRadio is the component, layout, UI and design reference. See the "locked Navidrome baseline":docs/navidrome/implementation.md, "functional acceptance guide":docs/navidrome/acceptance.md and "reference/verification commands":tools/navidrome/README.md for the 38-function, 115-case checklist. Functional verification does not require the original MixRadio packages.
 
 The current MixRadio/Navidrome work targets the Windows 8.1 Store client running on Windows 10. See the "PC and WP reference analysis":docs/mixradio/reference-analysis.md, "acceptance workflow":docs/mixradio/acceptance-workflow.md, and "reference and quality tools":tools/mixradio/README.md for reproducible decompilation, desktop build/deployment, regression checks, visual comparison and evidence reports.
 

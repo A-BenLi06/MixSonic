@@ -20,16 +20,16 @@ public static class PlaybackTests
     {
         try
         {
-            ContextPlayback();
-            RepeatModes();
-            ShuffleCycles();
-            PreviousHistory();
-            QueueMutation();
-            QueuePositionAndReordering();
-            ImportedQueueValidation();
-            RestoreState();
-            RecentListening();
-            FavouriteProtocol();
+            Verify("context", ContextPlayback);
+            Verify("repeat", RepeatModes);
+            Verify("shuffle", ShuffleCycles);
+            Verify("previous", PreviousHistory);
+            Verify("mutation", QueueMutation);
+            Verify("positions", QueuePositionAndReordering);
+            Verify("import", ImportedQueueValidation);
+            Verify("restore", RestoreState);
+            Verify("history", RecentListening);
+            Verify("favorites", FavouriteProtocol);
             Console.WriteLine("PASS: " + _assertions + " playback assertions against production sources.");
             return 0;
         }
@@ -40,6 +40,7 @@ public static class PlaybackTests
         }
     }
 
+    private static void Verify(string group, Action action) { action(); Console.WriteLine("ND-CHECK:playback:" + group); }
     private static PlaylistManagementService Queue(int count)
     {
         var service = new PlaylistManagementService(new RecordingEvents());

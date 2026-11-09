@@ -1,14 +1,22 @@
 {
   "schemaVersion": 1,
-  "title": "Navidrome desktop client acceptance",
+  "title": "Navidrome desktop functional acceptance",
   "target": {
     "platform": "Windows 8.1 Store",
     "architecture": "x86",
     "configuration": "Debug"
   },
-  "scope": "Navidrome defines complete music-client functionality; MixRadio PC/WP defines components, layout, visual treatment and design only. Windows 8.1 Store desktop is the primary target.",
+  "scope": "Navidrome source defines music-client functionality. MixRadio is a separate component/layout/visual/design reference. Native web administration APIs and Windows Phone UI are separate scopes.",
+  "featureInventorySha256": "a14424cb8dd20f75f28116245bac79069523627db26828c795079e7267bf10d7",
+  "functionalityReference": {
+    "repository": "https://github.com/navidrome/navidrome.git",
+    "commit": "f5b6805b3150ed6e5b92d8f0fcf5174823ae9a2e"
+  },
+  "requiredReferenceRoles": [
+    "functionality"
+  ],
   "thresholds": {
-    "overall": 85,
+    "overall": 75,
     "requireAllRequiredCases": true,
     "requireCleanTrackedFiles": true,
     "requireNoUntrackedFiles": true,
@@ -18,1558 +26,3853 @@
     ]
   },
   "dimensions": {
-    "functionality": {
-      "weight": 40,
-      "minimum": 3,
-      "label": "Feature correctness"
-    },
-    "visual": {
+    "protocol": {
       "weight": 25,
       "minimum": 3,
-      "label": "Reference fidelity"
+      "label": "Source and protocol contracts"
     },
-    "interaction": {
-      "weight": 15,
+    "service": {
+      "weight": 25,
       "minimum": 3,
-      "label": "Interaction and navigation"
+      "label": "Production service/control logic"
     },
-    "resilience": {
-      "weight": 10,
+    "server": {
+      "weight": 25,
       "minimum": 3,
-      "label": "Failure handling and state"
+      "label": "Real Navidrome behavior"
     },
-    "accessibility": {
-      "weight": 10,
+    "native": {
+      "weight": 25,
       "minimum": 3,
-      "label": "Keyboard, touch and readability"
+      "label": "Native functional tasks"
     }
   },
   "scoreAnchors": {
-    "0": "Broken, missing, or not verified.",
-    "1": "A fragment works; the task cannot be completed.",
-    "2": "The task completes with material defects.",
-    "3": "Every stated criterion is met with reproducible evidence.",
-    "4": "Criteria also hold across the specified alternate states, repeated runs, and measured limits."
+    "0": "Missing, broken or unverified.",
+    "1": "Only a fragment works.",
+    "2": "Material stated criteria fail.",
+    "3": "All stated criteria hold at the declared evidence layer.",
+    "4": "The criteria also hold in independently observed alternate states and repeated runs."
   },
   "evidenceKinds": [
     "test_log",
     "source_note",
     "reference_inventory",
     "client_screenshot",
-    "reference_screenshot",
-    "comparison_report",
     "manual_record",
     "runtime_log",
     "video"
   ],
   "cases": [
     {
-      "id": "REF-PC",
-      "title": "Installed PC package provenance",
-      "dimension": "resilience",
+      "id": "ND-SOURCE",
+      "title": "Locked source and complete endpoint accounting",
+      "dimension": "protocol",
       "priority": "P0",
       "required": true,
       "weight": 1,
-      "referenceIds": [
-        "PC-HOME",
-        "PC-THEME"
-      ],
+      "verificationLevel": "source",
+      "referenceRole": "functionality",
       "steps": [
-        "Run inspect_reference.py against the installed PC directory.",
-        "Inspect its inventory and decoded XBF coverage."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Identity is 2.2.0.7933 x86; input hashes are recorded.",
-        "98 XBF v1 trees decode; static evidence is labelled separately from runtime screenshots."
+        "The pinned clean Navidrome commit/remote/source bytes match the lock.",
+        "Every registered endpoint is mapped to a function, a documented legacy alternative, a fixed compatibility response or an explicit upstream unavailable status."
       ],
       "evidence": [
         [
-          "reference_inventory"
+          "source_note"
         ],
         [
-          "source_note"
+          "test_log"
         ]
       ],
-      "referenceRole": "design"
-    },
-    {
-      "id": "REF-WP",
-      "title": "Phone package provenance",
-      "dimension": "resilience",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "WP-HOME",
-        "WP-PLAYER"
-      ],
-      "steps": [
-        "Run inspect_reference.py against the supplied XAP.",
-        "Inspect recovered XAML and application/audio decompilation."
-      ],
-      "expected": [
-        "Identity is 4.5.3.470 and the input SHA-256 matches.",
-        "73 application XAML documents are recovered; phone patterns do not become desktop containers."
-      ],
-      "evidence": [
-        [
-          "reference_inventory"
-        ],
-        [
-          "source_note"
-        ]
-      ],
-      "referenceRole": "design"
+      "automatedProofs": [
+        "reference:source",
+        "coverage:functions"
+      ]
     },
     {
       "id": "BUILD-PC",
-      "title": "Fresh desktop build",
-      "dimension": "resilience",
+      "title": "Windows 8.1 desktop build and registration",
+      "dimension": "protocol",
       "priority": "P0",
       "required": true,
       "weight": 1,
-      "referenceIds": [
-        "PC-HOME"
-      ],
+      "verificationLevel": "source",
+      "referenceRole": "functionality",
       "steps": [
-        "Build Client.csproj Debug x86 with MSBuild 14.0.",
-        "Inspect the emitted manifest and appx."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Build exits zero using the legacy 8.1 target.",
-        "Every new source/view/resource is included in the project; warnings are recorded."
+        "MSBuild 14 Debug x86 build and workspace package registration succeed for the current commit. Native interaction is separate."
       ],
       "evidence": [
+        [
+          "source_note"
+        ],
         [
           "test_log"
         ]
       ],
-      "referenceRole": "functionality"
+      "automatedProofs": [
+        "build:desktop"
+      ]
     },
     {
       "id": "XML-MODELS",
-      "title": "Fresh serializer regressions",
-      "dimension": "resilience",
+      "title": "Production XML contracts",
+      "dimension": "protocol",
       "priority": "P0",
       "required": true,
       "weight": 1,
-      "referenceIds": [
-        "PC-PLAYER"
-      ],
+      "verificationLevel": "source",
+      "referenceRole": "functionality",
       "steps": [
-        "Run tools/serializer-tests/run.ps1.",
-        "Confirm it compiles the current production sources before running."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Genre, radio, getSong, directory and playlist serialization assertions pass.",
-        "The runner does not inspect a stale prebuilt assembly."
+        "Production model serializers and response regressions pass."
       ],
       "evidence": [
+        [
+          "source_note"
+        ],
         [
           "test_log"
-        ],
-        [
-          "source_note"
         ]
       ],
-      "referenceRole": "functionality"
+      "automatedProofs": [
+        "serializer:models"
+      ]
     },
     {
-      "id": "QUEUE-CONTEXT",
-      "title": "Selected context and append are distinct",
-      "dimension": "functionality",
+      "id": "RESOURCES-PC",
+      "title": "Resource-backed native command source",
+      "dimension": "protocol",
       "priority": "P0",
       "required": true,
       "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/bookmarks.go"
-      ],
+      "verificationLevel": "source",
+      "referenceRole": "functionality",
       "steps": [
-        "Start with another queue.",
-        "Click song C in an ordered A/B/C/D source; use Previous and Next.",
-        "Append one song with Add to queue."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Context queue is A/B/C/D with index C; Previous reaches B.",
-        "Appending keeps existing order; invalid indices leave the queue intact."
+        "Desktop strings, namescopes, project-owned resources and source inclusion validate. Rendering remains a native task."
       ],
       "evidence": [
+        [
+          "source_note"
+        ],
         [
           "test_log"
-        ],
-        [
-          "source_note"
         ]
       ],
-      "referenceRole": "functionality"
+      "automatedProofs": [
+        "resources:desktop"
+      ]
     },
     {
-      "id": "QUEUE-REMOVE",
-      "title": "Queue mutation and clear",
-      "dimension": "functionality",
-      "priority": "P0",
+      "id": "ND-PASSWORD-PROTOCOL",
+      "title": "Password authentication and route selection — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
       "required": true,
       "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/bookmarks.go"
-      ],
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
       "steps": [
-        "Remove the active entry while playing.",
-        "Remove the last item and clear the queue."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Active removal advances to a valid successor; the removed item stops.",
-        "Clear stops playback, clears current item, and invalidates stale shuffle history."
+        "Proxy paths, credentials and opaque IDs retain their encoded values; requests use the actual client identity."
       ],
       "evidence": [
+        [
+          "source_note"
+        ],
         [
           "test_log"
-        ],
-        [
-          "source_note"
         ]
       ],
-      "referenceRole": "functionality"
+      "automatedProofs": [
+        "protocol:requests"
+      ],
+      "featureId": "PASSWORD",
+      "referenceIds": [
+        "ND-PASSWORD"
+      ]
     },
     {
-      "id": "QUEUE-SHUFFLE",
-      "title": "Complete shuffle cycles",
-      "dimension": "functionality",
-      "priority": "P0",
+      "id": "ND-PASSWORD-SERVICE",
+      "title": "Password authentication and route selection — service",
+      "dimension": "service",
+      "priority": "P1",
       "required": true,
       "weight": 1,
-      "referenceIds": [
-        "ND:ui/src/actions/player.js"
-      ],
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
       "steps": [
-        "Shuffle an 11-entry queue with repeat off.",
-        "Repeat complete cycles with repeat all.",
-        "Test empty and single-entry queues."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Every entry, including the last, is played once per cycle.",
-        "No immediate repeat at a boundary when alternatives exist.",
-        "Off stops at cycle end; empty and single-entry cases stay valid."
+        "HTTP 200 failed Subsonic XML is rejected; a successfully authenticated secondary route can win."
       ],
       "evidence": [
+        [
+          "source_note"
+        ],
         [
           "test_log"
-        ],
+        ]
+      ],
+      "automatedProofs": [
+        "connection:routes"
+      ],
+      "featureId": "PASSWORD",
+      "referenceIds": [
+        "ND-PASSWORD"
+      ]
+    },
+    {
+      "id": "ND-PASSWORD-NATIVE",
+      "title": "Password authentication and route selection — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Save valid password credentials and both loopback/proxy routes.",
+        "Make the primary route return failed authentication; reconnect through the secondary.",
+        "Save invalid credentials, correct them, and reconnect."
+      ],
+      "expected": [
+        "The authenticated route opens the real library.",
+        "Authentication failures remain actionable; corrected credentials recover.",
+        "Saving and reconnecting preserve the selected route and credential-vault behavior."
+      ],
+      "evidence": [
         [
           "source_note"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "QUEUE-REPEAT",
-      "title": "Off, all, one, and manual skip",
-      "dimension": "functionality",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:ui/src/actions/player.js"
-      ],
-      "steps": [
-        "Cycle repeat through off/all/one/off.",
-        "Send natural media-end and manual Next separately.",
-        "Save and restore repeat and shuffle state."
-      ],
-      "expected": [
-        "Off stops at the queue end; all wraps; one repeats the current entry.",
-        "Manual Next escapes repeat one.",
-        "Restoration keeps repeat mode separately from shuffle."
-      ],
-      "evidence": [
-        [
-          "test_log"
         ],
-        [
-          "source_note"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "HISTORY-MODEL",
-      "title": "Bounded recent-listening model",
-      "dimension": "functionality",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-RECENT",
-        "WP-HISTORY"
-      ],
-      "steps": [
-        "Record more than 100 distinct listens.",
-        "Replay an existing entry and serialize/restore the model."
-      ],
-      "expected": [
-        "At most 100 entries remain, newest first, without duplicate song IDs.",
-        "Metadata and artwork IDs round-trip; streaming URLs and passwords are absent."
-      ],
-      "evidence": [
-        [
-          "test_log"
-        ],
-        [
-          "source_note"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "FAV-PROTOCOL",
-      "title": "Star/unstar protocol",
-      "dimension": "functionality",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/media_annotation.go"
-      ],
-      "steps": [
-        "Run protocol regressions with encoded IDs and successful/failed responses."
-      ],
-      "expected": [
-        "star.view and unstar.view receive an encoded song ID.",
-        "Only status=ok confirms the change; failed responses keep the previous state."
-      ],
-      "evidence": [
-        [
-          "test_log"
-        ],
-        [
-          "source_note"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "HOME-WIDE",
-      "comparisonScope": "full_frame",
-      "title": "Desktop Hub visual comparison",
-      "dimension": "visual",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-HOME",
-        "PC-THEME"
-      ],
-      "steps": [
-        "Capture matching app-content crops of original PC and client at 1366x768, 100% scale.",
-        "Compare sections, typography, spacing, accent, content and command hierarchy with compare.py.",
-        "Repeat with a playing item and an empty queue."
-      ],
-      "expected": [
-        "Real Hub sections pan together with no fabricated minimum canvas.",
-        "Artwork, titles, progress and empty state represent live data.",
-        "Accent is #FFFF2E80; alignment and command density follow the PC reference."
-      ],
-      "evidence": [
-        [
-          "reference_screenshot"
-        ],
-        [
-          "client_screenshot"
-        ],
-        [
-          "comparison_report"
-        ],
-        [
-          "manual_record"
-        ]
-      ],
-      "viewport": {
-        "width": 1366,
-        "height": 768,
-        "scale": 1
-      },
-      "referenceRole": "design"
-    },
-    {
-      "id": "HOME-LARGE",
-      "comparisonScope": "full_frame",
-      "title": "Large desktop visual comparison",
-      "dimension": "visual",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-HOME"
-      ],
-      "steps": [
-        "Compare the same states at 1920x1080 without scaling typography."
-      ],
-      "expected": [
-        "Content fills the canvas naturally; no excessive blank scroll area.",
-        "Type roles, artwork and sections keep their intended sizes and alignment."
-      ],
-      "evidence": [
-        [
-          "reference_screenshot"
-        ],
-        [
-          "client_screenshot"
-        ],
-        [
-          "comparison_report"
-        ],
-        [
-          "manual_record"
-        ]
-      ],
-      "viewport": {
-        "width": 1920,
-        "height": 1080,
-        "scale": 1
-      },
-      "referenceRole": "design"
-    },
-    {
-      "id": "VIEW-320",
-      "title": "320px recomposition",
-      "dimension": "accessibility",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-THEME"
-      ],
-      "steps": [
-        "Resize client app content to 320x768.",
-        "Browse, search, play/pause, open queue and playback options.",
-        "Navigate back and restore the wide view."
-      ],
-      "expected": [
-        "Readable vertical lists and a compact live player replace the expansion prompt.",
-        "Search and primary actions remain reachable; targets are at least 44 logical pixels.",
-        "No clipped commands, lost selection, or unintended playback reset."
-      ],
-      "evidence": [
-        [
-          "client_screenshot"
-        ],
-        [
-          "manual_record"
-        ]
-      ],
-      "viewport": {
-        "width": 320,
-        "height": 768,
-        "scale": 1
-      },
-      "referenceRole": "design"
-    },
-    {
-      "id": "VIEW-500",
-      "title": "500px recomposition",
-      "dimension": "accessibility",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-THEME"
-      ],
-      "steps": [
-        "Repeat narrow-view navigation at 500x768."
-      ],
-      "expected": [
-        "The page is usable without maximizing.",
-        "Search, lists, playback options and queue remain operable."
-      ],
-      "evidence": [
-        [
-          "client_screenshot"
-        ],
-        [
-          "manual_record"
-        ]
-      ],
-      "viewport": {
-        "width": 500,
-        "height": 768,
-        "scale": 1
-      },
-      "referenceRole": "design"
-    },
-    {
-      "id": "VIEW-PORTRAIT",
-      "title": "Portrait and height changes",
-      "dimension": "interaction",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-HOME"
-      ],
-      "steps": [
-        "Resize to 768x1024 and then a short landscape window during playback."
-      ],
-      "expected": [
-        "Content reflows without lost scroll/selection or duplicate playback.",
-        "Commands remain reachable through panning or scrolling."
-      ],
-      "evidence": [
-        [
-          "client_screenshot"
-        ],
-        [
-          "manual_record"
-        ]
-      ],
-      "viewport": {
-        "width": 768,
-        "height": 1024,
-        "scale": 1
-      },
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "SEARCH-TYPED",
-      "title": "Discoverable typed search",
-      "dimension": "interaction",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/searching.go"
-      ],
-      "steps": [
-        "Use Ctrl+F, type a padded query, submit with Enter and then the search button.",
-        "Query matches artists, albums, songs, Unicode and a no-results term."
-      ],
-      "expected": [
-        "Search is visible before panning; whitespace is trimmed.",
-        "Typed groups and real cover art appear; newer results win over slower earlier requests.",
-        "No-results and recoverable errors are distinct; Back returns to browsing."
-      ],
-      "evidence": [
-        [
-          "client_screenshot"
-        ],
-        [
-          "manual_record",
-          "runtime_log",
-          "video"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "BROWSE-LIBRARY",
-      "title": "Browse the Navidrome library",
-      "dimension": "functionality",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/browsing.go"
-      ],
-      "steps": [
-        "Use artists, albums, genres, playlists and favourites.",
-        "Open an album and a genre; play a selected song."
-      ],
-      "expected": [
-        "Server-backed lists and titles appear; letter grouping is meaningful.",
-        "All song actions produce the intended context queue."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log",
-          "video"
-        ],
-        [
-          "client_screenshot"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "PLAYER-LIVE",
-      "title": "Actual media and transport",
-      "dimension": "functionality",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/stream.go"
-      ],
-      "steps": [
-        "Play, pause, resume, previous, next and stop actual audio.",
-        "Observe the same track on the home page and queue."
-      ],
-      "expected": [
-        "Art, title, artist, elapsed/duration and play/pause state are live.",
-        "Progress freezes during pause; transport controls change actual audio.",
-        "A failed media open does not appear as a successful listen."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log",
-          "video"
-        ],
-        [
-          "client_screenshot"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "HISTORY-RUNTIME",
-      "title": "Recent listening survives restart",
-      "dimension": "functionality",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-RECENT",
-        "WP-HISTORY"
-      ],
-      "steps": [
-        "Start three actual tracks, pause/resume, and cause a media-open failure.",
-        "Restart and replay a recent entry."
-      ],
-      "expected": [
-        "Successful media starts appear newest first; resume does not duplicate an entry.",
-        "Failed opens add no history.",
-        "Restart restores history and replay fetches current stream/art data."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log",
-          "video"
-        ],
-        [
-          "client_screenshot"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "HISTORY-ACCOUNT",
-      "title": "Account isolation and persistence failure",
-      "dimension": "resilience",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-RECENT"
-      ],
-      "steps": [
-        "Use two local fixture accounts/libraries; change password without changing account.",
-        "Test missing/corrupt history and a failed write."
-      ],
-      "expected": [
-        "Different server/account combinations have separate histories.",
-        "Password changes keep history; old-account results do not leak into the new account.",
-        "Write failure preserves the last committed file and shows a recoverable message."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log"
-        ],
-        [
-          "source_note"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "FAV-RUNTIME",
-      "title": "Confirmed favourites and rollback",
-      "dimension": "functionality",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/media_annotation.go"
-      ],
-      "steps": [
-        "Star/unstar a fixture song through playback options, then reopen Favourites.",
-        "Reject a mutation at the fixture server; change tracks while a mutation is pending."
-      ],
-      "expected": [
-        "Confirmed server state appears in Favourites.",
-        "Failed requests preserve the previous state and expose the error.",
-        "A pending operation updates its target song without toggling the newly playing song."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log",
-          "video"
-        ],
-        [
-          "client_screenshot"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "PLAYLIST-ROUNDTRIP",
-      "title": "Queue save/load and cancellation",
-      "dimension": "functionality",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-QUEUE"
-      ],
-      "steps": [
-        "Save a two-entry queue through the picker, clear it and load it.",
-        "Cancel both pickers; load malformed content."
-      ],
-      "expected": [
-        "Titles, IDs and order round-trip.",
-        "Displayed extension matches the real payload; cancellation preserves the queue.",
-        "Malformed input has a recoverable error and does not destroy a valid queue."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log"
-        ],
-        [
-          "source_note"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "PLAYLIST-SERVER",
-      "title": "Remote playlist management",
-      "dimension": "functionality",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/playlists.go"
-      ],
-      "steps": [
-        "Create, rename, edit and delete an owned fixture playlist; reject one request."
-      ],
-      "expected": [
-        "Server playlist state follows confirmed operations.",
-        "Failure retains state and remains recoverable."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "RADIO",
-      "title": "Configured internet stations",
-      "dimension": "functionality",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/radio.go"
-      ],
-      "steps": [
-        "Use a fixture station and an empty radio response.",
-        "Create, edit and delete a fixture station as an administrator; repeat as a regular user."
-      ],
-      "expected": [
-        "Configured stations play through transport controls.",
-        "Empty/unsupported station responses are honest and recoverable.",
-        "Only the returned administrator role enables station management; confirmed updates preserve complete URLs and can clear an optional homepage."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "SETTINGS",
-      "title": "Connection configuration",
-      "dimension": "resilience",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/middlewares.go"
-      ],
-      "steps": [
-        "Set primary/secondary URLs and a local fixture account, test, restart.",
-        "Test invalid credentials, unreachable server, and missing configuration."
-      ],
-      "expected": [
-        "Connection settings persist and account identity remains consistent.",
-        "Errors do not produce blank grids or crash the app; retry is reachable.",
-        "Credentials do not appear in acceptance evidence."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "FAILURE-STATES",
-      "title": "Loading, empty, error and offline",
-      "dimension": "resilience",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-PLAYER",
-        "PC-SEARCH"
-      ],
-      "steps": [
-        "Delay responses, return empty data, reject a request and disconnect.",
-        "Recover and retry while keeping a valid queue."
-      ],
-      "expected": [
-        "Loading, empty and error are distinguishable.",
-        "Recovery is possible; failed responses do not fabricate content or destroy the queue."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log"
-        ],
-        [
-          "client_screenshot"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "BACK-NAV",
-      "title": "Back, mouse and transient UI",
-      "dimension": "interaction",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-HOME",
-        "WP-PLAYER"
-      ],
-      "steps": [
-        "Use Back, Alt+Left and mouse navigation after search/detail.",
-        "Open/close playback options and resize."
-      ],
-      "expected": [
-        "Back closes transient UI or restores the prior page coherently.",
-        "No duplicate navigation, stuck flyout, or playback restart."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "video"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "KEYBOARD-DPI",
-      "title": "Keyboard, focus and high DPI",
-      "dimension": "accessibility",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-THEME"
-      ],
-      "steps": [
-        "Complete browsing, search and playback with Tab/Enter/Space.",
-        "Repeat at 150% and 200% display scale with long metadata."
-      ],
-      "expected": [
-        "Focus is visible; automation names match actions.",
-        "No hover-only primary controls, overlaps or unreadable text.",
-        "Logical touch targets remain at least 44px."
-      ],
-      "evidence": [
         [
           "manual_record"
         ],
         [
-          "client_screenshot"
+          "runtime_log"
         ]
       ],
-      "referenceRole": "design"
+      "featureId": "PASSWORD",
+      "referenceIds": [
+        "ND-PASSWORD"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
     },
     {
-      "id": "BACKGROUND",
-      "title": "Background playback",
-      "dimension": "functionality",
+      "id": "ND-API-KEY-PROTOCOL",
+      "title": "OpenSubsonic API-key authentication — protocol",
+      "dimension": "protocol",
       "priority": "P1",
       "required": true,
       "weight": 1,
-      "referenceIds": [
-        "PC-PLAYER"
-      ],
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
       "steps": [
-        "Minimize during audio, use system transport and reactivate."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Playback and current track remain coherent; pause/resume works.",
-        "History records the actual start once and the UI resynchronizes."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log",
-          "video"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "TEXT-RESOURCES",
-      "title": "English defaults and localized resources",
-      "dimension": "visual",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "PC-THEME",
-        "WP-THEME"
-      ],
-      "steps": [
-        "Inspect and build resources; switch to an unsupported OS language.",
-        "Review the current app's new visible copy and labels."
-      ],
-      "expected": [
-        "Default English resources resolve through the default resource map.",
-        "New user-visible language is resource-backed.",
-        "No gigs/personalization promises or project acceptance requirements appear in the app."
+        "The raw escaped apiKey is sent without password/user/Basic authentication; only the mode persists in configuration."
       ],
       "evidence": [
         [
           "source_note"
         ],
         [
-          "client_screenshot"
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:authentication"
+      ],
+      "featureId": "API-KEY",
+      "referenceIds": [
+        "ND-API-KEY"
+      ]
+    },
+    {
+      "id": "ND-API-KEY-SERVICE",
+      "title": "OpenSubsonic API-key authentication — service",
+      "dimension": "service",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "The production route and session reject another account's key and preserve external cancellation."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "connection:api-key"
+      ],
+      "featureId": "API-KEY",
+      "referenceIds": [
+        "ND-API-KEY"
+      ]
+    },
+    {
+      "id": "ND-API-KEY-NATIVE",
+      "title": "OpenSubsonic API-key authentication — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Select API Key in Settings on an API-key-enabled server and sign in.",
+        "Try a key belonging to another username.",
+        "Switch the secret or authentication mode during an outstanding connection."
+      ],
+      "expected": [
+        "Only the key owner reaches the library.",
+        "The key remains in the credential vault, and errors permit correction.",
+        "Late responses cannot connect or start a stream after the identity changes."
+      ],
+      "evidence": [
+        [
+          "source_note"
         ],
         [
           "manual_record"
-        ]
-      ],
-      "referenceRole": "design"
-    },
-    {
-      "id": "SEEK",
-      "title": "Audio scrubbing",
-      "dimension": "functionality",
-      "priority": "P2",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/stream.go"
-      ],
-      "steps": [
-        "Seek within a supported stream and repeat near boundaries."
-      ],
-      "expected": [
-        "Position changes actual audio and stays coherent after pause/resume."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "OFFLINE",
-      "title": "Local downloads and offline library",
-      "dimension": "functionality",
-      "priority": "P2",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/media_retrieval.go"
-      ],
-      "steps": [
-        "Download a library item, restart offline, play, cancel and delete a download."
-      ],
-      "expected": [
-        "Persistent download state, cancellation, quota/error handling and offline playback work."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "ARTIST-MIX",
-      "title": "Library-based artist mixes",
-      "dimension": "functionality",
-      "priority": "P2",
-      "required": true,
-      "weight": 1,
-      "referenceIds": [
-        "ND:server/subsonic/browsing.go"
-      ],
-      "steps": [
-        "Seed a mix from local artists with sufficient and sparse libraries."
-      ],
-      "expected": [
-        "The mix uses documented local-library rules and does not imply proprietary recommendations."
-      ],
-      "evidence": [
-        [
-          "manual_record",
-          "runtime_log"
-        ]
-      ],
-      "referenceRole": "functionality"
-    },
-    {
-      "id": "ND-SOURCE",
-      "title": "Locked Navidrome source and distinct reference authorities",
-      "dimension": "resilience",
-      "priority": "P0",
-      "required": true,
-      "weight": 1,
-      "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/api.go"
-      ],
-      "steps": [
-        "Run tools/navidrome/source.ps1 and inspect_source.py with the design inventory."
-      ],
-      "expected": [
-        "The checkout equals the locked commit and has no local edits.",
-        "Both functional Navidrome source and design MixRadio inputs are hashed."
-      ],
-      "evidence": [
-        [
-          "test_log"
         ],
         [
-          "source_note"
+          "runtime_log"
         ]
+      ],
+      "featureId": "API-KEY",
+      "referenceIds": [
+        "ND-API-KEY"
+      ],
+      "prerequisites": [
+        "A server implementing API-key authentication, two disposable key owners, and native Settings access."
       ]
     },
     {
-      "id": "ND-PROTOCOL",
-      "title": "Protocol, models and production logic regressions",
-      "dimension": "resilience",
-      "priority": "P0",
+      "id": "ND-CAPABILITIES-PROTOCOL",
+      "title": "Reported server capabilities — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "protocol",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/responses/responses.go"
-      ],
       "steps": [
-        "Run protocol/model, audio, jukebox and service harnesses plus real-fixture integration against current production sources."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Encoded IDs/credentials, repeated parameters, milliseconds and failure responses behave correctly.",
-        "All new models deserialize actual Navidrome-shaped XML.",
-        "Synthetic native events and controlled jukebox responses verify state logic without claiming actual decoding, native UI or server-device audio."
+        "The exact repeated XML extension/version shape and server metadata are parsed; unadvertised versions are unsupported."
       ],
       "evidence": [
         [
-          "test_log"
+          "source_note"
         ],
         [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:extensions"
+      ],
+      "featureId": "CAPABILITIES",
+      "referenceIds": [
+        "ND-CAPABILITIES"
+      ]
+    },
+    {
+      "id": "ND-CAPABILITIES-SERVER",
+      "title": "Reported server capabilities — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "The real fixture reports its version, advertised extensions and current account."
+      ],
+      "evidence": [
+        [
           "source_note"
+        ],
+        [
+          "test_log"
         ]
+      ],
+      "automatedProofs": [
+        "integration:session"
+      ],
+      "featureId": "CAPABILITIES",
+      "referenceIds": [
+        "ND-CAPABILITIES"
       ]
     },
     {
-      "id": "ND-LIBRARIES",
-      "title": "Accessible server-library selection",
-      "dimension": "functionality",
+      "id": "ND-CAPABILITIES-NATIVE",
+      "title": "Reported server capabilities — native task",
+      "dimension": "native",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "native",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/helpers.go"
-      ],
       "steps": [
-        "Use two accessible music folders and switch selection during a slow request."
+        "Open Account and inspect the server version and extension list.",
+        "Reconnect after changing an available server capability.",
+        "Make the extension request fail while library access remains valid."
       ],
       "expected": [
-        "Album, artist, song, genre and search queries use the selected returned ID.",
-        "An older request or another account cannot replace the selected library state."
+        "Capabilities and their versions match returned server data.",
+        "Unavailable extensions use documented fallback or an explicit error.",
+        "Capability errors remain visible without fabricating support."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
         ]
+      ],
+      "featureId": "CAPABILITIES",
+      "referenceIds": [
+        "ND-CAPABILITIES"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
       ]
     },
     {
-      "id": "ND-ALBUMS",
-      "title": "Complete album lists and sort/filter choices",
-      "dimension": "functionality",
+      "id": "ND-LIBRARIES-SERVICE",
+      "title": "Accessible music libraries — service",
+      "dimension": "service",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "service",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/album_lists.go"
-      ],
       "steps": [
-        "Browse a library larger than one page; use every album list, genre and year range."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "No silent 500-album truncation; further pages and refresh are reachable.",
-        "Name, artist, newest, recent, frequent, random, starred, rating, genre and year results match server semantics."
+        "The production session restores a selected accessible library after reconnect and clears it on identity changes."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "test_log"
         ]
+      ],
+      "automatedProofs": [
+        "services:session"
+      ],
+      "featureId": "LIBRARIES",
+      "referenceIds": [
+        "ND-LIBRARIES"
       ]
     },
     {
-      "id": "ND-SONGS-SEARCH",
-      "title": "All songs and independent search pagination",
-      "dimension": "functionality",
+      "id": "ND-LIBRARIES-SERVER",
+      "title": "Accessible music libraries — server",
+      "dimension": "server",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "server",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/searching.go"
-      ],
       "steps": [
-        "Browse more than one page of songs and search for matches spanning all three result types."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Song, album and artist offsets advance independently.",
-        "The blank library query returns songs; stale requests do not corrupt current results."
+        "Actual returned library IDs reach browsing and genre queries."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "test_log"
         ]
+      ],
+      "automatedProofs": [
+        "integration:session",
+        "integration:browse"
+      ],
+      "featureId": "LIBRARIES",
+      "referenceIds": [
+        "ND-LIBRARIES"
       ]
     },
     {
-      "id": "ND-METADATA",
-      "title": "Server song/album/artist metadata",
-      "dimension": "functionality",
+      "id": "ND-LIBRARIES-NATIVE",
+      "title": "Accessible music libraries — native task",
+      "dimension": "native",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "native",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/responses/responses.go"
-      ],
       "steps": [
-        "Open tracks with multiple artists, disc/track, Unicode, missing dates and quality information."
+        "Choose each accessible music folder, including All Libraries.",
+        "Browse albums, artists, genres and search results.",
+        "Reconnect, restart the app, and change to an account with different access."
       ],
       "expected": [
-        "Metadata is read from responses with useful missing-value treatment.",
-        "Artist/album navigation resolves server IDs; no guessed identities."
+        "Every query uses the selected server library ID.",
+        "A still-accessible selection survives reconnect/restart.",
+        "A removed or different-account selection cannot leak into the new library."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
         ]
+      ],
+      "featureId": "LIBRARIES",
+      "referenceIds": [
+        "ND-LIBRARIES"
+      ],
+      "prerequisites": [
+        "A server with at least two distinguishable music libraries and two disposable accounts."
       ]
     },
     {
-      "id": "ND-FAVORITES",
-      "title": "Favorites for songs, albums and artists",
-      "dimension": "functionality",
+      "id": "ND-ALBUMS-PROTOCOL",
+      "title": "Complete album lists and filters — protocol",
+      "dimension": "protocol",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "protocol",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/media_annotation.go"
-      ],
       "steps": [
-        "Star and unstar all three entity types; reject one request and reload favorites."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "All three favorite collections are shown.",
-        "Confirmed results change the captured item; failure preserves existing state."
+        "All album-list types encode their server parameters, offset, size and library; excessive pages are rejected."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "test_log"
         ]
+      ],
+      "automatedProofs": [
+        "protocol:pagination"
+      ],
+      "featureId": "ALBUMS",
+      "referenceIds": [
+        "ND-ALBUMS"
       ]
     },
     {
-      "id": "ND-RATINGS",
-      "title": "Ratings from zero to five",
-      "dimension": "functionality",
+      "id": "ND-ALBUMS-SERVER",
+      "title": "Complete album lists and filters — server",
+      "dimension": "server",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "server",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/media_annotation.go"
-      ],
       "steps": [
-        "Set and clear song, album and artist ratings; simulate an authorization error."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Zero clears a rating; only 0–5 are accepted.",
-        "Failed requests do not change the displayed rating."
+        "All fixture albums can be traversed in smaller pages; year and genre filters match tagged metadata."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "test_log"
         ]
+      ],
+      "automatedProofs": [
+        "integration:browse"
+      ],
+      "featureId": "ALBUMS",
+      "referenceIds": [
+        "ND-ALBUMS"
       ]
     },
     {
-      "id": "ND-DISCOVERY",
-      "title": "Server artist/album information and discovery",
-      "dimension": "functionality",
+      "id": "ND-ALBUMS-NATIVE",
+      "title": "Complete album lists and filters — native task",
+      "dimension": "native",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "native",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/browsing.go"
-      ],
       "steps": [
-        "Open artist/album information, top songs and similar songs with populated and empty metadata."
+        "Browse alphabetical-name/artist, newest, recent, frequent, random, starred, rating, year and genre lists.",
+        "Traverse a library beyond its first page and use Play All.",
+        "Change year direction, genre and library."
       ],
       "expected": [
-        "Metadata uses Navidrome rather than obsolete EchoNest endpoints.",
-        "Similar artists navigate by returned ID; mixes use actual server similarity/top-song results."
+        "Sort/filter behavior matches Navidrome and no remaining page is silently truncated.",
+        "Play All resolves the complete context and selected occurrence.",
+        "Invalid filters have clear validation and changes reset the page offset."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
         ]
+      ],
+      "featureId": "ALBUMS",
+      "referenceIds": [
+        "ND-ALBUMS"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
       ]
     },
     {
-      "id": "ND-LYRICS",
-      "title": "Structured and synchronized lyrics",
-      "dimension": "functionality",
+      "id": "ND-ARTISTS-PROTOCOL",
+      "title": "Artists and their albums — protocol",
+      "dimension": "protocol",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "protocol",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/lyrics.go"
-      ],
       "steps": [
-        "Load multiple lyric variants, timestamped lines, offsets and a song without lyrics; switch tracks during load."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Variants retain their returned language and timing.",
-        "Current lines follow actual playback position; empty, unsupported and failure states are explicit."
+        "Returned artist indices flatten to complete artist models."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "test_log"
         ]
+      ],
+      "automatedProofs": [
+        "protocol:metadata"
+      ],
+      "featureId": "ARTISTS",
+      "referenceIds": [
+        "ND-ARTISTS"
       ]
     },
     {
-      "id": "ND-QUEUE",
-      "title": "Server queue, order and position",
-      "dimension": "functionality",
+      "id": "ND-ARTISTS-SERVER",
+      "title": "Artists and their albums — server",
+      "dimension": "server",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "server",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/bookmarks.go"
-      ],
       "steps": [
-        "Play next, reorder, save a queue containing duplicate songs, then restore it and its position."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Ordered entries are preserved without URL-length loss.",
-        "Negotiated indexBasedQueue retains the selected duplicate occurrence; milliseconds resume at the saved position.",
-        "Failed or stale loads preserve the current queue."
+        "The real fixture returns both artists and resolves albums through actual artist IDs."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "test_log"
         ]
+      ],
+      "automatedProofs": [
+        "integration:browse"
+      ],
+      "featureId": "ARTISTS",
+      "referenceIds": [
+        "ND-ARTISTS"
       ]
     },
     {
-      "id": "ND-PLAYLISTS",
-      "title": "Playlist content, metadata and permissions",
-      "dimension": "functionality",
+      "id": "ND-ARTISTS-NATIVE",
+      "title": "Artists and their albums — native task",
+      "dimension": "native",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "native",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/playlists.go"
-      ],
       "steps": [
-        "Create a playlist, add/remove/reorder songs, edit name/comment/public state and view another owner or smart playlist."
+        "Open Artists, select an artist, then one of its albums.",
+        "Return to the artist and browse another library."
       ],
       "expected": [
-        "Server state matches edits and duplicate ordering.",
-        "Read-only/foreign/smart playlists preserve server permission rules; rejected writes do not fake success."
+        "All returned artists and album entries are reachable.",
+        "Navigation preserves server IDs and the selected library."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
         ]
+      ],
+      "featureId": "ARTISTS",
+      "referenceIds": [
+        "ND-ARTISTS"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
       ]
     },
     {
-      "id": "ND-LISTENING",
-      "title": "Actual playback reporting and scrobbles",
-      "dimension": "functionality",
+      "id": "ND-SEARCH-PROTOCOL",
+      "title": "Paged songs and typed search — protocol",
+      "dimension": "protocol",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "protocol",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/media_annotation.go"
-      ],
       "steps": [
-        "Play, pause, seek, skip, finish, fail a media open and repeat one track."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Only actual playback is reported.",
-        "PlaybackReport is negotiated; compatible legacy scrobbling counts listening rather than seeked position.",
-        "Each real listen is accounted for once and account changes cannot report to the wrong user."
+        "Artist, album and song counts/offsets are independent; empty sync queries are preserved."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "test_log"
         ]
+      ],
+      "automatedProofs": [
+        "protocol:pagination"
+      ],
+      "featureId": "SEARCH",
+      "referenceIds": [
+        "ND-SEARCH"
       ]
     },
     {
-      "id": "ND-BOOKMARKS",
-      "title": "Save and resume bookmarks",
-      "dimension": "functionality",
+      "id": "ND-SEARCH-SERVER",
+      "title": "Paged songs and typed search — server",
+      "dimension": "server",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "server",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/bookmarks.go"
-      ],
       "steps": [
-        "Save a position/comment, list it, resume and delete; reject a save."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Position is sent and restored in milliseconds.",
-        "Failed saves/deletes preserve current data."
+        "A real 125-song library crosses the 100-song page boundary without repeated IDs."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "test_log"
         ]
+      ],
+      "automatedProofs": [
+        "integration:search"
+      ],
+      "featureId": "SEARCH",
+      "referenceIds": [
+        "ND-SEARCH"
       ]
     },
     {
-      "id": "ND-SHARES",
-      "title": "Server shares and disabled sharing",
-      "dimension": "functionality",
+      "id": "ND-SEARCH-NATIVE",
+      "title": "Paged songs and typed search — native task",
+      "dimension": "native",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "native",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/sharing.go"
-      ],
       "steps": [
-        "Create/list/edit/delete a fixture share; repeat with sharing disabled."
+        "Search for artist, album and song results, including Unicode and punctuation.",
+        "Continue every result category beyond the first page.",
+        "Clear/change the query and play a selected song or the complete results."
       ],
       "expected": [
-        "Use the returned URL and expiration; send only explicitly requested edits.",
-        "Server-disabled sharing displays a recoverable unavailable state."
+        "Each category retains its own offset and context.",
+        "No stale query result or silent page limit replaces current results.",
+        "Empty, failed and successful queries remain distinguishable."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
         ]
+      ],
+      "featureId": "SEARCH",
+      "referenceIds": [
+        "ND-SEARCH"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
       ]
     },
     {
-      "id": "ND-PREFERENCES",
-      "title": "Playback preferences and stream quality",
-      "dimension": "functionality",
+      "id": "ND-GENRES-SERVER",
+      "title": "Genres and filtered songs — server",
+      "dimension": "server",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "server",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/stream.go"
-      ],
       "steps": [
-        "Change volume/mute, speed, format and bitrate; restart and play a lossless file."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "Persisted preferences affect actual playback and stream requests.",
-        "Supported codecs are selectable; playback fallback handles actual media failure without false history."
+        "Tagged genre counts and all 75 Jazz songs use the selected actual library."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "test_log"
         ]
+      ],
+      "automatedProofs": [
+        "integration:browse"
+      ],
+      "featureId": "GENRES",
+      "referenceIds": [
+        "ND-GENRES"
       ]
     },
     {
-      "id": "ND-ACCOUNT-SCAN",
-      "title": "User permissions and scan state",
-      "dimension": "functionality",
+      "id": "ND-GENRES-NATIVE",
+      "title": "Genres and filtered songs — native task",
+      "dimension": "native",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "native",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/users.go"
-      ],
       "steps": [
-        "Read current user and scan status; compare administrator and regular user."
+        "Open every returned genre and traverse its songs.",
+        "Change the library, return to Genres, and play a selected occurrence."
       ],
       "expected": [
-        "Returned roles determine scan command availability.",
-        "Only an administrator can start a scan; no privileged endpoints are guessed."
+        "Genre names/counts come from Navidrome.",
+        "Song pages and the playback context retain the selected genre/library."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
         ]
+      ],
+      "featureId": "GENRES",
+      "referenceIds": [
+        "ND-GENRES"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
       ]
     },
     {
-      "id": "ND-JUKEBOX",
-      "title": "Optional server player and concurrent queue changes",
-      "dimension": "functionality",
+      "id": "ND-DETAILS-PROTOCOL",
+      "title": "Song and album metadata — protocol",
+      "dimension": "protocol",
       "priority": "P1",
       "required": true,
       "weight": 1,
+      "verificationLevel": "protocol",
       "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/jukebox.go",
-        "ND:server/subsonic/users.go"
-      ],
       "steps": [
-        "Use an enabled fixture jukebox to replace/append a duplicate queue, start/stop, skip/seek, remove/clear/shuffle and change gain.",
-        "Change remote order or the current track from a second client while a form/request is pending; repeat with jukebox disabled or the role denied."
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
       ],
       "expected": [
-        "The returned jukebox role controls access, and unsupported/configuration errors remain explicit.",
-        "Commands affect the server device and refresh its actual state; offsets are seconds and gain is between zero and one.",
-        "Stale polls cannot overwrite newer command state; indexed/destructive commands recheck the remote queue, and seek/relative skips also recheck its current track.",
-        "Remote volume changes update an unedited control while a user's unapplied draft remains intact."
-      ],
-      "evidence": [
-        ["manual_record", "runtime_log", "video"]
-      ]
-    },
-    {
-      "id": "ND-SONIC",
-      "title": "Provider-dependent acoustic discovery",
-      "dimension": "functionality",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/sonic_similarity.go"
-      ],
-      "steps": [
-        "With a configured provider, play acoustic recommendations and a path to a different current-account queue song.",
-        "Repeat without a provider and while changing the account or leaving the detail page."
-      ],
-      "expected": [
-        "Use the source-defined endpoints and returned song order; the destination retains its actual opaque ID.",
-        "Provider-absent HTTP 404, empty and malformed responses remain distinct failures/empty states.",
-        "Late results from another account or page cannot replace the current playback queue."
-      ],
-      "evidence": [
-        ["manual_record", "runtime_log", "video"]
-      ]
-    },
-    {
-      "id": "ND-CAPABILITIES",
-      "title": "Negotiated optional and unsupported functions",
-      "dimension": "resilience",
-      "priority": "P1",
-      "required": true,
-      "weight": 1,
-      "referenceRole": "functionality",
-      "referenceIds": [
-        "ND:server/subsonic/opensubsonic.go"
-      ],
-      "steps": [
-        "Compare current and older servers, absent lyric/index queue extensions and disabled shares."
-      ],
-      "expected": [
-        "Extension versions come from the actual response.",
-        "Podcasts/video/deprecated endpoints are not presented as supported Navidrome functions.",
-        "Capability failure does not replace a working connection with invented metadata."
+        "Track/disc/year, quality, multiple credits and enhanced tag metadata deserialize with explicit missing values."
       ],
       "evidence": [
         [
-          "manual_record",
-          "runtime_log",
-          "video"
+          "source_note"
+        ],
+        [
+          "test_log"
         ]
+      ],
+      "automatedProofs": [
+        "protocol:metadata"
+      ],
+      "featureId": "DETAILS",
+      "referenceIds": [
+        "ND-DETAILS"
+      ]
+    },
+    {
+      "id": "ND-DETAILS-SERVER",
+      "title": "Song and album metadata — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Actual metadata and all 25 album tracks round-trip from the fixture."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:metadata",
+        "integration:browse"
+      ],
+      "featureId": "DETAILS",
+      "referenceIds": [
+        "ND-DETAILS"
+      ]
+    },
+    {
+      "id": "ND-DETAILS-NATIVE",
+      "title": "Song and album metadata — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Open a song and its album/artist links.",
+        "Inspect track/disc/year, duration, bitrate, size, sample rate and available credits/tags.",
+        "Open an item with absent optional metadata."
+      ],
+      "expected": [
+        "Displayed values and links match returned metadata.",
+        "Album track order is complete.",
+        "Missing optional metadata is omitted or clearly empty."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "DETAILS",
+      "referenceIds": [
+        "ND-DETAILS"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-ARTWORK-PROTOCOL",
+      "title": "Cover artwork — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Opaque artwork IDs and requested image size are encoded."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:information"
+      ],
+      "featureId": "ARTWORK",
+      "referenceIds": [
+        "ND-ARTWORK"
+      ]
+    },
+    {
+      "id": "ND-ARTWORK-SERVER",
+      "title": "Cover artwork — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "A generated fixture album exposes a cover ID and its endpoint returns actual image content."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:artwork"
+      ],
+      "featureId": "ARTWORK",
+      "referenceIds": [
+        "ND-ARTWORK"
+      ]
+    },
+    {
+      "id": "ND-ARTWORK-NATIVE",
+      "title": "Cover artwork — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Inspect covers in album/song lists, details, player and completed downloads.",
+        "Test missing artwork and a server/network image failure.",
+        "Switch account while an image request is outstanding."
+      ],
+      "expected": [
+        "The native image control decodes actual returned artwork in each context.",
+        "Missing/failing artwork preserves a usable page.",
+        "Old-account images do not replace the new context."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "ARTWORK",
+      "referenceIds": [
+        "ND-ARTWORK"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-AVATAR-PROTOCOL",
+      "title": "Current-account avatar — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "The avatar URL retains the encoded current username and selected authentication mechanism."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:authentication"
+      ],
+      "featureId": "AVATAR",
+      "referenceIds": [
+        "ND-AVATAR"
+      ]
+    },
+    {
+      "id": "ND-AVATAR-SERVER",
+      "title": "Current-account avatar — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "The actual server returns a PNG placeholder when Gravatar is disabled."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:avatar"
+      ],
+      "featureId": "AVATAR",
+      "referenceIds": [
+        "ND-AVATAR"
+      ]
+    },
+    {
+      "id": "ND-AVATAR-NATIVE",
+      "title": "Current-account avatar — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Open Account with Gravatar enabled and disabled.",
+        "Invalidate credentials or change the account while the image loads."
+      ],
+      "expected": [
+        "The server avatar or placeholder renders with an accessible name.",
+        "Disconnected/changed accounts clear the old source.",
+        "A missing image does not block account operations."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "AVATAR",
+      "referenceIds": [
+        "ND-AVATAR"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-FAVORITES-PROTOCOL",
+      "title": "Song, album and artist favorites — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Each entity uses the correct star parameter and failed writes do not confirm success."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:mutations",
+        "protocol:failures"
+      ],
+      "featureId": "FAVORITES",
+      "referenceIds": [
+        "ND-FAVORITES"
+      ]
+    },
+    {
+      "id": "ND-FAVORITES-SERVER",
+      "title": "Song, album and artist favorites — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "All three entity types can be starred, listed and unstarred on the real server."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:annotations"
+      ],
+      "featureId": "FAVORITES",
+      "referenceIds": [
+        "ND-FAVORITES"
+      ]
+    },
+    {
+      "id": "ND-FAVORITES-NATIVE",
+      "title": "Song, album and artist favorites — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Star and unstar a song, album and artist from details/player.",
+        "Inspect each category in Favorites and reconnect.",
+        "Make one write fail."
+      ],
+      "expected": [
+        "Confirmed changes and returned lists agree across views.",
+        "Failure leaves an actionable error and does not invent a successful favorite."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "FAVORITES",
+      "referenceIds": [
+        "ND-FAVORITES"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-RATINGS-PROTOCOL",
+      "title": "Ratings from zero to five — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Values above five are rejected and zero clears a rating."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:mutations"
+      ],
+      "featureId": "RATINGS",
+      "referenceIds": [
+        "ND-RATINGS"
+      ]
+    },
+    {
+      "id": "ND-RATINGS-SERVER",
+      "title": "Ratings from zero to five — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Song, album and artist ratings, including clearing to zero, round-trip."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:annotations"
+      ],
+      "featureId": "RATINGS",
+      "referenceIds": [
+        "ND-RATINGS"
+      ]
+    },
+    {
+      "id": "ND-RATINGS-NATIVE",
+      "title": "Ratings from zero to five — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Set and clear ratings for each supported entity from the native controls.",
+        "Refresh details and rating-sorted albums; make a write fail."
+      ],
+      "expected": [
+        "Only 0–5 reach the protocol.",
+        "Ratings update after confirmed success and failures recover."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "RATINGS",
+      "referenceIds": [
+        "ND-RATINGS"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-INFORMATION-PROTOCOL",
+      "title": "Artist biography and album notes — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Returned biography, notes and valid linked similar artists retain their data."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:information"
+      ],
+      "featureId": "INFORMATION",
+      "referenceIds": [
+        "ND-INFORMATION"
+      ]
+    },
+    {
+      "id": "ND-INFORMATION-SERVER",
+      "title": "Artist biography and album notes — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Absent provider metadata remains a successful empty response."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:information-empty"
+      ],
+      "featureId": "INFORMATION",
+      "referenceIds": [
+        "ND-INFORMATION"
+      ]
+    },
+    {
+      "id": "ND-INFORMATION-NATIVE",
+      "title": "Artist biography and album notes — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Open artist/album information with supplied biography/notes, then with no provider data.",
+        "Follow a valid related artist and safe external information link."
+      ],
+      "expected": [
+        "Text and related IDs match the server; unsafe links/markup cannot become executable content.",
+        "Absence and failures remain distinguishable."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "INFORMATION",
+      "referenceIds": [
+        "ND-INFORMATION"
+      ],
+      "prerequisites": [
+        "Fixtures with populated provider metadata and absent metadata, plus native detail interaction."
+      ]
+    },
+    {
+      "id": "ND-RELATED-PROTOCOL",
+      "title": "Top songs and similar songs — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Artist names/optional IDs, recommendation counts, ordered song IDs and metadata survive requests/responses."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:information"
+      ],
+      "featureId": "RELATED",
+      "referenceIds": [
+        "ND-RELATED"
+      ]
+    },
+    {
+      "id": "ND-RELATED-NATIVE",
+      "title": "Top songs and similar songs — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Open an artist's top songs and a song's related music.",
+        "Play a selected result in context; exercise empty and provider-failure responses."
+      ],
+      "expected": [
+        "Positive recommendations and their order come from Navidrome.",
+        "Empty or failed providers do not invent results.",
+        "The selected song and complete context reach the player."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "RELATED",
+      "referenceIds": [
+        "ND-RELATED"
+      ],
+      "prerequisites": [
+        "A configured metadata/recommendation provider with known positive results."
+      ]
+    },
+    {
+      "id": "ND-RANDOM-PROTOCOL",
+      "title": "Random-song filters — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Size 1–500, optional genre/year bounds and real library IDs encode correctly; omitted filters stay absent."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:pagination"
+      ],
+      "featureId": "RANDOM",
+      "referenceIds": [
+        "ND-RANDOM"
+      ]
+    },
+    {
+      "id": "ND-RANDOM-SERVER",
+      "title": "Random-song filters — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "The real fixture honors requested genre/size and both year bounds."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:random"
+      ],
+      "featureId": "RANDOM",
+      "referenceIds": [
+        "ND-RANDOM"
+      ]
+    },
+    {
+      "id": "ND-RANDOM-NATIVE",
+      "title": "Random-song filters — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Create mixes with 1 and 500 requested songs, a genre, year bounds and each library.",
+        "Use blank filters and invalid size/year input.",
+        "Play a selected result."
+      ],
+      "expected": [
+        "Navidrome selects the returned songs using the stated filters.",
+        "Invalid input cannot start a disguised request.",
+        "The returned order/context reaches playback."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "RANDOM",
+      "referenceIds": [
+        "ND-RANDOM"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-TRANSPORT-SERVICE",
+      "title": "Native audio transport and controls — service",
+      "dimension": "service",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Simulated native opening, start/pause/stop/seek ordering, position clamping, volume/mute/rate and queue context follow production control logic."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "audio:lifecycle",
+        "audio:preferences",
+        "playback:context"
+      ],
+      "featureId": "TRANSPORT",
+      "referenceIds": [
+        "ND-TRANSPORT"
+      ]
+    },
+    {
+      "id": "ND-TRANSPORT-NATIVE",
+      "title": "Native audio transport and controls — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Play native-supported WAV/MP3/AAC files; pause/resume, seek, skip and let a track end.",
+        "Adjust volume, mute and supported playback rates.",
+        "Buffer and fail a stream, then retry."
+      ],
+      "expected": [
+        "Native MediaElement decodes actual audio and reports correct duration/state.",
+        "Transport, elapsed position and audible controls behave correctly.",
+        "Opening/failure/seek do not create a false listen or duplicate completion."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "TRANSPORT",
+      "referenceIds": [
+        "ND-TRANSPORT"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-QUALITY-PROTOCOL",
+      "title": "Persisted streaming quality and fallback — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Original/MP3/default format and bitrate preferences have the correct ordinary-stream parameters."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:requests"
+      ],
+      "featureId": "QUALITY",
+      "referenceIds": [
+        "ND-QUALITY"
+      ]
+    },
+    {
+      "id": "ND-QUALITY-SERVICE",
+      "title": "Persisted streaming quality and fallback — service",
+      "dimension": "service",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Queued songs use current preferences; only eligible unopened online songs retry once as MP3, retaining both failures."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "audio:compatibility"
+      ],
+      "featureId": "QUALITY",
+      "referenceIds": [
+        "ND-QUALITY"
+      ]
+    },
+    {
+      "id": "ND-QUALITY-NATIVE",
+      "title": "Persisted streaming quality and fallback — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Save Automatic, Original and MP3/bitrate preferences and start already-queued songs.",
+        "Open an incompatible original and a failed compatible retry.",
+        "Test radio/local/already-playing failures."
+      ],
+      "expected": [
+        "Current persisted preferences affect each newly started song.",
+        "Only eligible failures use the bounded MP3 fallback.",
+        "Both errors remain visible and original/offline/radio choices preserve their meaning."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "QUALITY",
+      "referenceIds": [
+        "ND-QUALITY"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-TRANSCODING-PROTOCOL",
+      "title": "Negotiated direct play and transcoding — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "JSON profiles, normalized PCM limits, bps units, decision details and escaped token/offset parameters follow the source contract."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:transcoding"
+      ],
+      "featureId": "TRANSCODING",
+      "referenceIds": [
+        "ND-TRANSCODING"
+      ]
+    },
+    {
+      "id": "ND-TRANSCODING-SERVICE",
+      "title": "Negotiated direct play and transcoding — service",
+      "dimension": "service",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Advertised support negotiates the same server; absent/explicit preferences fall back correctly, while cancellation, denial and identity changes suppress stale sources."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "connection:stream",
+        "audio:resolution"
+      ],
+      "featureId": "TRANSCODING",
+      "referenceIds": [
+        "ND-TRANSCODING"
+      ]
+    },
+    {
+      "id": "ND-TRANSCODING-SERVER",
+      "title": "Negotiated direct play and transcoding — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "A real direct WAV token returns byte-identical media and a 64 kbps decision returns actual MP3 media."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:transcoding"
+      ],
+      "featureId": "TRANSCODING",
+      "referenceIds": [
+        "ND-TRANSCODING"
+      ]
+    },
+    {
+      "id": "ND-TRANSCODING-NATIVE",
+      "title": "Negotiated direct play and transcoding — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Use Automatic with native and incompatible source codecs on a configured server.",
+        "Change bitrate, pause/resume during negotiation and skip/stop before completion.",
+        "Expire a token and deny a decision."
+      ],
+      "expected": [
+        "Native playback decodes the chosen original/compatible stream and displays its actual mode.",
+        "Outstanding requests cannot replace the selected account/occurrence or lose the paused resume position.",
+        "Signed tokens stay transient and real denials remain errors."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "TRANSCODING",
+      "referenceIds": [
+        "ND-TRANSCODING"
+      ],
+      "prerequisites": [
+        "A server advertising transcoding with FFmpeg, native/incompatible media and a controlled denial/expiry path."
+      ]
+    },
+    {
+      "id": "ND-REPLAYGAIN-PROTOCOL",
+      "title": "ReplayGain track and album modes — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "ReplayGain values retain explicit zero and missing metadata."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:metadata"
+      ],
+      "featureId": "REPLAYGAIN",
+      "referenceIds": [
+        "ND-REPLAYGAIN"
+      ]
+    },
+    {
+      "id": "ND-REPLAYGAIN-SERVICE",
+      "title": "ReplayGain track and album modes — service",
+      "dimension": "service",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Persisted modes/preamp use the source gain/peak formula independently of user volume; invalid values and native volume limits are handled explicitly."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "audio:replay-gain"
+      ],
+      "featureId": "REPLAYGAIN",
+      "referenceIds": [
+        "ND-REPLAYGAIN"
+      ]
+    },
+    {
+      "id": "ND-REPLAYGAIN-NATIVE",
+      "title": "ReplayGain track and album modes — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Use tracks with known Track/Album gain and peaks; select Off/Track/Album and adjust preamp.",
+        "Test absent tags and a gain above native volume capacity.",
+        "Restart and test an offline copy."
+      ],
+      "expected": [
+        "Actual output/control gain agrees with the source calculation.",
+        "User volume is preserved and unsupported amplification is reported.",
+        "Mode/preamp and metadata survive restart/offline playback."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "REPLAYGAIN",
+      "referenceIds": [
+        "ND-REPLAYGAIN"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-LOCAL-QUEUE-SERVICE",
+      "title": "Complete local queue operations — service",
+      "dimension": "service",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Selected occurrences, replace/append/play-next, removal/reordering/clear, shuffle cycles, previous history and Off/All/One preserve production queue semantics."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "playback:context",
+        "playback:mutation",
+        "playback:positions",
+        "playback:repeat",
+        "playback:shuffle",
+        "playback:previous"
+      ],
+      "featureId": "LOCAL-QUEUE",
+      "referenceIds": [
+        "ND-LOCAL-QUEUE"
+      ]
+    },
+    {
+      "id": "ND-LOCAL-QUEUE-NATIVE",
+      "title": "Complete local queue operations — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Replace/append/play-next a complete context, including duplicate songs.",
+        "Select/reorder/remove current and noncurrent occurrences; clear the queue.",
+        "Exercise shuffle/previous and every repeat mode with natural endings and manual skips."
+      ],
+      "expected": [
+        "The exact selected occurrence and current transition are preserved.",
+        "Shuffle/repeat/history remain correct across mutations.",
+        "Native commands are reachable by keyboard and touch."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "LOCAL-QUEUE",
+      "referenceIds": [
+        "ND-LOCAL-QUEUE"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-SERVER-QUEUE-PROTOCOL",
+      "title": "Server queue and duplicate positions — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Queue entry order, duplicate indices and millisecond positions follow negotiated index-based/legacy contracts."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:queue"
+      ],
+      "featureId": "SERVER-QUEUE",
+      "referenceIds": [
+        "ND-SERVER-QUEUE"
+      ]
+    },
+    {
+      "id": "ND-SERVER-QUEUE-SERVER",
+      "title": "Server queue and duplicate positions — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "The real fixture restores all three entries, the duplicate occurrence index and 3456 ms position."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:server-queue"
+      ],
+      "featureId": "SERVER-QUEUE",
+      "referenceIds": [
+        "ND-SERVER-QUEUE"
+      ]
+    },
+    {
+      "id": "ND-SERVER-QUEUE-NATIVE",
+      "title": "Server queue and duplicate positions — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Save a duplicate-containing queue at a nonzero position and restore it after restart.",
+        "Repeat with the index extension disabled and an empty queue.",
+        "Change account while restoration is pending."
+      ],
+      "expected": [
+        "The native player resumes the returned occurrence and bounded millisecond position.",
+        "Legacy ambiguity is handled explicitly.",
+        "No foreign-account or late queue replaces the current selection."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "SERVER-QUEUE",
+      "referenceIds": [
+        "ND-SERVER-QUEUE"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-LISTENING-PROTOCOL",
+      "title": "Listening reports and pending synchronization — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Presence/submission units, states, actual playing intervals and persisted occurrence records follow the source contract."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:listening"
+      ],
+      "featureId": "LISTENING",
+      "referenceIds": [
+        "ND-LISTENING"
+      ]
+    },
+    {
+      "id": "ND-LISTENING-SERVICE",
+      "title": "Listening reports and pending synchronization — service",
+      "dimension": "service",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Pending account-scoped real listens persist and synchronize after reconnect without local duplicate occurrences."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "services:listening",
+        "playback:history"
+      ],
+      "featureId": "LISTENING",
+      "referenceIds": [
+        "ND-LISTENING"
+      ]
+    },
+    {
+      "id": "ND-LISTENING-SERVER",
+      "title": "Listening reports and pending synchronization — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Presence/seek-to-end does not increment real play counts; a qualifying submission increments once."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:playback-report"
+      ],
+      "featureId": "LISTENING",
+      "referenceIds": [
+        "ND-LISTENING"
+      ]
+    },
+    {
+      "id": "ND-LISTENING-NATIVE",
+      "title": "Listening reports and pending synchronization — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Open/fail/seek/pause/resume tracks and complete qualifying playback.",
+        "Listen offline, restart, reconnect and retry pending reports.",
+        "Change account with pending reports."
+      ],
+      "expected": [
+        "Only actual qualifying playback updates history/server play counts.",
+        "Pending timestamps and occurrence/account identity survive restart.",
+        "The standard API's lost-response/idempotency limit is not concealed."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "LISTENING",
+      "referenceIds": [
+        "ND-LISTENING"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-ACTIVITY-PROTOCOL",
+      "title": "Server now-playing activity — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Now-playing entries retain full song metadata, player/state/position/rate."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:listening"
+      ],
+      "featureId": "ACTIVITY",
+      "referenceIds": [
+        "ND-ACTIVITY"
+      ]
+    },
+    {
+      "id": "ND-ACTIVITY-SERVER",
+      "title": "Server now-playing activity — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "The actual fixture reports the current song/account/playing state/position/rate."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:activity"
+      ],
+      "featureId": "ACTIVITY",
+      "referenceIds": [
+        "ND-ACTIVITY"
+      ]
+    },
+    {
+      "id": "ND-ACTIVITY-NATIVE",
+      "title": "Server now-playing activity — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Open listening activity while another disposable client plays.",
+        "Leave the page open without selection, then select an item and deactivate the page.",
+        "Play a returned entry in context."
+      ],
+      "expected": [
+        "Displayed metadata and activity match the server.",
+        "Refresh preserves selection and stops on deactivation.",
+        "Activity entries reach playback with actual song IDs."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "ACTIVITY",
+      "referenceIds": [
+        "ND-ACTIVITY"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-LYRICS-PROTOCOL",
+      "title": "Structured, synchronized and legacy lyrics — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Variants, language, synced/untimed lines, ordering and extreme/duplicate offsets follow actual lyric metadata."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:lyrics"
+      ],
+      "featureId": "LYRICS",
+      "referenceIds": [
+        "ND-LYRICS"
+      ]
+    },
+    {
+      "id": "ND-LYRICS-SERVER",
+      "title": "Structured, synchronized and legacy lyrics — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Actual tagged/sidecar fixture lyrics are retrieved and time-select correctly."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:lyrics"
+      ],
+      "featureId": "LYRICS",
+      "referenceIds": [
+        "ND-LYRICS"
+      ]
+    },
+    {
+      "id": "ND-LYRICS-NATIVE",
+      "title": "Structured, synchronized and legacy lyrics — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Select lyric variants/languages during real playback and seek across timestamp boundaries.",
+        "Toggle follow, scroll manually, and use an offline copy.",
+        "Skip/change account while lyrics load; test empty and legacy responses."
+      ],
+      "expected": [
+        "Highlight and scrolling follow actual media milliseconds and offsets.",
+        "Late lyrics cannot replace a different song/account.",
+        "Empty/unsupported/error states and cached variants remain useful."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "LYRICS",
+      "referenceIds": [
+        "ND-LYRICS"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-PLAYLISTS-PROTOCOL",
+      "title": "Complete playlist management — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Playlist metadata/duplicates/readonly and repeated edit parameters preserve ownership and optional field semantics."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:metadata",
+        "protocol:mutations"
+      ],
+      "featureId": "PLAYLISTS",
+      "referenceIds": [
+        "ND-PLAYLISTS"
+      ]
+    },
+    {
+      "id": "ND-PLAYLISTS-SERVER",
+      "title": "Complete playlist management — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Create/read/rename/comment/public/add/remove/reorder/delete round-trip while metadata and duplicate order survive."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:playlists"
+      ],
+      "featureId": "PLAYLISTS",
+      "referenceIds": [
+        "ND-PLAYLISTS"
+      ]
+    },
+    {
+      "id": "ND-PLAYLISTS-NATIVE",
+      "title": "Complete playlist management — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Create a playlist from selected/queued songs with duplicates; reopen and play it.",
+        "Edit name/comment/public state, add/remove/reorder entries, then delete.",
+        "Use another owner's and a smart/readonly playlist; fail one mutation."
+      ],
+      "expected": [
+        "All confirmed operations match server metadata and occurrence order.",
+        "Ownership gates metadata edits; readonly independently gates song edits.",
+        "Failed writes preserve recoverable state."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "PLAYLISTS",
+      "referenceIds": [
+        "ND-PLAYLISTS"
+      ],
+      "prerequisites": [
+        "Owned, foreign-owned, public and smart/readonly disposable playlists."
+      ]
+    },
+    {
+      "id": "ND-DOWNLOADS-PROTOCOL",
+      "title": "Original export and offline downloads — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Catalog schema/account/file validation and HTTP/MIME/body/short-read/cancellation checks reject partial or fake media."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:offline",
+        "protocol:downloads"
+      ],
+      "featureId": "DOWNLOADS",
+      "referenceIds": [
+        "ND-DOWNLOADS"
+      ]
+    },
+    {
+      "id": "ND-DOWNLOADS-SERVICE",
+      "title": "Original export and offline downloads — service",
+      "dimension": "service",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Production storage/event adapters cover completion, original retention, separate compatible copies, cancellation/retry, corrupt/missing files, offline access and account isolation."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "services:offline"
+      ],
+      "featureId": "DOWNLOADS",
+      "referenceIds": [
+        "ND-DOWNLOADS"
+      ]
+    },
+    {
+      "id": "ND-DOWNLOADS-SERVER",
+      "title": "Original export and offline downloads — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Actual original WAV bytes are copied completely without replacing original export data."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:downloads"
+      ],
+      "featureId": "DOWNLOADS",
+      "referenceIds": [
+        "ND-DOWNLOADS"
+      ]
+    },
+    {
+      "id": "ND-DOWNLOADS-NATIVE",
+      "title": "Original export and offline downloads — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Download originals with metadata/artwork/lyrics, cancel/retry, and export through the native picker.",
+        "Restart disconnected; browse/play completed local files and export originals.",
+        "Test incompatible originals, failed MP3 conversion, missing files, corrupt catalogs and another account."
+      ],
+      "expected": [
+        "Only completed validated files are playable; progress/cancel/retry/delete work natively.",
+        "Offline operations require no server handshake.",
+        "Original export remains byte-identical and cross-account access is rejected."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "DOWNLOADS",
+      "referenceIds": [
+        "ND-DOWNLOADS"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-BOOKMARKS-PROTOCOL",
+      "title": "Bookmark CRUD and resume — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Bookmark and queue positions preserve millisecond units."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:queue"
+      ],
+      "featureId": "BOOKMARKS",
+      "referenceIds": [
+        "ND-BOOKMARKS"
+      ]
+    },
+    {
+      "id": "ND-BOOKMARKS-SERVER",
+      "title": "Bookmark CRUD and resume — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "2345 ms/comments and deletion round-trip with actual song IDs."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:bookmarks"
+      ],
+      "featureId": "BOOKMARKS",
+      "referenceIds": [
+        "ND-BOOKMARKS"
+      ]
+    },
+    {
+      "id": "ND-BOOKMARKS-NATIVE",
+      "title": "Bookmark CRUD and resume — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Save a nonzero native playback position with a comment, reopen Bookmarks and resume it.",
+        "Delete the bookmark and repeat after an account change."
+      ],
+      "expected": [
+        "Resume applies the correct bounded position after media opens.",
+        "Comments/deletion and account isolation match server state."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "BOOKMARKS",
+      "referenceIds": [
+        "ND-BOOKMARKS"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-SHARES-PROTOCOL",
+      "title": "Share links and expiration — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Returned URLs/expiration and the epoch sentinel retain server semantics."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:mutations"
+      ],
+      "featureId": "SHARES",
+      "referenceIds": [
+        "ND-SHARES"
+      ]
+    },
+    {
+      "id": "ND-SHARES-SERVER",
+      "title": "Share links and expiration — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Create/list/update/delete preserves real generated URLs, changed dates, omitted-update dates and default creation expiration."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:shares"
+      ],
+      "featureId": "SHARES",
+      "referenceIds": [
+        "ND-SHARES"
+      ]
+    },
+    {
+      "id": "ND-SHARES-NATIVE",
+      "title": "Share links and expiration — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Create a share from actual media IDs with explicit/default expiration.",
+        "List/open/copy/edit/delete the link.",
+        "Disable sharing or remove the role and repeat."
+      ],
+      "expected": [
+        "Links and dates come from Navidrome; omitted expiration never claims unlimited lifetime.",
+        "Disabled/denied operations stay explicit and recoverable."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "SHARES",
+      "referenceIds": [
+        "ND-SHARES"
+      ],
+      "prerequisites": [
+        "Sharing-enabled and sharing-disabled server policies with disposable shared media."
+      ]
+    },
+    {
+      "id": "ND-RADIO-SERVER",
+      "title": "Internet radio playback — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "The real station endpoint completes and an empty library remains valid."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:station-activity-reads"
+      ],
+      "featureId": "RADIO",
+      "referenceIds": [
+        "ND-RADIO"
+      ]
+    },
+    {
+      "id": "ND-RADIO-NATIVE",
+      "title": "Internet radio playback — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Play a returned valid station, pause/stop and open its safe homepage.",
+        "Test empty stations, unsupported audio and a failed station URL."
+      ],
+      "expected": [
+        "Actual station stream URLs reach native playback without song-transcode substitution.",
+        "Empty/error states remain actionable."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "RADIO",
+      "referenceIds": [
+        "ND-RADIO"
+      ],
+      "prerequisites": [
+        "At least one controlled audible radio stream and a failed stream."
+      ]
+    },
+    {
+      "id": "ND-RADIO-ADMIN-PROTOCOL",
+      "title": "Administrator radio CRUD — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Station mutations retain encoded full URLs, opaque IDs and optional homepage clearing."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:optional-media"
+      ],
+      "featureId": "RADIO-ADMIN",
+      "referenceIds": [
+        "ND-RADIO-ADMIN"
+      ]
+    },
+    {
+      "id": "ND-RADIO-ADMIN-SERVER",
+      "title": "Administrator radio CRUD — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "A real administrator can create/edit/clear-homepage/delete and confirm the returned station."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:radio-administration"
+      ],
+      "featureId": "RADIO-ADMIN",
+      "referenceIds": [
+        "ND-RADIO-ADMIN"
+      ]
+    },
+    {
+      "id": "ND-RADIO-ADMIN-NATIVE",
+      "title": "Administrator radio CRUD — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "As administrator create/edit/delete a station and clear its homepage.",
+        "Use invalid URLs, cancel a form and change account/page during a delayed form.",
+        "Repeat as a nonadministrator."
+      ],
+      "expected": [
+        "Only an actual administrator can mutate stations.",
+        "Successful writes are confirmed and cancellation/stale forms cannot apply."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "RADIO-ADMIN",
+      "referenceIds": [
+        "ND-RADIO-ADMIN"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-SCAN-PROTOCOL",
+      "title": "Scan status and administrator start — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Scan state/time metadata and the source-defined start endpoint are preserved."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:optional-media"
+      ],
+      "featureId": "SCAN",
+      "referenceIds": [
+        "ND-SCAN"
+      ]
+    },
+    {
+      "id": "ND-SCAN-SERVER",
+      "title": "Scan status and administrator start — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "An actual administrator starts a scan and observes completion at the expected fixture count."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:scan"
+      ],
+      "featureId": "SCAN",
+      "referenceIds": [
+        "ND-SCAN"
+      ]
+    },
+    {
+      "id": "ND-SCAN-NATIVE",
+      "title": "Scan status and administrator start — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Open Account during idle/active scanning and start a scan as administrator.",
+        "Leave the page, reconnect, and repeat as a nonadministrator."
+      ],
+      "expected": [
+        "Actual scan count/status/time update while active.",
+        "Only the returned administrator role enables start, and polling stops on deactivation."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "SCAN",
+      "referenceIds": [
+        "ND-SCAN"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-ACCOUNT-PROTOCOL",
+      "title": "Current user and role gating — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Returned user roles retain denied and allowed values."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:extensions"
+      ],
+      "featureId": "ACCOUNT",
+      "referenceIds": [
+        "ND-ACCOUNT"
+      ]
+    },
+    {
+      "id": "ND-ACCOUNT-SERVICE",
+      "title": "Current user and role gating — service",
+      "dimension": "service",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Reconnect restores actual roles and optional error states; changing credentials clears the negotiated account."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "services:session"
+      ],
+      "featureId": "ACCOUNT",
+      "referenceIds": [
+        "ND-ACCOUNT"
+      ]
+    },
+    {
+      "id": "ND-ACCOUNT-SERVER",
+      "title": "Current user and role gating — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "The real administrator/stream/download roles and username are reported."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:session"
+      ],
+      "featureId": "ACCOUNT",
+      "referenceIds": [
+        "ND-ACCOUNT"
+      ]
+    },
+    {
+      "id": "ND-ACCOUNT-NATIVE",
+      "title": "Current user and role gating — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Open Account with distinct administrator/download/share/jukebox roles.",
+        "Reconnect after changing permissions and make the user-info request fail."
+      ],
+      "expected": [
+        "Role labels and enabled commands match returned permissions.",
+        "Missing/failed user info does not grant privileged actions."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "ACCOUNT",
+      "referenceIds": [
+        "ND-ACCOUNT"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-JUKEBOX-PROTOCOL",
+      "title": "Server audio player and queue — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "All command names, indices, second offsets and 0–1 gain use the correct parameter contracts."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:optional-media"
+      ],
+      "featureId": "JUKEBOX",
+      "referenceIds": [
+        "ND-JUKEBOX"
+      ]
+    },
+    {
+      "id": "ND-JUKEBOX-SERVICE",
+      "title": "Server audio player and queue — service",
+      "dimension": "service",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "The production page preserves remote order/current-index guards, stale/cancelled operations and unapplied gain drafts."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "jukebox:remote-player"
+      ],
+      "featureId": "JUKEBOX",
+      "referenceIds": [
+        "ND-JUKEBOX"
+      ]
+    },
+    {
+      "id": "ND-JUKEBOX-SERVER",
+      "title": "Server audio player and queue — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "A disabled jukebox reports no role and the source-defined HTTP 501; this does not verify enabled device audio."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:jukebox-disabled"
+      ],
+      "featureId": "JUKEBOX",
+      "referenceIds": [
+        "ND-JUKEBOX"
+      ]
+    },
+    {
+      "id": "ND-JUKEBOX-NATIVE",
+      "title": "Server audio player and queue — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "On an enabled server player inspect the remote queue/status, transport, seek and gain.",
+        "Replace/append/remove/clear/shuffle, including duplicates and another client's concurrent changes.",
+        "Test missing role/disabled configuration and cancelled confirmation."
+      ],
+      "expected": [
+        "Actual audio comes from the server device and commands match remote state.",
+        "Indexed/destructive operations recheck order/current selection and keep honest race limits.",
+        "Role/disabled/stale/cancelled operations remain safe and explicit."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "JUKEBOX",
+      "referenceIds": [
+        "ND-JUKEBOX"
+      ],
+      "prerequisites": [
+        "An enabled jukebox with a real server audio device, another client and a disabled configuration."
+      ]
+    },
+    {
+      "id": "ND-SONIC-PROTOCOL",
+      "title": "Acoustic similar tracks — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Seed/count and ordered acoustic match entries retain source IDs/metadata; malformed entries fail."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:optional-media"
+      ],
+      "featureId": "SONIC",
+      "referenceIds": [
+        "ND-SONIC"
+      ]
+    },
+    {
+      "id": "ND-SONIC-SERVER",
+      "title": "Acoustic similar tracks — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "An unconfigured provider returns the source-defined HTTP 404; this does not establish positive acoustic results."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:sonic-disabled"
+      ],
+      "featureId": "SONIC",
+      "referenceIds": [
+        "ND-SONIC"
+      ]
+    },
+    {
+      "id": "ND-SONIC-NATIVE",
+      "title": "Acoustic similar tracks — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Request acoustic recommendations for actual songs on a configured provider.",
+        "Play a selected match, then remove the provider and repeat.",
+        "Skip/change account during a delayed response."
+      ],
+      "expected": [
+        "Positive match order and media come from the provider.",
+        "Absent/failed/stale results do not invent recommendations."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "SONIC",
+      "referenceIds": [
+        "ND-SONIC"
+      ],
+      "prerequisites": [
+        "A configured acoustic provider with known similar songs and a provider-absent configuration."
+      ]
+    },
+    {
+      "id": "ND-SONIC-PATH-PROTOCOL",
+      "title": "Acoustic paths between songs — protocol",
+      "dimension": "protocol",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "protocol",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Start/end/count encode independently and returned match songs retain their order."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "protocol:optional-media"
+      ],
+      "featureId": "SONIC-PATH",
+      "referenceIds": [
+        "ND-SONIC-PATH"
+      ]
+    },
+    {
+      "id": "ND-SONIC-PATH-SERVER",
+      "title": "Acoustic paths between songs — server",
+      "dimension": "server",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "server",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "An unconfigured path provider returns the source-defined HTTP 404; positive paths remain separate."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "integration:path-disabled"
+      ],
+      "featureId": "SONIC-PATH",
+      "referenceIds": [
+        "ND-SONIC-PATH"
+      ]
+    },
+    {
+      "id": "ND-SONIC-PATH-NATIVE",
+      "title": "Acoustic paths between songs — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Choose actual current-account start/destination songs and request a positive path.",
+        "Play the resulting path; test absent providers and account/page changes."
+      ],
+      "expected": [
+        "The provider supplies the actual path songs/order.",
+        "Foreign/stale selections and absent providers cannot fabricate a playable path."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "SONIC-PATH",
+      "referenceIds": [
+        "ND-SONIC-PATH"
+      ],
+      "prerequisites": [
+        "A configured acoustic provider with a known path and at least two actual current-account songs."
+      ]
+    },
+    {
+      "id": "ND-RECOVERY-SERVICE",
+      "title": "Native restart, state and background behavior — service",
+      "dimension": "service",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "service",
+      "referenceRole": "functionality",
+      "steps": [
+        "Run the named production checks from a clean commit and inspect the scoped proof groups."
+      ],
+      "expected": [
+        "Production queue/state validation and simulated source opening preserve account, occurrence and bounded positions."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "test_log"
+        ]
+      ],
+      "automatedProofs": [
+        "playback:restore",
+        "playback:import",
+        "audio:lifecycle",
+        "audio:resolution"
+      ],
+      "featureId": "RECOVERY",
+      "referenceIds": [
+        "ND-RECOVERY"
+      ]
+    },
+    {
+      "id": "ND-RECOVERY-NATIVE",
+      "title": "Native restart, state and background behavior — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Restart/restore with a paused duplicate queue, lyrics-follow setting and nonzero position.",
+        "Exercise native suspend/resume, background playback and system media controls.",
+        "Restore corrupt or other-account state and change selection before media opens."
+      ],
+      "expected": [
+        "Actual native lifecycle preserves the intended account/queue/position without duplicate listens.",
+        "Background/system controls work on the declared Windows 8.1 target.",
+        "Corrupt or stale state cannot cause an unintended seek or wrong-account playback."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "RECOVERY",
+      "referenceIds": [
+        "ND-RECOVERY"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
+      ]
+    },
+    {
+      "id": "ND-ACCESS-NATIVE",
+      "title": "Functional navigation, keyboard and narrow views — native task",
+      "dimension": "native",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "verificationLevel": "native",
+      "referenceRole": "functionality",
+      "steps": [
+        "Reach each function from Home, detail pages, player and Account; navigate back with keyboard/touch.",
+        "Exercise focus and accessible labels at wide, narrow and scaled native viewports.",
+        "Repeat with loading, empty, selected and failed states."
+      ],
+      "expected": [
+        "Every required action is reachable without hidden or covered commands.",
+        "Focus and keyboard/touch operations complete the same functions.",
+        "Native reflow preserves readable controls and task completion; visual fidelity remains a separate design audit."
+      ],
+      "evidence": [
+        [
+          "source_note"
+        ],
+        [
+          "manual_record"
+        ],
+        [
+          "runtime_log"
+        ]
+      ],
+      "featureId": "ACCESS",
+      "referenceIds": [
+        "ND-ACCESS"
+      ],
+      "prerequisites": [
+        "A disposable Navidrome account and the registered desktop client."
       ]
     }
-  ],
-  "requiredReferenceRoles": [
-    "functionality",
-    "design"
-  ],
-  "functionalityReference": {
-    "repository": "https://github.com/navidrome/navidrome.git",
-    "commit": "f5b6805b3150ed6e5b92d8f0fcf5174823ae9a2e"
-  }
+  ]
 }

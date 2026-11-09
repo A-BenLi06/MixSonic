@@ -32,6 +32,7 @@ public static class NavidromeJukeboxTests
         {
             using (var pump = new Pump()) pump.Run(Run);
             Console.WriteLine("PASS: " + _assertions + " production jukebox page assertions against controlled loopback HTTP responses. Native UI/server audio remain unverified.");
+            Console.WriteLine("ND-CHECK:jukebox:remote-player");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }

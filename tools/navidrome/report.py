@@ -1,171 +1,221 @@
-"""Bundle fresh source/server checks and native acceptance gaps for the current commit.
+"""Report scoped Navidrome functionality evidence; native tasks remain independent.
 
-Run verify.ps1 first. This report deliberately cannot promote source or simulated
-events into native interaction or visual passes. Use quality.py to record those
-separately after observing them. Exit 2 means a valid report that is not accepted.
+Run verify.ps1 from a clean commit first. No MixRadio installation/package is
+required. Exit 2 means valid, outstanding functional acceptance.
 """
 
 import argparse
-import hashlib
+from collections import Counter
+import html
 import json
 from pathlib import Path
+import re
 import sys
-import zipfile
+from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "tools/mixradio"))
+sys.path.insert(0, str(ROOT / 'tools/mixradio'))
 import quality
+import audit_functions
+import build_spec
 import inspect_source
-from xbf_v1 import decode
+
+REQUIRED_SUITES = {'build', 'protocol', 'audio', 'connection', 'jukebox', 'services', 'integration',
+                   'playback', 'serializer', 'resources', 'reference', 'coverage', 'acceptance-tools', 'quality-tools'}
+MARKER = re.compile(r'^ND-CHECK:([a-z-]+:[a-z-]+)$', re.MULTILINE)
 
 
-def revalidate(inventory, phone_package, desktop_package):
-    functional = next(source for source in inventory["sources"] if source.get("role") == "functionality")
-    source_root = ROOT / ".tmp/navidrome"
-    lock_path = ROOT / "tools/navidrome/source-lock.json"
-    if (inspect_source.git(source_root, "rev-parse", "HEAD") != functional["commit"]
-            or inspect_source.git(source_root, "remote", "get-url", "origin") != functional["repository"]
-            or inspect_source.git(source_root, "status", "--porcelain")
-            or quality.digest(lock_path) != inventory["sourceLockSha256"]):
-        raise ValueError("The locked Navidrome checkout or inventory changed")
-    for item in functional["files"]:
-        path = quality.safe_bundle_path(source_root, item["path"])
-        if quality.digest(path) != item["sha256"]:
-            raise ValueError("Navidrome source bytes changed: " + item["path"])
-    phone = next(source for source in inventory["sources"] if source.get("kind") == "windows-phone-xap")
-    desktop = next(source for source in inventory["sources"] if source.get("kind") == "windows-store-installed")
-    if quality.digest(phone_package) != phone["sha256"]:
-        raise ValueError("The phone design package differs from its inventory")
-    with zipfile.ZipFile(phone_package) as archive:
-        members = {item.filename.replace("\\", "/"): item for item in archive.infolist() if not item.is_dir()}
-        for item in phone["files"]:
-            if hashlib.sha256(archive.read(members[item["path"]])).hexdigest() != item["sha256"]:
-                raise ValueError("Phone design bytes changed: " + item["path"])
-    for item in desktop["files"]:
-        path = quality.safe_bundle_path(desktop_package, item["path"])
-        if quality.digest(path) != item["sha256"]:
-            raise ValueError("Desktop design bytes changed: " + item["path"])
-    design_root = ROOT / ".tmp/mixradio-audit"
-    assemblies = 0
-    for source, platform in ((phone, "wp"), (desktop, "pc")):
-        for assembly in source["assemblies"]:
-            recovered = design_root / platform / "decompiled" / Path(assembly["assembly"]).stem
-            if (not assembly["decompiled"] or (recovered / "assembly.sha256").read_text().strip() != assembly["sha256"]
-                    or len(list(recovered.rglob("*.cs"))) != assembly["sourceFiles"]
-                    or len(list(recovered.rglob("*.xaml"))) != assembly["xamlFiles"]):
-                raise ValueError("Design decompilation provenance changed: " + assembly["assembly"])
-            assemblies += 1
-    for item in desktop["xbf"]:
-        decoded = decode(quality.safe_bundle_path(desktop_package, item["path"]))
-        if decoded["coverage"] != "decoded diagnostic object/property tree" or decoded["version"] != "1.0" or decoded["nodeCount"] <= 0:
-            raise ValueError("The original design XBF could not be decoded: " + item["path"])
-    if not desktop["priDumped"] or not (design_root / "pc/resources.xml").is_file():
-        raise ValueError("The original desktop design resource inventory is incomplete")
-    return {"navidromeSourceFiles": len(functional["files"]), "registeredEndpoints": len(functional["registrations"]),
-            "phoneDesignFiles": len(phone["files"]), "desktopDesignFiles": len(desktop["files"]),
-            "decompiledDesignAssemblies": assemblies, "decodedDesktopXbfTrees": len(desktop["xbf"])}
+def validate_verification(verification, code):
+    if (verification.get('schemaVersion') != 2 or verification.get('passed') is not True or
+            verification.get('code') != code or verification.get('codeAfter') != code or
+            not code.get('trackedClean') or code.get('untrackedFiles')):
+        raise ValueError('Verification must belong to this clean committed checkout')
+    quality.offset_time(verification['startedAt'])
+    quality.offset_time(verification['completedAt'])
+    checks = {item['name']: item for item in verification['checks']}
+    if set(checks) != REQUIRED_SUITES or len(checks) != len(verification['checks']):
+        raise ValueError('Verification suites are missing, unexpected or duplicated')
+    for name, check in checks.items():
+        if check['exitCode'] != 0 or quality.digest(check['log']) != check['sha256']:
+            raise ValueError('A verification log failed or changed: ' + name)
+        quality.offset_time(check['startedAt'])
+        quality.offset_time(check['completedAt'])
+        markers = MARKER.findall(Path(check['log']).read_text(encoding='utf-8-sig'))
+        if any(count != 1 for count in Counter(markers).values()) or markers != check.get('proofs'):
+            raise ValueError('Scoped proof declarations differ from the log: ' + name)
+        if any(proof.split(':')[0] != name for proof in markers):
+            raise ValueError('A suite cannot certify another suite: ' + name)
+    return checks
+
+
+def missing_proofs(case, checks):
+    if case['verificationLevel'] == 'native':
+        return ['native task observation']
+    missing = []
+    for proof in case['automatedProofs']:
+        suite = proof.split(':')[0]
+        if proof not in checks.get(suite, {}).get('proofs', []):
+            missing.append(proof)
+    return missing
+
+
+def revalidate_functional(inventory, data):
+    sources = [item for item in inventory['sources'] if item.get('role') == 'functionality']
+    if len(sources) != 1:
+        raise ValueError('Exactly one locked functional source is required')
+    source = sources[0]
+    source_root = ROOT / '.tmp/navidrome'
+    lock_path = ROOT / 'tools/navidrome/source-lock.json'
+    lock = quality.read_json(lock_path)
+    if (source['commit'] != lock['commit'] or source['repository'] != lock['repository'] or
+            inspect_source.git(source_root, 'rev-parse', 'HEAD') != source['commit'] or
+            inspect_source.git(source_root, 'remote', 'get-url', 'origin') != source['repository'] or
+            inspect_source.git(source_root, 'status', '--porcelain') or
+            quality.digest(lock_path) != inventory['sourceLockSha256']):
+        raise ValueError('The clean Navidrome source/remote/lock differs from the inventory')
+    for item in source['files']:
+        if quality.digest(quality.safe_bundle_path(source_root, item['path'])) != item['sha256']:
+            raise ValueError('Functional source bytes changed: ' + item['path'])
+    return audit_functions.analyze(data, source, source_root, ROOT)
+
+
+def native_gap(code, path=None):
+    if path is None:
+        return {'schemaVersion': 2, 'recordedAt': quality.timestamp(), 'code': code,
+                'nativeVerified': False, 'status': 'not_run',
+                'limitation': 'No native task was observed for this commit. Earlier capture failures describe historical source and are not current native evidence.'}
+    value = quality.read_json(path)
+    quality.offset_time(value['recordedAt'])
+    if (value.get('schemaVersion') != 2 or value.get('code') != code or value.get('nativeVerified') is not False or
+            value.get('status') not in {'not_run', 'blocked'} or not value.get('limitation')):
+        raise ValueError('Native gap observations must belong to this commit and cannot certify native success')
+    return value
+
+
+def facts(checks):
+    result = {}
+    text = Path(checks['integration']['log']).read_text(encoding='utf-8-sig')
+    for name, value in re.findall(r'^ND-FACT:([a-z-]+):([^\r\n]+)$', text, re.MULTILINE):
+        if name in result or name not in {'server-version', 'extensions'}:
+            raise ValueError('Unexpected or duplicate fixture fact')
+        result[name] = value
+    if set(result) != {'server-version', 'extensions'}:
+        raise ValueError('Actual server version/capabilities are missing from integration evidence')
+    return result
+
+
+def feature_summary(data, spec, run):
+    results = {item['id']: item for item in run['results']}
+    case_by_id = {case['id']: case for case in spec['cases']}
+    summary = []
+    for feature in data['features']:
+        cases = [case for case in spec['cases'] if case.get('featureId') == feature['id']]
+        levels = {case['verificationLevel']: results[case['id']]['status'] for case in cases}
+        summary.append({'id': feature['id'], 'title': feature['title'], 'levels': levels,
+                        'nativeAccepted': levels.get('native') == 'pass'})
+    return {'functions': summary, 'mapped': len(summary), 'nativeAccepted': sum(item['nativeAccepted'] for item in summary),
+            'automatedPassed': sum(item['status'] == 'pass' for item in run['results'] if case_by_id[item['id']]['verificationLevel'] != 'native'),
+            'automatedRequired': sum(case['verificationLevel'] != 'native' for case in spec['cases'])}
+
+
+def render_matrix(report, inventory, summary, code_evidence, server_facts):
+    escape = lambda value: html.escape(str(value))
+    by_id = {item['id']: item for item in summary['functions']}
+    lock = quality.read_json(ROOT / 'tools/navidrome/source-lock.json')
+    upstream = lock['repository'].removesuffix('.git') + '/blob/' + lock['commit'] + '/'
+    rows = []
+    for function in inventory['functions']:
+        item = by_id[function['id']]
+        source_links = ' '.join('<a href="' + escape(upstream + quote(source['path'], safe='/') + '#L' + str(source['line'])) + '">' + escape(source.get('symbol', source['path'])) + '</a>' for source in function['sources'])
+        client_links = ' '.join('<a href="' + quote(code_evidence[client['path']]['path']) + '">' + escape(Path(client['path']).name + ':' + str(client['line'])) + '</a>' for client in function['client'])
+        cells = ''.join('<td>' + escape(item['levels'].get(level, 'no separate check')) + '</td>' for level in ('protocol', 'service', 'server', 'native'))
+        endpoints = ', '.join(function['endpoints']) or 'Client playback/state capability'
+        rows.append('<tr><td>' + escape(function['id']) + '<br>' + escape(function['title']) + '<br><small>' + escape(endpoints) + '</small></td>' + cells + '<td>' + source_links + '<br>' + client_links + '</td></tr>')
+    section = ('<section><h2>Navidrome function evidence</h2><p>' + str(summary['mapped']) + ' mapped functions; '
+               + str(summary['automatedPassed']) + '/' + str(summary['automatedRequired']) + ' source/protocol/service/server cases passed; '
+               + str(summary['nativeAccepted']) + '/' + str(summary['mapped']) + ' native functional tasks accepted.</p>'
+               + '<p>Real fixture: ' + escape(server_facts['server-version']) + '. Its release is separate from the locked source revision. '
+               + 'Disabled jukebox/provider errors do not establish successful device audio or acoustic results. '
+               + 'MixRadio design acceptance is independent.</p><details open><summary>Function-by-function evidence layers and source mapping</summary>'
+               + '<table id="feature-table"><thead><tr><th>Navidrome function</th><th>Protocol</th><th>Service/control</th><th>Real server</th><th>Native task</th><th>Source / client</th></tr></thead><tbody>'
+               + ''.join(rows) + '</tbody></table></details></section>')
+    report = report.replace('<table><thead>', '<table id="case-table"><thead>')
+    report = report.replace("document.querySelectorAll('tbody tr')", "document.querySelectorAll('#case-table tbody tr')")
+    return report.replace('<details open><summary>Acceptance gaps', section + '<details open><summary>Acceptance gaps', 1)
 
 
 def main():
-    parser = quality.InputParser(description=__doc__)
-    parser.add_argument("--verification", type=Path, default=ROOT / ".tmp/navidrome-audit/verification.json")
-    parser.add_argument("--native-record", type=Path, default=ROOT / ".tmp/navidrome-audit/native-capture.json")
-    parser.add_argument("--phone-package", type=Path, required=True)
-    parser.add_argument("--desktop-package", type=Path, required=True)
-    parser.add_argument("--output", type=Path, help="New run directory; existing runs are preserved")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--verification', type=Path, default=ROOT / '.tmp/navidrome-audit/verification.json')
+    parser.add_argument('--native-record', type=Path, help='Optional current-commit blocked/unperformed native observation')
+    parser.add_argument('--output', type=Path, help='A new run directory; existing evidence is preserved')
     args = parser.parse_args()
     code = quality.git_state()
-    if not code["trackedClean"] or code["untrackedFiles"]:
-        raise ValueError("The final acceptance run requires committed, clean sources")
     verification = quality.read_json(args.verification)
-    if (verification.get("schemaVersion") != 1 or verification.get("passed") is not True
-            or verification.get("code") != code or verification.get("codeAfter") != code):
-        raise ValueError("Verification is not bound to this clean commit")
-    checks = {check["name"]: check for check in verification["checks"]}
-    required_checks = {"build", "protocol", "audio", "jukebox", "services", "integration", "playback", "serializer", "resources", "reference"}
-    if not required_checks.issubset(checks) or len(checks) != len(verification["checks"]):
-        raise ValueError("Required verification steps are missing or duplicated")
-    for check in checks.values():
-        if check["exitCode"] != 0 or quality.digest(check["log"]) != check["sha256"]:
-            raise ValueError("A verification log failed or changed: " + check["name"])
-        quality.offset_time(check["startedAt"])
-        quality.offset_time(check["completedAt"])
-    native = quality.read_json(args.native_record)
-    if (native.get("schemaVersion") != 1 or native.get("code", {}).get("commit") != code["commit"]
-            or native.get("nativeVerified") is not False or not native.get("limitation")):
-        raise ValueError("Supply the current native observation and its explicit verification limit")
-    quality.offset_time(native["recordedAt"])
-    spec_path = ROOT / "tools/navidrome/acceptance-spec.json"
-    spec = quality.load_spec(spec_path)
-    inventory_path = ROOT / ".tmp/navidrome-audit/reference-index.json"
-    inventory = quality.read_json(inventory_path)
-    quality.validate_reference(spec, inventory)
-    provenance = revalidate(inventory, args.phone_package.resolve(), args.desktop_package.resolve())
-    directory = args.output or ROOT / ".tmp/navidrome-acceptance" / (quality.timestamp()[:10] + "-" + code["commit"][:7] + "-desktop")
-    directory = directory.resolve()
-    run_path = directory / "run.json"
-    run = quality.initial_run(spec, spec_path, run_path, inventory_path)
-    observations = {
-        "REF-PC": "The original installed desktop package file hashes match the MixRadio design inventory.",
-        "REF-WP": "The supplied phone archive and every original member hash match the separate MixRadio design inventory.",
-        "BUILD-PC": "A fresh MSBuild 14 Windows 8.1 Store Debug x86 build and workspace deployment completed successfully.",
-        "XML-MODELS": "Production XML model and serializer regressions passed.",
-        "QUEUE-CONTEXT": "Production queue regressions verify selected indices, full context replacement and explicit append.",
-        "QUEUE-REMOVE": "Production queue regressions verify removal, reordering, clear and current-item transitions.",
-        "QUEUE-SHUFFLE": "Production queue regressions verify complete shuffle cycles and previous-track history.",
-        "QUEUE-REPEAT": "Production queue regressions verify Off/All/One, natural completion and manual skip.",
-        "HISTORY-MODEL": "Production model/service regressions verify bounded, persisted and account-scoped listening records.",
-        "FAV-PROTOCOL": "Protocol and real-server integration verify confirmed song/album/artist star and unstar mutations.",
-        "ND-SOURCE": "The clean Navidrome reference commit, remote and source bytes match the lock; MixRadio retains design authority only.",
-        "ND-PROTOCOL": "Protocol/model, simulated audio, controlled jukebox, production service and real-server integration checks passed. Native interaction/decoding remains unverified.",
-    }
-    note_path = directory / "source-observations.json"
-    quality.write_json(note_path, {"schemaVersion": 1, "recordedAt": quality.timestamp(), "code": code,
-                                 "scope": spec["scope"], "referenceRevalidation": provenance,
-                                 "observations": observations, "verification": verification,
-                                 "nativeLimit": native["limitation"]})
-    source_note = quality.copy_evidence(directory, "source_note", note_path)
-    native_evidence = quality.copy_evidence(directory, "runtime_log", args.native_record)
-    test_evidence = {name: quality.copy_evidence(directory, "test_log", check["log"]) for name, check in checks.items()}
-    reference_evidence = quality.copy_evidence(directory, "reference_inventory", inventory_path)
-    for case, result in zip(spec["cases"], run["results"]):
-        case_id = case["id"]
-        if case_id in observations:
-            result.update(status="pass", score=4, notes=observations[case_id], reviewer="Automated source/server verification", measuredAt=quality.timestamp())
-            result["evidence"] = [source_note]
-            if case_id in {"REF-PC", "REF-WP"}:
-                result["evidence"].append(reference_evidence)
-            elif case_id == "ND-PROTOCOL":
-                result["evidence"].extend(test_evidence[name] for name in ("protocol", "audio", "jukebox", "services", "integration", "resources"))
-            else:
-                check = "build" if case_id == "BUILD-PC" else "serializer" if case_id == "XML-MODELS" else "reference" if case_id == "ND-SOURCE" else "playback"
-                result["evidence"].append(test_evidence[check])
-                if case_id == "FAV-PROTOCOL":
-                    result["evidence"].extend(test_evidence[name] for name in ("protocol", "integration"))
-        elif case["required"]:
-            result.update(status="blocked", score=None, notes=native["limitation"] + " Source/server checks do not establish this native case.",
-                          reviewer="Automated capture observer", measuredAt=quality.timestamp())
-            result["evidence"] = [native_evidence, source_note]
+    checks = validate_verification(verification, code)
+    data = build_spec.load_features()
+    spec = quality.load_spec(build_spec.SPEC)
+    if spec != build_spec.build() or verification.get('featureInventorySha256') != quality.digest(build_spec.FEATURES):
+        raise ValueError('The reviewed functional inventory/specification changed after verification')
+    reference_path = ROOT / '.tmp/navidrome-audit/reference-index.json'
+    reference = quality.read_json(reference_path)
+    quality.validate_reference(spec, reference)
+    inventory = revalidate_functional(reference, data)
+    gap = native_gap(code, args.native_record)
+    server_facts = facts(checks)
+    directory = (args.output or ROOT / '.tmp/navidrome-acceptance' / (quality.timestamp()[:10] + '-' + code['commit'][:7] + '-functions')).resolve()
+    run_path = directory / 'run.json'
+    run = quality.initial_run(spec, build_spec.SPEC, run_path, reference_path)
+    inventory_path = directory / 'function-inventory.json'
+    quality.write_json(inventory_path, inventory)
+    note = quality.copy_evidence(directory, 'source_note', inventory_path)
+    native_path = directory / 'native-observation.json'
+    quality.write_json(native_path, gap)
+    native = quality.copy_evidence(directory, 'runtime_log', native_path)
+    test_evidence = {name: quality.copy_evidence(directory, 'test_log', check['log']) for name, check in checks.items()}
+    code_evidence = {client['path']: quality.copy_evidence(directory, 'source_note', ROOT / client['path'])
+                     for function in inventory['functions'] for client in function['client']}
+    for case, result in zip(spec['cases'], run['results']):
+        missing = missing_proofs(case, checks)
+        if case['verificationLevel'] == 'native':
+            result.update(status=gap['status'], notes=gap['limitation'] + ' Prerequisites: ' + ' '.join(case['prerequisites']),
+                          reviewer='Current-source evidence recorder', measuredAt=quality.timestamp(), evidence=[note, native])
+        elif missing:
+            result.update(status='blocked', notes='The declared evidence layer was not observed: ' + ', '.join(missing),
+                          reviewer='Scoped automated verification', measuredAt=quality.timestamp(), evidence=[note])
+        else:
+            suites = sorted({proof.split(':')[0] for proof in case['automatedProofs']})
+            result.update(status='pass', score=3, notes='Declared ' + case['verificationLevel'] + ' criteria verified by ' + ', '.join(case['automatedProofs']) + '. Native execution is independent.',
+                          reviewer='Scoped automated verification', measuredAt=quality.timestamp(),
+                          evidence=[note] + [test_evidence[suite] for suite in suites])
         errors = quality.validate_result(case, result, directory, spec)
         if errors:
-            raise ValueError(case_id + ": " + "; ".join(errors))
-    run["defects"] = [{"id": "ENV-NATIVE-CAPTURE", "caseId": "PLAYER-LIVE", "priority": "P1", "status": "open",
-                       "notes": native["limitation"], "reviewer": "Automated capture observer", "updatedAt": quality.timestamp(), "evidence": [native_evidence]}]
-    run["verificationRecord"] = quality.copy_evidence(directory, "source_note", args.verification)
+            raise ValueError(case['id'] + ': ' + '; '.join(errors))
+    run['defects'] = [{'id': 'NATIVE-FUNCTIONS-OUTSTANDING', 'caseId': 'ND-TRANSPORT-NATIVE', 'priority': 'P1', 'status': 'open',
+                       'notes': gap['limitation'], 'reviewer': 'Current-source evidence recorder', 'updatedAt': quality.timestamp(), 'evidence': [native]}]
+    run['verificationRecord'] = quality.copy_evidence(directory, 'source_note', args.verification)
+    run['featureInventory'] = quality.copy_evidence(directory, 'source_note', build_spec.FEATURES)
+    run['fixture'] = {**verification['fixture'], **server_facts}
     quality.write_json(run_path, run)
-    evaluation = quality.evaluate_run(run, spec, directory, quality.digest(spec_path))
-    if any(check["errors"] for check in evaluation["checks"]):
-        raise ValueError("The acceptance run contains invalid evidence")
-    quality.write_json(directory / "evaluation.json", {key: value for key, value in evaluation.items() if key != "checks"})
-    (directory / "report.html").write_text(quality.render_report(run, spec, evaluation), encoding="utf-8")
-    print(json.dumps({key: evaluation[key] for key in ("accepted", "overall", "verified", "passed", "required")}, indent=2))
-    print("Report: " + str(directory / "report.html"))
-    return 0 if evaluation["accepted"] else 2
+    evaluation = quality.evaluate_run(run, spec, directory, quality.digest(build_spec.SPEC))
+    if any(item['errors'] for item in evaluation['checks']):
+        raise ValueError('The generated acceptance run has invalid evidence')
+    summary = feature_summary(data, spec, run)
+    quality.write_json(directory / 'function-summary.json', summary)
+    quality.write_json(directory / 'evaluation.json', {key: value for key, value in evaluation.items() if key != 'checks'})
+    rendered = render_matrix(quality.render_report(run, spec, evaluation), inventory, summary, code_evidence, server_facts)
+    (directory / 'report.html').write_text(rendered, encoding='utf-8')
+    print(json.dumps({'accepted': evaluation['accepted'], 'mappedFunctions': summary['mapped'],
+                      'automatedPassed': summary['automatedPassed'], 'automatedRequired': summary['automatedRequired'],
+                      'nativeAccepted': summary['nativeAccepted'], 'nativeRequired': summary['mapped'],
+                      'passed': evaluation['passed'], 'required': evaluation['required']}, indent=2))
+    print('Report: ' + str(directory / 'report.html'))
+    return 0 if evaluation['accepted'] else 2
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
         sys.exit(main())
-    except (ValueError, KeyError, OSError, StopIteration, zipfile.BadZipFile) as error:
+    except (ValueError, KeyError, OSError, StopIteration) as error:
         print(str(error), file=sys.stderr)
         sys.exit(1)

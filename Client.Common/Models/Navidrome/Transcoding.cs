@@ -95,7 +95,7 @@ namespace Client.Common.Models.Navidrome
         public bool CanTranscode { get; set; }
         public string TranscodeParams { get; set; }
         public string ErrorReason { get; set; }
-        public IList<string> Reasons { get; set; }
+        public List<string> Reasons { get; set; }
         public AudioStreamDetails SourceStream { get; set; }
         public AudioStreamDetails TranscodeStream { get; set; }
     }

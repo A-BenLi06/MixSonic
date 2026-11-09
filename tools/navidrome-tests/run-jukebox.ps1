@@ -19,7 +19,7 @@ $sources += @(
     'tools\serializer-tests\VisualStateResultStub.cs', 'tools\navidrome-tests\StorageAdapters.cs',
     'tools\navidrome-tests\JukeboxAdapters.cs', 'tools\navidrome-tests\JukeboxTests.cs'
 )
-$sources = $sources | Select-Object -Unique | ForEach-Object { Join-Path $projectRoot $_ }
+$sources = $sources | ForEach-Object { [IO.Path]::GetFullPath((Join-Path $projectRoot $_)) } | Select-Object -Unique
 $executable = Join-Path $outputDirectory 'navidrome-jukebox.exe'
 & $CompilerPath /nologo /main:NavidromeJukeboxTests "/out:$executable" @sources "/r:$($caliburn.FullName)" /r:System.Net.Http.dll /r:System.ServiceModel.dll /r:System.Runtime.Serialization.dll /r:System.Xml.dll /r:System.Xml.Linq.dll /r:Microsoft.CSharp.dll
 if ($LASTEXITCODE -ne 0) { throw 'Production jukebox page compilation failed.' }
