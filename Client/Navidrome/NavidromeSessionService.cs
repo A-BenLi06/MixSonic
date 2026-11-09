@@ -25,8 +25,10 @@ namespace Subsonic8.Navidrome
         string FolderId { get; }
         string AccountKey { get; }
         string Status { get; }
+        string CapabilityError { get; }
+        string UserError { get; }
         bool IsConnected { get; }
-        Task ConnectAsync();
+        Task ConnectAsync(bool refresh = false);
         NavidromeApi CreateApi();
     }
 
@@ -57,6 +59,8 @@ namespace Subsonic8.Navidrome
         public string AccountKey { get { return AccountIdentity.For(_subsonic.Configuration); } }
         public string FolderId { get { return SelectedFolder == null ? null : SelectedFolder.Id; } }
         public string Status { get; private set; }
+        public string CapabilityError { get; private set; }
+        public string UserError { get; private set; }
         public bool IsConnected { get { return _ready && _connectedAccount == AccountKey && _subsonic.Configuration != null && _connectedPassword == _subsonic.Configuration.Password; } }
         public MusicFolder SelectedFolder
         {
@@ -79,15 +83,15 @@ namespace Subsonic8.Navidrome
             return CryptographicBuffer.EncodeToHexString(provider.HashData(CryptographicBuffer.ConvertStringToBinary(value, BinaryStringEncoding.Utf8)));
         }
 
-        public Task ConnectAsync()
+        public Task ConnectAsync(bool refresh = false)
         {
             var account = AccountKey;
             var password = _subsonic.Configuration == null ? null : _subsonic.Configuration.Password;
             if (string.IsNullOrEmpty(account)) throw new InvalidOperationException(NavidromeText.Get("ConfigureServer"));
-            if (_connectedAccount == account && _connectedPassword == password && _connecting != null) return _connecting;
+            if (!refresh && _connectedAccount == account && _connectedPassword == password && _connecting != null) return _connecting;
             _connectedAccount = account;
             _connectedPassword = password;
-            _ready = false; Capabilities = null; User = null; _selectedFolder = null; Folders.Clear();
+            _ready = false; Capabilities = null; User = null; CapabilityError = null; UserError = null; _selectedFolder = null; Folders.Clear();
             _connecting = ConnectCore(new NavidromeApi(_subsonic.Configuration), ++_version);
             return _connecting;
         }
@@ -107,6 +111,8 @@ namespace Subsonic8.Navidrome
                 Capabilities = ping.Server;
                 if (extensions.Error == null) foreach (var extension in extensions.Result) Capabilities.Extensions[extension.Key] = extension.Value;
                 User = user.Error == null ? user.Result : null;
+                CapabilityError = extensions.Error == null ? null : extensions.Error.Message;
+                UserError = user.Error == null ? null : user.Error.Message;
                 Folders.Add(new MusicFolder { Id = null, Name = NavidromeText.Get("AllLibraries") });
                 Folders.AddRange(folders.Result);
                 object savedValue;
@@ -116,6 +122,7 @@ namespace Subsonic8.Navidrome
                 Status = string.Join(" ", new[] { Capabilities.Type, Capabilities.ServerVersion }.Where(s => !string.IsNullOrEmpty(s)));
                 _ready = true;
                 NotifyOfPropertyChange(() => Capabilities); NotifyOfPropertyChange(() => User);
+                NotifyOfPropertyChange(() => CapabilityError); NotifyOfPropertyChange(() => UserError);
                 NotifyOfPropertyChange(() => SelectedFolder); NotifyOfPropertyChange(() => FolderId); NotifyOfPropertyChange(() => Status);
                 NotifyOfPropertyChange(() => IsConnected);
             }
@@ -151,9 +158,10 @@ namespace Subsonic8.Navidrome
         private void ResetConnection()
         {
             ++_version; _ready = false; _connecting = null; _connectedAccount = _connectedPassword = null;
-            Capabilities = null; User = null; Status = null; _selectedFolder = null; Folders.Clear();
+            Capabilities = null; User = null; Status = null; CapabilityError = null; UserError = null; _selectedFolder = null; Folders.Clear();
             NotifyOfPropertyChange(() => AccountKey); NotifyOfPropertyChange(() => IsConnected);
             NotifyOfPropertyChange(() => User); NotifyOfPropertyChange(() => Capabilities); NotifyOfPropertyChange(() => Status);
+            NotifyOfPropertyChange(() => CapabilityError); NotifyOfPropertyChange(() => UserError);
             NotifyOfPropertyChange(() => SelectedFolder); NotifyOfPropertyChange(() => FolderId);
             var handler = LibraryChanged; if (handler != null) handler(this, EventArgs.Empty);
         }

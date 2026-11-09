@@ -83,6 +83,9 @@
                 case SubsonicModelTypeEnum.LibraryDownloads:
                     navigationService.NavigateToViewModel<NavidromeDownloadsViewModel>();
                     break;
+                case SubsonicModelTypeEnum.LibraryAccount:
+                    navigationService.NavigateToViewModel<NavidromeAccountViewModel>();
+                    break;
                 case SubsonicModelTypeEnum.Playlist:
                     navigationService.NavigateToViewModel<NavidromeDetailViewModel>(NavidromeRoute.For("playlist", id));
                     break;

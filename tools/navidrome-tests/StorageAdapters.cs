@@ -102,6 +102,7 @@ namespace Windows.UI.Xaml
         public void Resume() { if (Resuming != null) Resuming(this, null); }
     }
 }
+#if !NATIVE_PLAYER_TESTS
 namespace Subsonic8.AudioPlayback
 {
     public interface IAudioPlayerViewModel : System.ComponentModel.INotifyPropertyChanged
@@ -119,3 +120,4 @@ namespace Subsonic8.AudioPlayback
         void Pause();
     }
 }
+#endif

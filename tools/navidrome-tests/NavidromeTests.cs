@@ -64,6 +64,11 @@ public static class NavidromeTests
         service.Configuration.StreamingFormat = "mp3";
         service.Configuration.MaximumBitRate = 192;
         Check(Param(service.GetUriForFileWithId("s").Query, "maxBitRate") == "192", "Configured quality affects stream");
+        Check(Param(service.GetUriForFileWithId("s").Query, "format") == "mp3", "The chosen stream format reaches the protocol");
+        service.Configuration.StreamingFormat = "raw";
+        Check(Param(service.GetUriForFileWithId("s").Query, "format") == "raw", "Original streaming is an explicit server request");
+        service.Configuration.StreamingFormat = null; service.Configuration.MaximumBitRate = 0;
+        Check(Param(service.GetUriForFileWithId("s").Query, "format") == null && Param(service.GetUriForFileWithId("s").Query, "maxBitRate") == null, "Server defaults omit format and bitrate constraints");
         var culture = CultureInfo.CurrentCulture;
         try
         {

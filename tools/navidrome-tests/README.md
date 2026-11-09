@@ -4,6 +4,12 @@
 compiler. `check-client.py` checks desktop resources and project inclusion. Neither
 runner claims native interaction or visual acceptance.
 
+`./tools/navidrome-tests/run-audio.ps1` compiles the production audio view model
+and control contracts with simulated native events. It verifies persisted controls,
+media-open/start/stop/seek ordering, queue completion, current stream preferences
+and bounded MP3 compatibility retries. It neither decodes media nor verifies XAML
+or background playback. Malformed saved controls must recover to valid defaults.
+
 The real-server fixture is separate from the functional source lock. This work
 uses the official Navidrome 0.64.2 Windows amd64 archive, verified against the
 release checksum file. Its extracted executable SHA-256 is

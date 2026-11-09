@@ -89,8 +89,17 @@ queue save/restore, bookmarks, favorites/ratings, playlist creation and local
 queue import/export. Synchronized lyric lines follow media milliseconds and the
 returned offset; manual lyric scrolling can disable following. Stale track/account
 loads cannot replace current lyrics, and local playback reads cached album/artist
-metadata and variants without connecting. Stream-quality and account/scan
-preferences remain in progress.
+metadata and variants without connecting. The Settings flyout persists server
+addresses, stream format and bitrate, migrates the older MP3 compatibility switch,
+validates input and preserves saved settings with an explicit connection error
+when offline. Queued songs use current quality preferences when playback starts.
+An unopened HTTP song can retry once as MP3, with a visible compatibility state;
+local/radio/other-account sources and already-playing failures do not start that
+retry. Failed compatible opens retain both errors and do not create listening history.
+The Account page shows actual server roles, version/capabilities and scan state;
+only the returned administrator role enables starting a scan. Active scans refresh
+while the page is open. Explicit reconnect refreshes roles and restores library
+selection; optional extension/user errors remain visible without inventing support.
 Native capture still times out and the
 client accessibility tree is empty through the installed helper; no native
 interaction or visual pass is inferred from successful source/build checks.

@@ -271,4 +271,54 @@
   <data name="Navidrome_Lyrics.Text" xml:space="preserve"><value>lyrics</value></data>
   <data name="Navidrome_LyricVariant.AutomationProperties.Name" xml:space="preserve"><value>Lyric variant</value></data>
   <data name="Navidrome_FollowLyrics.Header" xml:space="preserve"><value>Follow the current line</value></data>
+  <data name="Navidrome_Text_Account" xml:space="preserve"><value>account</value></data>
+  <data name="Navidrome_Text_AccountStatus" xml:space="preserve"><value>permissions and server status</value></data>
+  <data name="Navidrome_Text_Settings" xml:space="preserve"><value>Music settings</value></data>
+  <data name="Navidrome_Text_FormatDefault" xml:space="preserve"><value>Server default</value></data>
+  <data name="Navidrome_Text_FormatOriginal" xml:space="preserve"><value>Original file</value></data>
+  <data name="Navidrome_Text_FormatMp3" xml:space="preserve"><value>MP3</value></data>
+  <data name="Navidrome_Text_ServerAddressRequired" xml:space="preserve"><value>Enter at least one server address.</value></data>
+  <data name="Navidrome_Text_InvalidServerAddress" xml:space="preserve"><value>Use an HTTP or HTTPS server address without a query, fragment or embedded credentials.</value></data>
+  <data name="Navidrome_Text_CredentialsRequired" xml:space="preserve"><value>Enter your username and password.</value></data>
+  <data name="Navidrome_Text_InvalidBitRate" xml:space="preserve"><value>Enter a whole bitrate of zero or more.</value></data>
+  <data name="Navidrome_Text_SettingsSavedUnreachable" xml:space="preserve"><value>Settings were saved, but the server could not be reached. {0}</value></data>
+  <data name="Navidrome_Text_ScanUnknown" xml:space="preserve"><value>Scan status is unavailable.</value></data>
+  <data name="Navidrome_Text_ScanInProgress" xml:space="preserve"><value>Scanning: {0} files</value></data>
+  <data name="Navidrome_Text_ScanIdle" xml:space="preserve"><value>Scan idle: {0} files</value></data>
+  <data name="Navidrome_Text_LastScan" xml:space="preserve"><value>Last scan: {0}</value></data>
+  <data name="Navidrome_Text_RolesUnknown" xml:space="preserve"><value>Account permissions are unavailable.</value></data>
+  <data name="Navidrome_Text_NoRoles" xml:space="preserve"><value>No playback permissions were returned.</value></data>
+  <data name="Navidrome_Text_RoleAdministrator" xml:space="preserve"><value>administrator</value></data>
+  <data name="Navidrome_Text_RoleStreaming" xml:space="preserve"><value>streaming</value></data>
+  <data name="Navidrome_Text_RoleDownloads" xml:space="preserve"><value>downloads</value></data>
+  <data name="Navidrome_Text_RoleSharing" xml:space="preserve"><value>sharing</value></data>
+  <data name="Navidrome_Text_RoleJukebox" xml:space="preserve"><value>jukebox</value></data>
+  <data name="Navidrome_Text_AdministratorRequired" xml:space="preserve"><value>This command requires administrator permission.</value></data>
+  <data name="Navidrome_Settings.Label" xml:space="preserve"><value>Settings</value></data>
+  <data name="Navidrome_StartScan.Label" xml:space="preserve"><value>Start library scan</value></data>
+  <data name="Navidrome_Account.Label" xml:space="preserve"><value>Account and server</value></data>
+  <data name="Navidrome_SettingsTitle.Text" xml:space="preserve"><value>music settings</value></data>
+  <data name="Navidrome_ServerTitle.Text" xml:space="preserve"><value>server</value></data>
+  <data name="Navidrome_ScanTitle.Text" xml:space="preserve"><value>library scan</value></data>
+  <data name="Navidrome_ExtensionsTitle.Text" xml:space="preserve"><value>server capabilities</value></data>
+  <data name="Navidrome_AccountTitle.Text" xml:space="preserve"><value>account</value></data>
+  <data name="Navidrome_PlaybackTitle.Text" xml:space="preserve"><value>playback</value></data>
+  <data name="Navidrome_PrimaryAddressLabel.Text" xml:space="preserve"><value>Primary server address</value></data>
+  <data name="Navidrome_PrimaryAddress.PlaceholderText" xml:space="preserve"><value>https://music.example.com</value></data>
+  <data name="Navidrome_PrimaryAddress.AutomationProperties.Name" xml:space="preserve"><value>Primary server address</value></data>
+  <data name="Navidrome_SecondaryAddressLabel.Text" xml:space="preserve"><value>Alternate server address</value></data>
+  <data name="Navidrome_SecondaryAddress.PlaceholderText" xml:space="preserve"><value>Optional alternate address</value></data>
+  <data name="Navidrome_SecondaryAddress.AutomationProperties.Name" xml:space="preserve"><value>Alternate server address</value></data>
+  <data name="Navidrome_UsernameLabel.Text" xml:space="preserve"><value>Username</value></data>
+  <data name="Navidrome_Username.AutomationProperties.Name" xml:space="preserve"><value>Username</value></data>
+  <data name="Navidrome_PasswordLabel.Text" xml:space="preserve"><value>Password</value></data>
+  <data name="Navidrome_Password.AutomationProperties.Name" xml:space="preserve"><value>Password</value></data>
+  <data name="Navidrome_FormatLabel.Text" xml:space="preserve"><value>Streaming format</value></data>
+  <data name="Navidrome_Format.AutomationProperties.Name" xml:space="preserve"><value>Streaming format</value></data>
+  <data name="Navidrome_BitRateLabel.Text" xml:space="preserve"><value>Maximum bitrate (kbps)</value></data>
+  <data name="Navidrome_BitRate.AutomationProperties.Name" xml:space="preserve"><value>Maximum streaming bitrate in kilobits per second</value></data>
+  <data name="Navidrome_QualityHelp.Text" xml:space="preserve"><value>Zero follows server policy. Original streaming ignores this limit. Changes apply when a track starts. Files that cannot open will retry once as MP3.</value></data>
+  <data name="Navidrome_Notifications.Header" xml:space="preserve"><value>Notify when the song changes</value></data>
+  <data name="Navidrome_SaveSettings.Content" xml:space="preserve"><value>Save settings</value></data>
+  <data name="Navidrome_CompatibleStream.Text" xml:space="preserve"><value>MP3 compatibility stream</value></data>
 </root>

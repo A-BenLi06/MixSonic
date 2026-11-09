@@ -32,6 +32,7 @@
                 <AppBarButton x:Name="ImportQueue" x:Uid="Navidrome_ImportQueue"/>
                 <AppBarButton x:Name="ExportQueue" x:Uid="Navidrome_ExportQueue"/>
                 <AppBarButton x:Name="SyncListening" x:Uid="Navidrome_SyncListening"/>
+                <AppBarButton x:Name="Account" x:Uid="Navidrome_Account"/>
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>
@@ -60,6 +61,7 @@
                     <TextBlock Text="{Binding Album}" FontSize="15" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" TextWrapping="Wrap" Margin="0,6,20,0"/>
                     <TextBlock Text="{Binding RatingText}" FontSize="13" Margin="0,6,0,0"/>
                     <ProgressBar IsIndeterminate="True" Margin="0,12,20,0" Visibility="{Binding Audio.IsBuffering, Converter={StaticResource NavidromeVisibility}}"/>
+                    <TextBlock x:Uid="Navidrome_CompatibleStream" TextWrapping="Wrap" FontSize="13" Margin="0,8,20,0" Visibility="{Binding Audio.IsUsingCompatibleStream, Converter={StaticResource NavidromeVisibility}}"/>
                     <Slider x:Name="SeekSlider" x:Uid="Navidrome_Seek" Margin="0,12,20,0" Minimum="0" Maximum="{Binding DurationSeconds}" Value="{Binding PositionSeconds, Mode=TwoWay}" IsEnabled="{Binding Audio.CanSeek}"/>
                     <Grid Margin="0,0,20,0">
                         <TextBlock Text="{Binding PositionText}" FontSize="13"/>

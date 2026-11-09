@@ -1,126 +1,35 @@
-﻿<UserControl
-    x:Class="Subsonic8.Settings.SettingsView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:cal="using:Caliburn.Micro"
-    mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
-
-    <StackPanel HorizontalAlignment="Stretch" Background="Transparent" Margin="0,0,18,0">
-        <TextBlock Text="MixRadio"
-                   Foreground="{StaticResource ApplicationForegroundThemeBrush}"
-                   FontFamily="Segoe UI Light"
-                   FontSize="36" />
-        <TextBlock Text="navidrome settings"
-                   Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                   FontFamily="Segoe UI Light"
-                   FontSize="20"
-                   Margin="0,-2,0,12" />
-        <Rectangle Width="64"
-                   Height="4"
-                   Fill="{StaticResource MixRadioAccentBrush}"
-                   HorizontalAlignment="Left"
-                   Margin="0,0,0,10" />
-
-        <Border Background="#33000000" Margin="0,2,0,10" Padding="12,8,12,10">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Rectangle Width="4"
-                               Height="28"
-                               Fill="{StaticResource MixRadioTealBrush}"
-                               Margin="0,4,10,0" />
-                    <TextBlock Text="server"
-                               Foreground="{StaticResource MixRadioTealBrush}"
-                               FontFamily="Segoe UI Light"
-                               FontSize="24" />
-                </StackPanel>
-
-                <TextBlock Text="Primary URL" Style="{StaticResource SettingsTextStyle}" />
-                <TextBox x:Name="Configuration_SubsonicServiceConfiguration_PrimaryUrl"
-                         PlaceholderText="e.g. http://192.168.1.100:4040"
-                         Style="{StaticResource SettingsTextBoxStyle}"
-                         cal:Message.Attach="[Event TextChanged]=[Action PrimaryUrlChanged($source)]" />
-
-                <TextBlock Text="Secondary URL" Style="{StaticResource SettingsTextStyle}" />
-                <TextBox x:Name="Configuration_SubsonicServiceConfiguration_SecondaryUrl"
-                         PlaceholderText="e.g. https://music.example.com"
-                         Style="{StaticResource SettingsTextBoxStyle}"
-                         cal:Message.Attach="[Event TextChanged]=[Action SecondaryUrlChanged($source)]" />
-
-                <TextBlock x:Name="UrlValidationMessage"
-                           Foreground="{StaticResource MixRadioAccentBrush}"
-                           Visibility="Collapsed"
-                           Text="At least one URL is required"
-                           TextWrapping="Wrap"
-                           Margin="0,8,0,0" />
-            </StackPanel>
-        </Border>
-
-        <Border Background="#33000000" Margin="0,0,0,10" Padding="12,8,12,10">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Rectangle Width="4"
-                               Height="28"
-                               Fill="{StaticResource MixRadioYellowBrush}"
-                               Margin="0,4,10,0" />
-                    <TextBlock Text="account"
-                               Foreground="{StaticResource MixRadioYellowBrush}"
-                               FontFamily="Segoe UI Light"
-                               FontSize="24" />
-                </StackPanel>
-
-                <TextBlock Text="Username" Style="{StaticResource SettingsTextStyle}" />
-                <TextBox Text="{Binding Path=Configuration.SubsonicServiceConfiguration.Username}"
-                         Style="{StaticResource SettingsTextBoxStyle}"
-                         cal:Message.Attach="[Event TextChanged]=[Action UsernameChanged($source)]" />
-
-                <TextBlock Text="Password" Style="{StaticResource SettingsTextStyle}" />
-                <PasswordBox Password="{Binding Path=Configuration.SubsonicServiceConfiguration.Password}"
-                             Style="{StaticResource PasswordTextBoxStyle}"
-                             cal:Message.Attach="[Event PasswordChanged]=[Action PasswordChanged($source)]" />
-            </StackPanel>
-        </Border>
-
-        <Border Background="#33000000" Margin="0,0,0,12" Padding="12,8,12,10">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Rectangle Width="4"
-                               Height="28"
-                               Fill="{StaticResource MixRadioAccentBrush}"
-                               Margin="0,4,10,0" />
-                    <TextBlock Text="playback"
-                               Foreground="{StaticResource MixRadioAccentBrush}"
-                               FontFamily="Segoe UI Light"
-                               FontSize="24" />
-                </StackPanel>
-
-                <ToggleSwitch Header="Enable notifications on song change" IsOn="{Binding Path=Configuration.UseToastNotifications, Mode=TwoWay}"
-                              Margin="0,8,0,0" OffContent="Off" OnContent="On" Style="{StaticResource LightToggleSwitch}">
-                    <ToggleSwitch.HeaderTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding}" Style="{StaticResource SettingsTextStyle}" />
-                        </DataTemplate>
-                    </ToggleSwitch.HeaderTemplate>
-                </ToggleSwitch>
-
-                <ToggleSwitch Header="Compatible Mode (Transcode lossless to MP3 320kbps)" IsOn="{Binding Path=Configuration.SubsonicServiceConfiguration.CompatibleMode, Mode=TwoWay}"
-                              Margin="0,8,0,0" OffContent="Off" OnContent="On" Style="{StaticResource LightToggleSwitch}">
-                    <ToggleSwitch.HeaderTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding}" Style="{StaticResource SettingsTextStyle}" />
-                        </DataTemplate>
-                    </ToggleSwitch.HeaderTemplate>
-                </ToggleSwitch>
-            </StackPanel>
-        </Border>
-
-        <Button x:Name="ApplyChanges"
-                Style="{StaticResource LightButton}"
-                Width="128"
-                MinHeight="38"
-                Content="save"
-                HorizontalAlignment="Right"
-                Margin="0,2,0,0" />
-    </StackPanel>
+<UserControl x:Class="Subsonic8.Settings.SettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cal="using:Caliburn.Micro">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel HorizontalAlignment="Stretch" Background="Transparent" Margin="0,0,18,24">
+            <TextBlock x:Uid="Navidrome_SettingsTitle" FontFamily="Segoe UI Light" FontSize="32"/>
+            <TextBlock x:Uid="Navidrome_ServerTitle" FontFamily="Segoe UI Light" FontSize="24" Margin="0,24,0,12"/>
+            <TextBlock x:Uid="Navidrome_PrimaryAddressLabel" Style="{StaticResource SettingsTextStyle}"/>
+            <TextBox x:Uid="Navidrome_PrimaryAddress" Text="{Binding Configuration.SubsonicServiceConfiguration.PrimaryUrl}" Style="{StaticResource SettingsTextBoxStyle}"
+                cal:Message.Attach="[Event TextChanged]=[Action PrimaryUrlChanged($source)]"/>
+            <TextBlock x:Uid="Navidrome_SecondaryAddressLabel" Style="{StaticResource SettingsTextStyle}"/>
+            <TextBox x:Uid="Navidrome_SecondaryAddress" Text="{Binding Configuration.SubsonicServiceConfiguration.SecondaryUrl}" Style="{StaticResource SettingsTextBoxStyle}"
+                cal:Message.Attach="[Event TextChanged]=[Action SecondaryUrlChanged($source)]"/>
+            <TextBlock x:Uid="Navidrome_AccountTitle" FontFamily="Segoe UI Light" FontSize="24" Margin="0,24,0,12"/>
+            <TextBlock x:Uid="Navidrome_UsernameLabel" Style="{StaticResource SettingsTextStyle}"/>
+            <TextBox x:Uid="Navidrome_Username" Text="{Binding Configuration.SubsonicServiceConfiguration.Username}" Style="{StaticResource SettingsTextBoxStyle}"
+                cal:Message.Attach="[Event TextChanged]=[Action UsernameChanged($source)]"/>
+            <TextBlock x:Uid="Navidrome_PasswordLabel" Style="{StaticResource SettingsTextStyle}"/>
+            <PasswordBox x:Uid="Navidrome_Password" Password="{Binding Configuration.SubsonicServiceConfiguration.Password}" Style="{StaticResource PasswordTextBoxStyle}"
+                cal:Message.Attach="[Event PasswordChanged]=[Action PasswordChanged($source)]"/>
+            <TextBlock x:Uid="Navidrome_PlaybackTitle" FontFamily="Segoe UI Light" FontSize="24" Margin="0,24,0,12"/>
+            <TextBlock x:Uid="Navidrome_FormatLabel" Style="{StaticResource SettingsTextStyle}"/>
+            <ComboBox x:Uid="Navidrome_Format" ItemsSource="{Binding StreamFormats}" SelectedItem="{Binding SelectedFormat, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch"/>
+            <TextBlock x:Uid="Navidrome_BitRateLabel" Style="{StaticResource SettingsTextStyle}" Margin="0,12,0,4"/>
+            <TextBox x:Uid="Navidrome_BitRate" Text="{Binding MaximumBitRateText}" Style="{StaticResource SettingsTextBoxStyle}"
+                cal:Message.Attach="[Event TextChanged]=[Action BitRateChanged($source)]"/>
+            <TextBlock x:Uid="Navidrome_QualityHelp" TextWrapping="Wrap" FontSize="13" Margin="0,8,0,12"/>
+            <ToggleSwitch x:Uid="Navidrome_Notifications" IsOn="{Binding Configuration.UseToastNotifications, Mode=TwoWay}" Style="{StaticResource LightToggleSwitch}" Margin="0,12,0,0"/>
+            <TextBlock Text="{Binding ValidationMessage}" TextWrapping="Wrap" Margin="0,16,0,0"/>
+            <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+            <ProgressRing IsActive="{Binding IsWorking}" Width="32" Height="32" HorizontalAlignment="Left" Margin="0,12,0,0"/>
+            <Button x:Name="ApplyChanges" x:Uid="Navidrome_SaveSettings" Style="{StaticResource LightButton}" MinWidth="128" MinHeight="44" HorizontalAlignment="Right" Margin="0,16,0,0"/>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

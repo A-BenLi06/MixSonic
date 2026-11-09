@@ -49,6 +49,10 @@ public static class NavidromeServiceTests
         var subsonic = new SubsonicService { Configuration = configuration };
         var session = new NavidromeSessionService(subsonic); await session.ConnectAsync();
         Check(session.IsConnected && session.User.DownloadRole, "Production sessions negotiate download permission.");
+        session.SelectedFolder = session.Folders.Last(); var selectedFolderId = session.FolderId;
+        await session.ConnectAsync(true);
+        Check(session.IsConnected && session.User.AdminRole && session.FolderId == selectedFolderId, "Explicit reconnect refreshes actual roles and restores the selected accessible library.");
+        Check(session.UserError == null && session.CapabilityError == null, "Successful optional server responses have no hidden connection warnings.");
         var api = session.CreateApi();
         var songs = (await api.Search(new SearchQuery { Query = "", ArtistCount = 0, AlbumCount = 0, SongCount = 3 }).ReadAsync()).Songs.ToList();
         var offline = new OfflineLibraryService(session);

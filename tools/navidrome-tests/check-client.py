@@ -10,7 +10,7 @@ project = ET.parse(client / 'Client.csproj')
 included = {node.get('Include', '').replace('\\', '/') for node in project.iter()}
 issues = []
 lookups = 0
-for path in (client / 'Navidrome').iterdir():
+for path in list((client / 'Navidrome').iterdir()) + list((client / 'Settings').glob('SettingsView*')):
     if path.suffix not in ('.cs', '.xaml'):
         continue
     relative = path.relative_to(client).as_posix()

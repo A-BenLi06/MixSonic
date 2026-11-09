@@ -1,0 +1,34 @@
+<framework:AppPage x:Class="Subsonic8.Navidrome.NavidromeAccountView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:framework="using:Subsonic8.Framework">
+    <Page.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="NavidromeResources.xaml"/></ResourceDictionary.MergedDictionaries></ResourceDictionary></Page.Resources>
+    <Page.BottomAppBar><CommandBar>
+        <AppBarButton x:Name="Reload" x:Uid="Navidrome_Refresh" Icon="Refresh"/>
+        <AppBarButton x:Name="Settings" x:Uid="Navidrome_Settings" Icon="Setting"/>
+        <CommandBar.SecondaryCommands><AppBarButton x:Name="StartScan" x:Uid="Navidrome_StartScan"/></CommandBar.SecondaryCommands>
+    </CommandBar></Page.BottomAppBar>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel x:Name="Canvas" Margin="88,30,48,40" MaxWidth="960" HorizontalAlignment="Left">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="48"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Button x:Name="GoBack" x:Uid="Navidrome_Back" Content="&#xE112;" FontFamily="Segoe UI Symbol" MinHeight="40" MinWidth="40"/>
+                <TextBlock x:Name="PageTitle" Grid.Column="1" Text="{Binding DisplayName}" FontSize="44" FontFamily="Segoe UI Light" Margin="12,0,0,0"/>
+            </Grid>
+            <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Margin="0,16,0,12"/>
+            <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}"/>
+            <TextBlock Text="{Binding Session.User.Username}" FontSize="32" FontFamily="Segoe UI Light" Margin="0,24,0,8"/>
+            <TextBlock Text="{Binding Roles}" FontSize="18" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding Session.UserError}" FontSize="15" TextWrapping="Wrap" Margin="0,8,0,0"/>
+            <TextBlock x:Uid="Navidrome_ServerTitle" FontSize="28" FontFamily="Segoe UI Light" Margin="0,30,0,12"/>
+            <TextBlock Text="{Binding Session.Status}" FontSize="20" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding Session.Capabilities.ProtocolVersion}" FontSize="15" Margin="0,6,0,0"/>
+            <TextBlock x:Uid="Navidrome_ScanTitle" FontSize="28" FontFamily="Segoe UI Light" Margin="0,30,0,12"/>
+            <TextBlock Text="{Binding ScanMessage}" FontSize="20" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding LastScan}" FontSize="15" TextWrapping="Wrap" Margin="0,6,0,0"/>
+            <ProgressBar IsIndeterminate="True" Margin="0,16,0,0" Visibility="{Binding IsScanning, Converter={StaticResource NavidromeVisibility}}"/>
+            <TextBlock x:Uid="Navidrome_ExtensionsTitle" FontSize="28" FontFamily="Segoe UI Light" Margin="0,30,0,12"/>
+            <TextBlock Text="{Binding Extensions}" FontSize="15" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
+            <TextBlock Text="{Binding Session.CapabilityError}" FontSize="15" TextWrapping="Wrap" Margin="0,8,0,0"/>
+        </StackPanel>
+    </ScrollViewer>
+</framework:AppPage>

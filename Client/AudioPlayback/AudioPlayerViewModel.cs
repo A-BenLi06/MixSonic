@@ -1,6 +1,7 @@
 namespace Subsonic8.AudioPlayback
 {
     using System;
+    using System.Globalization;
 
     using Windows.UI.Xaml;
 
@@ -8,6 +9,7 @@ namespace Subsonic8.AudioPlayback
 
     using Client.Common.EventAggregatorMessages;
     using Client.Common.Models;
+    using Client.Common.Services;
 
     using MugenInjection.Attributes;
 
@@ -36,13 +38,25 @@ namespace Subsonic8.AudioPlayback
         private bool _stopped = true;
         private bool _opened;
         private bool _playWhenOpened;
+        private bool _retriedCompatibleStream;
+        private bool _currentStreamIsMp3;
+        private string _originalPlaybackError;
 
         public AudioPlayerViewModel()
         {
             var settings = ApplicationData.Current.LocalSettings.Values;
-            if (settings.ContainsKey("AudioVolume")) _volume = Math.Max(0, Math.Min(1, Convert.ToDouble(settings["AudioVolume"])));
-            if (settings.ContainsKey("AudioMuted")) _isMuted = Convert.ToBoolean(settings["AudioMuted"]);
-            if (settings.ContainsKey("AudioRate")) _rate = Math.Max(0.5, Math.Min(2, Convert.ToDouble(settings["AudioRate"])));
+            _volume = Math.Max(0, Math.Min(1, ReadNumber("AudioVolume", 1)));
+            _rate = Math.Max(0.5, Math.Min(2, ReadNumber("AudioRate", 1)));
+            object muted; bool value;
+            if (settings.TryGetValue("AudioMuted", out muted) && bool.TryParse(Convert.ToString(muted, CultureInfo.InvariantCulture), out value)) _isMuted = value;
+        }
+
+        private static double ReadNumber(string key, double fallback)
+        {
+            object value; double number;
+            return ApplicationData.Current.LocalSettings.Values.TryGetValue(key, out value) &&
+                double.TryParse(Convert.ToString(value, CultureInfo.InvariantCulture), NumberStyles.Float, CultureInfo.InvariantCulture, out number) &&
+                !double.IsNaN(number) && !double.IsInfinity(number) ? number : fallback;
         }
 
         #endregion
@@ -61,6 +75,8 @@ namespace Subsonic8.AudioPlayback
         public bool CanSeek { get { return _opened && !_stopped && _playerControls != null && _playerControls.CanSeek; } }
         public bool IsBuffering { get; private set; }
         public string PlaybackError { get; private set; }
+        public bool IsUsingCompatibleStream { get; private set; }
+        [Inject] public ISubsonicService SubsonicService { get; set; }
         public TimeSpan LastStoppedPosition { get; private set; }
         public double Volume
         {
@@ -192,16 +208,38 @@ namespace Subsonic8.AudioPlayback
         {
             Stop();
             _currentItem = item;
+            _retriedCompatibleStream = false; _originalPlaybackError = null; IsUsingCompatibleStream = false;
+            _currentStreamIsMp3 = false;
+            if (CanResolveStream(item))
+            {
+                item.Uri = SubsonicService.GetUriForFileWithId(item.SongId);
+                _currentStreamIsMp3 = SubsonicService.Configuration.CompatibleMode ||
+                    string.Equals(SubsonicService.Configuration.StreamingFormat, "mp3", StringComparison.OrdinalIgnoreCase);
+            }
+            NotifyOfPropertyChange(() => IsUsingCompatibleStream);
+            OpenSource(item.Uri, options as PlaybackStartOptions);
+            NotifyOfPropertyChange(() => CurrentItem);
+        }
+
+        private bool CanResolveStream(PlaylistItem item)
+        {
+            return item != null && !string.IsNullOrEmpty(item.SongId) && item.Uri != null &&
+                !string.IsNullOrEmpty(item.AccountKey) &&
+                (item.Uri.Scheme == "http" || item.Uri.Scheme == "https") && SubsonicService != null &&
+                item.AccountKey == AccountIdentity.For(SubsonicService.Configuration);
+        }
+
+        private void OpenSource(Uri source, PlaybackStartOptions options)
+        {
             _stopped = false;
             _opened = false; PlaybackError = null; IsBuffering = true;
             _playWhenOpened = true;
             NotifyOfPropertyChange(() => PlaybackError); NotifyOfPropertyChange(() => IsBuffering); NotifyOfPropertyChange(() => CanSeek);
             _reportedMediaStart = false;
-            _startOptions = options as PlaybackStartOptions;
+            _startOptions = options;
             IsActuallyPlaying = false;
             Source = null;
-            Source = item.Uri;
-            NotifyOfPropertyChange(() => CurrentItem);
+            Source = source;
         }
 
         public void Resume()
@@ -238,9 +276,22 @@ namespace Subsonic8.AudioPlayback
 
         public void SongFailed(ExceptionRoutedEventArgs eventArgs)
         {
+            if (_stopped) return;
+            if (!_reportedMediaStart && !_retriedCompatibleStream && !_currentStreamIsMp3 && CanResolveStream(_currentItem))
+            {
+                _retriedCompatibleStream = true; _originalPlaybackError = eventArgs.ErrorMessage;
+                var options = _startOptions ?? new PlaybackStartOptions { PositionMilliseconds = Math.Max(0, (long)GetCurrentPosition().TotalMilliseconds) };
+                FinishPlayback();
+                _currentStreamIsMp3 = true; IsUsingCompatibleStream = true;
+                NotifyOfPropertyChange(() => IsUsingCompatibleStream);
+                OpenSource(SubsonicService.GetUriForFileWithId(_currentItem.SongId, true), options);
+                return;
+            }
             PlaybackError = eventArgs.ErrorMessage; NotifyOfPropertyChange(() => PlaybackError);
+            if (!string.IsNullOrEmpty(_originalPlaybackError)) PlaybackError = _originalPlaybackError + Environment.NewLine + PlaybackError;
             FinishPlayback();
-            EventAggregator.PublishOnUIThread(new PlayFailedMessage(eventArgs.ErrorMessage, eventArgs.OriginalSource));
+            NotifyOfPropertyChange(() => PlaybackError);
+            EventAggregator.PublishOnUIThread(new PlayFailedMessage(PlaybackError, eventArgs.OriginalSource));
         }
 
         public void Stop()

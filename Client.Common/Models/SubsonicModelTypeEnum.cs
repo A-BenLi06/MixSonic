@@ -40,6 +40,7 @@ namespace Client.Common.Models
         LibrarySongs,
         LibraryBookmarks,
         LibraryShares,
-        LibraryDownloads
+        LibraryDownloads,
+        LibraryAccount
     }
 }

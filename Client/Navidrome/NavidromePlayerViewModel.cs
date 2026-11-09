@@ -248,6 +248,7 @@ namespace Subsonic8.Navidrome
         public Task ExportQueue() { return RunLocalOperation(() => LegacyPlayback.SavePlaylist()); }
         public Task SyncListening() { return RunOperation(api => Activity.SyncAsync(true)); }
         public void Downloads() { NavigationService.NavigateToViewModel<NavidromeDownloadsViewModel>(); }
+        public void Account() { NavigationService.NavigateToViewModel<NavidromeAccountViewModel>(); }
         public void Details() { if (CurrentAccount) NavigationService.NavigateToViewModel<NavidromeDetailViewModel>(NavidromeRoute.For("song", CurrentItem.SongId)); }
         public Task Download() { var item = CurrentItem; return RunOperation(async api => { if (item.AccountKey != api.AccountKey) throw new OperationCanceledException(); var song = await api.GetSong(item.SongId).ReadAsync(); RequireAccount(api); await Offline.EnqueueAsync(api, new[] { song }); Downloads(); }); }
         public Task Favourite()

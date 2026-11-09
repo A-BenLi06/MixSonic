@@ -467,6 +467,9 @@
     <Compile Include="Navidrome\NavidromePlayerViewModel.cs" />
     <Compile Include="Navidrome\NavidromePlayerView.xaml.cs"><DependentUpon>NavidromePlayerView.xaml</DependentUpon></Compile>
     <Page Include="Navidrome\NavidromePlayerView.xaml"><Generator>MSBuild:Compile</Generator></Page>
+    <Compile Include="Navidrome\NavidromeAccountViewModel.cs" />
+    <Compile Include="Navidrome\NavidromeAccountView.xaml.cs"><DependentUpon>NavidromeAccountView.xaml</DependentUpon></Compile>
+    <Page Include="Navidrome\NavidromeAccountView.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Compile Include="Navidrome\NavidromeDownloadsView.xaml.cs"><DependentUpon>NavidromeDownloadsView.xaml</DependentUpon></Compile>
     <Page Include="Navidrome\NavidromeDownloadsView.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Compile Include="Navidrome\NavidromePageViewModel.cs" />
