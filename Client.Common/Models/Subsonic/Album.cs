@@ -24,6 +24,13 @@
         [XmlAttribute("artistId")]
         public string ArtistId { get; set; }
 
+        [XmlAttribute("year")] public int Year { get; set; }
+        [XmlAttribute("genre")] public string Genre { get; set; }
+        [XmlAttribute("duration")] public double Duration { get; set; }
+        [XmlAttribute("musicBrainzId")] public string MusicBrainzId { get; set; }
+        [XmlElement("artists")] public List<MediaArtist> Artists { get; set; }
+        [XmlElement("genres")] public List<MediaGenre> Genres { get; set; }
+
         [XmlAttribute("songCount")]
         public int SongCount { get; set; }
 

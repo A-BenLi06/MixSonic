@@ -14,8 +14,24 @@ namespace Client.Common.Models.Subsonic
         [XmlAttribute("artist")]
         public string Artist { get; set; }
 
-        [XmlAttribute("starred")]
-        public string Starred { get; set; }
+        [XmlAttribute("albumId")] public string AlbumId { get; set; }
+        [XmlAttribute("track")] public int Track { get; set; }
+        [XmlAttribute("discNumber")] public int DiscNumber { get; set; }
+        [XmlAttribute("year")] public int Year { get; set; }
+        [XmlAttribute("genre")] public string Genre { get; set; }
+        [XmlAttribute("suffix")] public string Suffix { get; set; }
+        [XmlAttribute("contentType")] public string ContentType { get; set; }
+        [XmlAttribute("bitRate")] public int BitRate { get; set; }
+        [XmlAttribute("samplingRate")] public int SamplingRate { get; set; }
+        [XmlAttribute("bitDepth")] public int BitDepth { get; set; }
+        [XmlAttribute("channelCount")] public int ChannelCount { get; set; }
+        [XmlAttribute("size")] public long Size { get; set; }
+        [XmlAttribute("path")] public string Path { get; set; }
+        [XmlAttribute("musicBrainzId")] public string MusicBrainzId { get; set; }
+        [XmlElement("artists")] public System.Collections.Generic.List<MediaArtist> Artists { get; set; }
+        [XmlElement("albumArtists")] public System.Collections.Generic.List<MediaArtist> AlbumArtists { get; set; }
+        [XmlElement("genres")] public System.Collections.Generic.List<MediaGenre> Genres { get; set; }
+        [XmlElement("replayGain")] public ReplayGain ReplayGain { get; set; }
 
         [XmlAttribute("duration")]
         public int Duration { get; set; }

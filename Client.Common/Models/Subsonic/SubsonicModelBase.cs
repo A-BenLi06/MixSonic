@@ -17,6 +17,14 @@
         [DataMember]
         public virtual string Name { get; set; }
 
+        [XmlAttribute("starred")]
+        [DataMember]
+        public string Starred { get; set; }
+
+        [XmlAttribute("userRating")]
+        [DataMember]
+        public int UserRating { get; set; }
+
         public abstract SubsonicModelTypeEnum Type { get; }
 
         #endregion

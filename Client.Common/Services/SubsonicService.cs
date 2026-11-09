@@ -7,6 +7,7 @@ namespace Client.Common.Services
     using Caliburn.Micro;
     using Client.Common.Results;
     using Client.Common.Services.DataStructures.SubsonicService;
+    using Client.Common.Services.Navidrome;
 
     public class SubsonicService : PropertyChangedBase, ISubsonicService
     {
@@ -139,12 +140,8 @@ namespace Client.Common.Services
             string result;
             if (!string.IsNullOrEmpty(coverArt))
             {
-                result = string.Format(
-                    _configuration.RequestFormatWithUsernameAndPassword(),
-                    "getCoverArt.view",
-                    _configuration.Username,
-                    _configuration.EncodedPassword) + string.Format("&id={0}", coverArt)
-                         + string.Format("&size={0}", (int)imageType);
+                result = new SubsonicRequest(_configuration, "getCoverArt")
+                    .Add("id", coverArt).Add("size", (int)imageType).Url;
             }
             else
             {
@@ -156,23 +153,18 @@ namespace Client.Common.Services
 
         public virtual Uri GetUriForFileWithId(string id)
         {
-            return GetUriForFileWithId(id, _configuration.CompatibleMode);
+            if (_configuration.CompatibleMode) return GetUriForFileWithId(id, true);
+            var request = new SubsonicRequest(_configuration, "stream").Add("id", id);
+            if (!string.IsNullOrEmpty(_configuration.StreamingFormat)) request.Add("format", _configuration.StreamingFormat);
+            if (_configuration.MaximumBitRate > 0) request.Add("maxBitRate", _configuration.MaximumBitRate);
+            return new Uri(request.Url);
         }
 
         public virtual Uri GetUriForFileWithId(string id, bool transcodeToMp3)
         {
-            var url = string.Format(
-                        _configuration.RequestFormatWithUsernameAndPassword(),
-                        "stream.view",
-                        _configuration.Username,
-                        _configuration.EncodedPassword) + string.Format("&id={0}", id);
-
-            if (transcodeToMp3)
-            {
-                url += "&format=mp3&maxBitRate=320";
-            }
-
-            return new Uri(url);
+            var request = new SubsonicRequest(_configuration, "stream").Add("id", id);
+            if (transcodeToMp3) request.Add("format", "mp3").Add("maxBitRate", _configuration.MaximumBitRate > 0 ? _configuration.MaximumBitRate : 320);
+            return new Uri(request.Url);
         }
 
         public Uri GetUriForVideoStartingAt(Uri source, double totalSeconds)

@@ -96,8 +96,8 @@
         {
             var uriForFileWithId = _subject.GetUriForFileWithId("1");
 
-            uriForFileWithId.ToString().Should().Contain("u=" + _subject.Configuration.Username);
-            uriForFileWithId.ToString().Should().Contain("p=" + _subject.Configuration.EncodedPassword);
+            uriForFileWithId.OriginalString.Should().Contain("u=" + System.Uri.EscapeDataString(_subject.Configuration.Username));
+            uriForFileWithId.OriginalString.Should().Contain("p=" + System.Uri.EscapeDataString(_subject.Configuration.EncodedPassword));
         }
 
         [TestMethod]

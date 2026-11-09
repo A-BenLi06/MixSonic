@@ -5,7 +5,7 @@
     using System.Xml.Serialization;
 
     [XmlRoot(ElementName = "playlist", Namespace = "http://subsonic.org/restapi")]
-    public class Playlist : SubsonicModelBase
+    public class Playlist : MediaModelBase
     {
         #region Constructors and Destructors
 
@@ -38,6 +38,10 @@
 
         [XmlAttribute("songCount")]
         public int SongCount { get; set; }
+
+        [XmlAttribute("comment")] public string Comment { get; set; }
+        [XmlAttribute("readonly")] public bool ReadOnly { get; set; }
+        [XmlAttribute("changed")] public string Changed { get; set; }
 
         public override SubsonicModelTypeEnum Type
         {

@@ -1,5 +1,6 @@
 ﻿namespace Client.Common.Results
 {
+    using System;
     using System.Net.Http;
     using System.Xml.Linq;
     using Client.Common.Services.DataStructures.SubsonicService;
@@ -17,8 +18,8 @@
                 return string.Format(
                     Configuration.RequestFormatWithUsernameAndPassword(),
                     ResourcePath,
-                    Configuration.Username,
-                    Configuration.EncodedPassword);
+                    Uri.EscapeDataString(Configuration.Username ?? string.Empty),
+                    Uri.EscapeDataString(Configuration.EncodedPassword));
             }
         }
 

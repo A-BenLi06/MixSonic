@@ -150,6 +150,10 @@
             }
         }
 
+        public string StreamingFormat { get; set; }
+
+        public int MaximumBitRate { get; set; }
+
         private string _primaryUrl;
 
         /// <summary>

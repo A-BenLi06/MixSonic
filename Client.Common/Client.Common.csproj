@@ -106,6 +106,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="EventAggregatorMessages\PlayNextMessage.cs" />
+    <Compile Include="Models\Navidrome\NavidromeModels.cs" />
+    <Compile Include="Models\Subsonic\MediaMetadata.cs" />
+    <Compile Include="Results\NavidromeResult.cs" />
+    <Compile Include="Services\Navidrome\NavidromeApi.cs" />
+    <Compile Include="Services\Navidrome\SubsonicRequest.cs" />
+    <Compile Include="Services\Navidrome\SubsonicXml.cs" />
     <Compile Include="EventAggregatorMessages\PlayQueueMessage.cs" />
     <Compile Include="Models\PlaybackRepeatMode.cs" />
     <Compile Include="Services\AccountIdentity.cs" />

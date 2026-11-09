@@ -24,7 +24,7 @@
         [XmlElement(ElementName = "album", Namespace = "http://subsonic.org/restapi")]
         public List<Album> Albums { get; set; }
 
-        [XmlIgnore]
+        [XmlAttribute("coverArt")]
         public override string CoverArt
         {
             get
