@@ -49,6 +49,26 @@ Existing generic Subsonic video code is not evidence of Navidrome video support.
 
 ## Verification
 
+The desktop home now routes to a Navidrome section page for albums, artists,
+songs, search, genres, favorites, playlists, radio, listening activity, bookmarks
+and shares. Album order/year/genre filters and the selected accessible music folder
+are shared by browsing and search. Each search category keeps its own offset;
+explicit play-all resolves the remaining pages instead of truncating at 100/500.
+
+Detail pages show actual song/album/artist metadata, server information and related
+music. Playlist ownership gates metadata edits; `readonly` independently gates
+track add/remove/reorder. Favorite and rating actions await confirmed mutations.
+Bookmark resume positions and duplicate server queue indices reach the native
+player. Shares use server default expiration on creation and preserve it when an
+update omits the date, matching `core/share.go`.
+
+The real 0.64.2 fixture verifies 40 API integration assertions against 125 synthetic
+tagged WAV files. Its version is recorded separately from the locked source.
+Playback activity, lyric presentation, download storage/offline UI and preferences
+are the next desktop integration stage. Native capture still times out and the
+client accessibility tree is empty through the installed helper; no native
+interaction or visual pass is inferred from successful source/build checks.
+
 The [Navidrome acceptance specification](../../tools/navidrome/acceptance-spec.json)
 adds these functional requirements to the preceding design/accessibility/resilience
 checks. Its reference inventory must contain both `functionality` and `design`

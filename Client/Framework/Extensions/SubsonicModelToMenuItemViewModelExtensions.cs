@@ -70,6 +70,9 @@ namespace Subsonic8.Framework.Extensions
                     viewModel.TileHeight = CommandTileSize;
                     break;
                 case SubsonicModelTypeEnum.LibraryPlaylists:
+                case SubsonicModelTypeEnum.LibrarySongs:
+                case SubsonicModelTypeEnum.LibraryBookmarks:
+                case SubsonicModelTypeEnum.LibraryShares:
                 case SubsonicModelTypeEnum.Playlist:
                     MakeLibraryTile(viewModel);
                     viewModel.TileWidth = CommandTileSize;
@@ -103,9 +106,6 @@ namespace Subsonic8.Framework.Extensions
                 case SubsonicModelTypeEnum.Artist:
                     viewModel.AccentBrush = MixRadioPink();
                     viewModel.CaptionBrush = MixRadioPink();
-                    // Navidrome generates a grey star placeholder for artists without images;
-                    // the reference MixRadio look is the pink smiley, so always use it.
-                    viewModel.CoverArtId = null;
                     viewModel.CoverArtFallback = "ms-appx:///Assets/ArtistPlaceholder.png";
                     break;
                 case SubsonicModelTypeEnum.Album:

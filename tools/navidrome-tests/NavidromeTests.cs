@@ -189,6 +189,8 @@ public static class NavidromeTests
         var shares = api.GetShares();
         shares.HandleResponse(Xml("<shares><share id='share' url='https://localhost/share/token' description='D' expires='2026-12-01T00:00:00Z' visitCount='2'/></shares>"));
         Check(shares.Result[0].Expires.HasValue && shares.Result[0].Url.EndsWith("token"), "Share URL/expiry from response");
+        shares.HandleResponse(Xml("<shares><share id='share' expires='1970-01-01T00:00:00Z'/></shares>"));
+        Check(!shares.Result[0].Expires.HasValue, "The Unix epoch expiration sentinel is treated as no expiration");
         Check(NavidromeApi.UnixMilliseconds(new DateTimeOffset(1970,1,1,0,0,1,TimeSpan.Zero)) == 1000, "Unix timestamps are milliseconds");
     }
 

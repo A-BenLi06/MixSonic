@@ -1,6 +1,7 @@
 ﻿namespace Subsonic8.Main
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Caliburn.Micro;
     using Client.Common.Models;
@@ -10,6 +11,8 @@
     using Subsonic8.Framework.Services;
     using Subsonic8.Framework.ViewModel;
     using Subsonic8.Index;
+    using Subsonic8.Navidrome;
+    using Subsonic8.Framework.Extensions;
     using Subsonic8.MenuItem;
     using Subsonic8.Settings;
 
@@ -42,14 +45,11 @@
         public override async Task Populate()
         {
             ErrorDialogViewModel.Hide();
-            if (SubsonicService.HasValidSubsonicUrl)
-            {
-                if (await ShouldPopulate())
-                {
-                    await base.Populate();
-                }
-            }
-            else
+            var menu = new BindableCollection<MenuItemViewModel>();
+            menu.AddRange(GetItemsToDisplay(null).Select(item => item.AsMenuItemViewModel()));
+            MenuItems = menu;
+            if (PlayerSummary != null) await PlayerSummary.LoadRecentAsync();
+            if (!SubsonicService.HasValidSubsonicUrl)
             {
                 await ShowSettingsNotFoundDialog();
                 DialogService.ShowSettings<SettingsViewModel>();
@@ -103,7 +103,10 @@
                                "now-playing",
                                MixRadioText.Get("NowPlaying"),
                                MixRadioText.Get("ServerActivity"),
-                               SubsonicModelTypeEnum.LibraryNowPlaying)
+                               SubsonicModelTypeEnum.LibraryNowPlaying),
+                           new LibraryCommand("songs", NavidromeText.Get("Sectionsongs"), NavidromeText.Get("AllSongs"), SubsonicModelTypeEnum.LibrarySongs),
+                           new LibraryCommand("bookmarks", NavidromeText.Get("Sectionbookmarks"), NavidromeText.Get("SavedPositions"), SubsonicModelTypeEnum.LibraryBookmarks),
+                           new LibraryCommand("shares", NavidromeText.Get("Sectionshares"), NavidromeText.Get("SharedLinks"), SubsonicModelTypeEnum.LibraryShares)
                        };
         }
 

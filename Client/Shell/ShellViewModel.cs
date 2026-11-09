@@ -148,7 +148,7 @@
 
         public void SendSearchQueryMessage(string query)
         {
-            NavigationService.NavigateToViewModel<SearchViewModel>(query);
+            NavigationService.NavigateToViewModel<Subsonic8.Navidrome.NavidromeBrowserViewModel>(Subsonic8.Navidrome.NavidromeRoute.For("search", query));
         }
 
         #endregion

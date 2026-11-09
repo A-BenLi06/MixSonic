@@ -36,6 +36,9 @@ namespace Client.Common.Models
 
         InternetRadioStation,
 
-        LibraryNowPlaying
+        LibraryNowPlaying,
+        LibrarySongs,
+        LibraryBookmarks,
+        LibraryShares
     }
 }

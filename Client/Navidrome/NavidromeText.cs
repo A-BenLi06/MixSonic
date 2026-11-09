@@ -4,6 +4,6 @@ namespace Subsonic8.Navidrome
 
     public static class NavidromeText
     {
-        public static string Get(string key) { return ResourceLoader.GetForCurrentView().GetString("Navidrome_" + key); }
+        public static string Get(string key) { return ResourceLoader.GetForCurrentView().GetString("Navidrome_Text_" + key); }
     }
 }

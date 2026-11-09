@@ -287,7 +287,7 @@ namespace Client.Common.Services.Navidrome
             return shares == null ? new List<Share>() : shares.Elements(Ns + "share").Select(share =>
             {
                 DateTimeOffset expiry;
-                var hasExpiry = DateTimeOffset.TryParse((string)share.Attribute("expires"), out expiry) && expiry.Year > 1;
+                var hasExpiry = DateTimeOffset.TryParse((string)share.Attribute("expires"), out expiry) && UnixMilliseconds(expiry) > 0;
                 return new Share { Id = SubsonicXml.Attribute(share, "id"), Url = SubsonicXml.Attribute(share, "url"),
                     Description = SubsonicXml.Attribute(share, "description"), Username = SubsonicXml.Attribute(share, "username"),
                     Expires = hasExpiry ? (DateTimeOffset?)expiry : null, VisitCount = (int)SubsonicXml.Long(share, "visitCount") };
@@ -302,7 +302,9 @@ namespace Client.Common.Services.Navidrome
         }
         public NavidromeResult<bool> UpdateShare(string id, string description, DateTimeOffset? expires)
         {
-            var request = Request("updateShare").Add("id", Id(id)).Add("description", description).Add("expires", expires.HasValue ? UnixMilliseconds(expires.Value) : 0);
+            var request = Request("updateShare").Add("id", Id(id)).Add("description", description);
+            // Navidrome preserves the existing expiry when it is omitted (or zero).
+            if (expires.HasValue) request.Add("expires", UnixMilliseconds(expires.Value));
             return Write(request);
         }
         public NavidromeResult<bool> DeleteShare(string id) { return Write(Request("deleteShare").Add("id", Id(id))); }
@@ -336,6 +338,8 @@ namespace Client.Common.Services.Navidrome
         { return (long)(timestamp.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalMilliseconds; }
 
         public Uri DownloadUri(string id) { return new Uri(Request("download").Add("id", Id(id)).Url); }
+
+        public string CoverArtUrl(string id) { return new SubsonicService { Configuration = _configuration }.GetCoverArtForId(id); }
 
         public PlaylistItem CreatePlaylistItem(Song song)
         {

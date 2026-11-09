@@ -41,6 +41,7 @@ namespace Subsonic8.Navidrome
             {
                 var song = item as Song;
                 if (song != null) songs.Add(song);
+                else if (item.Type == SubsonicModelTypeEnum.Song) songs.Add(await api.GetSong(item.Id).ReadAsync());
                 else if (item.Type == SubsonicModelTypeEnum.Album) songs.AddRange((await api.GetAlbum(item.Id).ReadAsync()).Songs);
                 else if (item.Type == SubsonicModelTypeEnum.Artist)
                 {

@@ -53,7 +53,157 @@
   <data name="PlaylistReadError" xml:space="preserve"><value>This playlist could not be opened. Check the file and try again.</value></data>
   <data name="PlaylistWriteError" xml:space="preserve"><value>This playlist could not be saved. Choose a writable location and try again.</value></data>
   <data name="Navidrome_Seek.AutomationProperties.Name" xml:space="preserve"><value>Playback position</value></data>
-  <data name="Navidrome_ConfigureServer" xml:space="preserve"><value>Configure a music server in settings.</value></data>
-  <data name="Navidrome_AllLibraries" xml:space="preserve"><value>All libraries</value></data>
-  <data name="Navidrome_QueueContainsOtherMedia" xml:space="preserve"><value>This queue contains media from another account or a radio station.</value></data>
+  <data name="Navidrome_Text_ConfigureServer" xml:space="preserve"><value>Configure a music server in settings.</value></data>
+  <data name="Navidrome_Text_AllLibraries" xml:space="preserve"><value>All libraries</value></data>
+  <data name="Navidrome_Text_QueueContainsOtherMedia" xml:space="preserve"><value>This queue contains media from another account or a radio station.</value></data>
+  <data name="Navidrome_Text_Sectionalbums" xml:space="preserve"><value>albums</value></data>
+  <data name="Navidrome_Text_Sectionartists" xml:space="preserve"><value>artists</value></data>
+  <data name="Navidrome_Text_Sectionsongs" xml:space="preserve"><value>songs</value></data>
+  <data name="Navidrome_Text_Sectiongenres" xml:space="preserve"><value>genres</value></data>
+  <data name="Navidrome_Text_Sectionplaylists" xml:space="preserve"><value>playlists</value></data>
+  <data name="Navidrome_Text_Sectionradio" xml:space="preserve"><value>radio</value></data>
+  <data name="Navidrome_Text_Sectionactivity" xml:space="preserve"><value>listening now</value></data>
+  <data name="Navidrome_Text_Sectionrandom" xml:space="preserve"><value>random songs</value></data>
+  <data name="Navidrome_Text_Sectionfavourites" xml:space="preserve"><value>favourites</value></data>
+  <data name="Navidrome_Text_Sectionsearch" xml:space="preserve"><value>search</value></data>
+  <data name="Navidrome_Text_Sectionbookmarks" xml:space="preserve"><value>bookmarks</value></data>
+  <data name="Navidrome_Text_Sectionshares" xml:space="preserve"><value>shares</value></data>
+  <data name="Navidrome_Text_Song" xml:space="preserve"><value>song</value></data>
+  <data name="Navidrome_Text_Album" xml:space="preserve"><value>album</value></data>
+  <data name="Navidrome_Text_Artist" xml:space="preserve"><value>artist</value></data>
+  <data name="Navidrome_Text_Playlist" xml:space="preserve"><value>playlist</value></data>
+  <data name="Navidrome_Text_Genre" xml:space="preserve"><value>genre</value></data>
+  <data name="Navidrome_Text_InternetRadioStation" xml:space="preserve"><value>radio station</value></data>
+  <data name="Navidrome_Text_Share" xml:space="preserve"><value>share</value></data>
+  <data name="Navidrome_Text_TrackCount" xml:space="preserve"><value>{0} tracks</value></data>
+  <data name="Navidrome_Text_AlbumCount" xml:space="preserve"><value>{0} albums</value></data>
+  <data name="Navidrome_Text_SortAlphabeticalByName" xml:space="preserve"><value>Album title</value></data>
+  <data name="Navidrome_Text_SortAlphabeticalByArtist" xml:space="preserve"><value>Artist name</value></data>
+  <data name="Navidrome_Text_SortNewest" xml:space="preserve"><value>Recently added</value></data>
+  <data name="Navidrome_Text_SortRecent" xml:space="preserve"><value>Recently played</value></data>
+  <data name="Navidrome_Text_SortFrequent" xml:space="preserve"><value>Most played</value></data>
+  <data name="Navidrome_Text_SortRandom" xml:space="preserve"><value>Random selection</value></data>
+  <data name="Navidrome_Text_SortStarred" xml:space="preserve"><value>Favourites</value></data>
+  <data name="Navidrome_Text_SortHighest" xml:space="preserve"><value>Highest rated</value></data>
+  <data name="Navidrome_Text_SortByGenre" xml:space="preserve"><value>Genre</value></data>
+  <data name="Navidrome_Text_SortByYear" xml:space="preserve"><value>Year range</value></data>
+  <data name="Navidrome_Text_Play" xml:space="preserve"><value>Play</value></data>
+  <data name="Navidrome_Text_PlayNext" xml:space="preserve"><value>Play next</value></data>
+  <data name="Navidrome_Text_Append" xml:space="preserve"><value>Add to queue</value></data>
+  <data name="Navidrome_Text_Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Navidrome_Text_Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Navidrome_Text_Filter" xml:space="preserve"><value>Sort and filter</value></data>
+  <data name="Navidrome_Text_Favourite" xml:space="preserve"><value>Favourite</value></data>
+  <data name="Navidrome_Text_Unfavourite" xml:space="preserve"><value>Remove favourite</value></data>
+  <data name="Navidrome_Text_Rate" xml:space="preserve"><value>Rate</value></data>
+  <data name="Navidrome_Text_Rating" xml:space="preserve"><value>Rating (0 clears)</value></data>
+  <data name="Navidrome_Text_CreatePlaylist" xml:space="preserve"><value>New playlist</value></data>
+  <data name="Navidrome_Text_AddToPlaylist" xml:space="preserve"><value>Add to playlist</value></data>
+  <data name="Navidrome_Text_CreateShare" xml:space="preserve"><value>Create share</value></data>
+  <data name="Navidrome_Text_EditShare" xml:space="preserve"><value>Edit share</value></data>
+  <data name="Navidrome_Text_CopyLink" xml:space="preserve"><value>Copy link</value></data>
+  <data name="Navidrome_Text_Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Navidrome_Text_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Navidrome_Text_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Navidrome_Text_Name" xml:space="preserve"><value>Name</value></data>
+  <data name="Navidrome_Text_Comment" xml:space="preserve"><value>Comment</value></data>
+  <data name="Navidrome_Text_Public" xml:space="preserve"><value>Public</value></data>
+  <data name="Navidrome_Text_Description" xml:space="preserve"><value>Description</value></data>
+  <data name="Navidrome_Text_SetExpiry" xml:space="preserve"><value>Set an expiration date</value></data>
+  <data name="Navidrome_Text_Expires" xml:space="preserve"><value>Expires</value></data>
+  <data name="Navidrome_Text_NeverExpires" xml:space="preserve"><value>No expiration</value></data>
+  <data name="Navidrome_Text_NameRequired" xml:space="preserve"><value>Enter a name.</value></data>
+  <data name="Navidrome_Text_FutureExpiryRequired" xml:space="preserve"><value>Choose a future expiration date.</value></data>
+  <data name="Navidrome_Text_NoWritablePlaylists" xml:space="preserve"><value>There are no playlists you can add tracks to. Create a playlist first.</value></data>
+  <data name="Navidrome_Text_SharingUnavailable" xml:space="preserve"><value>Sharing is unavailable for this server or account.</value></data>
+  <data name="Navidrome_Text_UnknownSection" xml:space="preserve"><value>This section is unavailable.</value></data>
+  <data name="Navidrome_Text_InvalidYears" xml:space="preserve"><value>Enter valid years.</value></data>
+  <data name="Navidrome_Text_GenreRequired" xml:space="preserve"><value>Enter a genre to filter by.</value></data>
+  <data name="Navidrome_Text_InvalidStationUrl" xml:space="preserve"><value>This station does not have a valid HTTP or HTTPS stream URL.</value></data>
+  <data name="Navidrome_Text_ConfirmDelete" xml:space="preserve"><value>Delete the selected items?</value></data>
+  <data name="Navidrome_Text_ConfirmDeletePlaylist" xml:space="preserve"><value>Delete this playlist?</value></data>
+  <data name="Navidrome_Text_ConfirmRemoveTracks" xml:space="preserve"><value>Remove the selected tracks from this playlist?</value></data>
+  <data name="Navidrome_Text_EditPlaylist" xml:space="preserve"><value>Edit playlist</value></data>
+  <data name="Navidrome_Text_RemoveTracks" xml:space="preserve"><value>Remove tracks</value></data>
+  <data name="Navidrome_Text_MoveUp" xml:space="preserve"><value>Move up</value></data>
+  <data name="Navidrome_Text_MoveDown" xml:space="preserve"><value>Move down</value></data>
+  <data name="Navidrome_Text_DeletePlaylist" xml:space="preserve"><value>Delete playlist</value></data>
+  <data name="Navidrome_Text_ArtistMix" xml:space="preserve"><value>Play similar songs</value></data>
+  <data name="Navidrome_Text_TopSongs" xml:space="preserve"><value>Play top songs</value></data>
+  <data name="Navidrome_Text_OpenExternal" xml:space="preserve"><value>Open source website</value></data>
+  <data name="Navidrome_Text_SaveBookmark" xml:space="preserve"><value>Save bookmark</value></data>
+  <data name="Navidrome_Text_NoDiscoverySongs" xml:space="preserve"><value>No related songs were returned by the server.</value></data>
+  <data name="Navidrome_Text_ItemUnavailable" xml:space="preserve"><value>This item is no longer available.</value></data>
+  <data name="Navidrome_Text_Owner" xml:space="preserve"><value>Owner</value></data>
+  <data name="Navidrome_Text_Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="Navidrome_Text_No" xml:space="preserve"><value>No</value></data>
+  <data name="Navidrome_Text_ReadOnlyPlaylist" xml:space="preserve"><value>Track content is read-only.</value></data>
+  <data name="Navidrome_Text_AlbumCountLabel" xml:space="preserve"><value>Albums</value></data>
+  <data name="Navidrome_Text_MusicBrainzId" xml:space="preserve"><value>MusicBrainz ID</value></data>
+  <data name="Navidrome_Text_Year" xml:space="preserve"><value>Year</value></data>
+  <data name="Navidrome_Text_Duration" xml:space="preserve"><value>Duration</value></data>
+  <data name="Navidrome_Text_Track" xml:space="preserve"><value>Track</value></data>
+  <data name="Navidrome_Text_Disc" xml:space="preserve"><value>Disc</value></data>
+  <data name="Navidrome_Text_Format" xml:space="preserve"><value>File format</value></data>
+  <data name="Navidrome_Text_ContentType" xml:space="preserve"><value>Media type</value></data>
+  <data name="Navidrome_Text_BitRate" xml:space="preserve"><value>Bitrate</value></data>
+  <data name="Navidrome_Text_SamplingRate" xml:space="preserve"><value>Sample rate</value></data>
+  <data name="Navidrome_Text_BitDepth" xml:space="preserve"><value>Bit depth</value></data>
+  <data name="Navidrome_Text_Channels" xml:space="preserve"><value>Channels</value></data>
+  <data name="Navidrome_Text_FileSize" xml:space="preserve"><value>File size</value></data>
+  <data name="Navidrome_Text_Path" xml:space="preserve"><value>File path</value></data>
+  <data name="Navidrome_Text_Kbps" xml:space="preserve"><value>{0} kbps</value></data>
+  <data name="Navidrome_Text_Hz" xml:space="preserve"><value>{0} Hz</value></data>
+  <data name="Navidrome_Text_Bytes" xml:space="preserve"><value>{0:N0} bytes</value></data>
+  <data name="Navidrome_Text_AllSongs" xml:space="preserve"><value>complete song library</value></data>
+  <data name="Navidrome_Text_SavedPositions" xml:space="preserve"><value>saved listening positions</value></data>
+  <data name="Navidrome_Text_SharedLinks" xml:space="preserve"><value>server share links</value></data>
+  <data name="Navidrome_Text_Library" xml:space="preserve"><value>Library</value></data>
+  <data name="Navidrome_Text_Sort" xml:space="preserve"><value>Album order</value></data>
+  <data name="Navidrome_Text_Years" xml:space="preserve"><value>From year / to year</value></data>
+  <data name="Navidrome_Text_Apply" xml:space="preserve"><value>Apply</value></data>
+  <data name="Navidrome_Text_LoadMore" xml:space="preserve"><value>Load more</value></data>
+  <data name="Navidrome_Text_EmptyCollection" xml:space="preserve"><value>No items were returned.</value></data>
+  <data name="Navidrome_Text_Tracks" xml:space="preserve"><value>tracks</value></data>
+  <data name="Navidrome_Text_Related" xml:space="preserve"><value>related music</value></data>
+  <data name="Navidrome_Text_Search" xml:space="preserve"><value>Search your library</value></data>
+  <data name="Navidrome_Play.Label" xml:space="preserve"><value>Play</value></data>
+  <data name="Navidrome_PlayNext.Label" xml:space="preserve"><value>Play next</value></data>
+  <data name="Navidrome_Append.Label" xml:space="preserve"><value>Add to queue</value></data>
+  <data name="Navidrome_Details.Label" xml:space="preserve"><value>Details</value></data>
+  <data name="Navidrome_Refresh.Label" xml:space="preserve"><value>Refresh</value></data>
+  <data name="Navidrome_Filter.Label" xml:space="preserve"><value>Sort and filter</value></data>
+  <data name="Navidrome_Favourite.Label" xml:space="preserve"><value>Favourite</value></data>
+  <data name="Navidrome_Unfavourite.Label" xml:space="preserve"><value>Remove favourite</value></data>
+  <data name="Navidrome_Rate.Label" xml:space="preserve"><value>Rate</value></data>
+  <data name="Navidrome_CreatePlaylist.Label" xml:space="preserve"><value>New playlist</value></data>
+  <data name="Navidrome_AddToPlaylist.Label" xml:space="preserve"><value>Add to playlist</value></data>
+  <data name="Navidrome_CreateShare.Label" xml:space="preserve"><value>Create share</value></data>
+  <data name="Navidrome_EditShare.Label" xml:space="preserve"><value>Edit share</value></data>
+  <data name="Navidrome_CopyLink.Label" xml:space="preserve"><value>Copy link</value></data>
+  <data name="Navidrome_Delete.Label" xml:space="preserve"><value>Delete</value></data>
+  <data name="Navidrome_EditPlaylist.Label" xml:space="preserve"><value>Edit playlist</value></data>
+  <data name="Navidrome_RemoveTracks.Label" xml:space="preserve"><value>Remove tracks</value></data>
+  <data name="Navidrome_MoveUp.Label" xml:space="preserve"><value>Move up</value></data>
+  <data name="Navidrome_MoveDown.Label" xml:space="preserve"><value>Move down</value></data>
+  <data name="Navidrome_DeletePlaylist.Label" xml:space="preserve"><value>Delete playlist</value></data>
+  <data name="Navidrome_ArtistMix.Label" xml:space="preserve"><value>Play similar songs</value></data>
+  <data name="Navidrome_TopSongs.Label" xml:space="preserve"><value>Play top songs</value></data>
+  <data name="Navidrome_OpenExternal.Label" xml:space="preserve"><value>Open source website</value></data>
+  <data name="Navidrome_SaveBookmark.Label" xml:space="preserve"><value>Save bookmark</value></data>
+  <data name="Navidrome_Library.Text" xml:space="preserve"><value>Library</value></data>
+  <data name="Navidrome_Sort.Text" xml:space="preserve"><value>Album order</value></data>
+  <data name="Navidrome_Genre.Text" xml:space="preserve"><value>genre</value></data>
+  <data name="Navidrome_Years.Text" xml:space="preserve"><value>From year / to year</value></data>
+  <data name="Navidrome_EmptyCollection.Text" xml:space="preserve"><value>No items were returned.</value></data>
+  <data name="Navidrome_Tracks.Text" xml:space="preserve"><value>tracks</value></data>
+  <data name="Navidrome_Related.Text" xml:space="preserve"><value>related music</value></data>
+  <data name="Navidrome_Apply.Content" xml:space="preserve"><value>Apply</value></data>
+  <data name="Navidrome_LoadMore.Content" xml:space="preserve"><value>Load more</value></data>
+  <data name="Navidrome_Search.PlaceholderText" xml:space="preserve"><value>Search your library</value></data>
+  <data name="Navidrome_Search.AutomationProperties.Name" xml:space="preserve"><value>Search your library</value></data>
+  <data name="Navidrome_FromYear.AutomationProperties.Name" xml:space="preserve"><value>From year</value></data>
+  <data name="Navidrome_ToYear.AutomationProperties.Name" xml:space="preserve"><value>To year</value></data>
+  <data name="Navidrome_Text_ServerKeptExpiry" xml:space="preserve"><value>Shares use the server default expiration when no custom date is selected.</value></data>
+  <data name="Navidrome_Text_ChangeExpiry" xml:space="preserve"><value>Change the expiration date</value></data>
 </root>

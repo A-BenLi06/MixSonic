@@ -445,7 +445,7 @@ namespace Subsonic8.Playback
 
         public void LoadRemotePlaylist()
         {
-            NavigationService.NavigateToViewModel<ManagePlaylistsViewModel>();
+            NavigationService.NavigateToViewModel<Subsonic8.Navidrome.NavidromeBrowserViewModel>("playlists");
         }
 
         public void LoadState(string parameter, Dictionary<string, object> statePageState)

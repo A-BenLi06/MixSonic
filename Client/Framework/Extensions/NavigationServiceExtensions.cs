@@ -14,6 +14,7 @@
     using Subsonic8.Playlists;
     using Subsonic8.Radio;
     using Subsonic8.RandomSongs;
+    using Subsonic8.Navidrome;
 
     public static class NavigationServiceExtensions
     {
@@ -30,43 +31,55 @@
                     navigationService.NavigateToViewModel<PlaybackViewModel>();
                     break;
                 case SubsonicModelTypeEnum.Album:
-                    navigationService.NavigateToViewModel<AlbumViewModel>(id);
+                    navigationService.NavigateToViewModel<NavidromeDetailViewModel>(NavidromeRoute.For("album", id));
                     break;
                 case SubsonicModelTypeEnum.MusicDirectory:
                     navigationService.NavigateToViewModel<MusicDirectoryViewModel>(id);
                     break;
                 case SubsonicModelTypeEnum.Artist:
-                    navigationService.NavigateToViewModel<ArtistViewModel>(id);
+                    navigationService.NavigateToViewModel<NavidromeDetailViewModel>(NavidromeRoute.For("artist", id));
                     break;
                 case SubsonicModelTypeEnum.Folder:
                     navigationService.NavigateToViewModel<IndexViewModel>(id);
                     break;
                 case SubsonicModelTypeEnum.Genre:
-                    navigationService.NavigateToViewModel<GenreSongsViewModel>(id);
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>(NavidromeRoute.For("genre", subsonicModel.Name));
                     break;
                 case SubsonicModelTypeEnum.LibraryAlbums:
-                    navigationService.NavigateToViewModel<IndexViewModel>(id);
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>("albums");
                     break;
                 case SubsonicModelTypeEnum.LibraryArtists:
-                    navigationService.NavigateToViewModel<ArtistsViewModel>();
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>("artists");
                     break;
                 case SubsonicModelTypeEnum.LibraryGenres:
-                    navigationService.NavigateToViewModel<GenresViewModel>();
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>("genres");
                     break;
                 case SubsonicModelTypeEnum.LibraryRandomSongs:
-                    navigationService.NavigateToViewModel<RandomSongsViewModel>();
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>("random");
                     break;
                 case SubsonicModelTypeEnum.LibraryPlaylists:
-                    navigationService.NavigateToViewModel<ManagePlaylistsViewModel>();
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>("playlists");
                     break;
                 case SubsonicModelTypeEnum.LibraryFavourites:
-                    navigationService.NavigateToViewModel<FavouritesViewModel>();
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>("favourites");
                     break;
                 case SubsonicModelTypeEnum.LibraryRadio:
-                    navigationService.NavigateToViewModel<RadioStationsViewModel>();
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>("radio");
                     break;
                 case SubsonicModelTypeEnum.LibraryNowPlaying:
-                    navigationService.NavigateToViewModel<NowPlayingViewModel>();
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>("activity");
+                    break;
+                case SubsonicModelTypeEnum.LibrarySongs:
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>("songs");
+                    break;
+                case SubsonicModelTypeEnum.LibraryBookmarks:
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>("bookmarks");
+                    break;
+                case SubsonicModelTypeEnum.LibraryShares:
+                    navigationService.NavigateToViewModel<NavidromeBrowserViewModel>("shares");
+                    break;
+                case SubsonicModelTypeEnum.Playlist:
+                    navigationService.NavigateToViewModel<NavidromeDetailViewModel>(NavidromeRoute.For("playlist", id));
                     break;
             }
         }

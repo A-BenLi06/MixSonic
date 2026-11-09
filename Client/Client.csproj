@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -459,6 +459,17 @@
     <Compile Include="Navidrome\NavidromeSessionService.cs" />
     <Compile Include="Navidrome\NavidromeText.cs" />
     <Compile Include="Navidrome\MediaQueueService.cs" />
+    <Compile Include="Navidrome\NavidromePageViewModel.cs" />
+    <Compile Include="Navidrome\NavidromeMediaPageViewModel.cs" />
+    <Compile Include="Navidrome\NavidromeItem.cs" />
+    <Compile Include="Navidrome\NavidromeDialogService.cs" />
+    <Compile Include="Navidrome\NavidromeBrowserViewModel.cs" />
+    <Compile Include="Navidrome\NavidromeDetailViewModel.cs" />
+    <Compile Include="Navidrome\NavidromeBrowserView.xaml.cs"><DependentUpon>NavidromeBrowserView.xaml</DependentUpon></Compile>
+    <Compile Include="Navidrome\NavidromeDetailView.xaml.cs"><DependentUpon>NavidromeDetailView.xaml</DependentUpon></Compile>
+    <Page Include="Navidrome\NavidromeResources.xaml"><Generator>MSBuild:Compile</Generator></Page>
+    <Page Include="Navidrome\NavidromeBrowserView.xaml"><Generator>MSBuild:Compile</Generator></Page>
+    <Page Include="Navidrome\NavidromeDetailView.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Compile Include="VideoPlayback\SnappedVideoPlaybackView.xaml.cs">
       <DependentUpon>SnappedVideoPlaybackView.xaml</DependentUpon>
     </Compile>
