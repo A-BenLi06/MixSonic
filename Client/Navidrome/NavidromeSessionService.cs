@@ -102,6 +102,13 @@ namespace Subsonic8.Navidrome
             {
                 var ping = api.Ping();
                 await ping.ReadAsync();
+                if (version != _version || api.AccountKey != AccountKey || _connectedPassword != _subsonic.Configuration.Password) return;
+                if (_subsonic.Configuration.AuthenticationMode == SubsonicAuthenticationMode.ApiKey)
+                {
+                    var username = await api.GetTokenInfo().ReadAsync();
+                    if (!string.Equals(username, _subsonic.Configuration.Username, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException(NavidromeText.Get("ApiKeyAccountMismatch"));
+                }
                 var extensions = api.GetExtensions();
                 var folders = api.GetMusicFolders();
                 var user = api.GetUser();
@@ -153,7 +160,7 @@ namespace Subsonic8.Navidrome
         }
         private void ConfigurationChanged(object sender, PropertyChangedEventArgs args)
         {
-            if (args.PropertyName == "BaseUrl" || args.PropertyName == "Username" || args.PropertyName == "Password") ResetConnection();
+            if (args.PropertyName == "BaseUrl" || args.PropertyName == "Username" || args.PropertyName == "Password" || args.PropertyName == "AuthenticationMode") ResetConnection();
         }
         private void ResetConnection()
         {

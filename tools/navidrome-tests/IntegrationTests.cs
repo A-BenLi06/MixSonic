@@ -154,6 +154,22 @@ public static class NavidromeIntegrationTests
                 var payload = await MediaDownload.CopyAsync(http, api.DownloadUri(song.Id), target, System.Threading.CancellationToken.None, null, details.Size);
                 Check(payload.WindowsCompatible && payload.Length == details.Size && target.ToArray().SequenceEqual(bytes), "The production streaming downloader retains the complete original fixture file.");
             }
+            if (ping.Server.Supports("transcoding"))
+            {
+                var direct = await api.GetTranscodeDecision(song.Id, ClientPlaybackProfile.Windows81(0)).ReadAsync();
+                Check(direct.CanDirectPlay && direct.SourceStream != null && direct.SourceStream.Container == "wav" && !string.IsNullOrEmpty(direct.TranscodeParams),
+                    "Real negotiation recognizes a native WAV source and returns signed stream parameters.");
+                var directBytes = await http.GetByteArrayAsync(api.TranscodeStreamUri(song.Id, direct.TranscodeParams));
+                Check(directBytes.SequenceEqual(bytes), "The negotiated direct stream is byte-identical to the original file.");
+                var transcode = await api.GetTranscodeDecision(song.Id, ClientPlaybackProfile.Windows81(64)).ReadAsync();
+                Check(!transcode.CanDirectPlay && transcode.CanTranscode && transcode.TranscodeStream != null && transcode.TranscodeStream.Container == "mp3" && transcode.TranscodeStream.Bitrate == 64000,
+                    "A real bitrate limit selects the compatible MP3 target with source-defined bps units.");
+                using (var target = new MemoryStream())
+                {
+                    var payload = await MediaDownload.CopyAsync(http, api.TranscodeStreamUri(song.Id, transcode.TranscodeParams), target, System.Threading.CancellationToken.None);
+                    Check(payload.WindowsCompatible && payload.Length > 0, "The signed transcoded stream returns actual compatible media bytes.");
+                }
+            }
         }
         var scan = await api.GetScanStatus().ReadAsync(); Check(scan.Count == 125 && !scan.Scanning, "Completed scan state and library count are real.");
         await api.GetRadio().ReadAsync(); await api.GetNowPlaying().ReadAsync();

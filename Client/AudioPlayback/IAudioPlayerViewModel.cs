@@ -15,6 +15,7 @@
         bool IsBuffering { get; }
         string PlaybackError { get; }
         bool IsUsingCompatibleStream { get; }
+        string StreamInformation { get; }
         TimeSpan LastStoppedPosition { get; }
         double Volume { get; set; }
         bool IsMuted { get; set; }

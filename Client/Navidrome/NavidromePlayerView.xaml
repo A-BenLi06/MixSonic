@@ -67,6 +67,7 @@
                     <TextBlock Text="{Binding RatingText}" FontSize="13" Margin="0,6,0,0"/>
                     <ProgressBar IsIndeterminate="True" Margin="0,12,20,0" Visibility="{Binding Audio.IsBuffering, Converter={StaticResource NavidromeVisibility}}"/>
                     <TextBlock x:Uid="Navidrome_CompatibleStream" TextWrapping="Wrap" FontSize="13" Margin="0,8,20,0" Visibility="{Binding Audio.IsUsingCompatibleStream, Converter={StaticResource NavidromeVisibility}}"/>
+                    <TextBlock Text="{Binding Audio.StreamInformation}" TextWrapping="Wrap" FontSize="13" Margin="0,8,20,0"/>
                     <TextBlock x:Uid="Navidrome_GainLimited" TextWrapping="Wrap" FontSize="13" Margin="0,8,20,0" Visibility="{Binding Audio.IsGainLimited, Converter={StaticResource NavidromeVisibility}}"/>
                     <Slider x:Name="SeekSlider" x:Uid="Navidrome_Seek" Margin="0,12,20,0" Minimum="0" Maximum="{Binding DurationSeconds}" Value="{Binding PositionSeconds, Mode=TwoWay}" IsEnabled="{Binding Audio.CanSeek}"/>
                     <Grid Margin="0,0,20,0">

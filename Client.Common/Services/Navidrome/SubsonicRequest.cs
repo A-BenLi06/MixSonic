@@ -20,8 +20,14 @@ namespace Client.Common.Services.Navidrome
                 (baseUri.Scheme != "http" && baseUri.Scheme != "https"))
                 throw new ArgumentException("A valid HTTP or HTTPS server address is required.", "configuration");
             EndpointUrl = new Uri(baseUri, "rest/" + endpoint + ".view").AbsoluteUri;
-            Add("u", configuration.Username ?? string.Empty);
-            Add("p", configuration.EncodedPassword);
+            var configured = configuration as SubsonicServiceConfiguration;
+            if (configured != null && configured.AuthenticationMode == SubsonicAuthenticationMode.ApiKey)
+                Add("apiKey", configuration.Password ?? string.Empty);
+            else
+            {
+                Add("u", configuration.Username ?? string.Empty);
+                Add("p", configuration.EncodedPassword);
+            }
             Add("v", ProtocolVersion);
             Add("c", ClientName);
         }

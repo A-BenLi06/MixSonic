@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Caliburn.Micro;
 using Client.Common.EventAggregatorMessages;
 using Client.Common.Models;
@@ -9,6 +11,7 @@ using Client.Common.Services;
 using Client.Common.Services.DataStructures.SubsonicService;
 using Subsonic8.AudioPlayback;
 using Subsonic8.Framework.Interfaces;
+using Subsonic8.Navidrome;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -21,7 +24,7 @@ public static class NavidromeAudioTests
     {
         try
         {
-            Preferences(); GainPreferences(); Lifecycle(); Compatibility();
+            Preferences(); GainPreferences(); Lifecycle(); Compatibility(); Resolution().GetAwaiter().GetResult();
             Console.WriteLine("PASS: " + _assertions + " production audio assertions with simulated native events. Decoding, XAML and background audio remain unverified.");
             return 0;
         }
@@ -148,6 +151,63 @@ public static class NavidromeAudioTests
         audio.Play(song); Fail(audio, "stale account failed");
         Check(!audio.IsUsingCompatibleStream && events.Messages.OfType<PlayFailedMessage>().Count() == 6, "An old account's song cannot retry using different credentials.");
     }
+    private static async Task Resolution()
+    {
+        var config = new SubsonicServiceConfiguration { BaseUrl = "https://fixture.example/music/", Username = "fixture", Password = "fixture" };
+        var service = new SubsonicService { Configuration = config }; var resolver = new Resolver(); var events = new Events(); var controls = new Controls();
+        var audio = new AudioPlayerViewModel { SubsonicService = service, StreamService = resolver, EventAggregator = events, PlayerControls = controls };
+        var first = new PlaylistItem { AccountKey = AccountIdentity.For(config), SongId = "first", Uri = service.GetUriForFileWithId("first") };
+        var second = new PlaylistItem { AccountKey = first.AccountKey, SongId = "second", Uri = service.GetUriForFileWithId("second") };
+        audio.Play(first, new PlaybackStartOptions { PositionMilliseconds = 1111 });
+        audio.MediaOpened(); audio.SongEnded();
+        State(audio, MediaElementState.Playing);
+        Check(audio.Source == null && audio.IsBuffering && !audio.IsActuallyPlaying && controls.Plays == 0 && !events.Messages.OfType<PlayNextMessage>().Any() && !events.Messages.OfType<TrackPlaybackStartedMessage>().Any(), "Negotiation ignores stale media-open, completion and playing events.");
+        audio.Pause(); audio.RestorePosition(5678);
+        resolver.Requests[0].Completion.SetResult(new ResolvedAudioStream { Uri = new Uri("https://fixture.example/first-token"), Negotiated = true, Container = "wav" });
+        await Until(() => audio.Source != null); audio.MediaOpened();
+        Check(controls.Plays == 0 && controls.Pauses == 1 && controls.Position.TotalMilliseconds == 5678, "Pause and updated resume positions survive pending negotiation.");
+        audio.Play(first); audio.Play(second);
+        Check(resolver.Requests[1].Cancellation.IsCancellationRequested, "Skipping cancels the earlier resolution token.");
+        resolver.Requests[2].Completion.SetResult(new ResolvedAudioStream { Uri = new Uri("https://fixture.example/second-token"), Negotiated = true, Transcoded = true, Container = "mp3" });
+        await Until(() => audio.Source != null && audio.Source.AbsolutePath == "/second-token");
+        resolver.Requests[1].Completion.SetResult(new ResolvedAudioStream { Uri = new Uri("https://fixture.example/late-token") }); await Task.Delay(10);
+        Check(audio.Source.AbsolutePath == "/second-token" && audio.CurrentItem == second && !string.IsNullOrEmpty(audio.StreamInformation), "A late resolution cannot replace a newer occurrence or its stream information.");
+        Check(second.Uri.AbsolutePath.EndsWith("stream.view"), "Negotiated tokens remain transient rather than entering persisted queue metadata.");
+        audio.MediaOpened(); State(audio, MediaElementState.Playing); Fail(audio, "negotiated MP3 failed");
+        Check(!audio.IsUsingCompatibleStream && events.Messages.OfType<PlayFailedMessage>().Count() == 1, "An already negotiated MP3 cannot enter a compatibility loop.");
+        audio.Play(first); audio.Stop();
+        resolver.Requests[3].Completion.SetResult(new ResolvedAudioStream { Uri = new Uri("https://fixture.example/stopped-token") }); await Task.Delay(10);
+        Check(audio.Source == null && !audio.IsBuffering && resolver.Requests[3].Cancellation.IsCancellationRequested, "Stopping suppresses a resolver that completes after cancellation.");
+        audio.Play(first); resolver.Requests[4].Completion.SetException(new InvalidOperationException("server decision failed"));
+        await Until(() => !audio.IsBuffering);
+        Check(audio.PlaybackError == "server decision failed" && events.Messages.OfType<PlayFailedMessage>().Count() == 2, "Decision failures stop buffering and retain the real error without inventing a listen.");
+        audio.Play(first); config.Username = "another";
+        resolver.Requests[5].Completion.SetResult(new ResolvedAudioStream { Uri = new Uri("https://fixture.example/other-account-token") });
+        await Until(() => !audio.IsBuffering);
+        Check(audio.Source == null && events.Messages.OfType<PlayFailedMessage>().Count() == 3, "An account change while resolving cannot open the returned stream.");
+        config.Username = "fixture";
+        audio.Play(first); config.Password = "new-credential";
+        resolver.Requests[6].Completion.SetResult(new ResolvedAudioStream { Uri = new Uri("https://fixture.example/old-credential-token") });
+        await Until(() => !audio.IsBuffering);
+        Check(audio.Source == null && events.Messages.OfType<PlayFailedMessage>().Count() == 4, "A credential change before the player consumes a decision invalidates that source.");
+        audio.Play(first); config.AuthenticationMode = SubsonicAuthenticationMode.ApiKey;
+        resolver.Requests[7].Completion.SetResult(new ResolvedAudioStream { Uri = new Uri("https://fixture.example/old-authentication-token") });
+        await Until(() => !audio.IsBuffering);
+        Check(audio.Source == null && events.Messages.OfType<PlayFailedMessage>().Count() == 5, "An authentication-mode change before opening invalidates that source.");
+    }
+    private static async Task Until(Func<bool> complete)
+    {
+        var deadline = DateTime.UtcNow.AddSeconds(2);
+        while (!complete()) { if (DateTime.UtcNow > deadline) throw new Exception("Controlled resolution did not complete."); await Task.Delay(5); }
+    }
+    private sealed class Resolver : INavidromeStreamService
+    {
+        public readonly List<Pending> Requests = new List<Pending>();
+        public Task<ResolvedAudioStream> ResolveAsync(PlaylistItem item, CancellationToken cancellation)
+        { var pending = new Pending { Cancellation = cancellation }; Requests.Add(pending); return pending.Completion.Task; }
+        public sealed class Pending { public CancellationToken Cancellation; public readonly TaskCompletionSource<ResolvedAudioStream> Completion = new TaskCompletionSource<ResolvedAudioStream>(); }
+    }
+
     private static string Query(Uri uri, string key)
     {
         return uri.Query.TrimStart('?').Split('&').Select(part => part.Split(new[] { '=' }, 2)).Where(part => Uri.UnescapeDataString(part[0]) == key)

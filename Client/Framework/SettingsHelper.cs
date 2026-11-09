@@ -52,11 +52,7 @@
                 var networkService = new NetworkDetectionService();
                 var routeService = new RouteSelectionService(networkService);
 
-                var result = await routeService.SelectBestRouteAsync(
-                    svcConfig.PrimaryUrl,
-                    svcConfig.SecondaryUrl,
-                    svcConfig.Username,
-                    svcConfig.Password);
+                var result = await routeService.SelectBestRouteAsync(svcConfig);
 
                 if (result.Success)
                 {

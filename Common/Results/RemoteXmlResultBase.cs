@@ -3,6 +3,7 @@
     using System;
     using System.Net.Http;
     using System.ServiceModel;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Xml.Linq;
     using Common.Interfaces;
@@ -46,6 +47,8 @@
                 return _client ?? (_client = GetHttpClient());
             }
         }
+
+        protected virtual CancellationToken RequestCancellationToken { get { return CancellationToken.None; } }
 
         #endregion
 
@@ -144,7 +147,7 @@
             try
             {
                 var httpRequestMessage = CreateRequest();
-                var response = await Client.SendAsync(httpRequestMessage);
+                var response = await Client.SendAsync(httpRequestMessage, RequestCancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
                     result.Stream = await response.Content.ReadAsStreamAsync();

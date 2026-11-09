@@ -24,6 +24,7 @@ namespace Subsonic8.Settings
         private readonly ISubsonicService _subsonicService;
         private Subsonic8Configuration _configuration;
         private NamedOption<string> _selectedFormat;
+        private NamedOption<SubsonicAuthenticationMode> _selectedAuthentication;
         private string _bitRateText;
         private bool _isWorking;
         private string _error;
@@ -39,11 +40,27 @@ namespace Subsonic8.Settings
                 new NamedOption<string> { Value = "raw", Name = NavidromeText.Get("FormatOriginal") },
                 new NamedOption<string> { Value = "mp3", Name = NavidromeText.Get("FormatMp3") }
             };
+            AuthenticationModes = Enum.GetValues(typeof(SubsonicAuthenticationMode)).Cast<SubsonicAuthenticationMode>()
+                .Select(mode => new NamedOption<SubsonicAuthenticationMode> { Value = mode, Name = NavidromeText.Get("Authentication" + mode) }).ToList();
         }
         [Inject] public ISettingsHelper SettingsHelper { get; set; }
         [Inject] public INetworkDetectionService NetworkDetectionService { get; set; }
         public Subsonic8Configuration Configuration { get { return _configuration; } private set { _configuration = value; NotifyOfPropertyChange(); ValidateChanged(); } }
         public IList<NamedOption<string>> StreamFormats { get; private set; }
+        public IList<NamedOption<SubsonicAuthenticationMode>> AuthenticationModes { get; private set; }
+        public NamedOption<SubsonicAuthenticationMode> SelectedAuthentication
+        {
+            get { return _selectedAuthentication; }
+            set
+            {
+                _selectedAuthentication = value;
+                if (Configuration != null && value != null) Configuration.SubsonicServiceConfiguration.AuthenticationMode = value.Value;
+                NotifyOfPropertyChange(); NotifyOfPropertyChange(() => CredentialLabel); NotifyOfPropertyChange(() => CredentialHelp);
+            }
+        }
+        public string CredentialLabel { get { return NavidromeText.Get(SelectedAuthentication != null && SelectedAuthentication.Value == SubsonicAuthenticationMode.ApiKey ? "AuthenticationApiKey" : "AuthenticationPassword"); } }
+        public string CredentialHelp { get { return NavidromeText.Get(SelectedAuthentication != null && SelectedAuthentication.Value == SubsonicAuthenticationMode.ApiKey ? "ApiKeyHelp" : "PasswordHelp"); } }
+        public bool CanEdit { get { return !IsWorking; } }
         public NamedOption<string> SelectedFormat { get { return _selectedFormat; } set { _selectedFormat = value; NotifyOfPropertyChange(); } }
         public string MaximumBitRateText { get { return _bitRateText; } set { _bitRateText = value; NotifyOfPropertyChange(); ValidateChanged(); } }
         public bool IsWorking { get { return _isWorking; } private set { _isWorking = value; NotifyOfPropertyChange(); ValidateChanged(); } }
@@ -72,7 +89,7 @@ namespace Subsonic8.Settings
             return Uri.TryCreate(value, UriKind.Absolute, out address) &&
                 (address.Scheme == "http" || address.Scheme == "https") && string.IsNullOrEmpty(address.UserInfo) && string.IsNullOrEmpty(address.Query) && string.IsNullOrEmpty(address.Fragment);
         }
-        private void ValidateChanged() { NotifyOfPropertyChange(() => CanApplyChanges); NotifyOfPropertyChange(() => ValidationMessage); }
+        private void ValidateChanged() { NotifyOfPropertyChange(() => CanApplyChanges); NotifyOfPropertyChange(() => CanEdit); NotifyOfPropertyChange(() => ValidationMessage); }
         public void PasswordChanged(PasswordBox input) { if (Configuration == null) return; Configuration.SubsonicServiceConfiguration.Password = input.Password; ValidateChanged(); }
         public void UsernameChanged(TextBox input) { if (Configuration == null) return; Configuration.SubsonicServiceConfiguration.Username = input.Text; ValidateChanged(); }
         public void PrimaryUrlChanged(TextBox input) { if (Configuration == null) return; Configuration.SubsonicServiceConfiguration.PrimaryUrl = input.Text; ValidateChanged(); }
@@ -94,6 +111,7 @@ namespace Subsonic8.Settings
                 SelectedFormat = StreamFormats.First(option => option.Value == format);
                 MaximumBitRateText = (config.CompatibleMode && config.MaximumBitRate <= 0 ? 320 : Math.Max(0, config.MaximumBitRate)).ToString(CultureInfo.CurrentCulture);
                 Configuration = configuration;
+                SelectedAuthentication = AuthenticationModes.First(option => option.Value == config.AuthenticationMode);
             }
             catch (Exception exception) { Error = exception.Message; }
             finally { IsWorking = false; }
@@ -117,7 +135,7 @@ namespace Subsonic8.Settings
                 config.CompatibleMode = false;
                 config.PrimaryUrl = string.IsNullOrWhiteSpace(config.PrimaryUrl) ? null : new SubsonicServiceConfiguration { BaseUrl = config.PrimaryUrl.Trim() }.BaseUrl;
                 config.SecondaryUrl = string.IsNullOrWhiteSpace(config.SecondaryUrl) ? null : new SubsonicServiceConfiguration { BaseUrl = config.SecondaryUrl.Trim() }.BaseUrl;
-                var result = await new RouteSelectionService(NetworkDetectionService).SelectBestRouteAsync(config.PrimaryUrl, config.SecondaryUrl, config.Username, config.Password);
+                var result = await new RouteSelectionService(NetworkDetectionService).SelectBestRouteAsync(config);
                 config.BaseUrl = result.Success ? result.SelectedUrl : config.PrimaryUrl ?? config.SecondaryUrl;
                 await _storageService.Save(Configuration);
                 SettingsHelper.UpdateCredentialsInVault(new PasswordCredential { UserName = config.Username, Password = config.Password, Resource = Framework.SettingsHelper.PasswordVaultResourceName });

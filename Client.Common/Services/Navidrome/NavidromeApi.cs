@@ -3,6 +3,7 @@ namespace Client.Common.Services.Navidrome
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Xml.Linq;
     using Client.Common.Models;
     using Client.Common.Models.Navidrome;
@@ -23,6 +24,7 @@ namespace Client.Common.Services.Navidrome
             {
                 BaseUrl = configuration.BaseUrl, Username = configuration.Username, Password = configuration.Password,
                 CompatibleMode = configuration.CompatibleMode, PrimaryUrl = configuration.PrimaryUrl, SecondaryUrl = configuration.SecondaryUrl,
+                AuthenticationMode = streaming == null ? SubsonicAuthenticationMode.Password : streaming.AuthenticationMode,
                 StreamingFormat = streaming == null ? null : streaming.StreamingFormat,
                 MaximumBitRate = streaming == null ? 0 : streaming.MaximumBitRate
             };
@@ -48,6 +50,17 @@ namespace Client.Common.Services.Navidrome
         }
 
         public NavidromeResult<bool> Ping() { return Read(Request("ping"), root => true); }
+
+        public NavidromeResult<string> GetTokenInfo()
+        {
+            return Read(Request("tokenInfo"), root =>
+            {
+                var token = root.Element(Ns + "tokenInfo");
+                var username = token == null ? null : SubsonicXml.Attribute(token, "username");
+                if (string.IsNullOrWhiteSpace(username)) throw new InvalidOperationException("Token identity is missing.");
+                return username;
+            });
+        }
 
         public NavidromeResult<IDictionary<string, IList<int>>> GetExtensions()
         {
@@ -397,6 +410,34 @@ namespace Client.Common.Services.Navidrome
         { return (long)(timestamp.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalMilliseconds; }
 
         public Uri DownloadUri(string id) { return new Uri(Request("download").Add("id", Id(id)).Url); }
+
+        public NavidromeResult<TranscodeDecision> GetTranscodeDecision(string id, ClientPlaybackProfile profile, CancellationToken cancellation = default(CancellationToken))
+        {
+            if (profile == null) throw new ArgumentNullException("profile");
+            return new NavidromeResult<TranscodeDecision>(_configuration, Request("getTranscodeDecision").Add("mediaId", Id(id)).Add("mediaType", "song"), root =>
+            {
+                var decision = root.Element(Ns + "transcodeDecision");
+                if (decision == null) throw new InvalidOperationException("The transcode decision is missing.");
+                return new TranscodeDecision { CanDirectPlay = SubsonicXml.Bool(decision, "canDirectPlay"), CanTranscode = SubsonicXml.Bool(decision, "canTranscode"),
+                    TranscodeParams = SubsonicXml.Attribute(decision, "transcodeParams"), ErrorReason = SubsonicXml.Attribute(decision, "errorReason"),
+                    Reasons = decision.Elements(Ns + "transcodeReason").Select(element => element.Value).ToList(),
+                    SourceStream = ReadStreamDetails(decision.Element(Ns + "sourceStream")), TranscodeStream = ReadStreamDetails(decision.Element(Ns + "transcodeStream")) };
+            }, json: profile.ToJson(), cancellation: cancellation);
+        }
+
+        private static AudioStreamDetails ReadStreamDetails(XElement stream)
+        {
+            return stream == null ? null : new AudioStreamDetails { Protocol = SubsonicXml.Attribute(stream, "protocol"), Container = SubsonicXml.Attribute(stream, "container"),
+                Codec = SubsonicXml.Attribute(stream, "codec"), Bitrate = SubsonicXml.Long(stream, "audioBitrate"), Channels = (int)SubsonicXml.Long(stream, "audioChannels"),
+                SampleRate = (int)SubsonicXml.Long(stream, "audioSamplerate"), BitDepth = (int)SubsonicXml.Long(stream, "audioBitdepth") };
+        }
+
+        public Uri TranscodeStreamUri(string id, string transcodeParams, int offsetSeconds = 0)
+        {
+            if (string.IsNullOrWhiteSpace(transcodeParams)) throw new ArgumentException("Transcode parameters are required.", "transcodeParams");
+            if (offsetSeconds < 0) throw new ArgumentOutOfRangeException("offsetSeconds");
+            return new Uri(Request("getTranscodeStream").Add("mediaId", Id(id)).Add("mediaType", "song").Add("transcodeParams", transcodeParams).Add("offset", offsetSeconds).Url);
+        }
 
         public Uri StreamUri(string id, string format)
         {

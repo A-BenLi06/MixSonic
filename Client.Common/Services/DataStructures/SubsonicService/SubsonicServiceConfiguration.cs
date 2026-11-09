@@ -7,6 +7,8 @@
     using System.Xml.Serialization;
     using Caliburn.Micro;
 
+    public enum SubsonicAuthenticationMode { Password, ApiKey }
+
     public class SubsonicServiceConfiguration : PropertyChangedBase, ISubsonicServiceConfiguration
     {
         #region Constants
@@ -34,6 +36,7 @@
         private string _password;
 
         private string _username;
+        private SubsonicAuthenticationMode _authenticationMode;
 
         #endregion
 
@@ -151,6 +154,16 @@
         }
 
         public string StreamingFormat { get; set; }
+
+        public SubsonicAuthenticationMode AuthenticationMode
+        {
+            get { return _authenticationMode; }
+            set
+            {
+                if (!Enum.IsDefined(typeof(SubsonicAuthenticationMode), value) || value == _authenticationMode) return;
+                _authenticationMode = value; NotifyOfPropertyChange();
+            }
+        }
 
         public int MaximumBitRate { get; set; }
 

@@ -457,6 +457,7 @@
     <Compile Include="Shell\ShellViewModel.cs" />
     <Compile Include="StringsResources.cs" />
     <Compile Include="Navidrome\NavidromeSessionService.cs" />
+    <Compile Include="Navidrome\NavidromeStreamService.cs" />
     <Compile Include="Navidrome\NavidromeText.cs" />
     <Compile Include="Navidrome\MediaQueueService.cs" />
     <Compile Include="Navidrome\PlaybackActivityService.cs" />

@@ -38,7 +38,7 @@ public static class NavidromeTests
     {
         try
         {
-            Requests(); Metadata(); Extensions(); Pagination(); Lyrics(); Listening(); Offline(); Downloads().GetAwaiter().GetResult(); Queue(); Mutations(); OptionalMedia(); Failures().GetAwaiter().GetResult();
+            Requests(); Authentication(); Transcoding(); Metadata(); Extensions(); Pagination(); Lyrics(); Listening(); Offline(); Downloads().GetAwaiter().GetResult(); Queue(); Mutations(); OptionalMedia(); Failures().GetAwaiter().GetResult();
             Console.WriteLine("PASS: " + _assertions + " Navidrome protocol/model assertions against production sources.");
         }
         catch (Exception error) { Console.Error.WriteLine(error); Environment.Exit(1); }
@@ -76,6 +76,47 @@ public static class NavidromeTests
             Check(Param(new SubsonicRequest(Configuration(), "stream").Add("timeOffset", 1.25).Url.Split('?')[1], "timeOffset") == "1.25", "Protocol numbers are invariant");
         }
         finally { CultureInfo.CurrentCulture = culture; }
+    }
+
+    private static void Authentication()
+    {
+        var config = Configuration(); config.AuthenticationMode = SubsonicAuthenticationMode.ApiKey;
+        var api = new NavidromeApi(config);
+        var query = new Uri(api.Ping().RequestUrl).Query;
+        Check(Param(query, "apiKey") == config.Password && Param(query, "u") == null && Param(query, "p") == null, "API-key authentication uses a single correctly encoded mechanism");
+        var legacy = new SubsonicService { Configuration = config }.GetSong("song");
+        query = new Uri(legacy.RequestUrl).Query;
+        Check(Param(query, "apiKey") == config.Password && Param(query, "u") == null && Param(query, "p") == null, "Legacy music requests retain explicit API-key authentication");
+        var token = api.GetTokenInfo(); token.HandleResponse(Xml("<tokenInfo username='verified user'/>"));
+        Check(token.Result == "verified user", "Token identity uses the returned username");
+        Throws<InvalidOperationException>(() => token.HandleResponse(Xml("<tokenInfo/>")), "Missing token identity cannot fabricate an account");
+        var stored = LocalXml.Serialize(config);
+        Check(!stored.Contains(config.Password) && stored.Contains("ApiKey"), "Authentication mode persists while its secret stays out of configuration XML");
+    }
+
+    private static void Transcoding()
+    {
+        var api = new NavidromeApi(Configuration());
+        var result = api.GetTranscodeDecision("id&音", ClientPlaybackProfile.Windows81(192));
+        using (var request = Message(result))
+        {
+            Check(request.Method == HttpMethod.Post && request.Content.Headers.ContentType.MediaType == "application/json" && Param(request.RequestUri.Query, "mediaId") == "id&音" && Param(request.RequestUri.Query, "mediaType") == "song", "Transcode decisions use JSON POST with encoded media parameters");
+            using (var input = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(request.Content.ReadAsStringAsync().GetAwaiter().GetResult())))
+            {
+                var profile = (ClientPlaybackProfile)new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(ClientPlaybackProfile)).ReadObject(input);
+                Check(profile.MaxAudioBitrate == 192000 && profile.MaxTranscodingAudioBitrate == 192000 && profile.TranscodingProfiles.Single().AudioCodec == "mp3", "Transcode capabilities retain the correct bitrate units and codec");
+                Check(profile.DirectPlayProfiles.Single(p => p.Containers.Contains("wav")).AudioCodecs.Single() == "pcm" &&
+                    profile.CodecProfiles.Single(p => p.Name == "pcm").Limitations.Any(limit => limit.Name == "audioBitdepth" && limit.Comparison == "LessThanEqual" && limit.Values.Single() == "16" && limit.Required),
+                    "PCM capabilities use the normalized server codec with explicit native bit-depth limits");
+            }
+        }
+        result.HandleResponse(Xml("<transcodeDecision canDirectPlay='false' canTranscode='true' transcodeParams='token&amp;音'><transcodeReason>unsupported_codec</transcodeReason><sourceStream protocol='http' container='flac' codec='flac' audioBitrate='900000'/><transcodeStream protocol='http' container='mp3' codec='mp3' audioBitrate='192000' audioChannels='2' audioSamplerate='48000' audioBitdepth='16'/></transcodeDecision>"));
+        Check(!result.Result.CanDirectPlay && result.Result.CanTranscode && result.Result.Reasons.Single() == "unsupported_codec", "The actual decision and reasons deserialize");
+        Check(result.Result.TranscodeStream.Bitrate == 192000 && result.Result.TranscodeStream.SampleRate == 48000 && result.Result.TranscodeStream.BitDepth == 16, "Target stream quality remains in the source-defined units");
+        var uri = api.TranscodeStreamUri("id&音", result.Result.TranscodeParams, 7);
+        Check(Param(uri.Query, "mediaId") == "id&音" && Param(uri.Query, "transcodeParams") == "token&音" && Param(uri.Query, "offset") == "7", "Stream tokens and offset seconds remain correctly encoded");
+        Throws<ArgumentException>(() => api.TranscodeStreamUri("id", ""), "Missing stream tokens are rejected");
+        Throws<ArgumentOutOfRangeException>(() => api.TranscodeStreamUri("id", "token", -1), "Negative stream offsets are rejected");
     }
 
     private static void Metadata()

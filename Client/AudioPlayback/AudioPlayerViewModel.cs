@@ -2,6 +2,8 @@ namespace Subsonic8.AudioPlayback
 {
     using System;
     using System.Globalization;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     using Windows.UI.Xaml;
 
@@ -15,6 +17,7 @@ namespace Subsonic8.AudioPlayback
     using MugenInjection.Attributes;
 
     using Subsonic8.Framework.Interfaces;
+    using Subsonic8.Navidrome;
     using Windows.Storage;
     using Windows.UI.Xaml.Media;
 
@@ -44,6 +47,10 @@ namespace Subsonic8.AudioPlayback
         private bool _retriedCompatibleStream;
         private bool _currentStreamIsMp3;
         private string _originalPlaybackError;
+        private CancellationTokenSource _streamCancellation;
+        private Task _streamResolution;
+        private int _openVersion;
+        private bool _resolvingStream;
 
         public AudioPlayerViewModel()
         {
@@ -83,6 +90,8 @@ namespace Subsonic8.AudioPlayback
         public string PlaybackError { get; private set; }
         public bool IsUsingCompatibleStream { get; private set; }
         [Inject] public ISubsonicService SubsonicService { get; set; }
+        [Inject] public INavidromeStreamService StreamService { get; set; }
+        public string StreamInformation { get; private set; }
         public TimeSpan LastStoppedPosition { get; private set; }
         public double Volume
         {
@@ -232,7 +241,7 @@ namespace Subsonic8.AudioPlayback
 
         public void MediaOpened()
         {
-            if (_stopped) return;
+            if (_stopped || _resolvingStream) return;
             _opened = true;
             NotifyOfPropertyChange(() => CanSeek);
             if (_startOptions != null && _startOptions.PositionMilliseconds > 0)
@@ -255,6 +264,17 @@ namespace Subsonic8.AudioPlayback
             ApplyVolume();
             _retriedCompatibleStream = false; _originalPlaybackError = null; IsUsingCompatibleStream = false;
             _currentStreamIsMp3 = false;
+            StreamInformation = null; NotifyOfPropertyChange(() => StreamInformation);
+            if (StreamService != null && CanResolveStream(item))
+            {
+                _stopped = false; _opened = false; _reportedMediaStart = false; _resolvingStream = true; _playWhenOpened = true;
+                _startOptions = options as PlaybackStartOptions; PlaybackError = null; IsActuallyPlaying = false; IsBuffering = true;
+                NotifyOfPropertyChange(() => IsActuallyPlaying); NotifyOfPropertyChange(() => IsBuffering); NotifyOfPropertyChange(() => PlaybackError); NotifyOfPropertyChange(() => CanSeek);
+                _streamCancellation = new CancellationTokenSource();
+                _streamResolution = ResolveStreamAsync(item, _openVersion, _streamCancellation.Token);
+                NotifyOfPropertyChange(() => CurrentItem); NotifyOfPropertyChange(() => IsUsingCompatibleStream);
+                return;
+            }
             if (CanResolveStream(item))
             {
                 item.Uri = SubsonicService.GetUriForFileWithId(item.SongId);
@@ -274,11 +294,42 @@ namespace Subsonic8.AudioPlayback
                 item.AccountKey == AccountIdentity.For(SubsonicService.Configuration);
         }
 
-        private void OpenSource(Uri source, PlaybackStartOptions options)
+        private async Task ResolveStreamAsync(PlaylistItem item, int version, CancellationToken cancellation)
+        {
+            var configuration = SubsonicService.Configuration;
+            var secret = configuration.Password;
+            var authentication = configuration.AuthenticationMode;
+            try
+            {
+                var stream = await StreamService.ResolveAsync(item, cancellation);
+                if (cancellation.IsCancellationRequested || version != _openVersion || !ReferenceEquals(item, _currentItem)) return;
+                var currentConfiguration = SubsonicService.Configuration;
+                if (!CanResolveStream(item) || currentConfiguration == null || currentConfiguration.Password != secret || currentConfiguration.AuthenticationMode != authentication)
+                { FailResolution(NavidromeText.Get("PlaybackConnectionChanged")); return; }
+                if (stream == null || stream.Uri == null) throw new InvalidOperationException(NavidromeText.Get("InvalidStreamDecision"));
+                _resolvingStream = false; _currentStreamIsMp3 = stream.IsMp3;
+                if (stream.Negotiated) StreamInformation = string.Format(CultureInfo.CurrentCulture, NavidromeText.Get(stream.Transcoded ? "TranscodedStream" : "DirectStream"), stream.Container);
+                NotifyOfPropertyChange(() => StreamInformation);
+                OpenSource(stream.Uri, _startOptions, _playWhenOpened);
+            }
+            catch (OperationCanceledException)
+            { if (version == _openVersion && ReferenceEquals(item, _currentItem)) FailResolution(NavidromeText.Get("PlaybackConnectionChanged")); }
+            catch (Exception exception)
+            { if (version == _openVersion && ReferenceEquals(item, _currentItem)) FailResolution(exception.Message); }
+        }
+
+        private void FailResolution(string message)
+        {
+            _resolvingStream = false; PlaybackError = message; FinishPlayback();
+            NotifyOfPropertyChange(() => PlaybackError);
+            EventAggregator.PublishOnUIThread(new PlayFailedMessage(message, null));
+        }
+
+        private void OpenSource(Uri source, PlaybackStartOptions options, bool playWhenOpened = true)
         {
             _stopped = false;
             _opened = false; PlaybackError = null; IsBuffering = true;
-            _playWhenOpened = true;
+            _playWhenOpened = playWhenOpened;
             NotifyOfPropertyChange(() => PlaybackError); NotifyOfPropertyChange(() => IsBuffering); NotifyOfPropertyChange(() => CanSeek);
             _reportedMediaStart = false;
             _startOptions = options;
@@ -295,9 +346,10 @@ namespace Subsonic8.AudioPlayback
 
         public void MediaStateChanged(object sender, RoutedEventArgs args)
         {
+            if (_resolvingStream) return;
             var media = sender as Windows.UI.Xaml.Controls.MediaElement;
             if (media == null) return;
-            IsActuallyPlaying = !_stopped && media.CurrentState == MediaElementState.Playing;
+            IsActuallyPlaying = !_stopped && _opened && media.CurrentState == MediaElementState.Playing;
             IsBuffering = !_stopped && (media.CurrentState == MediaElementState.Buffering || media.CurrentState == MediaElementState.Opening);
             NotifyOfPropertyChange(() => IsActuallyPlaying);
             NotifyOfPropertyChange(() => IsBuffering);
@@ -314,20 +366,21 @@ namespace Subsonic8.AudioPlayback
 
         public void SongEnded()
         {
-            if (_stopped) return;
+            if (_stopped || _resolvingStream) return;
             FinishPlayback();
             EventAggregator.PublishOnUIThread(new PlayNextMessage());
         }
 
         public void SongFailed(ExceptionRoutedEventArgs eventArgs)
         {
-            if (_stopped) return;
+            if (_stopped || _resolvingStream) return;
             if (!_reportedMediaStart && !_retriedCompatibleStream && !_currentStreamIsMp3 && CanResolveStream(_currentItem))
             {
                 _retriedCompatibleStream = true; _originalPlaybackError = eventArgs.ErrorMessage;
                 var options = _startOptions ?? new PlaybackStartOptions { PositionMilliseconds = Math.Max(0, (long)GetCurrentPosition().TotalMilliseconds) };
                 FinishPlayback();
                 _currentStreamIsMp3 = true; IsUsingCompatibleStream = true;
+                StreamInformation = null; NotifyOfPropertyChange(() => StreamInformation);
                 NotifyOfPropertyChange(() => IsUsingCompatibleStream);
                 OpenSource(SubsonicService.GetUriForFileWithId(_currentItem.SongId, true), options);
                 return;
@@ -341,6 +394,9 @@ namespace Subsonic8.AudioPlayback
 
         public void Stop()
         {
+            ++_openVersion;
+            if (_streamCancellation != null) { _streamCancellation.Cancel(); _streamCancellation.Dispose(); _streamCancellation = null; }
+            _resolvingStream = false;
             FinishPlayback();
             if (_playerControls != null) _playerControls.Stop();
             Source = null;

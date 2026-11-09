@@ -19,7 +19,7 @@
                     Configuration.RequestFormatWithUsernameAndPassword(),
                     ResourcePath,
                     Uri.EscapeDataString(Configuration.Username ?? string.Empty),
-                    Uri.EscapeDataString(Configuration.EncodedPassword));
+                    Uri.EscapeDataString(Configuration.RequestSecret()));
             }
         }
 
@@ -34,7 +34,9 @@
         protected override HttpRequestMessage CreateRequest()
         {
             var request = base.CreateRequest();
-            request.Headers.Add("Authorization", string.Format("Basic {0}", Configuration.EncodedCredentials));
+            var configured = Configuration as SubsonicServiceConfiguration;
+            if (configured == null || configured.AuthenticationMode != SubsonicAuthenticationMode.ApiKey)
+                request.Headers.Add("Authorization", string.Format("Basic {0}", Configuration.EncodedCredentials));
 
             return request;
         }

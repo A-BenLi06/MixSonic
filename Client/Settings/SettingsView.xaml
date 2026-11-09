@@ -1,6 +1,6 @@
 <UserControl x:Class="Subsonic8.Settings.SettingsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:cal="using:Caliburn.Micro">
+    xmlns:cal="using:Caliburn.Micro" IsEnabled="{Binding CanEdit}">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled">
         <StackPanel HorizontalAlignment="Stretch" Background="Transparent" Margin="0,0,18,24">
             <TextBlock x:Uid="Navidrome_SettingsTitle" FontFamily="Segoe UI Light" FontSize="32"/>
@@ -15,9 +15,12 @@
             <TextBlock x:Uid="Navidrome_UsernameLabel" Style="{StaticResource SettingsTextStyle}"/>
             <TextBox x:Uid="Navidrome_Username" Text="{Binding Configuration.SubsonicServiceConfiguration.Username}" Style="{StaticResource SettingsTextBoxStyle}"
                 cal:Message.Attach="[Event TextChanged]=[Action UsernameChanged($source)]"/>
-            <TextBlock x:Uid="Navidrome_PasswordLabel" Style="{StaticResource SettingsTextStyle}"/>
-            <PasswordBox x:Uid="Navidrome_Password" Password="{Binding Configuration.SubsonicServiceConfiguration.Password}" Style="{StaticResource PasswordTextBoxStyle}"
+            <TextBlock x:Uid="Navidrome_AuthenticationLabel" Style="{StaticResource SettingsTextStyle}"/>
+            <ComboBox x:Uid="Navidrome_Authentication" ItemsSource="{Binding AuthenticationModes}" SelectedItem="{Binding SelectedAuthentication, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch"/>
+            <TextBlock Text="{Binding CredentialLabel}" Style="{StaticResource SettingsTextStyle}" Margin="0,12,0,4"/>
+            <PasswordBox x:Uid="Navidrome_AuthenticationSecret" Password="{Binding Configuration.SubsonicServiceConfiguration.Password}" Style="{StaticResource PasswordTextBoxStyle}"
                 cal:Message.Attach="[Event PasswordChanged]=[Action PasswordChanged($source)]"/>
+            <TextBlock Text="{Binding CredentialHelp}" TextWrapping="Wrap" Margin="0,8,0,0"/>
             <TextBlock x:Uid="Navidrome_PlaybackTitle" FontFamily="Segoe UI Light" FontSize="24" Margin="0,24,0,12"/>
             <TextBlock x:Uid="Navidrome_FormatLabel" Style="{StaticResource SettingsTextStyle}"/>
             <ComboBox x:Uid="Navidrome_Format" ItemsSource="{Binding StreamFormats}" SelectedItem="{Binding SelectedFormat, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch"/>

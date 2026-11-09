@@ -3,9 +3,13 @@ namespace Client.Common.Services
     using System;
     using System.Collections.Generic;
     using System.Net.Http;
+    using System.IO;
+    using System.Xml;
+    using System.Xml.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Client.Common.Services.DataStructures.SubsonicService;
+    using Client.Common.Services.Navidrome;
 
     /// <summary>
     /// Service that selects the best route (URL) to the Subsonic server by testing connectivity.
@@ -21,13 +25,25 @@ namespace Client.Common.Services
         }
 
         /// <inheritdoc />
-        public async Task<RouteSelectionResult> SelectBestRouteAsync(
+        public Task<RouteSelectionResult> SelectBestRouteAsync(
             string primaryUrl,
             string secondaryUrl,
             string username,
             string password,
             CancellationToken cancellationToken = default(CancellationToken))
         {
+            return SelectBestRouteAsync(new SubsonicServiceConfiguration { PrimaryUrl = primaryUrl, SecondaryUrl = secondaryUrl, Username = username, Password = password }, cancellationToken);
+        }
+
+        public async Task<RouteSelectionResult> SelectBestRouteAsync(SubsonicServiceConfiguration configuration, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (configuration == null) throw new ArgumentNullException("configuration");
+            var primaryUrl = configuration.PrimaryUrl;
+            var secondaryUrl = configuration.SecondaryUrl;
+            var username = configuration.Username;
+            var password = configuration.Password;
+            var authentication = configuration.AuthenticationMode;
+            cancellationToken.ThrowIfCancellationRequested();
             var hasPrimary = !string.IsNullOrWhiteSpace(primaryUrl);
             var hasSecondary = !string.IsNullOrWhiteSpace(secondaryUrl);
 
@@ -44,11 +60,11 @@ namespace Client.Common.Services
             // Only one URL configured - just test that one
             if (hasPrimary && !hasSecondary)
             {
-                return await TestSingleUrlAsync(primaryUrl, username, password, cancellationToken);
+                return await TestSingleUrlAsync(primaryUrl, username, password, authentication, cancellationToken);
             }
             if (hasSecondary && !hasPrimary)
             {
-                return await TestSingleUrlAsync(secondaryUrl, username, password, cancellationToken);
+                return await TestSingleUrlAsync(secondaryUrl, username, password, authentication, cancellationToken);
             }
 
             // Both URLs configured - check network type
@@ -59,18 +75,19 @@ namespace Client.Common.Services
 #if WINDOWS_APP
             if (networkType == NetworkConnectionType.Cellular)
             {
-                return await TestSingleUrlAsync(secondaryUrl, username, password, cancellationToken);
+                return await TestSingleUrlAsync(secondaryUrl, username, password, authentication, cancellationToken);
             }
 #endif
 
             // WiFi/Ethernet/Unknown: test both URLs concurrently
-            return await TestBothUrlsAsync(primaryUrl, secondaryUrl, username, password, cancellationToken);
+            return await TestBothUrlsAsync(primaryUrl, secondaryUrl, username, password, authentication, cancellationToken);
         }
 
         private async Task<RouteSelectionResult> TestSingleUrlAsync(
             string url,
             string username,
             string password,
+            SubsonicAuthenticationMode authentication,
             CancellationToken cancellationToken)
         {
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
@@ -79,7 +96,8 @@ namespace Client.Common.Services
 
                 try
                 {
-                    var success = await PingUrlAsync(url, username, password, cts.Token);
+                    var success = await PingUrlAsync(url, username, password, authentication, cts.Token);
+                    cancellationToken.ThrowIfCancellationRequested();
                     if (success)
                     {
                         return new RouteSelectionResult
@@ -97,6 +115,7 @@ namespace Client.Common.Services
                 }
                 catch (OperationCanceledException)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     return new RouteSelectionResult
                     {
                         Success = false,
@@ -119,6 +138,7 @@ namespace Client.Common.Services
             string secondaryUrl,
             string username,
             string password,
+            SubsonicAuthenticationMode authentication,
             CancellationToken cancellationToken)
         {
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
@@ -127,8 +147,8 @@ namespace Client.Common.Services
 
                 var tasks = new List<Task<PingTaskResult>>
                 {
-                    PingUrlWithResultAsync(primaryUrl, username, password, cts.Token),
-                    PingUrlWithResultAsync(secondaryUrl, username, password, cts.Token)
+                    PingUrlWithResultAsync(primaryUrl, username, password, authentication, cts.Token),
+                    PingUrlWithResultAsync(secondaryUrl, username, password, authentication, cts.Token)
                 };
 
                 // Use WhenAny pattern to get first successful result
@@ -136,6 +156,7 @@ namespace Client.Common.Services
                 {
                     var completedTask = await Task.WhenAny(tasks);
                     tasks.Remove(completedTask);
+                    cancellationToken.ThrowIfCancellationRequested();
 
                     try
                     {
@@ -157,6 +178,7 @@ namespace Client.Common.Services
                     }
                 }
 
+                cancellationToken.ThrowIfCancellationRequested();
                 return new RouteSelectionResult
                 {
                     Success = false,
@@ -169,13 +191,14 @@ namespace Client.Common.Services
             string baseUrl,
             string username,
             string password,
+            SubsonicAuthenticationMode authentication,
             CancellationToken cancellationToken)
         {
             var config = new SubsonicServiceConfiguration
             {
                 BaseUrl = baseUrl,
                 Username = username,
-                Password = password
+                Password = password, AuthenticationMode = authentication
             };
 
             var pingUrl = BuildPingUrl(config);
@@ -184,9 +207,26 @@ namespace Client.Common.Services
             {
                 try
                 {
-                    var response = await client.GetAsync(pingUrl, cancellationToken);
-                    return response.IsSuccessStatusCode;
+                    using (var response = await client.GetAsync(pingUrl, cancellationToken))
+                    {
+                        if (!response.IsSuccessStatusCode) return false;
+                        var root = ReadResponse(await response.Content.ReadAsStringAsync());
+                        cancellationToken.ThrowIfCancellationRequested();
+                        if (root == null || (string)root.Attribute("status") != "ok") return false;
+                    }
+                    if (authentication != SubsonicAuthenticationMode.ApiKey) return true;
+                    using (var response = await client.GetAsync(new SubsonicRequest(config, "tokenInfo").Url, cancellationToken))
+                    {
+                        if (!response.IsSuccessStatusCode) return false;
+                        var root = ReadResponse(await response.Content.ReadAsStringAsync());
+                        cancellationToken.ThrowIfCancellationRequested();
+                        var token = root == null ? null : root.Element(SubsonicXml.Namespace + "tokenInfo");
+                        return root != null && (string)root.Attribute("status") == "ok" && token != null &&
+                            !string.IsNullOrWhiteSpace((string)token.Attribute("username")) &&
+                            string.Equals((string)token.Attribute("username"), username, StringComparison.OrdinalIgnoreCase);
+                    }
                 }
+                catch (OperationCanceledException) { throw; }
                 catch
                 {
                     return false;
@@ -198,22 +238,22 @@ namespace Client.Common.Services
             string baseUrl,
             string username,
             string password,
+            SubsonicAuthenticationMode authentication,
             CancellationToken cancellationToken)
         {
-            var success = await PingUrlAsync(baseUrl, username, password, cancellationToken);
+            var success = await PingUrlAsync(baseUrl, username, password, authentication, cancellationToken);
             return new PingTaskResult { Url = baseUrl, Success = success };
         }
 
         private static string BuildPingUrl(ISubsonicServiceConfiguration config)
         {
-            // Build the ping.view URL with authentication parameters
-            var baseUrl = (config.BaseUrl ?? string.Empty).TrimEnd('/');
-            var username = config.Username ?? string.Empty;
-            return string.Format(
-                "{0}/rest/ping.view?u={1}&p={2}&c=MixRadio&v=1.13.0",
-                baseUrl,
-                Uri.EscapeDataString(username),
-                config.EncodedPassword);
+            return new SubsonicRequest(config, "ping").Url;
+        }
+
+        private static XElement ReadResponse(string text)
+        {
+            using (var reader = XmlReader.Create(new StringReader(text), new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit }))
+                return XDocument.Load(reader).Element(SubsonicXml.Namespace + "subsonic-response");
         }
 
         private class PingTaskResult

@@ -63,7 +63,7 @@ Bookmark resume positions and duplicate server queue indices reach the native
 player. Shares use server default expiration on creation and preserve it when an
 update omits the date, matching `core/share.go`.
 
-The real 0.64.2 fixture verifies 53 API integration assertions against 125 synthetic
+The real 0.64.2 fixture verifies 57 API integration assertions against 125 synthetic
 tagged WAV files. Its version is recorded separately from the locked source.
 Playback activity now reports actual native states and counts real playing intervals
 independently of seek positions. Enhanced presence requests set `ignoreScrobble`;
@@ -120,6 +120,26 @@ Player frame state delegates queue serialization to the existing service and
 retains account, playback milliseconds and lyric following. Position restoration
 waits for media opening, clamps to duration, and applies only to the saved current
 queue item; changing the selected item prevents a later unintended seek.
+
+Settings now supports password and OpenSubsonic API-key sign-in. The selected mode
+persists in configuration; its secret remains in the credential vault. API-key
+requests send the escaped key alone and verify `tokenInfo` against the selected
+username. Route selection requires authenticated `status="ok"` XML, so HTTP 200
+authentication failures cannot win the route race. Changing account, secret or
+authentication mode invalidates pending sessions and player source decisions.
+
+Automatic streaming negotiates the advertised `transcoding` extension using a
+JSON client profile. Windows 8.1 native formats and PCM limits are declared with
+Navidrome's normalized codec names; bitrate preferences convert kbps to bps. The
+returned decision selects an original or MP3 signed stream on the same server.
+Tokens remain transient. Explicit Original/MP3 preferences use ordinary streaming;
+absent negotiation support also uses the standard stream endpoint. Real decision
+denials remain errors. Stop/skip cancels pending HTTP work, while pause and resume
+positions survive it. Old media-open/completion events during negotiation cannot
+start playback or advance the queue. Native stream information is resource-backed.
+The controlled service harness verifies API-key behavior; the real 0.64.2 fixture
+does not advertise that extension. A verified FFmpeg setup enables real direct-WAV
+and bitrate-limited MP3 negotiation checks.
 Protocol/model tests, simulated native audio events and controlled loopback
 jukebox responses remain separate from actual native acceptance. The fixture
 verifies station administration, an administrator-triggered scan, and explicit

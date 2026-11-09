@@ -1,6 +1,7 @@
 param(
     [string]$BinaryPath,
-    [string]$MusicPath
+    [string]$MusicPath,
+    [string]$FFmpegPath
 )
 
 $ErrorActionPreference = 'Stop'
@@ -12,6 +13,14 @@ $BinaryPath = (Resolve-Path -LiteralPath $BinaryPath).Path
 $MusicPath = (Resolve-Path -LiteralPath $MusicPath).Path
 if (-not $MusicPath.StartsWith($fixtureRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
     throw 'A fixture music folder must be under the ignored project fixture directory.'
+}
+$ffmpegConfiguration = ''
+if ($FFmpegPath) {
+    $FFmpegPath = (Resolve-Path -LiteralPath $FFmpegPath).Path
+    if (-not $FFmpegPath.StartsWith($fixtureRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'The explicit fixture FFmpeg must be under the ignored project fixture directory.'
+    }
+    $ffmpegConfiguration = 'FFmpegPath = ' + (ConvertTo-Json -InputObject $FFmpegPath -Compress)
 }
 $runRoot = Join-Path $fixtureRoot ('run-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $runRoot -Force | Out-Null
@@ -30,6 +39,7 @@ DataFolder = '$dataFolder'
 EnableSharing = true
 ScanSchedule = '0'
 LogLevel = 'debug'
+$ffmpegConfiguration
 "@ | Set-Content -LiteralPath $configPath -Encoding utf8
 $process = Start-Process -FilePath $BinaryPath -ArgumentList @('--configfile', ('"' + $configPath + '"')) -WorkingDirectory $runRoot -WindowStyle Hidden -RedirectStandardOutput (Join-Path $runRoot 'server.log') -RedirectStandardError (Join-Path $runRoot 'server-error.log') -PassThru
 $state = [ordered]@{
@@ -37,6 +47,7 @@ $state = [ordered]@{
     port = $port
     processId = $process.Id
     binarySha256 = (Get-FileHash -LiteralPath $BinaryPath -Algorithm SHA256).Hash
+    ffmpegSha256 = $(if ($FFmpegPath) { (Get-FileHash -LiteralPath $FFmpegPath -Algorithm SHA256).Hash } else { $null })
     username = 'fixture-listener'
     password = 'Fixture-' + [guid]::NewGuid().ToString('N')
 }

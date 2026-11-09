@@ -4,6 +4,12 @@
 compiler. `check-client.py` checks desktop resources and project inclusion. Neither
 runner claims native interaction or visual acceptance.
 
+`./tools/navidrome-tests/run-connection.ps1` compiles the production route, session
+and stream services against a controlled HTTP peer. It checks authenticated XML
+responses, API-key account ownership, separate authentication mechanisms, JSON
+transcode profiles, actual request cancellation and stale-account decisions.
+This peer does not establish real API-key server support or native decoding.
+
 `./tools/navidrome-tests/run-audio.ps1` compiles the production audio view model
 and control contracts with simulated native events. It verifies persisted controls,
 media-open/start/stop/seek ordering, queue completion, current stream preferences
@@ -36,6 +42,15 @@ python tools/navidrome-tests/fixture.py .tmp/navidrome-fixture/test-music
 ./tools/navidrome-tests/stop-fixture.ps1
 ```
 
+For successful negotiated-stream integration, supply an explicit FFmpeg binary
+under the ignored fixture folder with `start-fixture.ps1 -FFmpegPath <path>`.
+The test setup used the Gyan FFmpeg 9.0.2 essentials release, checked against its
+published archive checksum `60F467265B1E312373DBCD92200C2618A74850F98D3D078E94296BB3FA2047BA`.
+The executable SHA-256 is `3256173F3F8BFFD7DF12227C68ADF68025EDB1832273A9530688A7BB1ED8EDEC`;
+keep adjacent ffprobe available. The start script records the explicit FFmpeg
+hash in the private fixture manifest. A server advertising `transcoding` without
+the required FFmpeg setup fails the positive integration cases.
+
 The start script binds to loopback, creates a fresh data directory and initializes
 a disposable account only after verifying that its own process owns the listener.
 The generated password stays in the ignored fixture manifest. The stop script
@@ -46,11 +61,14 @@ queries, all three favorites and ratings, complete playlist entries and duplicat
 ordering, metadata/add/remove/reorder/delete, bookmark milliseconds, negotiated
 server queue indices, lyric variants, original WAV download, shares, scan state
 and playback report negotiation, including suppression of position-based false
-scrobbles and byte-identical streaming downloads. The 51 assertions also cover
+scrobbles and byte-identical streaming downloads. The 57 assertions also cover
 administrator station create/edit/delete, clearing a homepage, an actual rescan,
 disabled jukebox access and the absence of an acoustic provider. Successful
 acoustic response parsing and all jukebox action/parameter shapes use controlled
 protocol responses; an enabled provider/server audio device needs native testing.
+Negotiated direct WAV bytes must match the original download, and a 64 kbps MP3
+decision must produce actual media bytes. This verifies server output, not native
+MediaElement decoding.
 
 `run-services.ps1` compiles the actual desktop session, offline library and playback
 activity services with small CLR storage/event adapters. It uses the disposable

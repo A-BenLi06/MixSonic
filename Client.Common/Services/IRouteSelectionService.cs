@@ -23,6 +23,10 @@ namespace Client.Common.Services
             string username,
             string password,
             CancellationToken cancellationToken = default(CancellationToken));
+
+        Task<RouteSelectionResult> SelectBestRouteAsync(
+            DataStructures.SubsonicService.SubsonicServiceConfiguration configuration,
+            CancellationToken cancellationToken = default(CancellationToken));
     }
 
     /// <summary>

@@ -107,6 +107,7 @@
   <ItemGroup>
     <Compile Include="EventAggregatorMessages\PlayNextMessage.cs" />
     <Compile Include="Models\Navidrome\NavidromeModels.cs" />
+    <Compile Include="Models\Navidrome\Transcoding.cs" />
     <Compile Include="Models\PlaybackStartOptions.cs" />
     <Compile Include="Models\ListeningCounter.cs" />
     <Compile Include="Models\PendingListening.cs" />

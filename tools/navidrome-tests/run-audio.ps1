@@ -10,11 +10,15 @@ $sources = Get-Content -LiteralPath (Join-Path $projectRoot 'tools\serializer-te
 $sources += @(
     'Client.Common\Services\DataStructures\PlayerManagementService\IPlayer.cs',
     'Client\AudioPlayback\AudioPlayerViewModel.cs', 'Client\AudioPlayback\IAudioPlayerViewModel.cs', 'Client\AudioPlayback\IPlaybackReporter.cs',
+    'Client\Navidrome\NavidromeStreamService.cs', 'Client\Navidrome\NavidromeSessionService.cs',
+    'Client\Navidrome\NavidromeText.cs',
+    'Client.Common\Models\Navidrome\NavidromeModels.cs', 'Client.Common\Results\NavidromeResult.cs',
+    'Client.Common\Services\Navidrome\NavidromeApi.cs', 'Client.Common\Services\Navidrome\SubsonicXml.cs',
     'Client\Framework\Interfaces\IPlayerControls.cs', 'Client\Framework\Interfaces\IExtendedPlayerControls.cs',
     'tools\serializer-tests\VisualStateResultStub.cs', 'tools\navidrome-tests\StorageAdapters.cs',
     'tools\navidrome-tests\AudioAdapters.cs', 'tools\navidrome-tests\AudioTests.cs'
 )
-$sources = $sources | Select-Object -Unique | ForEach-Object { Join-Path $projectRoot $_ }
+$sources = $sources | ForEach-Object { [IO.Path]::GetFullPath((Join-Path $projectRoot $_)) } | Select-Object -Unique
 $executable = Join-Path $outputDirectory 'navidrome-audio.exe'
 & $CompilerPath /nologo /define:NATIVE_PLAYER_TESTS /main:NavidromeAudioTests "/out:$executable" @sources "/r:$($caliburn.FullName)" /r:System.Net.Http.dll /r:System.ServiceModel.dll /r:System.Runtime.Serialization.dll /r:System.Xml.dll /r:System.Xml.Linq.dll /r:Microsoft.CSharp.dll
 if ($LASTEXITCODE -ne 0) { throw 'Production audio compilation failed.' }
