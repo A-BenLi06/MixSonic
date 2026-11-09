@@ -1,0 +1,33 @@
+<UserControl x:Class="Subsonic8.Navidrome.MixRadioHomePanel" x:Name="ControlRoot"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:nav="using:Subsonic8.Navidrome">
+    <UserControl.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="NavidromeResources.xaml" />
+    </ResourceDictionary.MergedDictionaries></ResourceDictionary></UserControl.Resources>
+    <StackPanel x:Name="PanelLayout" Orientation="Horizontal" VerticalAlignment="Top">
+        <!-- MyMusicPanel / FavouriteArtistsPanel: 170 px item cells, three vertical rows. -->
+        <GridView x:Name="AlbumList" Height="510" ItemsSource="{Binding Items}" ItemTemplateSelector="{StaticResource MixRadioHomeSmallSelector}"
+            ItemContainerStyle="{StaticResource GridViewItemStyle}" IsItemClickEnabled="True" ItemClick="OnItemClick"
+            SelectionMode="None" IsSwipeEnabled="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+            ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollMode="Disabled"
+            Visibility="{Binding UseMosaic, ElementName=ControlRoot, Converter={StaticResource NavidromeHidden}}">
+            <GridView.ItemsPanel><ItemsPanelTemplate><WrapGrid MaximumRowsOrColumns="3" Orientation="Vertical"
+                VerticalChildrenAlignment="Top" HorizontalChildrenAlignment="Left" Margin="0" /></ItemsPanelTemplate></GridView.ItemsPanel>
+            <GridView.ItemContainerTransitions><AddDeleteThemeTransition /></GridView.ItemContainerTransitions>
+        </GridView>
+        <!-- RadioTopStations: one 332 px hero, four 162 px tiles and a final navigation tile. -->
+        <nav:MixRadioMosaicGridView x:Name="MosaicList" Width="510" Height="510" ItemsSource="{Binding Items}" ItemTemplateSelector="{StaticResource MixRadioHomeSelector}"
+            ItemContainerStyle="{StaticResource GridViewItemStyle}" IsItemClickEnabled="True" ItemClick="OnItemClick"
+            SelectionMode="None" IsSwipeEnabled="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Auto"
+            Visibility="{Binding UseMosaic, ElementName=ControlRoot, Converter={StaticResource NavidromeVisibility}}">
+            <GridView.ItemsPanel><ItemsPanelTemplate><VariableSizedWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"
+                ItemWidth="170" ItemHeight="170" /></ItemsPanelTemplate></GridView.ItemsPanel>
+        </nav:MixRadioMosaicGridView>
+        <StackPanel x:Name="SectionStatus" Width="205" Margin="20,1,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <TextBlock Text="{Binding EmptyText}" Style="{StaticResource Medium2LightText}" Visibility="{Binding IsEmpty, Converter={StaticResource NavidromeVisibility}}" />
+            <TextBlock Text="{Binding Error}" Style="{StaticResource NormalText}" Foreground="{StaticResource NokiaPinkBrush}" />
+            <ProgressRing Width="32" Height="32" HorizontalAlignment="Left" IsActive="{Binding IsLoading}"
+                Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

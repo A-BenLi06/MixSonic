@@ -3,15 +3,15 @@
     xmlns:cal="using:Caliburn.Micro" IsEnabled="{Binding CanEdit}">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled">
         <StackPanel HorizontalAlignment="Stretch" Background="Transparent" Margin="0,0,18,24">
-            <TextBlock x:Uid="Navidrome_SettingsTitle" FontFamily="Segoe UI Light" FontSize="32"/>
-            <TextBlock x:Uid="Navidrome_ServerTitle" FontFamily="Segoe UI Light" FontSize="24" Margin="0,24,0,12"/>
+            <TextBlock x:Uid="Navidrome_SettingsTitle" FontFamily="{StaticResource FontFamilyLight}" FontSize="32"/>
+            <TextBlock x:Uid="Navidrome_ServerTitle" FontFamily="{StaticResource FontFamilyLight}" FontSize="24" Margin="0,24,0,12"/>
             <TextBlock x:Uid="Navidrome_PrimaryAddressLabel" Style="{StaticResource SettingsTextStyle}"/>
             <TextBox x:Uid="Navidrome_PrimaryAddress" Text="{Binding Configuration.SubsonicServiceConfiguration.PrimaryUrl}" Style="{StaticResource SettingsTextBoxStyle}"
                 cal:Message.Attach="[Event TextChanged]=[Action PrimaryUrlChanged($source)]"/>
             <TextBlock x:Uid="Navidrome_SecondaryAddressLabel" Style="{StaticResource SettingsTextStyle}"/>
             <TextBox x:Uid="Navidrome_SecondaryAddress" Text="{Binding Configuration.SubsonicServiceConfiguration.SecondaryUrl}" Style="{StaticResource SettingsTextBoxStyle}"
                 cal:Message.Attach="[Event TextChanged]=[Action SecondaryUrlChanged($source)]"/>
-            <TextBlock x:Uid="Navidrome_AccountTitle" FontFamily="Segoe UI Light" FontSize="24" Margin="0,24,0,12"/>
+            <TextBlock x:Uid="Navidrome_AccountTitle" FontFamily="{StaticResource FontFamilyLight}" FontSize="24" Margin="0,24,0,12"/>
             <TextBlock x:Uid="Navidrome_UsernameLabel" Style="{StaticResource SettingsTextStyle}"/>
             <TextBox x:Uid="Navidrome_Username" Text="{Binding Configuration.SubsonicServiceConfiguration.Username}" Style="{StaticResource SettingsTextBoxStyle}"
                 cal:Message.Attach="[Event TextChanged]=[Action UsernameChanged($source)]"/>
@@ -21,7 +21,7 @@
             <PasswordBox x:Uid="Navidrome_AuthenticationSecret" Password="{Binding Configuration.SubsonicServiceConfiguration.Password}" Style="{StaticResource PasswordTextBoxStyle}"
                 cal:Message.Attach="[Event PasswordChanged]=[Action PasswordChanged($source)]"/>
             <TextBlock Text="{Binding CredentialHelp}" TextWrapping="Wrap" Margin="0,8,0,0"/>
-            <TextBlock x:Uid="Navidrome_PlaybackTitle" FontFamily="Segoe UI Light" FontSize="24" Margin="0,24,0,12"/>
+            <TextBlock x:Uid="Navidrome_PlaybackTitle" FontFamily="{StaticResource FontFamilyLight}" FontSize="24" Margin="0,24,0,12"/>
             <TextBlock x:Uid="Navidrome_FormatLabel" Style="{StaticResource SettingsTextStyle}"/>
             <ComboBox x:Uid="Navidrome_Format" ItemsSource="{Binding StreamFormats}" SelectedItem="{Binding SelectedFormat, Mode=TwoWay}" DisplayMemberPath="Name" HorizontalAlignment="Stretch"/>
             <TextBlock x:Uid="Navidrome_BitRateLabel" Style="{StaticResource SettingsTextStyle}" Margin="0,12,0,4"/>

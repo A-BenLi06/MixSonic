@@ -16,6 +16,7 @@
                 <ResourceDictionary Source="Common/LightStandardStyles.xaml" />
                 <ResourceDictionary Source="Common/CustomStyles.xaml" />
                 <ResourceDictionary Source="Common/SnappedStyles.xaml" />
+                <ResourceDictionary Source="Common/MixRadioOriginalStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <SolidColorBrush x:Key="ApplicationPageBackgroundThemeBrush" Color="#FF000000" />
@@ -26,12 +27,12 @@
             <SolidColorBrush x:Key="ListViewItemOverlayBackgroundThemeBrush" Color="#D9000000" />
             <SolidColorBrush x:Key="ListViewItemOverlayForegroundThemeBrush" Color="#FFFFFFFF" />
             <SolidColorBrush x:Key="ListViewItemOverlaySecondaryForegroundThemeBrush" Color="#FFCFCFCF" />
-            <SolidColorBrush x:Key="AppBarBackgroundThemeBrush" Color="#FF121212" />
+            <SolidColorBrush x:Key="AppBarBackgroundThemeBrush" Color="#FF1D1D1D" />
             <SolidColorBrush x:Key="AppBarItemBackgroundThemeBrush" Color="#00000000" />
             <SolidColorBrush x:Key="AppBarItemForegroundThemeBrush" Color="#FFFFFFFF" />
             <SolidColorBrush x:Key="AppBarItemPointerOverForegroundThemeBrush" Color="#FFFFFFFF" />
-            <SolidColorBrush x:Key="AppBarItemPointerOverBackgroundThemeBrush" Color="{StaticResource MixRadioAccentColor}" />
-            <SolidColorBrush x:Key="AppBarItemPressedForegroundThemeBrush" Color="#FFFFFFFF" />
+            <SolidColorBrush x:Key="AppBarItemPointerOverBackgroundThemeBrush" Color="#40FFFFFF" />
+            <SolidColorBrush x:Key="AppBarItemPressedForegroundThemeBrush" Color="#FF000000" />
             <SolidColorBrush x:Key="AppBarItemDisabledForegroundThemeBrush" Color="#FF777777" />
             <SolidColorBrush x:Key="BackButtonForegroundThemeBrush" Color="#FFFFFFFF" />
             <SolidColorBrush x:Key="BackButtonBackgroundThemeBrush" Color="#00000000" />
@@ -39,7 +40,7 @@
             <SolidColorBrush x:Key="BackButtonPointerOverBackgroundThemeBrush" Color="{StaticResource MixRadioAccentColor}" />
             <SolidColorBrush x:Key="BackButtonPressedForegroundThemeBrush" Color="{StaticResource MixRadioAccentColor}" />
 
-            <Color x:Key="MetroBlue">#FFFF2B86</Color>
+            <Color x:Key="MetroBlue">#FFFF2E80</Color>
 
             <SolidColorBrush x:Name="MetroBlueBrush" Color="{StaticResource MetroBlue}" />
         </ResourceDictionary>

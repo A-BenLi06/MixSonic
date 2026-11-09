@@ -402,4 +402,30 @@
   <data name="Navidrome_Authentication.AutomationProperties.Name" xml:space="preserve"><value>Authentication method</value></data>
   <data name="Navidrome_AuthenticationSecret.AutomationProperties.Name" xml:space="preserve"><value>Password or API key</value></data>
   <data name="Navidrome_Avatar.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>Profile image</value></data>
+  <data name="Navidrome_Text_Home" xml:space="preserve"><value>home</value></data>
+  <data name="Navidrome_Text_RecentAlbums" xml:space="preserve"><value>recently played</value></data>
+  <data name="Navidrome_Text_SeeAll" xml:space="preserve"><value>see all</value></data>
+  <data name="Navidrome_Text_NoRecentAlbums" xml:space="preserve"><value>The albums you listen to will appear here.</value></data>
+  <data name="Navidrome_Text_NoHomePlaylists" xml:space="preserve"><value>Your playlists will appear here.</value></data>
+  <data name="Navidrome_Text_NoHomeArtists" xml:space="preserve"><value>Browse your library to find artists.</value></data>
+  <data name="Navidrome_Text_NoHomeDownloads" xml:space="preserve"><value>Download music to listen offline.</value></data>
+  <data name="Navidrome_Text_NoHomeFavourites" xml:space="preserve"><value>Your favourites will appear here.</value></data>
+  <data name="Navidrome_Text_NoHomeAlbums" xml:space="preserve"><value>Your albums will appear here.</value></data>
+  <data name="Navidrome_LibraryCommand.Label" xml:space="preserve"><value>My music</value></data>
+  <data name="Navidrome_Player.Label" xml:space="preserve"><value>Player</value></data>
+  <data name="Navidrome_LibraryButton.AutomationProperties.Name" xml:space="preserve"><value>Browse music library</value></data>
+  <data name="Navidrome_ConnectionSettings.Content" xml:space="preserve"><value>Connection settings</value></data>
+  <data name="Navidrome_ArtworkButton.AutomationProperties.Name" xml:space="preserve"><value>Track details</value></data>
+  <data name="Navidrome_QuietPlayer.Text" xml:space="preserve"><value>It's quiet here. Let's play some music.</value></data>
+  <data name="Navidrome_ChooseMusic.Text" xml:space="preserve"><value>choose music</value></data>
+  <data name="Navidrome_PlayButton.AutomationProperties.Name" xml:space="preserve"><value>Play</value></data>
+  <data name="Navidrome_PauseButton.AutomationProperties.Name" xml:space="preserve"><value>Pause</value></data>
+  <data name="Navidrome_QueueButton.AutomationProperties.Name" xml:space="preserve"><value>Open queue</value></data>
+  <data name="Navidrome_CloseQueue.AutomationProperties.Name" xml:space="preserve"><value>Close queue</value></data>
+  <data name="Navidrome_ClearQueueButton.AutomationProperties.Name" xml:space="preserve"><value>Clear queue</value></data>
+  <data name="Navidrome_LibraryTitle.Text" xml:space="preserve"><value>my music</value></data>
+  <data name="Navidrome_FollowLyricsToggle.Content" xml:space="preserve"><value>Follow lyrics</value></data>
+  <data name="FavouriteArtistsAddAnArtistLabel.Text" xml:space="preserve"><value>add an artist</value></data>
+  <data name="MixRadioAllMixesButton.Text" xml:space="preserve"><value>see all</value></data>
+  <data name="HubMyMusicSeeAllButton.Text" xml:space="preserve"><value>see all</value></data>
 </root>

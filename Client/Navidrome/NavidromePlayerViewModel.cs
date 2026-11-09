@@ -67,12 +67,16 @@ namespace Subsonic8.Navidrome
         public PlaylistItem CurrentItem { get { return Audio != null && Audio.CurrentItem != null && PlaylistQueue.Items.Contains(Audio.CurrentItem) ? Audio.CurrentItem : null; } }
         public bool HasCurrentItem { get { return CurrentItem != null; } }
         public bool HasPlaybackError { get { return !string.IsNullOrEmpty(Audio.PlaybackError); } }
+        public string BackgroundArtwork { get; private set; }
         public string Artwork { get { return CurrentItem == null ? Client.Common.Services.SubsonicService.CoverArtPlaceholder : CurrentItem.OriginalCoverArtUrl; } }
         public string Title { get { return CurrentItem == null ? NavidromeText.Get("NoCurrentSong") : CurrentItem.Title; } }
         public string Artist { get { return CurrentItem == null ? null : CurrentItem.Artist; } }
         public string Album { get { return _song == null ? null : _song.Album; } }
         public string RatingText { get { return CurrentItem == null ? null : string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("RatingValue"), CurrentItem.UserRating); } }
         public bool CanPlayPause { get { return PlaylistQueue.HasElements; } }
+        public bool IsPlaying { get { return PlaylistQueue.IsPlaying; } }
+        public bool CanOpenArtist { get { return CurrentAccount && !string.IsNullOrEmpty(CurrentItem.ArtistId); } }
+        public void OpenArtist() { if (CanOpenArtist) NavigationService.NavigateToViewModel<NavidromeDetailViewModel>(NavidromeRoute.For("artist", CurrentItem.ArtistId)); }
         public bool CanPrevious { get { return PlaylistQueue.HasElements; } }
         public bool CanNext { get { return PlaylistQueue.HasElements; } }
         public string PlayPauseGlyph { get { return PlaylistQueue.IsPlaying ? "\uE103" : "\uE102"; } }
@@ -180,15 +184,15 @@ namespace Subsonic8.Navidrome
         protected override void Changed()
         {
             base.Changed();
-            foreach (var name in new[] { "CurrentItem", "HasCurrentItem", "HasPlaybackError", "Artwork", "Title", "Artist", "Album", "RatingText", "CanPlayPause", "CanPrevious", "CanNext",
-                "PlayPauseGlyph", "PlayPauseLabel", "ShuffleLabel", "RepeatLabel", "CanShuffle", "CanRepeat", "CanStop", "CanClearQueue", "CanFavourite", "CanRate", "CanBookmark", "CanDetails", "CanDownload",
+            foreach (var name in new[] { "CurrentItem", "HasCurrentItem", "HasPlaybackError", "Artwork", "BackgroundArtwork", "Title", "Artist", "Album", "RatingText", "CanPlayPause", "CanPrevious", "CanNext",
+                "PlayPauseGlyph", "PlayPauseLabel", "IsPlaying", "CanOpenArtist", "ShuffleLabel", "RepeatLabel", "CanShuffle", "CanRepeat", "CanStop", "CanClearQueue", "CanFavourite", "CanRate", "CanBookmark", "CanDetails", "CanDownload",
                 "CanSaveQueue", "CanRestoreQueue", "CanSaveAsPlaylist", "CanRemove", "CanMoveUp", "CanMoveDown", "CanReloadLyrics", "FavouriteLabel", "CanSyncListening", "CanImportQueue", "CanExportQueue" }) NotifyOfPropertyChange(name);
         }
         public override async Task Reload()
         {
             var version = ++LoadVersion; var item = CurrentItem;
             DisplayName = NavidromeText.Get("Player"); IsLoading = true; Error = null; LyricsError = null; LyricsStatus = null;
-            _song = null; LyricVariants.Clear(); SelectedLyrics = null;
+            _song = null; BackgroundArtwork = null; LyricVariants.Clear(); SelectedLyrics = null;
             if (_observedItem != null) _observedItem.PropertyChanged -= CurrentChanged;
             _observedItem = item; if (item != null) item.PropertyChanged += CurrentChanged;
             try
@@ -205,13 +209,27 @@ namespace Subsonic8.Navidrome
                 var songInfo = await api.GetSong(item.SongId).ReadAsync();
                 if (!Matches(version, item)) return;
                 _song = songInfo; Changed();
-                var variants = await (Session.Capabilities.Supports("songLyrics") ? api.GetLyrics(item.SongId, true) : api.GetLegacyLyrics(item.Artist, item.Title)).ReadAsync();
-                if (Matches(version, item)) ApplyLyrics(variants, false);
+                await Task.WhenAll(LoadArtistBackground(api, item, version), LoadLyrics(api, item, version));
             }
             catch (Exception exception) { if (Matches(version, item)) LyricsError = exception.Message; }
             finally { if (version == LoadVersion) { IsLoading = false; NotifyLyrics(); Changed(); } }
         }
-        private bool Matches(int version, PlaylistItem item) { return PageActive && version == LoadVersion && ReferenceEquals(item, CurrentItem) && item.AccountKey == Session.AccountKey; }
+        private async Task LoadArtistBackground(NavidromeApi api, PlaylistItem item, int version)
+        {
+            if (string.IsNullOrEmpty(item.ArtistId)) return;
+            try
+            {
+                var artist = await api.GetArtistInfo(item.ArtistId).ReadAsync();
+                if (Matches(version, item)) { BackgroundArtwork = artist.ImageUrl; NotifyOfPropertyChange(() => BackgroundArtwork); }
+            }
+            catch (Exception) { /* Artist imagery is optional; retain the original black backdrop when unavailable. */ }
+        }
+        private async Task LoadLyrics(NavidromeApi api, PlaylistItem item, int version)
+        {
+            var variants = await (Session.Capabilities.Supports("songLyrics") ? api.GetLyrics(item.SongId, true) : api.GetLegacyLyrics(item.Artist, item.Title)).ReadAsync();
+            if (Matches(version, item)) ApplyLyrics(variants, false);
+        }
+        private bool Matches(int version, PlaylistItem item) { return item != null && PageActive && version == LoadVersion && ReferenceEquals(item, CurrentItem) && item.AccountKey == Session.AccountKey; }
         private void ApplyLyrics(IList<LyricVariant> variants, bool offline)
         {
             LyricVariants.Clear(); LyricVariants.AddRange(variants.Select(variant => new LyricChoice { Variant = variant }));

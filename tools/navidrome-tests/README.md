@@ -4,6 +4,15 @@
 compiler. `check-client.py` checks desktop resources and project inclusion. Neither
 runner claims native interaction or visual acceptance.
 
+`./tools/navidrome-tests/run-home.ps1` compiles the production home controller,
+section models and template selectors with controlled navigation, queue and
+storage boundaries. A loopback HTTP peer supplies real protocol responses for
+home previews. It checks all 13 destinations, section and tile dispatch,
+independent section failures, disconnected/current-account downloads, stale
+playback rejection, embedded player state forwarding and compact/featured
+template selection. Its 41 assertions do not exercise native pointer input,
+XAML layout, audio decoding or the actual suspension lifecycle.
+
 `./tools/navidrome-tests/run-connection.ps1` compiles the production route, session
 and stream services against a controlled HTTP peer. It checks authenticated XML
 responses, API-key account ownership, separate authentication mechanisms, JSON

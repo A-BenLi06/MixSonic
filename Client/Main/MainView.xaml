@@ -1,9 +1,62 @@
-﻿<common:BrowseView
-    x:Class="Subsonic8.Main.MainView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:common="using:Subsonic8.Common"
-    mc:Ignorable="d">
-</common:BrowseView>
+<framework:AppPage x:Class="Subsonic8.Main.MainView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:framework="using:Subsonic8.Framework" xmlns:common="using:Subsonic8.Common" xmlns:nav="using:Subsonic8.Navidrome" KeyDown="OnPageKeyDown">
+    <Page.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Navidrome/NavidromeResources.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+        <DataTemplate x:Key="SectionHeading"><TextBlock Text="{Binding}" Style="{StaticResource MediumLightText}" Margin="2,-5,0,-10" /></DataTemplate>
+    </ResourceDictionary></Page.Resources>
+    <Page.BottomAppBar><CommandBar>
+        <AppBarButton x:Uid="Navidrome_LibraryCommand" Icon="Library" Click="OnLibraryClicked" />
+        <AppBarButton x:Uid="Navidrome_Player" Icon="Play" Click="OnPlayerClicked" />
+        <AppBarButton x:Uid="Navidrome_Refresh" Icon="Refresh" IsEnabled="{Binding CanReload}" Click="OnReloadClicked" />
+        <AppBarButton x:Uid="Navidrome_Settings" Icon="Setting" Click="OnSettingsClicked" />
+    </CommandBar></Page.BottomAppBar>
+    <Grid Style="{StaticResource LayoutRootStyle}">
+        <common:MixRadioArtwork Source="{Binding Player.BackgroundArtwork}" MaxOpacity="0.6" FadeDuration="600" IsHitTestVisible="False"/>
+        <Hub x:Name="MainHub" SectionHeaderClick="OnSectionHeaderClicked">
+            <Hub.Header><Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition x:Name="HeaderIndent" Width="80" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Viewbox x:Name="WordmarkHost" Width="266" Height="41" VerticalAlignment="Top">
+                        <ContentControl Template="{StaticResource MixRadioWordmarkTemplate}" />
+                    </Viewbox>
+                    <Button x:Uid="Navidrome_LibraryButton" Content="&#xE14C;" Style="{StaticResource ButtonBase}" VerticalAlignment="Bottom" Margin="0,0,0,2" Click="OnLibraryClicked" />
+                </StackPanel>
+            </Grid></Hub.Header>
+            <HubSection x:Name="PlayerSection">
+                <DataTemplate><nav:MixRadioPlayerSurface DataContext="{Binding Player}" Loaded="OnPlayerLoaded" QueueRequested="OnQueueRequested" BrowseRequested="OnBrowseRequested" /></DataTemplate>
+            </HubSection>
+            <HubSection Header="{Binding Recent.Title}" Tag="{Binding Recent.Destination}" HeaderTemplate="{StaticResource SectionHeading}" IsHeaderInteractive="True">
+                <DataTemplate><nav:MixRadioHomePanel DataContext="{Binding Recent}" ItemInvoked="OnTileInvoked" Loaded="OnPanelLoaded" /></DataTemplate>
+            </HubSection>
+            <HubSection Header="{Binding Playlists.Title}" Tag="{Binding Playlists.Destination}" HeaderTemplate="{StaticResource SectionHeading}" IsHeaderInteractive="True">
+                <DataTemplate><nav:MixRadioHomePanel DataContext="{Binding Playlists}" UseMosaic="True" ItemInvoked="OnTileInvoked" Loaded="OnPanelLoaded" /></DataTemplate>
+            </HubSection>
+            <HubSection Header="{Binding Artists.Title}" Tag="{Binding Artists.Destination}" HeaderTemplate="{StaticResource SectionHeading}" IsHeaderInteractive="True">
+                <DataTemplate><nav:MixRadioHomePanel DataContext="{Binding Artists}" ItemInvoked="OnTileInvoked" Loaded="OnPanelLoaded" /></DataTemplate>
+            </HubSection>
+            <HubSection Header="{Binding Downloads.Title}" Tag="{Binding Downloads.Destination}" HeaderTemplate="{StaticResource SectionHeading}" IsHeaderInteractive="True">
+                <DataTemplate><nav:MixRadioHomePanel DataContext="{Binding Downloads}" ItemInvoked="OnTileInvoked" Loaded="OnPanelLoaded" /></DataTemplate>
+            </HubSection>
+            <HubSection Header="{Binding Favourites.Title}" Tag="{Binding Favourites.Destination}" HeaderTemplate="{StaticResource SectionHeading}" IsHeaderInteractive="True">
+                <DataTemplate><nav:MixRadioHomePanel DataContext="{Binding Favourites}" ItemInvoked="OnTileInvoked" Loaded="OnPanelLoaded" /></DataTemplate>
+            </HubSection>
+            <HubSection Header="{Binding MyMusic.Title}" Tag="{Binding MyMusic.Destination}" HeaderTemplate="{StaticResource SectionHeading}" IsHeaderInteractive="True">
+                <DataTemplate><nav:MixRadioHomePanel DataContext="{Binding MyMusic}" ItemInvoked="OnTileInvoked" Loaded="OnPanelLoaded" /></DataTemplate>
+            </HubSection>
+        </Hub>
+        <common:LibrarySearch x:Name="SearchControl" Width="270" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,70,32,0" />
+        <ProgressBar IsIndeterminate="True" Height="3" VerticalAlignment="Top" Foreground="{StaticResource NokiaPinkBrush}" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}" />
+        <Border x:Name="ConnectionStatus" Width="320" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,112,32,0"
+            Background="{StaticResource AppBarBrush}" Padding="20" Visibility="{Binding HasError, Converter={StaticResource NavidromeVisibility}}">
+            <StackPanel>
+                <TextBlock Text="{Binding Error}" Style="{StaticResource NormalText}" TextWrapping="Wrap" />
+                <Button x:Uid="Navidrome_ConnectionSettings" Style="{StaticResource NullButtonStyleWithPress}" Foreground="{StaticResource NokiaPinkBrush}" Margin="0,16,0,0" Click="OnSettingsClicked" />
+            </StackPanel>
+        </Border>
+        <Button x:Name="QueueDismiss" Style="{StaticResource NullButtonStyle}" Background="Transparent" Visibility="Collapsed"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsTabStop="False" Click="OnQueueDismissed" />
+        <nav:MixRadioQueuePanel x:Name="QueueDrawer" DataContext="{Binding Player}" HorizontalAlignment="Right" Visibility="Collapsed" CloseRequested="OnQueueClosed" />
+    </Grid>
+</framework:AppPage>

@@ -1,0 +1,9 @@
+<UserControl x:Class="Subsonic8.Common.MixRadioArtwork"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" IsHitTestVisible="False">
+    <!-- ImageFader / ArtistImageFader: two stretched images with a 600 ms fade. -->
+    <Grid>
+        <Image x:Name="ImageControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill" Opacity="0" />
+        <Image x:Name="DefaultImageControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill" Opacity="0" />
+    </Grid>
+</UserControl>

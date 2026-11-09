@@ -53,7 +53,10 @@ def audit_names(node, path, scope=None):
 
 
 application_keys = resource_keys(client / 'App.xaml')
-for path in list((client / 'Navidrome').iterdir()) + list((client / 'Settings').glob('SettingsView*')):
+paths = (list((client / 'Navidrome').iterdir()) + list((client / 'Main').iterdir()) +
+         list((client / 'Settings').glob('SettingsView*')) + list((client / 'Common').glob('MixRadio*')) +
+         list((client / 'Common').glob('LibrarySearch*')))
+for path in paths:
     if path.suffix not in ('.cs', '.xaml'):
         continue
     relative = path.relative_to(client).as_posix()
@@ -61,7 +64,22 @@ for path in list((client / 'Navidrome').iterdir()) + list((client / 'Settings').
         issues.append('Missing project entry: ' + relative)
     source = path.read_text(encoding='utf-8-sig')
     if path.suffix == '.xaml':
-        audit_names(ET.parse(path).getroot(), relative)
+        document = ET.parse(path).getroot()
+        audit_names(document, relative)
+        for node in document.iter():
+            uid = node.get(xaml_namespace + 'Uid')
+            if not uid:
+                continue
+            tag = node.tag.split('}')[-1]
+            properties = [value[len(uid) + 1:] for value in resources if value.startswith(uid + '.')]
+            if not properties:
+                issues.append('Missing property resource: ' + uid + ' in ' + relative)
+            # These properties are easy to confuse when adapting a template to a different native control.
+            for name, allowed in {'Text': {'TextBlock', 'TextBox', 'Run'}, 'Label': {'AppBarButton', 'AppBarToggleButton'},
+                                  'PlaceholderText': {'TextBox', 'PasswordBox', 'SearchBox'},
+                                  'Content': {'Button', 'ToggleButton', 'CheckBox', 'RadioButton', 'ContentControl'}}.items():
+                if name in properties and tag not in allowed:
+                    issues.append('Resource ' + uid + '.' + name + ' cannot target ' + tag + ' in ' + relative)
         visible_keys = application_keys | resource_keys(path)
         for key in re.findall(r'\{StaticResource\s+((?:Navidrome|MixRadio)[^}\s]+)\s*\}', source):
             static_lookups += 1
@@ -71,6 +89,11 @@ for path in list((client / 'Navidrome').iterdir()) + list((client / 'Settings').
         lookups += 1
         if 'Navidrome_Text_' + key not in resources:
             issues.append('Missing string: ' + key + ' in ' + relative)
+    for title, empty in re.findall(r'Section\("[^"]+",\s*"([^"]+)",\s*"([^"]+)"', source):
+        for key in (title, empty):
+            lookups += 1
+            if 'Navidrome_Text_' + key not in resources:
+                issues.append('Missing home string: ' + key + ' in ' + relative)
     for key in re.findall(r'x:Uid="(Navidrome_[^"]+)"', source):
         lookups += 1
         if not any(value.startswith(key + '.') for value in resources):

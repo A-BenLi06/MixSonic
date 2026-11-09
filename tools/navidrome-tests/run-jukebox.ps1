@@ -15,7 +15,8 @@ $sources += @(
     'Client.Common\Services\DataStructures\PlaylistManagementService\PlaybackState.cs',
     'Client\Navidrome\NavidromeSessionService.cs', 'Client\Navidrome\NavidromePageViewModel.cs',
     'Client\Navidrome\NavidromeJukeboxViewModel.cs', 'Client\Navidrome\NavidromeDialogContracts.cs',
-    'Client\Navidrome\NavidromeItem.cs', 'Client\Navidrome\NavidromeText.cs',
+    'Client\Navidrome\NavidromeItem.cs', 'Client\Navidrome\NavidromeText.cs', 'Client\Navidrome\OfflineDownloadItem.cs',
+    'Client.Common\Models\Navidrome\OfflineCatalog.cs', 'Client.Common\Services\Navidrome\MediaDownload.cs',
     'tools\serializer-tests\VisualStateResultStub.cs', 'tools\navidrome-tests\StorageAdapters.cs',
     'tools\navidrome-tests\JukeboxAdapters.cs', 'tools\navidrome-tests\JukeboxTests.cs'
 )

@@ -1,0 +1,90 @@
+<UserControl x:Class="Subsonic8.Navidrome.MixRadioPlayerSurface"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:common="using:Subsonic8.Common">
+    <UserControl.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="NavidromeResources.xaml" />
+    </ResourceDictionary.MergedDictionaries></ResourceDictionary></UserControl.Resources>
+    <!-- Player.json / TrackDetails.json: five 172 px columns and a 344 px artwork area. -->
+    <ScrollViewer x:Name="PlayerScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalScrollMode="Disabled">
+    <Grid x:Name="Surface" Margin="0,-5,0,0" Width="1120">
+        <StackPanel x:Name="PlayerContent" VerticalAlignment="Top" Margin="80,0,0,0">
+            <Grid Margin="0,0,0,30" Height="32">
+                <TextBlock Text="{Binding Album}" Style="{StaticResource MediumLightText}" MaxWidth="1000" />
+            </Grid>
+            <Grid x:Name="PlayerLayout">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="172" /><ColumnDefinition Width="172" /><ColumnDefinition Width="172" />
+                    <ColumnDefinition Width="172" /><ColumnDefinition Width="344" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="172" /><RowDefinition Height="172" /><RowDefinition Height="172" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                <Button x:Name="ArtworkButton" Style="{StaticResource NullButtonStyleWithPress}" Grid.ColumnSpan="2" Grid.RowSpan="2"
+                    Margin="0,0,10,10" IsEnabled="{Binding CanDetails}" Click="OnDetailsClicked" x:Uid="Navidrome_ArtworkButton"
+                    Visibility="{Binding HasCurrentItem, Converter={StaticResource NavidromeVisibility}}">
+                    <common:MixRadioArtwork Source="{Binding Artwork}" DefaultSource="ms-appx:///Assets/MixRadio/PackArt-Explorer.Targetsize-256.png" />
+                </Button>
+                <Grid x:Name="EmptyArtwork" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="0,0,10,10"
+                    Visibility="{Binding HasCurrentItem, Converter={StaticResource NavidromeHidden}}">
+                    <Viewbox><Canvas Height="344" Width="344">
+                        <Path Opacity="0.6" StrokeThickness="1" Stroke="#FFFEFEFE" StrokeMiterLimit="1"
+                            Data="F1 M 334.000,334.000 L 0.000,334.000 L 0.000,0.000 L 334.000,0.000 L 334.000,334.000 Z" />
+                        <Path Opacity="0.6" StrokeThickness="1" Stroke="#FFFEFEFE" StrokeMiterLimit="1"
+                            Data="F1 M 228.867,86.599 L 145.889,107.833 C 143.834,108.362 142.150,110.531 142.150,112.651 L 142.150,208.131 C 137.433,205.635 131.317,204.388 124.504,204.926 C 108.538,206.165 94.847,216.627 93.934,228.279 C 93.016,239.932 105.215,248.363 121.181,247.124 C 137.147,245.877 152.090,234.941 152.090,222.588 L 152.090,142.978 L 222.665,124.826 L 222.665,186.456 C 217.952,183.961 212.126,182.656 205.312,183.187 C 189.347,184.434 175.656,194.888 174.738,206.540 C 173.821,218.193 186.020,226.633 201.990,225.385 C 217.956,224.137 232.544,213.202 232.544,200.906 C 232.544,200.416 232.609,89.502 232.609,89.502 C 232.609,87.382 230.926,86.077 228.867,86.599" />
+                    </Canvas></Viewbox>
+                </Grid>
+                <StackPanel x:Name="QuietPanel" Grid.Column="2" Grid.ColumnSpan="3" Margin="10,0,400,0"
+                    Visibility="{Binding HasCurrentItem, Converter={StaticResource NavidromeHidden}}">
+                    <TextBlock x:Uid="Navidrome_QuietPlayer" Style="{StaticResource MediumLightText}" LineHeight="32" />
+                    <Button Style="{StaticResource NullButtonStyleWithPress}" Click="OnBrowseClicked" Margin="0,24,0,0">
+                        <TextBlock x:Uid="Navidrome_ChooseMusic" Style="{StaticResource MediumLightText}" Foreground="{StaticResource NokiaPinkBrush}" />
+                    </Button>
+                </StackPanel>
+                <StackPanel x:Name="TrackInformation" Grid.Column="2" Grid.ColumnSpan="3" Margin="8,0,0,0"
+                    Visibility="{Binding HasCurrentItem, Converter={StaticResource NavidromeVisibility}}">
+                    <Button Style="{StaticResource NullButtonStyleWithPressAndDisable}" IsEnabled="{Binding CanDetails}" Click="OnDetailsClicked">
+                        <TextBlock x:Name="TrackTitle" Text="{Binding Title}" Style="{StaticResource LargeLightGreyText}" LineHeight="50" Margin="0,20,0,0" TextWrapping="NoWrap" />
+                    </Button>
+                    <Button Style="{StaticResource NullButtonStyleWithPress}" IsEnabled="{Binding CanOpenArtist}" Click="OnArtistClicked">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock x:Name="ArtistName" Text="{Binding Artist}" Style="{StaticResource MediumLightText}" LineHeight="42" LineStackingStrategy="BlockLineHeight" Margin="0,20,0,0" MaxWidth="650" TextWrapping="NoWrap" />
+                            <TextBlock Text="&#xE26B;" Style="{StaticResource MediumLightText}" LineHeight="42" FontSize="22" FontFamily="Segoe UI Symbol" LineStackingStrategy="BlockLineHeight" Margin="4,16,0,0" />
+                        </StackPanel>
+                    </Button>
+                    <StackPanel Margin="0,34,0,0">
+                        <Button Style="{StaticResource ButtonBase}" Content="&#xE113;" HorizontalAlignment="Left"
+                            AutomationProperties.Name="{Binding FavouriteLabel}" IsEnabled="{Binding CanFavourite}" Click="OnFavouriteClicked" />
+                        <TextBlock Text="{Binding RatingText}" Style="{StaticResource SmallGreyText}" Margin="0,14,0,0" />
+                    </StackPanel>
+                </StackPanel>
+                <!-- PlayerTransportControls.json, retaining its 63 px progress row and 68 px vectors. -->
+                <Grid x:Name="Transport" Grid.Row="2" Grid.ColumnSpan="2" Margin="0,12,10,0" VerticalAlignment="Top">
+                    <Grid.RowDefinitions><RowDefinition Height="63" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                    <Grid Visibility="{Binding HasCurrentItem, Converter={StaticResource NavidromeVisibility}}">
+                        <TextBlock Text="{Binding PositionText}" Style="{StaticResource SmallGreyText}" HorizontalAlignment="Left" />
+                        <TextBlock Text="{Binding DurationText}" Style="{StaticResource SmallGreyText}" HorizontalAlignment="Right" />
+                        <Slider x:Name="SeekSlider" x:Uid="Navidrome_Seek" Style="{StaticResource SeekSliderStyle}" Margin="0,22,0,0"
+                            Minimum="0" Maximum="{Binding DurationSeconds}" Value="{Binding PositionSeconds, Mode=TwoWay}"
+                            Foreground="{StaticResource NokiaPinkBrush}" IsEnabled="{Binding Audio.CanSeek}" IsThumbToolTipEnabled="False" />
+                    </Grid>
+                    <Grid Grid.Row="1" Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="44" /></Grid.ColumnDefinitions>
+                        <Button x:Name="PreviousButton" x:Uid="Navidrome_Previous" Style="{StaticResource MixRadioPreviousTransportButtonStyle}" IsEnabled="{Binding CanPrevious}" Click="OnPreviousClicked" />
+                        <Button Grid.Column="1" x:Name="PlayButton" x:Uid="Navidrome_PlayButton" Style="{StaticResource MixRadioPlayTransportButtonStyle}" IsEnabled="{Binding CanPlayPause}"
+                            Visibility="{Binding IsPlaying, Converter={StaticResource NavidromeHidden}}" Click="OnPlayPauseClicked" />
+                        <Button Grid.Column="1" x:Name="PauseButton" x:Uid="Navidrome_PauseButton" Style="{StaticResource MixRadioPauseTransportButtonStyle}" IsEnabled="{Binding CanPlayPause}"
+                            Visibility="{Binding IsPlaying, Converter={StaticResource NavidromeVisibility}}" Click="OnPlayPauseClicked" />
+                        <Button Grid.Column="2" x:Name="NextButton" x:Uid="Navidrome_Next" Style="{StaticResource MixRadioNextTransportButtonStyle}" IsEnabled="{Binding CanNext}" Click="OnNextClicked" />
+                        <Button Grid.Column="3" x:Uid="Navidrome_QueueButton" Content="&#xE14C;" Style="{StaticResource ButtonBase}" HorizontalAlignment="Right" Click="OnQueueClicked" />
+                    </Grid>
+                </Grid>
+                <StackPanel x:Name="StreamStatus" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="3" Margin="8,12,32,0">
+                    <TextBlock Text="{Binding Audio.PlaybackError}" Style="{StaticResource NormalText}" Foreground="{StaticResource NokiaPinkBrush}" TextWrapping="Wrap" />
+                    <ProgressBar IsIndeterminate="True" Foreground="{StaticResource NokiaPinkBrush}" Visibility="{Binding Audio.IsBuffering, Converter={StaticResource NavidromeVisibility}}" />
+                    <TextBlock Text="{Binding Audio.StreamInformation}" Style="{StaticResource SmallGreyText}" Margin="0,8,0,0" />
+                    <TextBlock x:Uid="Navidrome_CompatibleStream" Style="{StaticResource SmallGreyText}" Margin="0,8,0,0" Visibility="{Binding Audio.IsUsingCompatibleStream, Converter={StaticResource NavidromeVisibility}}" />
+                    <TextBlock x:Uid="Navidrome_GainLimited" Style="{StaticResource SmallGreyText}" Margin="0,8,0,0" Visibility="{Binding Audio.IsGainLimited, Converter={StaticResource NavidromeVisibility}}" />
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Grid>
+    </ScrollViewer>
+</UserControl>

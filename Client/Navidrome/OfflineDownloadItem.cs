@@ -41,10 +41,11 @@ namespace Subsonic8.Navidrome
         public bool IsIndeterminate { get { return !_total.HasValue || _total.Value <= 0; } }
         public double Progress { get { return IsIndeterminate ? 0 : Math.Min(100, _received * 100.0 / _total.Value); } }
         public string ProgressText { get { return string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("DownloadBytes"), _received); } }
+        public string ProgressPercentText { get { return IsIndeterminate ? null : (Progress / 100).ToString("P0", CultureInfo.CurrentCulture); } }
         internal void Report(DownloadProgress progress)
         {
             _received = progress.Received; _total = progress.Total;
-            NotifyOfPropertyChange(() => Progress); NotifyOfPropertyChange(() => IsIndeterminate); NotifyOfPropertyChange(() => ProgressText);
+            NotifyOfPropertyChange(() => Progress); NotifyOfPropertyChange(() => IsIndeterminate); NotifyOfPropertyChange(() => ProgressText); NotifyOfPropertyChange(() => ProgressPercentText);
         }
         internal void Changed()
         {

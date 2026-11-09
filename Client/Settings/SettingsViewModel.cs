@@ -119,7 +119,7 @@ namespace Subsonic8.Settings
         public async Task ApplyChanges()
         {
             await SaveSettings();
-            if (_saved && Error == null) _navigationService.NavigateToViewModel<MainViewModel>(true);
+            if (_saved && Error == null) _navigationService.NavigateToViewModel<MainViewModel>();
         }
         public async Task SaveSettings()
         {

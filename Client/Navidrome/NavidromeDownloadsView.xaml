@@ -16,40 +16,25 @@
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>
-    <Grid x:Name="Canvas" Margin="88,30,48,40">
-        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+    <Grid x:Name="Canvas" Background="Black">
+        <Grid.RowDefinitions><RowDefinition Height="134"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
         <Grid>
-            <Grid.ColumnDefinitions><ColumnDefinition Width="48"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-            <Button x:Name="GoBack" x:Uid="Navidrome_Back" Content="&#xE112;" FontFamily="Segoe UI Symbol" MinHeight="40" MinWidth="40"/>
-            <TextBlock x:Name="PageTitle" Grid.Column="1" Text="{Binding DisplayName}" FontSize="44" FontFamily="Segoe UI Light" Margin="12,0,0,0" TextTrimming="WordEllipsis"/>
+            <Grid.ColumnDefinitions><ColumnDefinition x:Name="HeaderIndent" Width="116"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <Button x:Name="GoBack" x:Uid="Navidrome_Back" Style="{StaticResource BackButtonStyle}"/>
+            <TextBlock x:Name="PageTitle" Grid.Column="1" Text="{Binding DisplayName}" Style="{StaticResource PageHeaderTextStyle}"/>
         </Grid>
-        <StackPanel Grid.Row="1" Margin="0,16,0,20">
-            <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Visibility="{Binding HasError, Converter={StaticResource NavidromeVisibility}}"/>
+        <StackPanel x:Name="Feedback" Grid.Row="1" Margin="116,0,40,20">
+            <TextBlock Text="{Binding Error}" Style="{StaticResource NormalText}" Foreground="{StaticResource NokiaPinkBrush}" Visibility="{Binding HasError, Converter={StaticResource NavidromeVisibility}}"/>
             <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}"/>
             <ProgressRing IsActive="{Binding IsWorking}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsWorking, Converter={StaticResource NavidromeVisibility}}"/>
         </StackPanel>
         <Grid Grid.Row="2">
-            <TextBlock x:Uid="Navidrome_NoDownloads" FontSize="24" TextWrapping="Wrap" Visibility="{Binding IsEmpty, Converter={StaticResource NavidromeVisibility}}"/>
-            <ListView ItemsSource="{Binding Offline.Entries}" IsItemClickEnabled="True" SelectionMode="Multiple" HorizontalContentAlignment="Stretch"
-                selection:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}" cal:Message.Attach="[Event ItemClick]=[Action OpenItem($eventArgs)]">
-                <ListView.ItemTemplate><DataTemplate>
-                    <Grid MinHeight="88" Margin="0,0,0,12">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="68"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                        <Image Source="{Binding ImageUrl}" Width="60" Height="60" VerticalAlignment="Top" Stretch="UniformToFill"/>
-                        <StackPanel Grid.Column="1" Margin="12,0,0,0">
-                            <TextBlock Text="{Binding Title}" FontSize="22" FontFamily="Segoe UI Light" TextTrimming="WordEllipsis"/>
-                            <TextBlock Text="{Binding Subtitle}" FontSize="13" TextTrimming="WordEllipsis"/>
-                            <TextBlock Text="{Binding StateText}" Foreground="{StaticResource MixRadioAccentBrush}" Margin="0,6,0,0"/>
-                            <StackPanel Visibility="{Binding IsTransferring, Converter={StaticResource NavidromeVisibility}}">
-                                <TextBlock Text="{Binding Stage}" Margin="0,4,0,0"/>
-                                <ProgressBar Value="{Binding Progress}" IsIndeterminate="{Binding IsIndeterminate}" Maximum="100" Margin="0,8,0,4"/>
-                                <TextBlock Text="{Binding ProgressText}" FontSize="12"/>
-                            </StackPanel>
-                            <TextBlock Text="{Binding Error}" TextWrapping="Wrap" FontSize="13" Margin="0,6,0,0" Visibility="{Binding HasError, Converter={StaticResource NavidromeVisibility}}"/>
-                        </StackPanel>
-                    </Grid>
-                </DataTemplate></ListView.ItemTemplate>
-            </ListView>
+            <TextBlock x:Name="EmptyMessage" x:Uid="Navidrome_NoDownloads" Style="{StaticResource MediumLightText}" Margin="116,0,40,0" Visibility="{Binding IsEmpty, Converter={StaticResource NavidromeVisibility}}"/>
+            <GridView x:Name="DownloadsList" ItemsSource="{Binding Offline.Entries}" ItemTemplate="{StaticResource MixRadioOfflineTemplate}" ItemContainerStyle="{StaticResource GridViewItemStyle}"
+                IsItemClickEnabled="True" SelectionMode="Multiple" Padding="116,0,40,20" ItemClick="OnItemClicked"
+                selection:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}">
+                <GridView.ItemsPanel><ItemsPanelTemplate><WrapGrid Orientation="Vertical"/></ItemsPanelTemplate></GridView.ItemsPanel>
+            </GridView>
         </Grid>
     </Grid>
 </framework:AppPage>

@@ -35,10 +35,33 @@ Use a new output directory when changing reference releases.
 | `pc/xbf-metadata/` | XBF 1.0 diagnostic object/property trees; not buildable XAML |
 | `pc/resources.xml` | MakePri resource dump |
 
-The original packages and recovered proprietary source/assets remain local.
-Use those outputs as evidence, rather than instructions or files to copy into
-the product. Application secrets or obsolete online endpoints in recovered
-code are unnecessary for reproducing local-library behavior.
+The complete original packages and recovered source stay under ignored local
+reference directories. The desktop component port intentionally checks in the
+selected reconstructed XAML resources and eight original PNG assets requested
+for the MixRadio UI. The [port map](../../docs/mixradio/native-port.md) identifies
+their sources and the Navidrome adaptations; [ported-assets.json](ported-assets.json)
+records the original package paths and SHA-256 hashes. Application secrets and
+obsolete service endpoints are not part of this port.
+
+## Reproduce the native component resources
+
+With the PC XBF metadata from the inspection above available locally:
+
+```powershell
+python tools/mixradio/port_styles.py
+python tools/mixradio/port_templates.py
+```
+
+These scripts regenerate `Client/Common/MixRadioOriginalStyles.xaml` and
+`Client/Navidrome/NavidromeResources.xaml`. Both accept `--reference` to select
+another metadata directory and `--output` to write a comparison file. The checked-in
+resources and PNGs are sufficient for an ordinary client build; the reference
+package and Python exporters are not runtime or build dependencies.
+
+The generators retain recovered geometry, native control states and template
+structure, while adapting bindings to the current Navidrome models. Native page
+and control code implements navigation, playback and responsive layout. Resource
+reproduction and matching asset hashes establish provenance, not rendered parity.
 
 ## Build and source regressions
 

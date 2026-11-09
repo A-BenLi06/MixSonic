@@ -20,6 +20,20 @@ namespace Subsonic8.Navidrome
         public string Subtitle { get; set; }
         public string ImageUrl { get; set; }
         public string Kind { get; set; }
+        public bool IsHero { get; set; }
+        public OfflineDownloadItem Download { get; set; }
+        public string Artist { get { return Song != null ? Song.Artist : Media is Album ? ((Album)Media).Artist : Media is Playlist ? ((Playlist)Media).Owner : Subtitle; } }
+        public string Album { get { return Song != null ? Song.Album : null; } }
+        public string CountText
+        {
+            get
+            {
+                var album = Media as Album; var artist = Media as ExpandedArtist; var playlist = Media as Playlist;
+                if (artist != null) return string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("AlbumCount"), artist.AlbumCount);
+                var count = album != null ? album.SongCount : playlist != null ? playlist.SongCount : 0;
+                return count > 0 ? string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("TrackCount"), count) : null;
+            }
+        }
         public Song Song { get { return Media as Song; } }
         public bool IsStarred { get { return Media != null && !string.IsNullOrEmpty(((SubsonicModelBase)Media).Starred); } }
         public void UpdateStarred(bool value)

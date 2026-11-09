@@ -1,24 +1,293 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:cal="using:Caliburn.Micro">
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:cal="using:Caliburn.Micro"
+    xmlns:common="using:Subsonic8.Common" xmlns:nav="using:Subsonic8.Navidrome"
+    xmlns:converters="using:Subsonic8.Converters">
     <cal:BooleanToVisibilityConverter x:Key="NavidromeVisibility" />
-    <DataTemplate x:Key="NavidromeTileTemplate">
-        <Grid Width="170" Height="226" Margin="0,0,10,12" Background="{StaticResource MixRadioPanelAltBrush}">
-            <Grid.RowDefinitions><RowDefinition Height="170"/><RowDefinition Height="56"/></Grid.RowDefinitions>
-            <Image Source="{Binding ImageUrl}" Stretch="UniformToFill"/>
-            <TextBlock Text="★" FontSize="22" Margin="8" Foreground="White" Visibility="{Binding IsStarred, Converter={StaticResource NavidromeVisibility}}"/>
-            <Border Grid.Row="1" Background="{StaticResource MixRadioAccentBrush}" Padding="8,4"><StackPanel>
-                <TextBlock Text="{Binding Title}" FontSize="17" FontFamily="Segoe UI Light" TextTrimming="WordEllipsis"/>
-                <TextBlock Text="{Binding Kind}" FontSize="11" TextTrimming="WordEllipsis"/>
-            </StackPanel></Border>
+    <cal:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    <converters:InvertedBooleanToVisibilityConverter x:Key="NavidromeHidden" />
+    <ControlTemplate x:Key="MyMusicArtworkTemplate">
+        <common:MixRadioArtwork Source="{Binding ImageUrl}" DefaultSource="ms-appx:///Assets/MixRadio/PackArt-Explorer.Targetsize-256.png" />
+    </ControlTemplate>
+    <ControlTemplate x:Key="CuratedRadioStationArtworkTemplate">
+        <common:MixRadioArtwork Source="{Binding ImageUrl}" DefaultSource="ms-appx:///Assets/MixRadio/W8_Music_asset_DefaulPackArt_200px.png" />
+    </ControlTemplate>
+    <!-- Views/MainPage.json: original vector wordmark. -->
+    <ControlTemplate x:Key="MixRadioWordmarkTemplate">
+        <Canvas Width="290" Height="81" Margin="-24,-40,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" FlowDirection="LeftToRight">
+            <Canvas.Children>
+                <Path Data="F1 M 46.281,57.893 L 33.984,32.350 L 24.115,32.350 L 24.115,79.855 L 32.699,79.855 L 32.699,48.703 L 42.498,68.300 L 49.525,68.300 L 59.862,47.893 L 59.862,79.855 L 68.445,79.855 L 68.445,32.350 L 58.579,32.350 L 46.281,57.893 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 179.194,67.623 C 179.194,68.840 178.912,70.021 178.350,71.172 C 177.787,72.318 177.020,73.345 176.053,74.245 C 175.084,75.146 173.969,75.867 172.707,76.408 C 171.447,76.949 170.141,77.218 168.790,77.218 C 166.400,77.218 164.463,76.678 162.979,75.598 C 161.490,74.518 160.748,72.781 160.748,70.395 C 160.748,68.051 161.411,66.182 162.742,64.786 C 164.068,63.390 166.400,62.689 169.734,62.689 C 170.681,62.689 171.648,62.725 172.641,62.792 C 173.631,62.859 174.555,62.938 175.410,63.029 C 176.268,63.119 177.020,63.221 177.674,63.332 C 178.328,63.445 178.834,63.547 179.194,63.637 L 179.194,67.623 Z M 179.770,48.331 C 177.584,46.463 174.509,45.527 170.546,45.527 C 167.480,45.527 164.980,45.875 163.045,46.574 C 161.107,47.273 159.710,47.869 158.855,48.365 L 160.207,51.474 C 161.107,50.979 162.336,50.449 163.891,49.887 C 165.443,49.322 167.324,49.041 169.531,49.041 C 172.641,49.041 175.027,49.672 176.693,50.932 C 178.359,52.193 179.194,54.288 179.194,57.217 L 179.194,60.191 C 178.834,60.145 178.316,60.066 177.641,59.954 C 176.965,59.844 176.188,59.729 175.311,59.616 C 174.432,59.503 173.473,59.412 172.438,59.346 C 171.402,59.278 170.387,59.244 169.396,59.244 C 165.162,59.244 161.998,60.270 159.902,62.318 C 157.807,64.369 156.760,67.061 156.760,70.395 C 156.760,72.287 157.086,73.885 157.740,75.192 C 158.393,76.500 159.228,77.558 160.240,78.368 C 161.254,79.178 162.379,79.765 163.619,80.125 C 164.858,80.484 166.062,80.665 167.234,80.665 C 168.271,80.665 169.363,80.574 170.512,80.395 C 171.660,80.215 172.776,79.910 173.856,79.481 C 174.936,79.055 175.939,78.481 176.863,77.760 C 177.787,77.039 178.586,76.138 179.262,75.057 L 179.397,79.855 L 183.045,79.855 L 183.045,56.879 C 183.045,53.051 181.953,50.200 179.770,48.331 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 214.129,71.138 C 213.725,71.770 213.195,72.410 212.543,73.064 C 211.889,73.717 211.100,74.312 210.176,74.854 C 209.252,75.394 208.205,75.832 207.035,76.172 C 205.863,76.510 204.580,76.678 203.184,76.678 C 200.029,76.678 197.496,75.588 195.580,73.400 C 193.666,71.217 192.710,67.782 192.710,63.096 C 192.710,61.115 192.911,59.266 193.318,57.554 C 193.723,55.844 194.342,54.367 195.176,53.129 C 196.009,51.891 197.068,50.910 198.352,50.188 C 199.635,49.471 201.156,49.108 202.913,49.108 C 206.516,49.108 209.287,50.382 211.225,52.926 C 213.160,55.473 214.129,59.041 214.129,63.637 L 214.129,71.138 Z M 214.129,51.541 C 213.003,49.559 211.518,48.051 209.670,47.013 C 207.823,45.978 205.568,45.459 202.913,45.459 C 200.389,45.459 198.228,45.954 196.426,46.945 C 194.623,47.936 193.148,49.267 192.000,50.932 C 190.850,52.600 189.994,54.492 189.432,56.609 C 188.869,58.727 188.586,60.889 188.586,63.096 C 188.586,66.385 188.981,69.133 189.769,71.340 C 190.559,73.549 191.615,75.316 192.945,76.645 C 194.274,77.973 195.783,78.920 197.471,79.481 C 199.161,80.045 200.885,80.326 202.643,80.326 C 205.345,80.326 207.644,79.898 209.535,79.043 C 211.428,78.188 213.026,77.106 214.332,75.801 L 214.400,79.855 L 218.117,79.855 L 218.117,29.174 L 214.129,29.174 L 214.129,51.541 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 225.416,79.855 L 229.401,79.855 L 229.401,46.338 L 225.416,46.338 L 225.416,79.855 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 227.375,31.810 C 226.473,31.810 225.742,32.113 225.178,32.722 C 224.613,33.329 224.334,34.131 224.334,35.121 C 224.334,36.111 224.613,36.910 225.178,37.520 C 225.742,38.129 226.473,38.432 227.375,38.432 C 228.274,38.432 229.018,38.139 229.604,37.553 C 230.189,36.969 230.482,36.158 230.482,35.121 C 230.482,34.131 230.189,33.329 229.604,32.722 C 229.018,32.113 228.274,31.810 227.375,31.810 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 258.863,73.199 C 257.016,75.698 254.154,76.949 250.282,76.949 C 246.453,76.949 243.613,75.698 241.766,73.199 C 239.919,70.697 238.996,67.309 238.996,63.029 C 238.996,58.839 239.930,55.473 241.801,52.926 C 243.670,50.382 246.498,49.108 250.282,49.108 C 254.109,49.108 256.961,50.382 258.830,52.926 C 260.698,55.473 261.633,58.839 261.633,63.029 C 261.633,67.309 260.711,70.697 258.863,73.199 Z M 264.707,55.967 C 264.055,53.828 263.088,51.979 261.801,50.426 C 260.518,48.871 258.920,47.656 257.006,46.777 C 255.090,45.898 252.850,45.459 250.282,45.459 C 247.758,45.459 245.541,45.898 243.625,46.777 C 241.711,47.656 240.113,48.871 238.828,50.426 C 237.544,51.979 236.562,53.828 235.889,55.967 C 235.213,58.107 234.875,60.461 234.875,63.029 C 234.875,65.596 235.201,67.960 235.854,70.123 C 236.508,72.287 237.475,74.145 238.760,75.698 C 240.045,77.253 241.654,78.459 243.592,79.313 C 245.529,80.170 247.758,80.598 250.282,80.598 C 252.758,80.598 254.967,80.170 256.904,79.313 C 258.842,78.459 260.451,77.253 261.734,75.698 C 263.020,74.145 264.000,72.287 264.676,70.123 C 265.352,67.960 265.688,65.596 265.688,63.029 C 265.688,60.461 265.361,58.107 264.707,55.967 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 136.693,56.677 L 128.584,56.677 L 128.584,36.135 L 136.420,36.135 C 140.432,36.135 143.325,37.061 145.105,38.914 C 146.883,40.766 147.774,43.275 147.774,46.439 C 147.774,49.558 146.883,52.044 145.105,53.896 C 143.325,55.750 140.520,56.677 136.693,56.677 Z M 146.355,57.724 C 147.480,56.936 148.473,56.002 149.328,54.920 C 150.184,53.838 150.850,52.578 151.322,51.136 C 151.793,49.693 152.030,48.051 152.030,46.203 C 152.030,44.537 151.771,42.881 151.254,41.235 C 150.734,39.592 149.891,38.105 148.721,36.775 C 147.549,35.449 146.006,34.377 144.092,33.566 C 142.176,32.756 139.801,32.350 136.963,32.350 L 124.462,32.350 L 124.462,79.855 L 128.584,79.855 L 128.584,60.324 L 138.248,60.324 L 149.869,79.855 L 154.801,79.855 L 142.773,59.582 C 144.035,59.133 145.229,58.513 146.355,57.724 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 78.785,29.918 C 77.205,29.918 75.957,30.447 75.033,31.505 C 74.110,32.565 73.648,33.859 73.648,35.391 C 73.648,36.922 74.110,38.219 75.033,39.277 C 75.957,40.336 77.205,40.863 78.785,40.863 C 80.359,40.863 81.609,40.348 82.533,39.311 C 83.457,38.273 83.920,36.969 83.920,35.391 C 83.920,33.814 83.457,32.508 82.533,31.472 C 81.609,30.436 80.359,29.918 78.785,29.918 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 74.256,79.855 L 83.311,79.855 L 83.311,45.797 L 74.256,45.797 L 74.256,79.855 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 119.801,45.797 L 110.205,45.797 L 104.527,55.865 L 98.311,45.797 L 87.838,45.797 L 98.852,62.219 L 87.297,79.855 L 96.893,79.855 L 103.582,68.771 L 110.543,79.855 L 121.150,79.855 L 109.326,62.285 L 119.801,45.797 Z" Fill="#ffffffff" />
+            </Canvas.Children>
+        </Canvas>
+    </ControlTemplate>
+    <!-- Common/NokiaMusicClient.json: MyMusicInfoItemTemplate; data bindings adapted to Navidrome. -->
+    <ControlTemplate x:Key="MyMusicInfoItemTemplate">
+        <Grid>
+            <Grid.Children>
+                <Border Background="{StaticResource MyMusicInfo}" Opacity="{StaticResource MyMusicTextBoxOpacity}" />
+                <StackPanel>
+                    <StackPanel.Children>
+                        <TextBlock Margin="13,5,14,0" Text="{Binding Path=Title}" Style="{StaticResource NormalText}" VerticalAlignment="Bottom" HorizontalAlignment="Left" TextTrimming="WordEllipsis" TextWrapping="NoWrap" />
+                        <TextBlock Margin="13,2,14,0" Text="{Binding Path=Artist}" Style="{StaticResource NormalText}" VerticalAlignment="Bottom" HorizontalAlignment="Left" TextTrimming="WordEllipsis" TextWrapping="NoWrap" />
+                    </StackPanel.Children>
+                </StackPanel>
+            </Grid.Children>
+        </Grid>
+    </ControlTemplate>
+
+    <!-- Common/NokiaMusicClient.json: RadioStationInfoItemTemplate; data bindings adapted to Navidrome. -->
+    <ControlTemplate x:Key="RadioStationInfoItemTemplate">
+        <Grid>
+            <Grid.Children>
+                <Border Background="{StaticResource RadioStationInfo}" Opacity="{StaticResource RadioTextBoxOpacity}" />
+                <TextBlock Margin="13,0,32,7" Text="{Binding Path=Title}" Style="{StaticResource NormalText}" VerticalAlignment="Bottom" HorizontalAlignment="Left" />
+                <Image Source="ms-appx:///Assets/MixRadio/play.png" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,7,7" Stretch="None" />
+            </Grid.Children>
+        </Grid>
+    </ControlTemplate>
+
+    <!-- Common/DesignAssets.json: MyMusicAlbumPlayIcon; data bindings adapted to Navidrome. -->
+    <ControlTemplate x:Key="MyMusicAlbumPlayIcon" TargetType="ContentControl">
+        <Canvas CacheMode="BitmapCache">
+            <Canvas.Children>
+                <Path Data="F1 M 31.000,16.000 C 31.000,24.284 24.284,31.000 16.000,31.000 C 7.715,31.000 1.000,24.284 1.000,16.000 C 1.000,7.716 7.715,1.000 16.000,1.000 C 24.284,1.000 31.000,7.716 31.000,16.000 Z" Fill="#ff211e1e" Opacity="0.2" />
+                <Path Data="F1 M 13.432,10.065 L 13.432,22.124 L 21.381,16.067 L 13.432,10.065 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 31.000,16.000 C 31.000,24.284 24.284,31.000 16.000,31.000 C 7.715,31.000 1.000,24.284 1.000,16.000 C 1.000,7.716 7.715,1.000 16.000,1.000 C 24.284,1.000 31.000,7.716 31.000,16.000 Z" Stroke="#fffefefe" StrokeMiterLimit="1" StrokeThickness="2" />
+            </Canvas.Children>
+        </Canvas>
+    </ControlTemplate>
+
+    <!-- Views/MyMusic/MyMusicPanel.json: MyMusicItemSmallTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioHomeAlbumTemplate">
+        <Grid Height="162" Width="162" HorizontalAlignment="Left" Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="46" />
+            </Grid.RowDefinitions>
+            <Grid.Children>
+                <ContentControl Grid.RowSpan="2" Template="{StaticResource MyMusicArtworkTemplate}" />
+                <ContentControl Grid.Row="1" Template="{StaticResource MyMusicInfoItemTemplate}" />
+            </Grid.Children>
         </Grid>
     </DataTemplate>
+
+    <!-- Views/Search/SearchResultsView.json: ArtistTileTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioHomeArtistTemplate">
+        <Grid Height="162" Width="162" HorizontalAlignment="Left" Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="46" />
+            </Grid.RowDefinitions>
+            <Grid.Children>
+                <common:MixRadioArtwork Source="{Binding Path=ImageUrl}" Grid.RowSpan="2" DefaultSource="ms-appx:///Assets/MixRadio/W8_Music_asset_DefaulPackArt_200px.png"  />
+                <Grid Grid.Row="1">
+                    <Grid.Children>
+                        <Border Background="{StaticResource MyMusicInfo}" Opacity="0.55000001" />
+                        <StackPanel VerticalAlignment="Bottom" Margin="0,0,0,7">
+                            <StackPanel.Children>
+                                <TextBlock Margin="13,5,14,0" Text="{Binding Path=Title}" Style="{StaticResource NormalText}" VerticalAlignment="Bottom" HorizontalAlignment="Left" TextWrapping="NoWrap" />
+                            </StackPanel.Children>
+                        </StackPanel>
+                    </Grid.Children>
+                </Grid>
+            </Grid.Children>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Common/NokiaMusicClient.json: CuratedRadioStationItemSmallTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioHomePlaylistTemplate">
+        <Grid Height="162" Width="162" HorizontalAlignment="Left" Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="46" />
+            </Grid.RowDefinitions>
+            <Grid.Children>
+                <ContentControl Grid.RowSpan="2" Template="{StaticResource CuratedRadioStationArtworkTemplate}" />
+                <ContentControl Grid.Row="1" Template="{StaticResource RadioStationInfoItemTemplate}" />
+            </Grid.Children>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Common/NokiaMusicClient.json: RadioStationItemExtraLargeTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioHomeHeroTemplate">
+        <Grid Height="332" Width="332" HorizontalAlignment="Left" Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="46" />
+            </Grid.RowDefinitions>
+            <Grid.Children>
+                <ContentControl Grid.RowSpan="2" Template="{StaticResource CuratedRadioStationArtworkTemplate}" />
+                <ContentControl Grid.Row="1" Template="{StaticResource RadioStationInfoItemTemplate}" />
+            </Grid.Children>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Views/MyMusic/MyMusicView.json: MyMusicAlbumZoomedInTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioLibraryAlbumTemplate">
+        <Grid Width="260" Height="130" Margin="0,0,25,0" HorizontalAlignment="Left">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.Children>
+                <Grid Grid.Column="0" HorizontalAlignment="Stretch">
+                    <Grid.Children>
+                        <common:MixRadioArtwork Grid.RowSpan="2" DefaultSource="ms-appx:///Assets/MixRadio/PackArt-Explorer.Targetsize-256.png" FadeDuration="0"  Source="{Binding ImageUrl}" />
+                        <ContentControl Width="32" Height="32" Margin="0,7,7,0" HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource MyMusicAlbumPlayIcon}" />
+                    </Grid.Children>
+                </Grid>
+                <Rectangle Grid.Column="1" Fill="Gray" Opacity="0.30000001" />
+                <Grid Grid.Column="1" Width="130" Height="130" Background="Transparent">
+                    <Grid.Children>
+                        <StackPanel Grid.Column="1" Margin="10,6,6,0">
+                            <StackPanel.Children>
+                                <TextBlock MaxHeight="70" LineHeight="21" Style="{StaticResource Medium2LightText}" Text="{Binding Path=Title}" TextWrapping="Wrap" />
+                                <TextBlock MaxHeight="45" Foreground="LightGray" LineHeight="21" Style="{StaticResource NormalSemiLightText}" Text="{Binding Path=Artist}" />
+                                <TextBlock Foreground="LightGray" LineHeight="21" Style="{StaticResource NormalSemiLightText}" Text="{Binding CountText}" />
+                            </StackPanel.Children>
+                        </StackPanel>
+                    </Grid.Children>
+                </Grid>
+            </Grid.Children>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Views/MyMusic/MyMusicView.json: MyMusicArtistZoomedInTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioLibraryArtistTemplate">
+        <Grid Width="260" Height="130" Margin="0,0,25,0" HorizontalAlignment="Left">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.Children>
+                <Grid>
+                    <Grid.Children>
+                        <common:MixRadioArtwork Grid.RowSpan="2" DefaultSource="ms-appx:///Assets/MixRadio/PackArt-Explorer.Targetsize-256.png" FadeDuration="0"  Source="{Binding ImageUrl}" />
+                        <ContentControl Width="32" Height="32" Margin="0,7,7,0" HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource MyMusicAlbumPlayIcon}" />
+                    </Grid.Children>
+                </Grid>
+                <Rectangle Grid.Column="1" Fill="Gray" Opacity="0.30000001" />
+                <Grid Grid.Column="1" Width="130" Height="130" Background="Transparent">
+                    <Grid.Children>
+                        <StackPanel Grid.Column="1" Margin="10,6,6,0">
+                            <StackPanel.Children>
+                                <TextBlock MaxHeight="70" LineHeight="21" Style="{StaticResource Medium2LightText}" Text="{Binding Path=Title}" TextWrapping="Wrap" />
+                                <TextBlock MaxHeight="45" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="LightGray" LineHeight="21" Style="{StaticResource NormalSemiLightText}" Text="{Binding Path=CountText}" TextWrapping="NoWrap" />
+                            </StackPanel.Children>
+                        </StackPanel>
+                    </Grid.Children>
+                </Grid>
+            </Grid.Children>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Views/MyMusic/MyMusicView.json: MyMusicSongZoomedInTemplate; data bindings adapted to Navidrome. -->
     <DataTemplate x:Key="NavidromeTrackTemplate">
-        <Grid MinHeight="68" Margin="0,0,0,4">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="56"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-            <Image Source="{Binding ImageUrl}" Width="52" Height="52" Stretch="UniformToFill"/>
-            <StackPanel Grid.Column="1" Margin="12,4,0,4">
-                <TextBlock Text="{Binding Title}" FontSize="19" FontFamily="Segoe UI Light" TextTrimming="WordEllipsis"/>
-                <TextBlock Text="{Binding Subtitle}" FontSize="13" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" TextTrimming="WordEllipsis"/>
+        <Grid Width="270" Height="65" Margin="0,0,25,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="65" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.Children>
+                <Rectangle Grid.ColumnSpan="2" Fill="Gray" Opacity="0.30000001" />
+                <common:MixRadioArtwork Grid.RowSpan="2" DefaultSource="ms-appx:///Assets/MixRadio/PackArt-Explorer.Targetsize-256.png" FadeDuration="0"  Source="{Binding ImageUrl}" />
+                <StackPanel Grid.Column="1" Margin="7,5,0,8" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <StackPanel.Children>
+                        <TextBlock MaxWidth="172" Style="{StaticResource NormalLightText}" Text="{Binding Path=Title}" TextTrimming="WordEllipsis" TextWrapping="NoWrap" />
+                        <TextBlock MaxWidth="172" Style="{StaticResource SmallGreyText}" Text="{Binding Path=Artist}" TextTrimming="WordEllipsis" TextWrapping="NoWrap" />
+                        <TextBlock MaxWidth="172" Style="{StaticResource SmallGreyText}" Text="{Binding Path=Album}" TextTrimming="WordEllipsis" TextWrapping="NoWrap" />
+                    </StackPanel.Children>
+                </StackPanel>
+            </Grid.Children>
+        </Grid>
+    </DataTemplate>
+
+    <!-- Views/MyMusic/MyMusicPanel.json: MyMusicItemSmallTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="NavidromeTileTemplate">
+        <Grid Height="162" Width="162" HorizontalAlignment="Left" Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="46" />
+            </Grid.RowDefinitions>
+            <Grid.Children>
+                <ContentControl Grid.RowSpan="2" Template="{StaticResource MyMusicArtworkTemplate}" />
+                <ContentControl Grid.Row="1" Template="{StaticResource MyMusicInfoItemTemplate}" />
+            </Grid.Children>
+        </Grid>
+    </DataTemplate>
+    <!-- Common/NokiaMusicClient.json: RadioStationItemOfflineTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioOfflineTemplate">
+        <Grid Height="162" Width="162" HorizontalAlignment="Left" Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="46" />
+            </Grid.RowDefinitions>
+            <Grid.Children>
+                <ContentControl Grid.RowSpan="2" Template="{StaticResource CuratedRadioStationArtworkTemplate}" />
+                <ContentControl Grid.Row="1" Template="{StaticResource RadioStationInfoItemTemplate}" />
+                <Rectangle Visibility="{Binding CanPlay, Converter={StaticResource NavidromeHidden}}" Grid.RowSpan="2" Fill="Black" Opacity="0.60000002" Stretch="Fill" />
+                <Grid Visibility="{Binding IsTransferring, Converter={StaticResource NavidromeVisibility}}" Grid.RowSpan="2">
+                    <Grid.Children>
+                        <StackPanel>
+                            <StackPanel.Children>
+                                <ProgressBar Maximum="100" Minimum="0" Value="{Binding Path=Progress}" Height="6" Foreground="{StaticResource NokiaPinkBrush}" />
+                                <TextBlock Text="{Binding StateText}" Style="{StaticResource SmallRegularText}" Margin="8,14,0,0" />
+                                <StackPanel Orientation="Horizontal" Margin="8,2,0,0">
+                                    <StackPanel.Children>
+                                        <TextBlock Text="{Binding ProgressPercentText}" Style="{StaticResource SmallRegularText}" />
+                                    </StackPanel.Children>
+                                </StackPanel>
+                            </StackPanel.Children>
+                        </StackPanel>
+                    </Grid.Children>
+                </Grid>
+                <StackPanel Grid.RowSpan="2" Margin="8,14,8,8" Visibility="{Binding CanPlay, Converter={StaticResource NavidromeHidden}}">
+                    <TextBlock Text="{Binding StateText}" Style="{StaticResource SmallRegularText}" Visibility="{Binding IsTransferring, Converter={StaticResource NavidromeHidden}}" />
+                    <TextBlock Text="{Binding Error}" Style="{StaticResource SmallRegularText}" Margin="0,8,0,0" MaxHeight="108" TextTrimming="WordEllipsis" ToolTipService.ToolTip="{Binding Error}" />
+                </StackPanel>
+            </Grid.Children>
+        </Grid>
+    </DataTemplate>
+
+    <!-- StandardButtonStyle's 162 px layout rendered inside the clickable GridViewItem. -->
+    <DataTemplate x:Key="MixRadioNavigationTileTemplate">
+        <Grid Width="162" Height="162" Background="{StaticResource NokiaPinkBrush}">
+            <Grid.RowDefinitions><RowDefinition Height="90" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom" FlowDirection="LeftToRight">
+                <TextBlock Text="&#xE17F;" FontFamily="Segoe UI Symbol" FontSize="20" Foreground="Transparent" />
+                <TextBlock Text="&#xE17E;" FontFamily="Segoe UI Symbol" FontSize="20" />
+                <TextBlock Text="{Binding Glyph}" FontFamily="Segoe UI Symbol" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Grid>
+            <TextBlock Grid.Row="1" Text="{Binding Label}" Margin="15,15,15,0" TextAlignment="Center" Style="{StaticResource Medium2LightText}" />
+        </Grid>
+    </DataTemplate>
+    <!-- MyMusic song-row layout for entities without artwork, such as a share or radio station. -->
+    <DataTemplate x:Key="MixRadioLibraryTextTemplate">
+        <Grid Width="270" Height="65" Margin="0,0,25,0">
+            <Rectangle Fill="Gray" Opacity="0.3" />
+            <StackPanel Margin="10,5,10,8">
+                <TextBlock Text="{Binding Title}" Style="{StaticResource NormalLightText}" TextWrapping="NoWrap" />
+                <TextBlock Text="{Binding Subtitle}" Style="{StaticResource SmallGreyText}" TextWrapping="NoWrap" />
+                <TextBlock Text="{Binding Kind}" Style="{StaticResource SmallGreyText}" TextWrapping="NoWrap" />
             </StackPanel>
         </Grid>
     </DataTemplate>
+    <nav:MixRadioHomeTemplateSelector x:Key="MixRadioHomeSmallSelector"
+        AlbumTemplate="{StaticResource MixRadioHomeAlbumTemplate}" ArtistTemplate="{StaticResource MixRadioHomeArtistTemplate}"
+        PlaylistTemplate="{StaticResource MixRadioHomePlaylistTemplate}" LinkTemplate="{StaticResource MixRadioNavigationTileTemplate}" />
+    <nav:MixRadioHomeTemplateSelector x:Key="MixRadioHomeSelector"
+        AlbumTemplate="{StaticResource MixRadioHomeAlbumTemplate}" ArtistTemplate="{StaticResource MixRadioHomeArtistTemplate}"
+        PlaylistTemplate="{StaticResource MixRadioHomePlaylistTemplate}" HeroTemplate="{StaticResource MixRadioHomeHeroTemplate}"
+        LinkTemplate="{StaticResource MixRadioNavigationTileTemplate}" />
+    <nav:MixRadioLibraryTemplateSelector x:Key="MixRadioLibrarySelector"
+        AlbumTemplate="{StaticResource MixRadioLibraryAlbumTemplate}" ArtistTemplate="{StaticResource MixRadioLibraryArtistTemplate}"
+        SongTemplate="{StaticResource NavidromeTrackTemplate}" TextTemplate="{StaticResource MixRadioLibraryTextTemplate}" />
 </ResourceDictionary>

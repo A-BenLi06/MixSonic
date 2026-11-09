@@ -22,8 +22,8 @@
         <StackPanel x:Name="Canvas" Margin="88,30,48,40">
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="48"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                <Button x:Name="GoBack" x:Uid="Navidrome_Back" Content="&#xE112;" FontFamily="Segoe UI Symbol" MinHeight="40" MinWidth="40"/>
-                <TextBlock x:Name="PageTitle" Grid.Column="1" Text="{Binding DisplayName}" FontSize="44" FontFamily="Segoe UI Light" Margin="12,0,0,0" TextWrapping="Wrap"/>
+                <Button x:Name="GoBack" x:Uid="Navidrome_Back" Style="{StaticResource BackButtonStyle}" Margin="0,8,7,0" VerticalAlignment="Top"/>
+                <TextBlock x:Name="PageTitle" Grid.Column="1" Text="{Binding DisplayName}" Style="{StaticResource ExtraLargeLightText}" Margin="12,0,0,0" TextWrapping="Wrap"/>
             </Grid>
             <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Margin="0,16,0,12"/>
             <ProgressRing IsActive="{Binding IsWorking}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsWorking, Converter={StaticResource NavidromeVisibility}}"/>
@@ -33,7 +33,7 @@
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <Grid.ColumnDefinitions><ColumnDefinition x:Name="OverviewColumn" Width="300"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <StackPanel x:Name="Overview">
-                    <TextBlock Text="{Binding CurrentSong}" FontSize="28" FontFamily="Segoe UI Light" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding CurrentSong}" Style="{StaticResource MediumLightText}" TextWrapping="Wrap"/>
                     <TextBlock Text="{Binding PlaybackStatus}" FontSize="20" Margin="0,12,0,0"/>
                     <TextBlock Text="{Binding Position}" FontSize="18" Margin="0,8,0,0"/>
                     <TextBlock x:Uid="Navidrome_VolumeLabel" FontSize="20" Margin="0,24,0,8"/>
@@ -41,7 +41,7 @@
                     <Button x:Uid="Navidrome_SetServerVolume" MinHeight="44" HorizontalAlignment="Left" Margin="0,8,0,0" IsEnabled="{Binding CanSetGain}" cal:Message.Attach="[Event Click]=[Action SetGain()]"/>
                 </StackPanel>
                 <StackPanel x:Name="QueuePanel" Grid.Column="1" Margin="24,0,0,0">
-                    <TextBlock x:Uid="Navidrome_Queue" FontSize="28" FontFamily="Segoe UI Light" Margin="0,0,0,16"/>
+                    <TextBlock x:Uid="Navidrome_Queue" Style="{StaticResource MediumLightText}" Margin="0,0,0,16"/>
                     <TextBlock x:Uid="Navidrome_ServerQueueEmpty" TextWrapping="Wrap" Visibility="{Binding IsEmpty, Converter={StaticResource NavidromeVisibility}}"/>
                     <ListView x:Uid="Navidrome_ServerQueue" ItemsSource="{Binding Tracks}" SelectedItem="{Binding SelectedTrack, Mode=TwoWay}" SelectionMode="Single" IsItemClickEnabled="True" MaxHeight="640"
                         ItemTemplate="{StaticResource NavidromeTrackTemplate}" HorizontalContentAlignment="Stretch" cal:Message.Attach="[Event ItemClick]=[Action PlayTrack($eventArgs)]"/>

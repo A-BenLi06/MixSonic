@@ -64,7 +64,8 @@
             var vm = viewModelAndView.Item1;
             var view = viewModelAndView.Item2;
 
-            var f = new SettingsFlyout { HeaderText = vm.DisplayName, Content = view, };
+            var f = new SettingsFlyout { HeaderText = vm.DisplayName, Content = view,
+                HeaderBrush = headerBrush ?? (SolidColorBrush)Application.Current.Resources["NokiaPinkBrush"] };
 
             if (headerBrush != null)
             {

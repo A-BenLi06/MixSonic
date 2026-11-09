@@ -479,6 +479,15 @@
     <Compile Include="Navidrome\NavidromePageViewModel.cs" />
     <Compile Include="Navidrome\NavidromeMediaPageViewModel.cs" />
     <Compile Include="Navidrome\NavidromeItem.cs" />
+    <Compile Include="Navidrome\LibraryPresentation.cs" />
+    <Compile Include="Navidrome\MixRadioPlayerSurface.xaml.cs"><DependentUpon>MixRadioPlayerSurface.xaml</DependentUpon></Compile>
+    <Page Include="Navidrome\MixRadioPlayerSurface.xaml"><Generator>MSBuild:Compile</Generator></Page>
+    <Compile Include="Navidrome\MixRadioHomePanel.xaml.cs"><DependentUpon>MixRadioHomePanel.xaml</DependentUpon></Compile>
+    <Page Include="Navidrome\MixRadioHomePanel.xaml"><Generator>MSBuild:Compile</Generator></Page>
+    <Compile Include="Navidrome\MixRadioQueuePanel.xaml.cs"><DependentUpon>MixRadioQueuePanel.xaml</DependentUpon></Compile>
+    <Page Include="Navidrome\MixRadioQueuePanel.xaml"><Generator>MSBuild:Compile</Generator></Page>
+    <Compile Include="Common\MixRadioArtwork.xaml.cs"><DependentUpon>MixRadioArtwork.xaml</DependentUpon></Compile>
+    <Page Include="Common\MixRadioArtwork.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Compile Include="Navidrome\NavidromeDialogService.cs" />
     <Compile Include="Navidrome\NavidromeDialogContracts.cs" />
     <Compile Include="Navidrome\NavidromeBrowserViewModel.cs" />
@@ -546,7 +555,9 @@
     </PRIResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\CoverArtPlaceholder.jpg" />    <Content Include="Assets\ArtistPlaceholder.png" />
+    <Content Include="Assets\MixRadio\*.png" />
+    <Content Include="Assets\CoverArtPlaceholder.jpg" />
+    <Content Include="Assets\ArtistPlaceholder.png" />
     <Content Include="Assets\CoverArtPlaceholderLarge.jpg" />
     <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\StoreLogo.png" />
@@ -604,6 +615,7 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
+    <Page Include="Common\MixRadioOriginalStyles.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Page Include="Common\MixRadioResources.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

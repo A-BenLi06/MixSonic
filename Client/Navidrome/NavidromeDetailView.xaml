@@ -1,6 +1,6 @@
 <framework:AppPage x:Class="Subsonic8.Navidrome.NavidromeDetailView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:framework="using:Subsonic8.Framework" xmlns:cal="using:Caliburn.Micro" xmlns:selection="using:Common.Behaviors">
+    xmlns:common="using:Subsonic8.Common" xmlns:framework="using:Subsonic8.Framework" xmlns:cal="using:Caliburn.Micro" xmlns:selection="using:Common.Behaviors">
     <Page.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="NavidromeResources.xaml"/></ResourceDictionary.MergedDictionaries></ResourceDictionary></Page.Resources>
     <Page.BottomAppBar>
         <CommandBar>
@@ -30,40 +30,49 @@
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel x:Name="Canvas" Margin="88,30,48,40">
-            <Grid>
-                <Grid.ColumnDefinitions><ColumnDefinition Width="48"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                <Button x:Name="GoBack" Content="&#xE112;" FontFamily="Segoe UI Symbol" MinHeight="40" MinWidth="40"/>
-                <TextBlock x:Name="PageTitle" Grid.Column="1" Text="{Binding DisplayName}" FontSize="44" FontFamily="Segoe UI Light" Margin="12,0,0,0" TextWrapping="Wrap"/>
-            </Grid>
-            <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}"/>
-            <ProgressRing IsActive="{Binding IsWorking}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsWorking, Converter={StaticResource NavidromeVisibility}}"/>
-            <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Margin="0,16,0,0" Visibility="{Binding HasError, Converter={StaticResource NavidromeVisibility}}"/>
-            <Grid x:Name="Overview" Margin="0,24,0,24">
-                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                <Grid.ColumnDefinitions><ColumnDefinition x:Name="ArtworkColumn" Width="280"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                <Image x:Name="Artwork" Source="{Binding ImageUrl}" Width="250" Height="250" Stretch="UniformToFill" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <StackPanel x:Name="Information" Grid.Column="1">
-                    <TextBlock Text="{Binding Current.Subtitle}" FontSize="22" TextWrapping="Wrap"/>
-                    <TextBlock x:Uid="Navidrome_Starred" Text="★" FontSize="24" Foreground="{StaticResource MixRadioAccentBrush}" Visibility="{Binding Current.IsStarred, Converter={StaticResource NavidromeVisibility}}"/>
-                    <ItemsControl ItemsSource="{Binding Metadata}" Margin="0,16,0,0">
-                        <ItemsControl.ItemTemplate><DataTemplate><StackPanel Margin="0,0,0,10">
-                            <TextBlock Text="{Binding Label}" Foreground="{StaticResource MixRadioAccentBrush}" FontSize="13"/>
-                            <TextBlock Text="{Binding Value}" FontSize="17" TextWrapping="Wrap" IsTextSelectionEnabled="True"/>
-                        </StackPanel></DataTemplate></ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </Grid>
-            <TextBlock Text="{Binding Notes}" FontSize="18" TextWrapping="Wrap" IsTextSelectionEnabled="True" Margin="0,0,0,24" Visibility="{Binding HasNotes, Converter={StaticResource NavidromeVisibility}}"/>
-            <TextBlock x:Uid="Navidrome_Tracks" FontSize="28" FontFamily="Segoe UI Light" Margin="0,0,0,12" Visibility="{Binding HasTracks, Converter={StaticResource NavidromeVisibility}}"/>
-            <ListView ItemsSource="{Binding Tracks}" ItemTemplate="{StaticResource NavidromeTrackTemplate}" IsItemClickEnabled="True" SelectionMode="Multiple"
-                MaxHeight="480" selection:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}" cal:Message.Attach="[Event ItemClick]=[Action PlayTrack($eventArgs)]"/>
-            <TextBlock x:Uid="Navidrome_Related" FontSize="28" FontFamily="Segoe UI Light" Margin="0,24,0,12" Visibility="{Binding HasRelated, Converter={StaticResource NavidromeVisibility}}"/>
-            <GridView ItemsSource="{Binding Related}" ItemTemplate="{StaticResource NavidromeTileTemplate}" IsItemClickEnabled="True" SelectionMode="None"
-                cal:Message.Attach="[Event ItemClick]=[Action OpenRelated($eventArgs)]">
-                <GridView.ItemsPanel><ItemsPanelTemplate><WrapGrid Orientation="Horizontal"/></ItemsPanelTemplate></GridView.ItemsPanel>
-            </GridView>
+    <Grid Background="Black">
+        <Hub x:Name="DetailHub">
+            <Hub.Header><Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="80"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Button x:Name="GoBack" x:Uid="Navidrome_Back" Style="{StaticResource BackButtonStyle}" Margin="0,0,37,0" VerticalAlignment="Top"/>
+                <TextBlock x:Name="PageTitle" Grid.Column="1" Text="{Binding DisplayName}" Style="{StaticResource ExtraLargeLightText}" MaxWidth="1500"/>
+            </Grid></Hub.Header>
+            <HubSection x:Name="OverviewSection" Margin="80,0,17,0"><DataTemplate>
+                <ScrollViewer Width="360" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalScrollMode="Disabled" Loaded="OnOverviewLoaded">
+                    <StackPanel>
+                        <common:MixRadioArtwork Width="334" Height="334" HorizontalAlignment="Left" Source="{Binding ImageUrl}" DefaultSource="ms-appx:///Assets/MixRadio/PackArt-Explorer.Targetsize-256.png"/>
+                        <TextBlock Text="{Binding Current.Subtitle}" Style="{StaticResource Medium2LightText}" Margin="0,20,0,0"/>
+                        <TextBlock x:Uid="Navidrome_Starred" Text="★" Style="{StaticResource MediumLightText}" Foreground="{StaticResource NokiaPinkBrush}" Visibility="{Binding Current.IsStarred, Converter={StaticResource NavidromeVisibility}}"/>
+                        <ItemsControl ItemsSource="{Binding Metadata}" Margin="0,16,0,0">
+                            <ItemsControl.ItemTemplate><DataTemplate><StackPanel Margin="0,0,0,14">
+                                <TextBlock Text="{Binding Label}" Foreground="{StaticResource NokiaPinkBrush}" Style="{StaticResource SmallRegularText}"/>
+                                <TextBlock Text="{Binding Value}" Style="{StaticResource NormalText}" IsTextSelectionEnabled="True"/>
+                            </StackPanel></DataTemplate></ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="{Binding Notes}" Style="{StaticResource NormalText}" IsTextSelectionEnabled="True" Margin="0,12,0,24" Visibility="{Binding HasNotes, Converter={StaticResource NavidromeVisibility}}"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </DataTemplate></HubSection>
+            <HubSection Visibility="{Binding HasTracks, Converter={StaticResource NavidromeVisibility}}">
+                <HubSection.Header><TextBlock x:Uid="Navidrome_Tracks" Style="{StaticResource MediumLightText}" Margin="2,-5,0,-10"/></HubSection.Header>
+                <DataTemplate><GridView ItemsSource="{Binding Tracks}" ItemTemplate="{StaticResource NavidromeTrackTemplate}" ItemContainerStyle="{StaticResource GridViewItemStyle}"
+                    Width="620" Height="510" IsItemClickEnabled="True" SelectionMode="Multiple" Loaded="OnTracksLoaded" ItemClick="OnTrackClicked"
+                    selection:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}">
+                    <GridView.ItemsPanel><ItemsPanelTemplate><WrapGrid Orientation="Vertical"/></ItemsPanelTemplate></GridView.ItemsPanel>
+                </GridView></DataTemplate>
+            </HubSection>
+            <HubSection Visibility="{Binding HasRelated, Converter={StaticResource NavidromeVisibility}}">
+                <HubSection.Header><TextBlock x:Uid="Navidrome_Related" Style="{StaticResource MediumLightText}" Margin="2,-5,0,-10"/></HubSection.Header>
+                <DataTemplate><GridView ItemsSource="{Binding Related}" ItemTemplateSelector="{StaticResource MixRadioHomeSmallSelector}" ItemContainerStyle="{StaticResource GridViewItemStyle}"
+                    Width="510" Height="510" IsItemClickEnabled="True" SelectionMode="None" Loaded="OnRelatedLoaded" ItemClick="OnRelatedClicked">
+                    <GridView.ItemsPanel><ItemsPanelTemplate><WrapGrid Orientation="Vertical"/></ItemsPanelTemplate></GridView.ItemsPanel>
+                </GridView></DataTemplate>
+            </HubSection>
+        </Hub>
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Width="280" Margin="0,30,32,0">
+            <TextBlock Text="{Binding Error}" Style="{StaticResource NormalText}" Foreground="{StaticResource NokiaPinkBrush}" Visibility="{Binding HasError, Converter={StaticResource NavidromeVisibility}}"/>
+            <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32" HorizontalAlignment="Right" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}"/>
+            <ProgressRing IsActive="{Binding IsWorking}" Width="32" Height="32" HorizontalAlignment="Right" Visibility="{Binding IsWorking, Converter={StaticResource NavidromeVisibility}}"/>
         </StackPanel>
-    </ScrollViewer>
+    </Grid>
 </framework:AppPage>

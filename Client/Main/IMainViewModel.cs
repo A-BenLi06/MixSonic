@@ -1,14 +1,9 @@
-﻿namespace Subsonic8.Main
+namespace Subsonic8.Main
 {
     using System.Threading.Tasks;
     using Subsonic8.Framework.ViewModel;
-
-    public interface IMainViewModel : ICollectionViewModel<bool>
+    public interface IMainViewModel : IViewModel
     {
-        #region Public Methods and Operators
-
         Task Populate();
-
-        #endregion
     }
 }

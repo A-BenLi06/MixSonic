@@ -1,17 +1,6 @@
-<UserControl
-    x:Class="Subsonic8.Common.LibrarySearch"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid Height="48" MaxWidth="440" HorizontalAlignment="Stretch">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="48" />
-        </Grid.ColumnDefinitions>
-        <TextBox x:Name="SearchInput" x:Uid="LibrarySearchInput" MinHeight="44"
-                 FontSize="18" Padding="12,6" Margin="0" KeyUp="OnSearchKeyUp" />
-        <Button x:Name="SearchButton" Grid.Column="1" MinWidth="48" Height="48" Padding="0"
-                Background="{StaticResource MixRadioAccentBrush}" Click="OnSearchClick">
-            <SymbolIcon Symbol="Find" />
-        </Button>
-    </Grid>
+<UserControl x:Class="Subsonic8.Common.LibrarySearch"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="White">
+    <SearchBox x:Name="SearchInput" x:Uid="Navidrome_Search" Style="{StaticResource SearchBoxStyle}"
+        Height="30" FontFamily="Segoe UI Bold" FontWeight="Bold" FontSize="14.67" QuerySubmitted="OnQuerySubmitted" />
 </UserControl>

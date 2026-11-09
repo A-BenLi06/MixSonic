@@ -1,0 +1,46 @@
+{
+  "package": "NokiaCorporation.NokiaMusic",
+  "version": "2.2.0.7933",
+  "files": [
+    {
+      "source": "Assets/DefaultSemanticZoomArtist_158px.png",
+      "destination": "Client/Assets/MixRadio/DefaultSemanticZoomArtist_158px.png",
+      "sha256": "8cd04e2a9af26a8bb06231e10bd1535399283c21e21a57b623e73cb2891436d6"
+    },
+    {
+      "source": "Assets/explicit.png",
+      "destination": "Client/Assets/MixRadio/explicit.png",
+      "sha256": "7f3bd8f62c5d97d4ec52e6746d7f7fcbd6a2599607aad2e2e34bc59a73270d69"
+    },
+    {
+      "source": "Assets/PackArt-Explorer.Targetsize-256.png",
+      "destination": "Client/Assets/MixRadio/PackArt-Explorer.Targetsize-256.png",
+      "sha256": "acf9a5bb7fe43c5a70fbc8f78f11ed0d0a74b37cac0c454fb6331af3c77cd943"
+    },
+    {
+      "source": "Assets/Icons/play.png",
+      "destination": "Client/Assets/MixRadio/play.png",
+      "sha256": "2fb8b01d75122a39cdcf518a6e48de4754b233d8f6edbaa4e634c6105cc70cb1"
+    },
+    {
+      "source": "Assets/Q_DefaultPackArt_Holder.png",
+      "destination": "Client/Assets/MixRadio/Q_DefaultPackArt_Holder.png",
+      "sha256": "8b9783c745aa44b303aa3f746e5dbcbd9a8f5f5a23cf5d28282761db5ed7fdae"
+    },
+    {
+      "source": "Assets/W8_Music_asset_DefaulPackArt_100px.png",
+      "destination": "Client/Assets/MixRadio/W8_Music_asset_DefaulPackArt_100px.png",
+      "sha256": "4994978ff957dc08f709319a3e6c8643fa2870bc89ba0aa6bad248e0ecd1be27"
+    },
+    {
+      "source": "Assets/W8_Music_asset_DefaulPackArt_120px.png",
+      "destination": "Client/Assets/MixRadio/W8_Music_asset_DefaulPackArt_120px.png",
+      "sha256": "d7b98688671f469f75f16361272bf7673fea2a98b328fd64b403aa59db759d83"
+    },
+    {
+      "source": "Assets/W8_Music_asset_DefaulPackArt_200px.png",
+      "destination": "Client/Assets/MixRadio/W8_Music_asset_DefaulPackArt_200px.png",
+      "sha256": "40db65f1fec2b6b0a9e4fad73891098e116e56ea7e329e321bac1407180ec8cb"
+    }
+  ]
+}
