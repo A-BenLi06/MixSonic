@@ -323,12 +323,12 @@ namespace Client.Common.Services.Navidrome
         public NavidromeResult<IList<NowPlayingEntry>> GetNowPlaying()
         { return Read(Request("getNowPlaying"), root => SubsonicXml.List<NowPlayingEntry>(root.Element(Ns + "nowPlaying"), "entry")); }
 
-        public NavidromeResult<bool> ReportPlayback(string id, long positionMilliseconds, string state, double rate, string clientId)
+        public NavidromeResult<bool> ReportPlayback(string id, long positionMilliseconds, string state, double rate, string clientId, bool ignoreScrobble = false)
         {
             if (positionMilliseconds < 0 || double.IsNaN(rate) || double.IsInfinity(rate) || rate <= 0) throw new ArgumentOutOfRangeException("positionMilliseconds/rate");
             if (state != "starting" && state != "playing" && state != "paused" && state != "stopped") throw new ArgumentException("Invalid playback state.", "state");
             return Write(Request("reportPlayback").Add("mediaId", Id(id)).Add("mediaType", "song").Add("positionMs", positionMilliseconds)
-                .Add("state", state).Add("playbackRate", rate).Add("clientId", clientId));
+                .Add("state", state).Add("playbackRate", rate).Add("clientId", clientId).Add("ignoreScrobble", ignoreScrobble));
         }
         public NavidromeResult<bool> Scrobble(string id, bool submission, DateTimeOffset startedAt, int positionSeconds)
         {

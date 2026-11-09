@@ -97,8 +97,12 @@
         protected override async void OnSuspending(object sender, SuspendingEventArgs e)
         {
             var deferral = e.SuspendingOperation.GetDeferral();
-            await SuspensionManager.SaveAsync();
-            deferral.Complete();
+            try
+            {
+                await Kernel.Get<Subsonic8.Navidrome.IPlaybackActivityService>().SuspendAsync();
+                await SuspensionManager.SaveAsync();
+            }
+            finally { deferral.Complete(); }
         }
 
         private void BindShellViewModelToView(ShellView shellView)

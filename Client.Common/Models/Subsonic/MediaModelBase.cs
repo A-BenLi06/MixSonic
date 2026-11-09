@@ -12,6 +12,10 @@
         [DataMember]
         public virtual string CoverArt { get; set; }
 
+        [XmlAttribute("playCount")]
+        [DataMember]
+        public long PlayCount { get; set; }
+
         #endregion
     }
 }

@@ -62,10 +62,17 @@ Bookmark resume positions and duplicate server queue indices reach the native
 player. Shares use server default expiration on creation and preserve it when an
 update omits the date, matching `core/share.go`.
 
-The real 0.64.2 fixture verifies 40 API integration assertions against 125 synthetic
+The real 0.64.2 fixture verifies 42 API integration assertions against 125 synthetic
 tagged WAV files. Its version is recorded separately from the locked source.
-Playback activity, lyric presentation, download storage/offline UI and preferences
-are the next desktop integration stage. Native capture still times out and the
+Playback activity now reports actual native states and counts real playing intervals
+independently of seek positions. Enhanced presence requests set `ignoreScrobble`;
+qualifying submissions use persisted account-scoped occurrence IDs and UTC times.
+The real fixture verifies that seeking to the end does not increase play counts.
+Pending records retry after network failures. The standard scrobble API has no
+idempotency key, so an accepted request whose response is lost can be resubmitted;
+local occurrence deduplication does not claim exactly-once server delivery.
+Lyric presentation, download storage/offline UI and preferences remain in progress.
+Native capture still times out and the
 client accessibility tree is empty through the installed helper; no native
 interaction or visual pass is inferred from successful source/build checks.
 

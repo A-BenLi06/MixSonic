@@ -459,6 +459,7 @@
     <Compile Include="Navidrome\NavidromeSessionService.cs" />
     <Compile Include="Navidrome\NavidromeText.cs" />
     <Compile Include="Navidrome\MediaQueueService.cs" />
+    <Compile Include="Navidrome\PlaybackActivityService.cs" />
     <Compile Include="Navidrome\NavidromePageViewModel.cs" />
     <Compile Include="Navidrome\NavidromeMediaPageViewModel.cs" />
     <Compile Include="Navidrome\NavidromeItem.cs" />

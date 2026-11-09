@@ -33,6 +33,7 @@ namespace Subsonic8.AudioPlayback
         private double _volume = 1;
         private bool _isMuted;
         private double _rate = 1;
+        private bool _stopped = true;
 
         public AudioPlayerViewModel()
         {
@@ -56,6 +57,7 @@ namespace Subsonic8.AudioPlayback
         public PlaylistItem CurrentItem { get { return _currentItem; } }
         public bool IsActuallyPlaying { get; private set; }
         public bool CanSeek { get { return _playerControls != null && _playerControls.CanSeek; } }
+        public TimeSpan LastStoppedPosition { get; private set; }
         public double Volume
         {
             get { return _volume; }
@@ -180,7 +182,9 @@ namespace Subsonic8.AudioPlayback
 
         public void Play(PlaylistItem item, object options = null)
         {
+            Stop();
             _currentItem = item;
+            _stopped = false;
             _reportedMediaStart = false;
             _startOptions = options as PlaybackStartOptions;
             IsActuallyPlaying = false;
@@ -213,28 +217,29 @@ namespace Subsonic8.AudioPlayback
 
         public void SongEnded()
         {
-            IsActuallyPlaying = false;
-            if (PlaybackStoped != null)
-            {
-                PlaybackStoped(this, new EventArgs());
-            }
+            FinishPlayback();
             EventAggregator.PublishOnUIThread(new PlayNextMessage());
         }
 
         public void SongFailed(ExceptionRoutedEventArgs eventArgs)
         {
-            IsActuallyPlaying = false;
-            if (PlaybackStoped != null)
-            {
-                PlaybackStoped(this, new EventArgs());
-            }
+            FinishPlayback();
             EventAggregator.PublishOnUIThread(new PlayFailedMessage(eventArgs.ErrorMessage, eventArgs.OriginalSource));
         }
 
         public void Stop()
         {
+            FinishPlayback();
             if (_playerControls != null) _playerControls.Stop();
+        }
+
+        private void FinishPlayback()
+        {
+            if (_stopped) return;
+            _stopped = true;
+            LastStoppedPosition = GetCurrentPosition();
             IsActuallyPlaying = false;
+            NotifyOfPropertyChange(() => IsActuallyPlaying);
             if (PlaybackStoped != null)
             {
                 PlaybackStoped(this, new EventArgs());

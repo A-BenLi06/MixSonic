@@ -38,7 +38,7 @@ public static class NavidromeTests
     {
         try
         {
-            Requests(); Metadata(); Extensions(); Pagination(); Lyrics(); Queue(); Mutations(); Failures().GetAwaiter().GetResult();
+            Requests(); Metadata(); Extensions(); Pagination(); Lyrics(); Listening(); Queue(); Mutations(); Failures().GetAwaiter().GetResult();
             Console.WriteLine("PASS: " + _assertions + " Navidrome protocol/model assertions against production sources.");
         }
         catch (Exception error) { Console.Error.WriteLine(error); Environment.Exit(1); }
@@ -164,6 +164,53 @@ public static class NavidromeTests
         var bookmarks = api.GetBookmarks();
         bookmarks.HandleResponse(Xml("<bookmarks><bookmark position='123456' comment='resume'><entry id='s' title='S'/></bookmark></bookmarks>"));
         Check(bookmarks.Result[0].PositionMilliseconds == 123456 && bookmarks.Result[0].Song.Id == "s", "Bookmark uses returned song/milliseconds");
+    }
+
+    private static void Listening()
+    {
+        var counter = new ListeningCounter { DurationSeconds = 120 };
+        counter.Observe(0, true, 1); counter.Observe(20, false, 1);
+        Check(counter.ListenedSeconds == 20 && !counter.Qualified, "Playing integrates real elapsed time");
+        counter.Observe(200, false, 1);
+        Check(counter.ListenedSeconds == 20, "Pause cannot add a listen");
+        counter.Observe(200, true, 1); counter.Observe(205, true, 2); counter.Observe(220, false, 1);
+        Check(counter.ListenedSeconds == 55 && !counter.Qualified, "Rate changes integrate the preceding rate");
+        counter.Observe(300, true, 1); counter.Observe(305, false, 1);
+        Check(counter.ListenedSeconds == 60 && counter.Qualified, "Half-duration qualifies at the exact boundary");
+        var longTrack = new ListeningCounter { DurationSeconds = 900 };
+        longTrack.Observe(0, true, 1); longTrack.Observe(239, true, 1);
+        Check(!longTrack.Qualified, "Long tracks require four minutes");
+        longTrack.Observe(240, false, 1); Check(longTrack.Qualified, "Four-minute threshold qualifies");
+        var failedOpen = new ListeningCounter { DurationSeconds = 120 };
+        failedOpen.Observe(0, false, 1); failedOpen.Observe(1000, false, 1);
+        Check(failedOpen.ListenedSeconds == 0 && !failedOpen.Qualified, "Failed opens never qualify");
+        var unknown = new ListeningCounter(); unknown.Observe(0, true, 1); unknown.Observe(1000, false, 1);
+        Check(!unknown.Qualified, "Unknown duration cannot qualify");
+        unknown.DurationSeconds = double.NaN; Check(!unknown.Qualified, "Invalid duration cannot qualify");
+        unknown.DurationSeconds = double.PositiveInfinity; Check(!unknown.Qualified, "Infinite duration cannot qualify");
+        Throws<ArgumentOutOfRangeException>(() => counter.Observe(304, true, 1), "Backward monotonic time rejected");
+        Throws<ArgumentOutOfRangeException>(() => counter.Observe(double.NaN, true, 1), "NaN time rejected");
+        Throws<ArgumentOutOfRangeException>(() => counter.Observe(306, true, 0), "Invalid rate rejected");
+        var pending = new PendingListening { AccountKey = "account" };
+        pending.Entries.Add(new PendingListen { OccurrenceId = "first", SongId = "曲 & one", StartedUtc = new DateTime(2026, 11, 9, 0, 0, 0, DateTimeKind.Utc) });
+        pending.Entries.Add(new PendingListen { OccurrenceId = "second", SongId = "曲 & one", StartedUtc = pending.Entries[0].StartedUtc.AddMinutes(4) });
+        var xml = LocalXml.Serialize(pending);
+        Check(xml.Contains("encoding=\"utf-8\""), "Catalog declaration matches FileIO UTF-8 bytes");
+        var restored = LocalXml.Deserialize<PendingListening>(xml); restored.Validate("account");
+        Check(restored.Entries.Count == 2 && restored.Entries[0].SongId == "曲 & one" && restored.Entries[0].StartedUtc.Kind == DateTimeKind.Utc,
+            "Repeated listens retain occurrence IDs, Unicode and UTC timestamps");
+        Throws<InvalidDataException>(() => restored.Validate("other account"), "Cross-account pending records rejected");
+        restored.Entries[1].OccurrenceId = restored.Entries[0].OccurrenceId;
+        Throws<InvalidDataException>(() => restored.Validate("account"), "Duplicate pending occurrence rejected");
+        var lyric = new LyricVariant { Synced = true, OffsetMilliseconds = -200, Language = "eng" };
+        lyric.Lines.Add(new LyricsLine { StartMilliseconds = 1000, Text = "line & 音" });
+        var lyrics = LocalXml.Deserialize<List<LyricVariant>>(LocalXml.Serialize(new List<LyricVariant> { lyric }));
+        Check(lyrics[0].LineAt(800) == 0 && lyrics[0].Lines[0].Text == "line & 音", "Offline lyric XML retains variants and timing");
+        using (var message = Message(new NavidromeApi(Configuration()).ReportPlayback("s", 119000, "stopped", 1, "device", true)))
+        {
+            var body = message.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            Check(Param(body, "ignoreScrobble") == "true" && Param(body, "positionMs") == "119000", "Presence reports suppress position-based false scrobbles");
+        }
     }
 
     private static void Mutations()

@@ -150,11 +150,15 @@ public static class NavidromeIntegrationTests
         Check(true, "Empty station/activity responses are valid.");
         if (ping.Server.Supports("playbackReport"))
         {
-            await api.ReportPlayback(song.Id, 0, "starting", 1, "Subsonic8-fixture").ReadAsync();
-            await api.ReportPlayback(song.Id, 1000, "playing", 1, "Subsonic8-fixture").ReadAsync();
-            await api.ReportPlayback(song.Id, 1000, "paused", 1, "Subsonic8-fixture").ReadAsync();
-            await api.ReportPlayback(song.Id, 1000, "stopped", 1, "Subsonic8-fixture").ReadAsync();
+            var count = (await api.GetSong(song.Id).ReadAsync()).PlayCount;
+            await api.ReportPlayback(song.Id, 0, "starting", 1, "Subsonic8-fixture", true).ReadAsync();
+            await api.ReportPlayback(song.Id, 1000, "playing", 1, "Subsonic8-fixture", true).ReadAsync();
+            await api.ReportPlayback(song.Id, 1000, "paused", 1, "Subsonic8-fixture", true).ReadAsync();
+            await api.ReportPlayback(song.Id, details.Duration * 1000L, "stopped", 1, "Subsonic8-fixture", true).ReadAsync();
             Check(true, "Negotiated playback states are accepted by the server.");
+            Check((await api.GetSong(song.Id).ReadAsync()).PlayCount == count, "A seek to the end with ignoreScrobble cannot increment the real server's play count.");
+            await api.Scrobble(song.Id, true, DateTimeOffset.UtcNow, 0).ReadAsync();
+            Check((await api.GetSong(song.Id).ReadAsync()).PlayCount == count + 1, "A qualifying listening submission increments the real play count once.");
         }
         else { await api.Scrobble(song.Id, false, DateTimeOffset.Now, 1).ReadAsync(); Check(true, "Legacy now-playing reporting is accepted when the extension is absent."); }
     }

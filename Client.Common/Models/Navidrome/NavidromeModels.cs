@@ -161,7 +161,7 @@ namespace Client.Common.Models.Navidrome
         public string DisplayArtist { get; set; }
         public bool Synced { get; set; }
         public long OffsetMilliseconds { get; set; }
-        public IList<LyricsLine> Lines { get; set; }
+        public List<LyricsLine> Lines { get; set; }
 
         public int LineAt(long positionMilliseconds)
         {

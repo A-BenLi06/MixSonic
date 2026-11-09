@@ -108,6 +108,9 @@
     <Compile Include="EventAggregatorMessages\PlayNextMessage.cs" />
     <Compile Include="Models\Navidrome\NavidromeModels.cs" />
     <Compile Include="Models\PlaybackStartOptions.cs" />
+    <Compile Include="Models\ListeningCounter.cs" />
+    <Compile Include="Models\PendingListening.cs" />
+    <Compile Include="Services\Navidrome\LocalXml.cs" />
     <Compile Include="Models\Subsonic\MediaMetadata.cs" />
     <Compile Include="Results\NavidromeResult.cs" />
     <Compile Include="Services\Navidrome\NavidromeApi.cs" />

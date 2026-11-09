@@ -192,6 +192,7 @@
         {
             IoCService.Get<IPlaybackViewModel>();
             IoCService.Get<INotificationsHelper>();
+            IoCService.Get<Subsonic8.Navidrome.IPlaybackActivityService>();
         }
 
         private async Task LoadSettings()

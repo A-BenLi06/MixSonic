@@ -17,6 +17,9 @@ $sources += @(
     'Client.Common\Results\NavidromeResult.cs',
     'Client.Common\Services\Navidrome\NavidromeApi.cs',
     'Client.Common\Services\Navidrome\SubsonicXml.cs',
+    'Client.Common\Services\Navidrome\LocalXml.cs',
+    'Client.Common\Models\ListeningCounter.cs',
+    'Client.Common\Models\PendingListening.cs',
     'tools\serializer-tests\VisualStateResultStub.cs',
     'tools\navidrome-tests\NavidromeTests.cs'
 )

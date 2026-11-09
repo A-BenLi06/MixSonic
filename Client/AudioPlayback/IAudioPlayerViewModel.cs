@@ -12,6 +12,7 @@
         PlaylistItem CurrentItem { get; }
         bool IsActuallyPlaying { get; }
         bool CanSeek { get; }
+        TimeSpan LastStoppedPosition { get; }
         double Volume { get; set; }
         bool IsMuted { get; set; }
         double PlaybackRate { get; set; }
