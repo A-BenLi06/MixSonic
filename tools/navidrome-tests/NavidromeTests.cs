@@ -38,7 +38,7 @@ public static class NavidromeTests
     {
         try
         {
-            Requests(); Metadata(); Extensions(); Pagination(); Lyrics(); Listening(); Offline(); Downloads().GetAwaiter().GetResult(); Queue(); Mutations(); Failures().GetAwaiter().GetResult();
+            Requests(); Metadata(); Extensions(); Pagination(); Lyrics(); Listening(); Offline(); Downloads().GetAwaiter().GetResult(); Queue(); Mutations(); OptionalMedia(); Failures().GetAwaiter().GetResult();
             Console.WriteLine("PASS: " + _assertions + " Navidrome protocol/model assertions against production sources.");
         }
         catch (Exception error) { Console.Error.WriteLine(error); Environment.Exit(1); }
@@ -256,6 +256,74 @@ public static class NavidromeTests
         shares.HandleResponse(Xml("<shares><share id='share' expires='1970-01-01T00:00:00Z'/></shares>"));
         Check(!shares.Result[0].Expires.HasValue, "The Unix epoch expiration sentinel is treated as no expiration");
         Check(NavidromeApi.UnixMilliseconds(new DateTimeOffset(1970,1,1,0,0,1,TimeSpan.Zero)) == 1000, "Unix timestamps are milliseconds");
+    }
+
+    private static void OptionalMedia()
+    {
+        var api = new NavidromeApi(Configuration());
+        using (var request = Message(api.SaveRadio(null, "Station & 音", "https://radio.example/stream?a=1&b=2", null)))
+        {
+            var body = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            Check(request.RequestUri.AbsolutePath.EndsWith("/createInternetRadioStation.view") && request.Method == HttpMethod.Post && Param(body, "name") == "Station & 音",
+                "Radio creation uses the confirmed POST mutation and encoded name");
+            Check(Param(body, "streamUrl") == "https://radio.example/stream?a=1&b=2" && Param(body, "id") == null, "Radio stream URL survives request encoding");
+        }
+        using (var request = Message(api.SaveRadio("station&1", "Updated", "https://radio.example/updated", "")))
+            Check(request.RequestUri.AbsolutePath.EndsWith("/updateInternetRadioStation.view") && Param(request.Content.ReadAsStringAsync().GetAwaiter().GetResult(), "homepageUrl") == "",
+                "Editing a station can clear its optional homepage");
+        using (var request = Message(api.DeleteRadio("station&1")))
+            Check(Param(request.Content.ReadAsStringAsync().GetAwaiter().GetResult(), "id") == "station&1", "Radio deletion retains opaque station IDs");
+        Throws<ArgumentException>(() => api.SaveRadio(null, " ", "https://radio.example", null), "Blank station name rejected");
+        Throws<ArgumentException>(() => api.SaveRadio(null, "Name", null, null), "Missing station stream rejected");
+        var sonic = api.GetSonicSimilarSongs("seed&1", 12);
+        Check(Param(new Uri(sonic.RequestUrl).Query, "id") == "seed&1" && Param(new Uri(sonic.RequestUrl).Query, "count") == "12", "Acoustic seed and count reach the source-defined endpoint");
+        sonic.HandleResponse(Xml("<sonicMatch similarity='0.9'><entry id='s' title='First' albumId='al'/></sonicMatch><sonicMatch similarity='0.7'><entry id='b' title='Second'/></sonicMatch>"));
+        Check(sonic.Result.Select(song => song.Id).SequenceEqual(new[] { "s", "b" }) && sonic.Result[0].AlbumId == "al", "Acoustic matches retain server order and song metadata");
+        sonic.HandleResponse(Xml("")); Check(sonic.Result.Count == 0, "An empty acoustic response stays empty");
+        Throws<InvalidOperationException>(() => sonic.HandleResponse(Xml("<sonicMatch similarity='0.5'/>")), "An acoustic match without a song is malformed");
+        var path = new Uri(api.FindSonicPath("start&1", "end&2", 7).RequestUrl);
+        Check(Param(path.Query, "startSongId") == "start&1" && Param(path.Query, "endSongId") == "end&2" && Param(path.Query, "count") == "7", "Acoustic paths use independent encoded endpoint IDs");
+        Throws<ArgumentOutOfRangeException>(() => api.GetSonicSimilarSongs("s", 0), "Empty acoustic recommendation count rejected");
+        Throws<ArgumentException>(() => api.FindSonicPath("s", null), "Missing acoustic destination rejected");
+        foreach (JukeboxAction action in Enum.GetValues(typeof(JukeboxAction)))
+        {
+            using (var request = Message(api.Jukebox(action, index: action == JukeboxAction.Skip || action == JukeboxAction.Remove ? (int?)2 : null,
+                gain: action == JukeboxAction.SetGain ? (double?)0.75 : null)))
+            {
+                var parameters = request.Content == null ? request.RequestUri.Query : request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                Check(Param(parameters, "action") == (action == JukeboxAction.SetGain ? "setGain" : action.ToString().ToLowerInvariant()) &&
+                    request.Method == (action == JukeboxAction.Get || action == JukeboxAction.Status ? HttpMethod.Get : HttpMethod.Post), "Jukebox action and request method " + action);
+            }
+        }
+        using (var request = Message(api.Jukebox(JukeboxAction.Set, new[] { "s&1", "s&2", "s&1" })))
+        {
+            var body = request.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+            Check(body.Split('&').Where(part => part.StartsWith("id=")).Select(part => Uri.UnescapeDataString(part.Substring(3))).SequenceEqual(new[] { "s&1", "s&2", "s&1" }),
+                "Remote queues preserve duplicate occurrences in their original order");
+        }
+        using (var request = Message(api.Jukebox(JukeboxAction.Skip, index: 2, offset: 13)))
+            Check(Param(request.Content.ReadAsStringAsync().GetAwaiter().GetResult(), "offset") == "13", "Jukebox seeking uses seconds, independently of bookmark milliseconds");
+        var result = api.Jukebox(JukeboxAction.Get);
+        result.HandleResponse(Xml("<jukeboxPlaylist playing='true' currentIndex='2' position='13' gain='0.75'><entry id='s' title='First'/><entry id='b' title='Second'/><entry id='s' title='First'/></jukeboxPlaylist>"));
+        Check(result.Result.Playing && result.Result.CurrentIndex == 2 && result.Result.Position == 13 && result.Result.Gain == 0.75 && result.Result.Songs.Count == 3,
+            "Jukebox playlist status and duplicate queue entries deserialize together");
+        var status = api.Jukebox(JukeboxAction.Status); status.HandleResponse(Xml("<jukeboxStatus playing='false' currentIndex='-1' position='0' gain='0.4'/>"));
+        Check(!status.Result.Playing && status.Result.Songs.Count == 0 && status.Result.Gain == 0.4, "Status-only jukebox replies do not invent queue entries");
+        Throws<InvalidOperationException>(() => result.HandleResponse(Xml("")), "Missing remote playback status is an explicit failure");
+        Throws<InvalidOperationException>(() => result.HandleResponse(Xml("<jukeboxStatus gain='NaN'/>")), "Malformed remote gain cannot enter player controls");
+        Throws<ArgumentOutOfRangeException>(() => api.Jukebox((JukeboxAction)100), "Unknown jukebox action rejected");
+        Throws<ArgumentOutOfRangeException>(() => api.Jukebox(JukeboxAction.Skip, index: -1), "Negative remote queue index rejected");
+        Throws<ArgumentOutOfRangeException>(() => api.Jukebox(JukeboxAction.Skip, index: 0, offset: -1), "Negative server seek rejected");
+        Throws<ArgumentOutOfRangeException>(() => api.Jukebox(JukeboxAction.SetGain, gain: double.NaN), "Nonfinite remote gain rejected");
+        Throws<ArgumentOutOfRangeException>(() => api.Jukebox(JukeboxAction.SetGain, gain: 1.01), "Remote volume above one rejected");
+        var culture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("fr-FR");
+            using (var request = Message(api.Jukebox(JukeboxAction.SetGain, gain: 0.25)))
+                Check(Param(request.Content.ReadAsStringAsync().GetAwaiter().GetResult(), "gain") == "0.25", "Remote gain is culture-independent on the wire");
+        }
+        finally { CultureInfo.CurrentCulture = culture; }
     }
 
     private static async Task Failures()

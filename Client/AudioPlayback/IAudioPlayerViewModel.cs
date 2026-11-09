@@ -20,5 +20,6 @@
         bool IsMuted { get; set; }
         double PlaybackRate { get; set; }
         void Seek(TimeSpan position);
+        void RestorePosition(long positionMilliseconds);
     }
 }

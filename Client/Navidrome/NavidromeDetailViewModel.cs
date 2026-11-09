@@ -3,6 +3,7 @@ namespace Subsonic8.Navidrome
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
@@ -55,15 +56,20 @@ namespace Subsonic8.Navidrome
         public bool CanMoveDown { get { return CanRemoveTracks && SelectedItems.Count == 1 && ((NavidromeItem)SelectedItems[0]).Ordinal < Tracks.Count - 1; } }
         public bool CanArtistMix { get { return !IsLoading && !IsWorking && _current != null && (_current.Media is Song || _current.Media is ExpandedArtist); } }
         public bool CanTopSongs { get { return CanArtistMix; } }
+        public bool CanSonicMix { get { return CanBookmark && !IsLoading && _loadedApi != null && _loadedApi.AccountKey == Session.AccountKey; } }
+        public bool CanSonicPath { get { return CanSonicMix && PlaylistQueue.Items.Any(item => item.AccountKey == Session.AccountKey && !string.IsNullOrEmpty(item.SongId) && item.SongId != _current.Song.Id); } }
         public bool CanBookmark { get { return !IsWorking && _current != null && _current.Song != null; } }
         protected override IList<NavidromeItem> CommandItems
         { get { return SelectedItems.Count > 0 ? SelectedItems.Cast<NavidromeItem>().ToList() : _current == null ? new List<NavidromeItem>() : new List<NavidromeItem> { _current }; } }
 
+        protected override void OnActivate() { PlaylistQueue.PropertyChanged += PlaylistQueueChanged; base.OnActivate(); }
+        protected override void OnDeactivate(bool close) { PlaylistQueue.PropertyChanged -= PlaylistQueueChanged; base.OnDeactivate(close); }
+        private void PlaylistQueueChanged(object sender, PropertyChangedEventArgs args) { NotifyOfPropertyChange(() => CanSonicPath); }
         protected override void Changed()
         {
             base.Changed();
             foreach (var property in new[] { "Current", "Notes", "ImageUrl", "HasNotes", "HasTracks", "HasRelated", "CanOpenExternal", "CanEditPlaylist",
-                "CanDeletePlaylist", "CanRemoveTracks", "CanMoveUp", "CanMoveDown", "CanArtistMix", "CanTopSongs", "CanBookmark" }) NotifyOfPropertyChange(property);
+                "CanDeletePlaylist", "CanRemoveTracks", "CanMoveUp", "CanMoveDown", "CanArtistMix", "CanTopSongs", "CanBookmark", "CanSonicMix", "CanSonicPath" }) NotifyOfPropertyChange(property);
         }
 
         public override async Task Reload()
@@ -170,6 +176,31 @@ namespace Subsonic8.Navidrome
         public async Task OpenExternal() { Uri link; if (NavidromeBrowserViewModel.TryWebLink(_externalUrl, out link)) await Launcher.LaunchUriAsync(link); }
         public Task ArtistMix() { return Discovery(false); }
         public Task TopSongs() { return Discovery(true); }
+        public Task SonicMix() { return AcousticDiscovery(null); }
+        public Task SonicPath(FrameworkElement anchor) { return AcousticDiscovery(anchor); }
+        private Task AcousticDiscovery(FrameworkElement anchor)
+        {
+            if (!CanSonicMix) return Task.FromResult(false);
+            var song = _current.Song; var account = _loadedApi.AccountKey; var version = LoadVersion;
+            return RunOperation(async api =>
+            {
+                if (!IsCurrent(version, api) || api.AccountKey != account) throw new OperationCanceledException();
+                string destination = null;
+                if (anchor != null)
+                {
+                    var choices = PlaylistQueue.Items.Where(item => item.AccountKey == api.AccountKey && !string.IsNullOrEmpty(item.SongId) && item.SongId != song.Id).ToList();
+                    if (choices.Count == 0) { Error = NavidromeText.Get("SonicDestinationRequired"); return; }
+                    var target = new FormField { LabelKey = "DestinationTrack", Kind = FormFieldKind.Choice, Choices = choices.Cast<object>(), DisplayMemberPath = "Title", Value = choices.First() };
+                    if (!await Dialogs.FormAsync(anchor, "SonicPath", new[] { target })) return;
+                    destination = ((PlaylistItem)target.Value).SongId;
+                }
+                if (!IsCurrent(version, api)) throw new OperationCanceledException();
+                var songs = await (destination == null ? api.GetSonicSimilarSongs(song.Id) : api.FindSonicPath(song.Id, destination)).ReadAsync();
+                if (!IsCurrent(version, api)) throw new OperationCanceledException();
+                if (songs.Count == 0) { Error = NavidromeText.Get("NoDiscoverySongs"); return; }
+                MediaQueue.Play(api, songs); NavigationService.NavigateToViewModel<NavidromePlayerViewModel>();
+            });
+        }
         private Task Discovery(bool top)
         {
             var media = _current.Media;

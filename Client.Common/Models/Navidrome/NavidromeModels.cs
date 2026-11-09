@@ -186,4 +186,5 @@ namespace Client.Common.Models.Navidrome
         public int Position { get; set; }
         public IList<Song> Songs { get; set; }
     }
+    public enum JukeboxAction { Get, Status, Set, Start, Stop, Skip, Add, Clear, Remove, Shuffle, SetGain }
 }

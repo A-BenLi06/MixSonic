@@ -35,6 +35,7 @@ reference inventory hashes their actual bytes and records each route registratio
 | Bookmarks | `bookmarks.go` | Save, list, resume and delete positions in milliseconds |
 | Sharing | `sharing.go`, `api.go`; `ui/src/share` | Create/list/update/delete share links where server policy allows; preserve expiration and server-generated URL |
 | Radio | `radio.go`, `api.go` | Play returned station URLs; an empty response is valid; station administration is role-restricted |
+| Server player | `jukebox.go`, `users.go` | Use the returned jukebox role, remote queue/status and source-defined commands; queue offsets are seconds and gain is 0–1 |
 | Scan/account | `library_scanning.go`, `users.go` | Report current user roles and scan status; only an administrator may start a scan |
 | Optional extensions | `opensubsonic.go`, `sonic_similarity.go`, `transcode.go` | Negotiate extensions and handle unsupported operations; no server-name/version guessing |
 
@@ -62,7 +63,7 @@ Bookmark resume positions and duplicate server queue indices reach the native
 player. Shares use server default expiration on creation and preserve it when an
 update omits the date, matching `core/share.go`.
 
-The real 0.64.2 fixture verifies 42 API integration assertions against 125 synthetic
+The real 0.64.2 fixture verifies 51 API integration assertions against 125 synthetic
 tagged WAV files. Its version is recorded separately from the locked source.
 Playback activity now reports actual native states and counts real playing intervals
 independently of seek positions. Enhanced presence requests set `ignoreScrobble`;
@@ -100,9 +101,32 @@ The Account page shows actual server roles, version/capabilities and scan state;
 only the returned administrator role enables starting a scan. Active scans refresh
 while the page is open. Explicit reconnect refreshes roles and restores library
 selection; optional extension/user errors remain visible without inventing support.
-Native capture still times out and the
-client accessibility tree is empty through the installed helper; no native
-interaction or visual pass is inferred from successful source/build checks.
+The radio page now exposes administrator-gated station creation, editing and
+deletion. It validates HTTP(S) stream/homepage URLs, preserves full query strings,
+and permits clearing an optional homepage. Acoustic discovery uses Navidrome's
+`getSonicSimilarTracks` and `findSonicPath`, with a destination chosen from actual
+current-account queue songs. An absent provider returns a real HTTP 404; the
+client retains that failure instead of inventing recommendations. Account/page
+changes cancel late forms and discovery results before they can alter playback.
+The Account page also opens a separate server-player page when the returned
+jukebox role permits it. Its queue, status, transport, seek, gain and queue
+mutations use the server's audio device. Indexed commands recheck remote order;
+relative skips and seeking also recheck the current index. Replace/clear recheck
+after confirmation. Request generations prevent delayed polls from overwriting
+newer operations, and remote gain refreshes preserve an unapplied volume draft.
+The standard API supplies no queue revision or atomic conditional mutation, so
+another client can still change the server between the final read and write.
+Player frame state delegates queue serialization to the existing service and
+retains account, playback milliseconds and lyric following. Position restoration
+waits for media opening, clamps to duration, and applies only to the saved current
+queue item; changing the selected item prevents a later unintended seek.
+Protocol/model tests, simulated native audio events and controlled loopback
+jukebox responses remain separate from actual native acceptance. The fixture
+verifies station administration, an administrator-triggered scan, and explicit
+disabled-jukebox/provider-absent failures; it does not supply an enabled server
+audio device or acoustic provider. Native capture still times out through the
+installed helper; no native interaction, decoding, background or visual pass is
+inferred from successful source/build checks.
 
 The [Navidrome acceptance specification](../../tools/navidrome/acceptance-spec.json)
 adds these functional requirements to the preceding design/accessibility/resilience
@@ -112,3 +136,13 @@ comparison remain distinct evidence; a passing compile cannot pass a native UI c
 The preceding `91e82a0` report (10/30 cases, 22.5%) describes its old scope only.
 Seeking, downloads and artist discovery are required here, rather than optional
 MixRadio roadmap credit.
+
+The current specification contains 53 required cases, including separate server
+player and acoustic-discovery cases. Run [verify.ps1](../../tools/navidrome/verify.ps1)
+from a clean commit to build/deploy and bind fresh logs to that commit; service
+mutation suites run sequentially against the disposable fixture.
+[report.py](../../tools/navidrome/report.py) revalidates the original functional
+and design references, bundles those logs and the current native observation, and
+generates a Navidrome report using the existing evidence evaluator. It can pass
+source/server checks while retaining native cases as blocked. Record actual native
+interaction and screenshots through the normal evaluator workflow when available.

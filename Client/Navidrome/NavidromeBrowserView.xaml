@@ -38,6 +38,9 @@
                 <AppBarButton x:Name="EditShare" x:Uid="Navidrome_EditShare" cal:Message.Attach="[Event Click]=[Action EditShare($source)]"/>
                 <AppBarButton x:Name="CopyLink" x:Uid="Navidrome_CopyLink"/>
                 <AppBarButton x:Name="Delete" x:Uid="Navidrome_Delete"/>
+                <AppBarButton x:Name="CreateRadio" x:Uid="Navidrome_CreateRadio" cal:Message.Attach="[Event Click]=[Action CreateRadio($source)]"/>
+                <AppBarButton x:Name="EditRadio" x:Uid="Navidrome_EditRadio" cal:Message.Attach="[Event Click]=[Action EditRadio($source)]"/>
+                <AppBarButton x:Name="DeleteRadio" x:Uid="Navidrome_DeleteRadio"/>
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>

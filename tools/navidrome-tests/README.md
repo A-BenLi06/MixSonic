@@ -9,6 +9,15 @@ and control contracts with simulated native events. It verifies persisted contro
 media-open/start/stop/seek ordering, queue completion, current stream preferences
 and bounded MP3 compatibility retries. It neither decodes media nor verifies XAML
 or background playback. Malformed saved controls must recover to valid defaults.
+It also verifies position restoration before/after native opening and duration
+clamping; event adapters do not establish actual suspend/resume behavior.
+
+`./tools/navidrome-tests/run-jukebox.ps1` compiles the production server-player
+page, operation base, API and local queue service. A controlled loopback HTTP
+fixture verifies stale response suppression, remote order/current-index changes,
+duplicate removals, delayed/cancelled forms, account isolation, volume drafts,
+invalid indices, queue commands and explicit errors. Rendering, timer scheduling,
+native lifecycle and audio on a real server device remain unverified.
 
 The real-server fixture is separate from the functional source lock. This work
 uses the official Navidrome 0.64.2 Windows amd64 archive, verified against the
@@ -37,7 +46,11 @@ queries, all three favorites and ratings, complete playlist entries and duplicat
 ordering, metadata/add/remove/reorder/delete, bookmark milliseconds, negotiated
 server queue indices, lyric variants, original WAV download, shares, scan state
 and playback report negotiation, including suppression of position-based false
-scrobbles and byte-identical streaming downloads.
+scrobbles and byte-identical streaming downloads. The 51 assertions also cover
+administrator station create/edit/delete, clearing a homepage, an actual rescan,
+disabled jukebox access and the absence of an acoustic provider. Successful
+acoustic response parsing and all jukebox action/parameter shapes use controlled
+protocol responses; an enabled provider/server audio device needs native testing.
 
 `run-services.ps1` compiles the actual desktop session, offline library and playback
 activity services with small CLR storage/event adapters. It uses the disposable
@@ -52,3 +65,21 @@ Navidrome's share behavior is explicit in `core/share.go`: a new share without
 a custom date uses `DefaultShareExpiration`, and an update without a date preserves
 the current expiration. The client must display the returned date, rather than
 claiming that it created or cleared an unlimited share.
+
+From a clean committed checkout, `./tools/navidrome/verify.ps1` runs the fresh
+desktop build/deployment and all production checks, writes per-step SHA-256 logs
+and binds `.tmp/navidrome-audit/verification.json` to the same commit at both ends.
+The fixture must already be running. It does not launch or automate the client.
+`report.py` takes this proof, a current native observation and explicit original
+MixRadio package paths; it retains native cases as blocked and generates a report
+for the Navidrome specification. Exit 2 is a valid report that is not accepted.
+
+```powershell
+./tools/navidrome/verify.ps1
+python tools/navidrome/report.py --phone-package '<original XAP path>' --desktop-package '<installed PC package directory>'
+python tools/mixradio/quality.py --spec tools/navidrome/acceptance-spec.json evaluate --run '<new run directory>/run.json'
+```
+
+`check-client.py` now checks XAML namescopes and project-owned StaticResource
+references as well as string lookups/project entries. SDK theme resources and
+actual XAML loading remain the responsibility of the build and native acceptance.

@@ -67,6 +67,10 @@ public static class NavidromeAudioTests
         Check(controls.Pauses == 2, "A pause requested while opening survives MediaOpened.");
         audio.SongEnded(); audio.SongEnded();
         Check(events.Messages.OfType<PlayNextMessage>().Count() == 1, "Natural completion advances the queue exactly once.");
+        audio.Play(song); audio.RestorePosition(5678); audio.MediaOpened();
+        Check(controls.Position.TotalMilliseconds == 5678, "Frame-state resume can wait for MediaOpened.");
+        audio.RestorePosition(long.MaxValue);
+        Check(controls.Position.TotalSeconds == 20, "Restored positions respect the native duration without numeric overflow.");
     }
     private static void Compatibility()
     {

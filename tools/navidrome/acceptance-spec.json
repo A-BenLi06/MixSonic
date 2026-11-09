@@ -779,11 +779,13 @@
         "ND:server/subsonic/radio.go"
       ],
       "steps": [
-        "Use a fixture station and an empty radio response."
+        "Use a fixture station and an empty radio response.",
+        "Create, edit and delete a fixture station as an administrator; repeat as a regular user."
       ],
       "expected": [
         "Configured stations play through transport controls.",
-        "Empty/unsupported station responses are honest and recoverable."
+        "Empty/unsupported station responses are honest and recoverable.",
+        "Only the returned administrator role enables station management; confirmed updates preserve complete URLs and can clear an optional homepage."
       ],
       "evidence": [
         [
@@ -1066,7 +1068,7 @@
     },
     {
       "id": "ND-PROTOCOL",
-      "title": "Native protocol and model regressions",
+      "title": "Protocol, models and production logic regressions",
       "dimension": "resilience",
       "priority": "P0",
       "required": true,
@@ -1076,11 +1078,12 @@
         "ND:server/subsonic/responses/responses.go"
       ],
       "steps": [
-        "Run tools/navidrome-tests/run.ps1 against current production sources."
+        "Run protocol/model, audio, jukebox and service harnesses plus real-fixture integration against current production sources."
       ],
       "expected": [
         "Encoded IDs/credentials, repeated parameters, milliseconds and failure responses behave correctly.",
-        "All new models deserialize actual Navidrome-shaped XML."
+        "All new models deserialize actual Navidrome-shaped XML.",
+        "Synthetic native events and controlled jukebox responses verify state logic without claiming actual decoding, native UI or server-device audio."
       ],
       "evidence": [
         [
@@ -1481,6 +1484,56 @@
           "runtime_log",
           "video"
         ]
+      ]
+    },
+    {
+      "id": "ND-JUKEBOX",
+      "title": "Optional server player and concurrent queue changes",
+      "dimension": "functionality",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceRole": "functionality",
+      "referenceIds": [
+        "ND:server/subsonic/jukebox.go",
+        "ND:server/subsonic/users.go"
+      ],
+      "steps": [
+        "Use an enabled fixture jukebox to replace/append a duplicate queue, start/stop, skip/seek, remove/clear/shuffle and change gain.",
+        "Change remote order or the current track from a second client while a form/request is pending; repeat with jukebox disabled or the role denied."
+      ],
+      "expected": [
+        "The returned jukebox role controls access, and unsupported/configuration errors remain explicit.",
+        "Commands affect the server device and refresh its actual state; offsets are seconds and gain is between zero and one.",
+        "Stale polls cannot overwrite newer command state; indexed/destructive commands recheck the remote queue, and seek/relative skips also recheck its current track.",
+        "Remote volume changes update an unedited control while a user's unapplied draft remains intact."
+      ],
+      "evidence": [
+        ["manual_record", "runtime_log", "video"]
+      ]
+    },
+    {
+      "id": "ND-SONIC",
+      "title": "Provider-dependent acoustic discovery",
+      "dimension": "functionality",
+      "priority": "P1",
+      "required": true,
+      "weight": 1,
+      "referenceRole": "functionality",
+      "referenceIds": [
+        "ND:server/subsonic/sonic_similarity.go"
+      ],
+      "steps": [
+        "With a configured provider, play acoustic recommendations and a path to a different current-account queue song.",
+        "Repeat without a provider and while changing the account or leaving the detail page."
+      ],
+      "expected": [
+        "Use the source-defined endpoints and returned song order; the destination retains its actual opaque ID.",
+        "Provider-absent HTTP 404, empty and malformed responses remain distinct failures/empty states.",
+        "Late results from another account or page cannot replace the current playback queue."
+      ],
+      "evidence": [
+        ["manual_record", "runtime_log", "video"]
       ]
     },
     {

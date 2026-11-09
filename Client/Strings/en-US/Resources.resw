@@ -321,4 +321,42 @@
   <data name="Navidrome_Notifications.Header" xml:space="preserve"><value>Notify when the song changes</value></data>
   <data name="Navidrome_SaveSettings.Content" xml:space="preserve"><value>Save settings</value></data>
   <data name="Navidrome_CompatibleStream.Text" xml:space="preserve"><value>MP3 compatibility stream</value></data>
+  <data name="Navidrome_Text_CreateRadio" xml:space="preserve"><value>Add radio station</value></data>
+  <data name="Navidrome_Text_EditRadio" xml:space="preserve"><value>Edit radio station</value></data>
+  <data name="Navidrome_Text_RadioStreamUrl" xml:space="preserve"><value>Stream address</value></data>
+  <data name="Navidrome_Text_RadioHomepageUrl" xml:space="preserve"><value>Homepage address (optional)</value></data>
+  <data name="Navidrome_Text_InvalidRadioUrl" xml:space="preserve"><value>Use an HTTP or HTTPS address for the stream and optional homepage.</value></data>
+  <data name="Navidrome_Text_ServerPlayer" xml:space="preserve"><value>server player</value></data>
+  <data name="Navidrome_Text_JukeboxUnavailable" xml:space="preserve"><value>The server has not enabled jukebox access for this account.</value></data>
+  <data name="Navidrome_Text_ServerPlayerPlaying" xml:space="preserve"><value>Playing on the server</value></data>
+  <data name="Navidrome_Text_ServerPlayerStopped" xml:space="preserve"><value>Stopped</value></data>
+  <data name="Navidrome_Text_ConfirmReplaceServerQueue" xml:space="preserve"><value>Replace the server player's queue with your current queue?</value></data>
+  <data name="Navidrome_Text_ConfirmClearServerQueue" xml:space="preserve"><value>Clear the server player's queue?</value></data>
+  <data name="Navidrome_Text_Replace" xml:space="preserve"><value>Replace</value></data>
+  <data name="Navidrome_Text_Clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="Navidrome_Text_Seek" xml:space="preserve"><value>Playback position</value></data>
+  <data name="Navidrome_Text_PositionSeconds" xml:space="preserve"><value>Position in seconds</value></data>
+  <data name="Navidrome_Text_InvalidPosition" xml:space="preserve"><value>Enter a whole number of seconds within the current track.</value></data>
+  <data name="Navidrome_Text_ServerQueueChanged" xml:space="preserve"><value>The server queue or current track changed. Review the refreshed queue and try again.</value></data>
+  <data name="Navidrome_Text_SonicPath" xml:space="preserve"><value>Acoustic path</value></data>
+  <data name="Navidrome_Text_DestinationTrack" xml:space="preserve"><value>Destination track from your queue</value></data>
+  <data name="Navidrome_Text_SonicDestinationRequired" xml:space="preserve"><value>Add a different destination track to your queue first.</value></data>
+  <data name="Navidrome_CreateRadio.Label" xml:space="preserve"><value>Add radio station</value></data>
+  <data name="Navidrome_EditRadio.Label" xml:space="preserve"><value>Edit radio station</value></data>
+  <data name="Navidrome_DeleteRadio.Label" xml:space="preserve"><value>Delete radio station</value></data>
+  <data name="Navidrome_Jukebox.Label" xml:space="preserve"><value>Server player</value></data>
+  <data name="Navidrome_JukeboxPrevious.Label" xml:space="preserve"><value>Previous track</value></data>
+  <data name="Navidrome_JukeboxNext.Label" xml:space="preserve"><value>Next track</value></data>
+  <data name="Navidrome_JukeboxShuffle.Label" xml:space="preserve"><value>Shuffle server queue</value></data>
+  <data name="Navidrome_JukeboxSeek.Label" xml:space="preserve"><value>Seek on server</value></data>
+  <data name="Navidrome_UseServerQueue.Label" xml:space="preserve"><value>Use current queue on server</value></data>
+  <data name="Navidrome_AppendServerQueue.Label" xml:space="preserve"><value>Append current queue on server</value></data>
+  <data name="Navidrome_ApplyServerVolume.Label" xml:space="preserve"><value>Apply server volume</value></data>
+  <data name="Navidrome_SetServerVolume.Content" xml:space="preserve"><value>Apply volume</value></data>
+  <data name="Navidrome_ServerVolume.AutomationProperties.Name" xml:space="preserve"><value>Server playback volume</value></data>
+  <data name="Navidrome_ServerQueue.AutomationProperties.Name" xml:space="preserve"><value>Server playback queue</value></data>
+  <data name="Navidrome_ServerQueueEmpty.Text" xml:space="preserve"><value>The server queue is empty. Use your current queue to add music.</value></data>
+  <data name="Navidrome_JukeboxHelp.Text" xml:space="preserve"><value>Playback uses the server's audio device. Choose a track, then press Play.</value></data>
+  <data name="Navidrome_SonicMix.Label" xml:space="preserve"><value>Play acoustic recommendations</value></data>
+  <data name="Navidrome_SonicPath.Label" xml:space="preserve"><value>Play acoustic path</value></data>
 </root>

@@ -5,7 +5,10 @@
     <Page.BottomAppBar><CommandBar>
         <AppBarButton x:Name="Reload" x:Uid="Navidrome_Refresh" Icon="Refresh"/>
         <AppBarButton x:Name="Settings" x:Uid="Navidrome_Settings" Icon="Setting"/>
-        <CommandBar.SecondaryCommands><AppBarButton x:Name="StartScan" x:Uid="Navidrome_StartScan"/></CommandBar.SecondaryCommands>
+        <CommandBar.SecondaryCommands>
+            <AppBarButton x:Name="StartScan" x:Uid="Navidrome_StartScan"/>
+            <AppBarButton x:Name="Jukebox" x:Uid="Navidrome_Jukebox"/>
+        </CommandBar.SecondaryCommands>
     </CommandBar></Page.BottomAppBar>
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled">
         <StackPanel x:Name="Canvas" Margin="88,30,48,40" MaxWidth="960" HorizontalAlignment="Left">

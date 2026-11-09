@@ -27,6 +27,7 @@ namespace Subsonic8.Navidrome
         }
         [Inject] public IDialogService DialogService { get; set; }
         public bool CanStartScan { get { return !IsLoading && !IsWorking && !IsScanning && Session.IsConnected && Session.User != null && Session.User.AdminRole; } }
+        public bool CanJukebox { get { return !IsLoading && !IsWorking && Session.User != null && Session.User.JukeboxRole; } }
         public bool IsScanning { get { return _scan != null && _scan.Scanning; } }
         public string ScanMessage { get { return _scan == null ? NavidromeText.Get("ScanUnknown") : string.Format(CultureInfo.CurrentCulture, NavidromeText.Get(_scan.Scanning ? "ScanInProgress" : "ScanIdle"), _scan.Count); } }
         public string LastScan
@@ -63,7 +64,7 @@ namespace Subsonic8.Navidrome
         protected override void Changed()
         {
             base.Changed();
-            foreach (var name in new[] { "CanStartScan", "IsScanning", "ScanMessage", "LastScan", "Roles", "Extensions" }) NotifyOfPropertyChange(name);
+            foreach (var name in new[] { "CanStartScan", "CanJukebox", "IsScanning", "ScanMessage", "LastScan", "Roles", "Extensions" }) NotifyOfPropertyChange(name);
         }
         public override async Task Reload()
         {
@@ -99,5 +100,6 @@ namespace Subsonic8.Navidrome
             });
         }
         public void Settings() { DialogService.ShowSettings<SettingsViewModel>(); }
+        public void Jukebox() { NavigationService.NavigateToViewModel<NavidromeJukeboxViewModel>(); }
     }
 }

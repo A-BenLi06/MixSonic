@@ -470,12 +470,16 @@
     <Compile Include="Navidrome\NavidromeAccountViewModel.cs" />
     <Compile Include="Navidrome\NavidromeAccountView.xaml.cs"><DependentUpon>NavidromeAccountView.xaml</DependentUpon></Compile>
     <Page Include="Navidrome\NavidromeAccountView.xaml"><Generator>MSBuild:Compile</Generator></Page>
+    <Compile Include="Navidrome\NavidromeJukeboxViewModel.cs" />
+    <Compile Include="Navidrome\NavidromeJukeboxView.xaml.cs"><DependentUpon>NavidromeJukeboxView.xaml</DependentUpon></Compile>
+    <Page Include="Navidrome\NavidromeJukeboxView.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Compile Include="Navidrome\NavidromeDownloadsView.xaml.cs"><DependentUpon>NavidromeDownloadsView.xaml</DependentUpon></Compile>
     <Page Include="Navidrome\NavidromeDownloadsView.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Compile Include="Navidrome\NavidromePageViewModel.cs" />
     <Compile Include="Navidrome\NavidromeMediaPageViewModel.cs" />
     <Compile Include="Navidrome\NavidromeItem.cs" />
     <Compile Include="Navidrome\NavidromeDialogService.cs" />
+    <Compile Include="Navidrome\NavidromeDialogContracts.cs" />
     <Compile Include="Navidrome\NavidromeBrowserViewModel.cs" />
     <Compile Include="Navidrome\NavidromeDetailViewModel.cs" />
     <Compile Include="Navidrome\NavidromeBrowserView.xaml.cs"><DependentUpon>NavidromeBrowserView.xaml</DependentUpon></Compile>

@@ -320,6 +320,54 @@ namespace Client.Common.Services.Navidrome
         }
         public NavidromeResult<IList<InternetRadioStation>> GetRadio()
         { return Read(Request("getInternetRadioStations"), root => SubsonicXml.List<InternetRadioStation>(root.Element(Ns + "internetRadioStations"), "internetRadioStation")); }
+        public NavidromeResult<bool> SaveRadio(string id, string name, string streamUrl, string homepageUrl)
+        {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("A station name is required.", "name");
+            if (string.IsNullOrWhiteSpace(streamUrl)) throw new ArgumentException("A stream address is required.", "streamUrl");
+            var request = Request(string.IsNullOrEmpty(id) ? "createInternetRadioStation" : "updateInternetRadioStation").Add("name", name).Add("streamUrl", streamUrl).Add("homepageUrl", homepageUrl);
+            if (!string.IsNullOrEmpty(id)) request.Add("id", Id(id));
+            return Write(request);
+        }
+        public NavidromeResult<bool> DeleteRadio(string id) { return Write(Request("deleteInternetRadioStation").Add("id", Id(id))); }
+        public NavidromeResult<IList<Song>> GetSonicSimilarSongs(string id, int count = 25)
+        {
+            if (count <= 0) throw new ArgumentOutOfRangeException("count");
+            return Read(Request("getSonicSimilarTracks").Add("id", Id(id)).Add("count", count), ReadSonicSongs);
+        }
+        public NavidromeResult<IList<Song>> FindSonicPath(string startSongId, string endSongId, int count = 25)
+        {
+            if (count <= 0) throw new ArgumentOutOfRangeException("count");
+            return Read(Request("findSonicPath").Add("startSongId", Id(startSongId)).Add("endSongId", Id(endSongId)).Add("count", count), ReadSonicSongs);
+        }
+        private static IList<Song> ReadSonicSongs(XElement root)
+        {
+            var songs = root.Elements(Ns + "sonicMatch").Select(match => SubsonicXml.Read<Song>(match.Element(Ns + "entry"))).ToList();
+            if (songs.Any(song => song == null)) throw new InvalidOperationException("Sonic match entry is missing.");
+            return songs;
+        }
+        public NavidromeResult<JukeboxState> Jukebox(JukeboxAction action, IEnumerable<string> ids = null, int? index = null, int? offset = null, double? gain = null)
+        {
+            if (!Enum.IsDefined(typeof(JukeboxAction), action)) throw new ArgumentOutOfRangeException("action");
+            if ((action == JukeboxAction.Skip || action == JukeboxAction.Remove) && (!index.HasValue || index.Value < 0)) throw new ArgumentOutOfRangeException("index");
+            if (offset.HasValue && offset.Value < 0) throw new ArgumentOutOfRangeException("offset");
+            if (action == JukeboxAction.SetGain && (!gain.HasValue || double.IsNaN(gain.Value) || double.IsInfinity(gain.Value) || gain.Value < 0 || gain.Value > 1)) throw new ArgumentOutOfRangeException("gain");
+            var request = Request("jukeboxControl").Add("action", action == JukeboxAction.SetGain ? "setGain" : action.ToString().ToLowerInvariant());
+            if (ids != null) request.AddMany("id", ids.Select(Id));
+            if (index.HasValue) request.Add("index", index.Value);
+            if (offset.HasValue) request.Add("offset", offset.Value);
+            if (gain.HasValue) request.Add("gain", gain.Value);
+            Func<XElement, JukeboxState> read = root =>
+            {
+                var data = root.Element(Ns + "jukeboxPlaylist") ?? root.Element(Ns + "jukeboxStatus");
+                if (data == null) throw new InvalidOperationException("Jukebox status response is missing.");
+                var state = new JukeboxState { Playing = SubsonicXml.Bool(data, "playing"), CurrentIndex = (int?)data.Attribute("currentIndex") ?? -1,
+                    Gain = (double?)data.Attribute("gain") ?? 0, Position = (int?)data.Attribute("position") ?? 0, Songs = SubsonicXml.List<Song>(data, "entry") };
+                if (double.IsNaN(state.Gain) || double.IsInfinity(state.Gain) || state.Gain < 0 || state.Gain > 1 || state.Position < 0)
+                    throw new InvalidOperationException("Invalid jukebox playback status.");
+                return state;
+            };
+            return new NavidromeResult<JukeboxState>(_configuration, request, read, UseFormPost && action != JukeboxAction.Get && action != JukeboxAction.Status);
+        }
         public NavidromeResult<IList<NowPlayingEntry>> GetNowPlaying()
         { return Read(Request("getNowPlaying"), root => SubsonicXml.List<NowPlayingEntry>(root.Element(Ns + "nowPlaying"), "entry")); }
 

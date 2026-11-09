@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Client.Common.Models;
 using Client.Common.Models.Navidrome;
 using Client.Common.Models.Subsonic;
+using Client.Common.Results;
 using Client.Common.Services.DataStructures.SubsonicService;
 using Client.Common.Services.Navidrome;
 
@@ -153,6 +154,30 @@ public static class NavidromeIntegrationTests
         var scan = await api.GetScanStatus().ReadAsync(); Check(scan.Count == 125 && !scan.Scanning, "Completed scan state and library count are real.");
         await api.GetRadio().ReadAsync(); await api.GetNowPlaying().ReadAsync();
         Check(true, "Empty station/activity responses are valid.");
+        var radioName = "Fixture radio & 音 " + Guid.NewGuid().ToString("N");
+        await api.SaveRadio(null, radioName, "https://radio.example/fixture?a=1&b=2", "https://radio.example/fixture").ReadAsync();
+        var station = (await api.GetRadio().ReadAsync()).Single(item => item.Name == radioName);
+        try
+        {
+            Check(station.StreamUrl == "https://radio.example/fixture?a=1&b=2" && station.HomePageUrl == "https://radio.example/fixture", "Administrator station creation retains complete stream and homepage URLs.");
+            await api.SaveRadio(station.Id, radioName + " updated", "https://radio.example/updated", "").ReadAsync();
+            var updated = (await api.GetRadio().ReadAsync()).Single(item => item.Id == station.Id);
+            Check(updated.Name == radioName + " updated" && updated.StreamUrl == "https://radio.example/updated" && string.IsNullOrEmpty(updated.HomePageUrl),
+                "Administrator station edits update the name and stream and can clear the homepage.");
+        }
+        finally { await api.DeleteRadio(station.Id).ReadAsync(); }
+        Check(!(await api.GetRadio().ReadAsync()).Any(item => item.Id == station.Id), "Station deletion is confirmed by the real server.");
+        await api.GetScanStatus(true).ReadAsync();
+        var scanDeadline = DateTime.UtcNow.AddSeconds(30);
+        do
+        {
+            await Task.Delay(250); scan = await api.GetScanStatus().ReadAsync();
+        } while (scan.Scanning && DateTime.UtcNow < scanDeadline);
+        Check(!scan.Scanning && scan.Count == 125, "An administrator can start a scan and observe completion without changing the fixture library.");
+        Check(!user.JukeboxRole, "The disabled fixture jukebox is reflected in the actual user role.");
+        await Rejected(api.Jukebox(JukeboxAction.Get), "A disabled jukebox remains an explicit API failure.");
+        await Rejected(api.GetSonicSimilarSongs(song.Id), "An unconfigured acoustic provider remains an explicit API failure.");
+        await Rejected(api.FindSonicPath(song.Id, allSongs[1].Id), "An unconfigured acoustic path remains an explicit API failure.");
         if (ping.Server.Supports("playbackReport"))
         {
             var count = (await api.GetSong(song.Id).ReadAsync()).PlayCount;
@@ -166,5 +191,12 @@ public static class NavidromeIntegrationTests
             Check((await api.GetSong(song.Id).ReadAsync()).PlayCount == count + 1, "A qualifying listening submission increments the real play count once.");
         }
         else { await api.Scrobble(song.Id, false, DateTimeOffset.Now, 1).ReadAsync(); Check(true, "Legacy now-playing reporting is accepted when the extension is absent."); }
+    }
+    private static async Task Rejected<T>(NavidromeResult<T> result, string message)
+    {
+        Exception error = null;
+        try { await result.ReadAsync(); }
+        catch (Exception exception) { error = exception; }
+        Check(error != null && !string.IsNullOrWhiteSpace(error.Message), message);
     }
 }

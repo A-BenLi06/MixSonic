@@ -15,6 +15,8 @@
                 <AppBarButton x:Uid="Navidrome_Rate" IsEnabled="{Binding CanRate}" cal:Message.Attach="[Event Click]=[Action Rate($source)]"/>
                 <AppBarButton x:Name="ArtistMix" x:Uid="Navidrome_ArtistMix"/>
                 <AppBarButton x:Name="TopSongs" x:Uid="Navidrome_TopSongs"/>
+                <AppBarButton x:Name="SonicMix" x:Uid="Navidrome_SonicMix"/>
+                <AppBarButton x:Name="SonicPath" x:Uid="Navidrome_SonicPath" cal:Message.Attach="[Event Click]=[Action SonicPath($source)]"/>
                 <AppBarButton x:Uid="Navidrome_CreatePlaylist" IsEnabled="{Binding CanCreatePlaylist}" cal:Message.Attach="[Event Click]=[Action CreatePlaylist($source)]"/>
                 <AppBarButton x:Uid="Navidrome_AddToPlaylist" IsEnabled="{Binding CanAddToPlaylist}" cal:Message.Attach="[Event Click]=[Action AddToPlaylist($source)]"/>
                 <AppBarButton x:Name="EditPlaylist" x:Uid="Navidrome_EditPlaylist" cal:Message.Attach="[Event Click]=[Action EditPlaylist($source)]"/>

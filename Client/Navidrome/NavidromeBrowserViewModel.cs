@@ -53,6 +53,9 @@ namespace Subsonic8.Navidrome
         public bool CanLoadMore { get { return !IsLoading && !IsWorking && (_moreAlbums || _moreArtists || _moreSongs); } }
         public bool IsEmpty { get { return !IsLoading && !HasError && Items.Count == 0; } }
         public bool CanDelete { get { return !IsWorking && SelectedItems.Any() && SelectedItems.Cast<NavidromeItem>().All(item => item.Bookmark != null || IsOwnedShare(item)); } }
+        public bool CanCreateRadio { get { return !IsLoading && !IsWorking && Route[0] == "radio" && _loadedApi != null && _loadedApi.AccountKey == Session.AccountKey && Session.User != null && Session.User.AdminRole; } }
+        public bool CanEditRadio { get { return CanCreateRadio && SelectedItems.Count == 1 && ((NavidromeItem)SelectedItems[0]).Media is InternetRadioStation; } }
+        public bool CanDeleteRadio { get { return CanCreateRadio && SelectedItems.Count > 0 && SelectedItems.Cast<NavidromeItem>().All(item => item.Media is InternetRadioStation); } }
         public bool CanEditShare { get { return !IsWorking && SelectedItems.Count == 1 && IsOwnedShare((NavidromeItem)SelectedItems[0]); } }
         public bool CanCopyLink { get { return !IsWorking && SelectedItems.Count == 1 && ((NavidromeItem)SelectedItems[0]).Share != null; } }
         public bool CanDetails { get { return !IsWorking && SelectedItems.Count == 1 && ((NavidromeItem)SelectedItems[0]).Media != null &&
@@ -69,7 +72,7 @@ namespace Subsonic8.Navidrome
         protected override void Changed()
         {
             base.Changed();
-            foreach (var property in new[] { "CanLoadMore", "IsEmpty", "CanDelete", "CanEditShare", "CanCopyLink", "CanDetails", "IsAlbums" }) NotifyOfPropertyChange(property);
+            foreach (var property in new[] { "CanLoadMore", "IsEmpty", "CanDelete", "CanEditShare", "CanCopyLink", "CanDetails", "IsAlbums", "CanCreateRadio", "CanEditRadio", "CanDeleteRadio" }) NotifyOfPropertyChange(property);
         }
 
         public override async Task Reload()
@@ -249,6 +252,51 @@ namespace Subsonic8.Navidrome
             var share = SelectedItems.Cast<NavidromeItem>().Single().Share;
             var data = new Windows.ApplicationModel.DataTransfer.DataPackage(); data.SetText(share.Url);
             Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(data);
+        }
+        public Task CreateRadio(FrameworkElement anchor) { return RadioForm(anchor, null); }
+        public Task EditRadio(FrameworkElement anchor) { return CanEditRadio ? RadioForm(anchor, (InternetRadioStation)((NavidromeItem)SelectedItems.Single()).Media) : Task.FromResult(false); }
+        private Task RadioForm(FrameworkElement anchor, InternetRadioStation station)
+        {
+            if (!CanCreateRadio) return Task.FromResult(false);
+            var version = LoadVersion;
+            var account = _loadedApi == null ? null : _loadedApi.AccountKey;
+            return RunOperation(async api =>
+            {
+                if (Session.User == null || !Session.User.AdminRole) throw new InvalidOperationException(NavidromeText.Get("AdministratorRequired"));
+                if (!IsCurrent(version, api) || api.AccountKey != account) throw new OperationCanceledException();
+                var name = new FormField { LabelKey = "Name", Value = station == null ? null : station.Name };
+                var stream = new FormField { LabelKey = "RadioStreamUrl", Value = station == null ? null : station.StreamUrl };
+                var homepage = new FormField { LabelKey = "RadioHomepageUrl", Value = station == null ? null : station.HomePageUrl };
+                if (!await Dialogs.FormAsync(anchor, station == null ? "CreateRadio" : "EditRadio", new[] { name, stream, homepage }, () =>
+                {
+                    Uri uri;
+                    if (string.IsNullOrWhiteSpace(name.Value as string)) return NavidromeText.Get("NameRequired");
+                    if (!TryWebLink(stream.Value as string, out uri) || (!string.IsNullOrWhiteSpace(homepage.Value as string) && !TryWebLink(homepage.Value as string, out uri))) return NavidromeText.Get("InvalidRadioUrl");
+                    return null;
+                })) return;
+                if (!IsCurrent(version, api)) throw new OperationCanceledException();
+                await api.SaveRadio(station == null ? null : station.Id, (string)name.Value, (string)stream.Value, (string)homepage.Value).ReadAsync();
+                if (IsCurrent(version, api)) await Reload();
+            });
+        }
+        public Task DeleteRadio()
+        {
+            if (!CanDeleteRadio) return Task.FromResult(false);
+            var version = LoadVersion;
+            var account = _loadedApi == null ? null : _loadedApi.AccountKey;
+            var stations = SelectedItems.Cast<NavidromeItem>().Select(item => (InternetRadioStation)item.Media).ToList();
+            return RunOperation(async api =>
+            {
+                if (!IsCurrent(version, api) || api.AccountKey != account) throw new OperationCanceledException();
+                if (Session.User == null || !Session.User.AdminRole) throw new InvalidOperationException(NavidromeText.Get("AdministratorRequired"));
+                if (!await Dialogs.ConfirmAsync("ConfirmDelete")) return;
+                foreach (var station in stations)
+                {
+                    if (!IsCurrent(version, api)) throw new OperationCanceledException();
+                    await api.DeleteRadio(station.Id).ReadAsync();
+                }
+                if (IsCurrent(version, api)) await Reload();
+            });
         }
         public static bool TryWebLink(string text, out Uri uri)
         { return Uri.TryCreate(text, UriKind.Absolute, out uri) && (uri.Scheme == "http" || uri.Scheme == "https"); }

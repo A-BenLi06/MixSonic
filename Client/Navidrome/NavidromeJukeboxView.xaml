@@ -1,0 +1,52 @@
+<framework:AppPage x:Class="Subsonic8.Navidrome.NavidromeJukeboxView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:framework="using:Subsonic8.Framework" xmlns:cal="using:Caliburn.Micro">
+    <Page.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="NavidromeResources.xaml"/></ResourceDictionary.MergedDictionaries></ResourceDictionary></Page.Resources>
+    <Page.BottomAppBar><CommandBar>
+        <AppBarButton x:Name="Start" x:Uid="Navidrome_Play" Icon="Play"/>
+        <AppBarButton x:Name="Stop" x:Uid="Navidrome_Stop" Icon="Stop"/>
+        <AppBarButton x:Name="Previous" x:Uid="Navidrome_JukeboxPrevious" Icon="Previous"/>
+        <AppBarButton x:Name="Next" x:Uid="Navidrome_JukeboxNext" Icon="Next"/>
+        <CommandBar.SecondaryCommands>
+            <AppBarButton x:Name="Reload" x:Uid="Navidrome_Refresh"/>
+            <AppBarButton x:Name="UseQueue" x:Uid="Navidrome_UseServerQueue"/>
+            <AppBarButton x:Name="AppendQueue" x:Uid="Navidrome_AppendServerQueue"/>
+            <AppBarButton x:Name="Remove" x:Uid="Navidrome_RemoveQueue"/>
+            <AppBarButton x:Name="Clear" x:Uid="Navidrome_ClearQueue"/>
+            <AppBarButton x:Name="Shuffle" x:Uid="Navidrome_JukeboxShuffle"/>
+            <AppBarButton x:Name="Seek" x:Uid="Navidrome_JukeboxSeek" cal:Message.Attach="[Event Click]=[Action Seek($source)]"/>
+            <AppBarButton x:Name="SetGain" x:Uid="Navidrome_ApplyServerVolume"/>
+        </CommandBar.SecondaryCommands>
+    </CommandBar></Page.BottomAppBar>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel x:Name="Canvas" Margin="88,30,48,40">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="48"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Button x:Name="GoBack" x:Uid="Navidrome_Back" Content="&#xE112;" FontFamily="Segoe UI Symbol" MinHeight="40" MinWidth="40"/>
+                <TextBlock x:Name="PageTitle" Grid.Column="1" Text="{Binding DisplayName}" FontSize="44" FontFamily="Segoe UI Light" Margin="12,0,0,0" TextWrapping="Wrap"/>
+            </Grid>
+            <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Margin="0,16,0,12"/>
+            <ProgressRing IsActive="{Binding IsWorking}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsWorking, Converter={StaticResource NavidromeVisibility}}"/>
+            <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}"/>
+            <TextBlock x:Uid="Navidrome_JukeboxHelp" FontSize="16" TextWrapping="Wrap" Margin="0,8,0,24"/>
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition x:Name="OverviewColumn" Width="300"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <StackPanel x:Name="Overview">
+                    <TextBlock Text="{Binding CurrentSong}" FontSize="28" FontFamily="Segoe UI Light" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding PlaybackStatus}" FontSize="20" Margin="0,12,0,0"/>
+                    <TextBlock Text="{Binding Position}" FontSize="18" Margin="0,8,0,0"/>
+                    <TextBlock x:Uid="Navidrome_VolumeLabel" FontSize="20" Margin="0,24,0,8"/>
+                    <Slider x:Uid="Navidrome_ServerVolume" Minimum="0" Maximum="1" StepFrequency="0.05" Value="{Binding Gain, Mode=TwoWay}" IsEnabled="{Binding CanSetGain}"/>
+                    <Button x:Uid="Navidrome_SetServerVolume" MinHeight="44" HorizontalAlignment="Left" Margin="0,8,0,0" IsEnabled="{Binding CanSetGain}" cal:Message.Attach="[Event Click]=[Action SetGain()]"/>
+                </StackPanel>
+                <StackPanel x:Name="QueuePanel" Grid.Column="1" Margin="24,0,0,0">
+                    <TextBlock x:Uid="Navidrome_Queue" FontSize="28" FontFamily="Segoe UI Light" Margin="0,0,0,16"/>
+                    <TextBlock x:Uid="Navidrome_ServerQueueEmpty" TextWrapping="Wrap" Visibility="{Binding IsEmpty, Converter={StaticResource NavidromeVisibility}}"/>
+                    <ListView x:Uid="Navidrome_ServerQueue" ItemsSource="{Binding Tracks}" SelectedItem="{Binding SelectedTrack, Mode=TwoWay}" SelectionMode="Single" IsItemClickEnabled="True" MaxHeight="640"
+                        ItemTemplate="{StaticResource NavidromeTrackTemplate}" HorizontalContentAlignment="Stretch" cal:Message.Attach="[Event ItemClick]=[Action PlayTrack($eventArgs)]"/>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</framework:AppPage>

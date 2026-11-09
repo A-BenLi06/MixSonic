@@ -186,13 +186,20 @@ namespace Subsonic8.AudioPlayback
             if (PlaybackSeeked != null) PlaybackSeeked(this, EventArgs.Empty);
         }
 
+        public void RestorePosition(long positionMilliseconds)
+        {
+            if (positionMilliseconds < 0 || _stopped) return;
+            if (_opened) Seek(TimeSpan.FromMilliseconds(Math.Min(positionMilliseconds, (long)GetDuration().TotalMilliseconds)));
+            else _startOptions = new PlaybackStartOptions { PositionMilliseconds = positionMilliseconds };
+        }
+
         public void MediaOpened()
         {
             if (_stopped) return;
             _opened = true;
             NotifyOfPropertyChange(() => CanSeek);
             if (_startOptions != null && _startOptions.PositionMilliseconds > 0)
-                Seek(TimeSpan.FromMilliseconds(_startOptions.PositionMilliseconds));
+                Seek(TimeSpan.FromMilliseconds(Math.Min(_startOptions.PositionMilliseconds, Math.Max(0, (long)GetDuration().TotalMilliseconds))));
             _startOptions = null;
             if (_playWhenOpened) _playerControls.Play();
             else _playerControls.Pause();

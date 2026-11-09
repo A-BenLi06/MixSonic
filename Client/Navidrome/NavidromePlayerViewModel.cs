@@ -18,11 +18,12 @@ namespace Subsonic8.Navidrome
     using MugenInjection.Attributes;
     using Subsonic8.AudioPlayback;
     using Subsonic8.Playback;
+    using Subsonic8.Framework.ViewModel;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
 
     public interface INavidromePlayerViewModel : IScreen { }
-    public sealed class NavidromePlayerViewModel : NavidromePageViewModel, INavidromePlayerViewModel
+    public sealed class NavidromePlayerViewModel : NavidromePageViewModel, INavidromePlayerViewModel, IHaveState
     {
         private readonly DispatcherTimer _timer;
         private PlaylistItem _observedItem;
@@ -31,6 +32,8 @@ namespace Subsonic8.Navidrome
         private bool _updatingPosition, _followLyrics = true;
         private int _highlightedLine = -1;
         private Song _song;
+        private PlaylistItem _resumeItem;
+        private long _resumePosition;
 
         public NavidromePlayerViewModel()
         {
@@ -129,7 +132,7 @@ namespace Subsonic8.Navidrome
             Audio.PropertyChanged += AudioChanged; Audio.PlaybackSeeked += Seeked;
             PlaylistQueue.PropertyChanged += QueueChanged; PlaylistQueue.Items.CollectionChanged += QueueItemsChanged;
             Session.PropertyChanged += SessionChanged; Activity.PropertyChanged += ActivityChanged;
-            RebuildQueue(); _timer.Start(); base.OnActivate();
+            RebuildQueue(); ApplyResumePosition(); _timer.Start(); base.OnActivate();
         }
         protected override void OnDeactivate(bool close)
         {
@@ -141,6 +144,7 @@ namespace Subsonic8.Navidrome
         }
         private async void AudioChanged(object sender, PropertyChangedEventArgs args)
         {
+            if (args.PropertyName == "CurrentItem") ApplyResumePosition();
             Changed();
             if (args.PropertyName == "CurrentItem" && PageActive) await Reload();
             if (args.PropertyName == "PlaybackRate")
@@ -307,6 +311,34 @@ namespace Subsonic8.Navidrome
                 var variants = await (Session.Capabilities.Supports("songLyrics") ? api.GetLyrics(item.SongId, true) : api.GetLegacyLyrics(item.Artist, item.Title)).ReadAsync();
                 if (Matches(version, item)) { LyricsError = null; ApplyLyrics(variants, false); }
             });
+        }
+
+        private void ApplyResumePosition()
+        {
+            if (_resumeItem == null) return;
+            if (_resumeItem.AccountKey != Session.AccountKey || !ReferenceEquals(PlaylistQueue.CurrentItem, _resumeItem))
+            { _resumeItem = null; return; }
+            if (!ReferenceEquals(Audio.CurrentItem, _resumeItem)) return;
+            Audio.RestorePosition(_resumePosition);
+            _resumeItem = null;
+        }
+        public void SaveState(Dictionary<string, object> state, List<Type> knownTypes)
+        {
+            LegacyPlayback.SaveState(state, knownTypes);
+            state["QueueAccount"] = PlaylistQueue.Items.All(item => item.AccountKey == Session.AccountKey) ? Session.AccountKey : string.Empty;
+            state["PositionMilliseconds"] = _resumeItem != null && ReferenceEquals(PlaylistQueue.CurrentItem, _resumeItem)
+                ? Math.Max(0, _resumePosition) : ReferenceEquals(PlaylistQueue.CurrentItem, Audio.CurrentItem)
+                    ? Math.Max(0, (long)Audio.GetCurrentPosition().TotalMilliseconds) : 0L;
+            state[nameof(FollowLyrics)] = FollowLyrics;
+        }
+        public void LoadState(string parameter, Dictionary<string, object> state)
+        {
+            object value;
+            if (state.TryGetValue(nameof(FollowLyrics), out value) && value is bool) FollowLyrics = (bool)value;
+            if (PlaylistQueue.HasElements || !state.TryGetValue("QueueAccount", out value) || (value as string) != Session.AccountKey) return;
+            LegacyPlayback.LoadState(parameter, state);
+            if (state.TryGetValue("PositionMilliseconds", out value) && value is long)
+            { _resumePosition = (long)value; _resumeItem = PlaylistQueue.CurrentItem; ApplyResumePosition(); }
         }
     }
 }
