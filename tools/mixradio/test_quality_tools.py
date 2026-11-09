@@ -86,6 +86,26 @@ class QualityToolTests(unittest.TestCase):
         result["evidence"] = [item for item in result["evidence"] if item["kind"] != "comparison_report"]
         result["evidence"].append(quality.copy_evidence(self.run_path.parent, "comparison_report", path))
 
+    def test_functional_reference_cannot_be_replaced_by_design_inventory(self):
+        spec = {**self.spec, "requiredReferenceRoles": ["functionality", "design"],
+                "functionalityReference": {"repository": "fixture-repository", "commit": "fixture-revision"}}
+        design = {"schemaVersion": 1, "sources": [{"role": "design"}]}
+        with self.assertRaisesRegex(ValueError, "authorities"):
+            quality.validate_reference(spec, design)
+        wrong = {"schemaVersion": 1, "sources": [{"role": "design"},
+                 {"role": "functionality", "repository": "fixture-repository", "commit": "other-revision"}]}
+        with self.assertRaisesRegex(ValueError, "locked"):
+            quality.validate_reference(spec, wrong)
+        wrong["sources"][1]["commit"] = "fixture-revision"
+        quality.validate_reference(spec, wrong)
+
+    def test_navidrome_specification_promotes_complete_client_functions(self):
+        spec = quality.load_spec(quality.ROOT / "tools/navidrome/acceptance-spec.json")
+        self.assertEqual({"functionality", "design"}, set(spec["requiredReferenceRoles"]))
+        self.assertTrue(all(case["required"] for case in spec["cases"]))
+        for case_id in ("SEEK", "OFFLINE", "ARTIST-MIX", "ND-LYRICS", "ND-QUEUE", "ND-PLAYLISTS"):
+            self.assertIn(case_id, {case["id"] for case in spec["cases"]})
+
     def test_default_specification_has_required_and_roadmap_cases(self):
         spec = quality.load_spec(quality.DEFAULT_SPEC)
         self.assertEqual(30, sum(case["required"] for case in spec["cases"]))

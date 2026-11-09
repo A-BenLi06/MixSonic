@@ -1,4 +1,10 @@
-# MixRadio desktop acceptance workflow
+# MixRadio desktop design acceptance workflow
+
+Use the [Navidrome functional baseline](../navidrome/implementation.md) and
+[extended specification](../../tools/navidrome/acceptance-spec.json) for complete
+client acceptance. This earlier workflow continues to describe design comparison
+and evidence recording. MixRadio supplies design evidence; Navidrome supplies
+functional requirements, including seeking, downloads and artist discovery.
 
 The delivery target is the Windows 8.1 Store C#/XAML client running on Windows
 10. The installed PC MixRadio 2.2.0.7933 release defines desktop hierarchy,

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "repository": "https://github.com/navidrome/navidrome.git",
+  "commit": "f5b6805b3150ed6e5b92d8f0fcf5174823ae9a2e",
+  "committedAt": "2026-11-09T02:22:44+03:00",
+  "license": "GPL-3.0",
+  "role": "functionality",
+  "designReference": "MixRadio PC 2.2.0.7933 and WP 4.5.3.470"
+}

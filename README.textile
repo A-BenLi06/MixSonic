@@ -11,6 +11,8 @@ To be able to build the source code you need to install the Player Framework add
 
 h1. MixRadio desktop development and verification
 
+Navidrome source defines complete client functionality. MixRadio is the component, layout, UI and design reference. See the "locked Navidrome baseline":docs/navidrome/implementation.md and "reference/verification commands":tools/navidrome/README.md for the full functional checklist.
+
 The current MixRadio/Navidrome work targets the Windows 8.1 Store client running on Windows 10. See the "PC and WP reference analysis":docs/mixradio/reference-analysis.md, "acceptance workflow":docs/mixradio/acceptance-workflow.md, and "reference and quality tools":tools/mixradio/README.md for reproducible decompilation, desktop build/deployment, regression checks, visual comparison and evidence reports.
 
 Build and source checks have passed. Native task completion and original/client visual parity remain pending runtime evidence; the acceptance report preserves those gaps.

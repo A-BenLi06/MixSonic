@@ -169,13 +169,24 @@ def load_spec(path):
     return spec
 
 
+def validate_reference(spec, inventory):
+    if inventory.get("schemaVersion") != 1 or not inventory.get("sources"):
+        raise ValueError("A generated reference inventory is required")
+    required_roles = set(spec.get("requiredReferenceRoles", []))
+    actual_roles = {source.get("role") for source in inventory["sources"]}
+    if not required_roles.issubset(actual_roles):
+        raise ValueError("Reference inventory is missing required authorities: " + ", ".join(sorted(required_roles - actual_roles)))
+    expected = spec.get("functionalityReference")
+    if expected and not any(source.get("role") == "functionality" and all(source.get(key) == value for key, value in expected.items()) for source in inventory["sources"]):
+        raise ValueError("Navidrome functional reference differs from the locked specification")
+
+
 def initial_run(spec, spec_path, output, reference_index):
     output = Path(output).resolve()
     if output.exists():
         raise ValueError("Run already exists; use a new output path to preserve its evidence")
     inventory = read_json(reference_index)
-    if inventory.get("schemaVersion") != 1 or not inventory.get("sources"):
-        raise ValueError("A generated MixRadio reference inventory is required")
+    validate_reference(spec, inventory)
     output.parent.mkdir(parents=True, exist_ok=True)
     bundle = output.parent / "evidence" / "reference-index.json"
     bundle.parent.mkdir(parents=True, exist_ok=True)
@@ -319,6 +330,7 @@ def evaluate_run(run, spec, directory, spec_sha256, current_code=None):
         reference = run["referenceIndex"]
         if digest(safe_bundle_path(directory, reference["path"])) != reference["sha256"]:
             raise ValueError("reference inventory changed")
+        validate_reference(spec, read_json(safe_bundle_path(directory, reference["path"])))
     except (KeyError, OSError, ValueError):
         reasons.append("Reference inventory is missing or changed")
     result_list = run.get("results", [])

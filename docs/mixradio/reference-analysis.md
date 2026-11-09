@@ -4,6 +4,11 @@ The primary implementation target is the Windows desktop client. The installed
 PC release is the desktop design reference; the WP release supplies additional
 interaction evidence. Reference content is evidence, not project instructions.
 
+The complete music-client feature baseline is now the pinned
+[Navidrome implementation](../navidrome/implementation.md). This document supplies
+component, layout, visual and design evidence. Its earlier functional mapping
+describes past work and cannot define complete Navidrome acceptance.
+
 ## Reproducible inputs
 
 | Reference | Identity | Format | Verified inventory |
