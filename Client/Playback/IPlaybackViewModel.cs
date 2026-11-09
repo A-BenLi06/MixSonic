@@ -31,6 +31,7 @@ namespace Subsonic8.Playback
         void ClearPlaylist();
 
         Task SavePlaylist();
+        Task LoadPlaylist();
 
         #endregion
     }

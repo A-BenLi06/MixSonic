@@ -62,7 +62,7 @@ namespace Subsonic8.Navidrome
                 if (play)
                 {
                     MediaQueue.Play(api, songs);
-                    if (songs.Count > 0) NavigationService.NavigateToViewModel<PlaybackViewModel>();
+                    if (songs.Count > 0) NavigationService.NavigateToViewModel<NavidromePlayerViewModel>();
                 }
                 else MediaQueue.Append(api, songs, next);
             });

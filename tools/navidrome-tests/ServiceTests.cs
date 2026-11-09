@@ -72,6 +72,9 @@ public static class NavidromeServiceTests
         Check((await offline.CreateQueueAsync(new[] { item })).Single().Uri.Scheme == "ms-appdata", "Offline playback does not require a server handshake.");
         Check(File.ReadAllBytes((await offline.GetOriginalAsync(item)).Path).SequenceEqual(originalBytes), "Original export stays byte-identical while disconnected.");
         Check(await offline.GetLyricsAsync(queue[0]) != null, "Cached lyric variants are available without connecting.");
+        var cachedSong = await offline.GetSongAsync(queue[0]);
+        Check(cachedSong.Id == songs[0].Id && cachedSong.Album == songs[0].Album && cachedSong.ArtistId == songs[0].ArtistId,
+            "The offline player retrieves real album and artist metadata without a connection.");
         configuration.Password = fixture.Password; await session.ConnectAsync(); api = session.CreateApi();
         await offline.EnqueueAsync(api, new[] { songs[1] });
         var cancelled = offline.Entries.Single(entry => entry.Song.Id == songs[1].Id); offline.Cancel(cancelled);
@@ -95,6 +98,7 @@ public static class NavidromeServiceTests
         Check(offline.Entries.Count == 0, "Other accounts cannot see the existing offline library.");
         var wrongAccount = false; try { await offline.CreateQueueAsync(new[] { item }); } catch (OperationCanceledException) { wrongAccount = true; }
         Check(wrongAccount && await offline.GetLyricsAsync(queue[0]) == null, "Cross-account queue/lyric access is rejected.");
+        Check(await offline.GetSongAsync(queue[0]) == null, "The offline player cannot retrieve metadata from another account.");
         configuration.Username = fixture.Username; await session.ConnectAsync(); await offline.RefreshAsync();
         item = offline.Entries.Single(entry => entry.Song.Id == songs[0].Id);
         var playbackItem = (await offline.CreateQueueAsync(new[] { item })).Single();

@@ -81,7 +81,16 @@ codecs request an MP3 stream; a transcoding failure retains the original for exp
 and disables offline playback with an explicit error. Download work is foreground
 work and is interrupted if the process closes; incomplete files stay outside the
 catalog.
-Lyric presentation and preferences remain in progress.
+The native music player now presents artwork/transport, queue entries and lyric
+variants as separate media sections, recomposed vertically at narrow widths.
+All music playback entry points navigate to it. It supports actual-position
+scrubbing, volume/mute/rate controls, queue selection/removal/reordering, server
+queue save/restore, bookmarks, favorites/ratings, playlist creation and local
+queue import/export. Synchronized lyric lines follow media milliseconds and the
+returned offset; manual lyric scrolling can disable following. Stale track/account
+loads cannot replace current lyrics, and local playback reads cached album/artist
+metadata and variants without connecting. Stream-quality and account/scan
+preferences remain in progress.
 Native capture still times out and the
 client accessibility tree is empty through the installed helper; no native
 interaction or visual pass is inferred from successful source/build checks.

@@ -165,7 +165,7 @@ namespace Subsonic8.Navidrome
             if (_loadedApi == null || _loadedApi.AccountKey != Session.AccountKey) return;
             var item = (NavidromeItem)args.ClickedItem;
             MediaQueue.Play(_loadedApi, Tracks.Select(track => track.Song), item.Ordinal);
-            NavigationService.NavigateToViewModel<PlaybackViewModel>();
+            NavigationService.NavigateToViewModel<NavidromePlayerViewModel>();
         }
         public async Task OpenExternal() { Uri link; if (NavidromeBrowserViewModel.TryWebLink(_externalUrl, out link)) await Launcher.LaunchUriAsync(link); }
         public Task ArtistMix() { return Discovery(false); }
@@ -180,7 +180,7 @@ namespace Subsonic8.Navidrome
                     : await api.GetSimilarSongs(media.Id).ReadAsync();
                 RequireAccount(api);
                 if (songs.Count == 0) { Error = NavidromeText.Get("NoDiscoverySongs"); return; }
-                MediaQueue.Play(api, songs); NavigationService.NavigateToViewModel<PlaybackViewModel>();
+                MediaQueue.Play(api, songs); NavigationService.NavigateToViewModel<NavidromePlayerViewModel>();
             });
         }
 

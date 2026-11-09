@@ -1,0 +1,114 @@
+<framework:AppPage x:Class="Subsonic8.Navidrome.NavidromePlayerView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:framework="using:Subsonic8.Framework" xmlns:cal="using:Caliburn.Micro" xmlns:selection="using:Common.Behaviors">
+    <Page.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="NavidromeResources.xaml"/></ResourceDictionary.MergedDictionaries></ResourceDictionary></Page.Resources>
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton x:Name="Favourite" Label="{Binding FavouriteLabel}" Icon="Favorite"/>
+            <AppBarButton x:Name="Bookmark" x:Uid="Navidrome_SaveBookmark" Icon="Save" cal:Message.Attach="[Event Click]=[Action Bookmark($source)]"/>
+            <AppBarButton x:Name="Details" x:Uid="Navidrome_Details" Icon="View"/>
+            <AppBarButton x:Uid="Navidrome_Audio" Icon="Volume">
+                <AppBarButton.Flyout><Flyout><StackPanel Width="240">
+                    <TextBlock x:Uid="Navidrome_VolumeLabel" FontSize="22"/>
+                    <Slider x:Uid="Navidrome_Volume" Minimum="0" Maximum="1" StepFrequency="0.05" Value="{Binding Audio.Volume, Mode=TwoWay}" Margin="0,12,0,12"/>
+                    <ToggleSwitch x:Uid="Navidrome_Mute" IsOn="{Binding Audio.IsMuted, Mode=TwoWay}"/>
+                    <TextBlock x:Uid="Navidrome_PlaybackRateLabel" Margin="0,16,0,8"/>
+                    <ComboBox x:Uid="Navidrome_PlaybackRate" ItemsSource="{Binding Rates}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedRate, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
+                </StackPanel></Flyout></AppBarButton.Flyout>
+            </AppBarButton>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="Stop" x:Uid="Navidrome_Stop"/>
+                <AppBarButton x:Name="Download" x:Uid="Navidrome_Download"/>
+                <AppBarButton x:Name="Downloads" x:Uid="Navidrome_Downloads"/>
+                <AppBarButton x:Name="ReloadLyrics" x:Uid="Navidrome_ReloadLyrics"/>
+                <AppBarButton x:Uid="Navidrome_Rate" IsEnabled="{Binding CanRate}" cal:Message.Attach="[Event Click]=[Action Rate($source)]"/>
+                <AppBarButton x:Name="MoveUp" x:Uid="Navidrome_MoveUp"/>
+                <AppBarButton x:Name="MoveDown" x:Uid="Navidrome_MoveDown"/>
+                <AppBarButton x:Name="Remove" x:Uid="Navidrome_RemoveQueue"/>
+                <AppBarButton x:Name="ClearQueue" x:Uid="Navidrome_ClearQueue"/>
+                <AppBarButton x:Name="SaveQueue" x:Uid="Navidrome_SaveQueue"/>
+                <AppBarButton x:Name="RestoreQueue" x:Uid="Navidrome_RestoreQueue"/>
+                <AppBarButton x:Name="SaveAsPlaylist" x:Uid="Navidrome_SaveAsPlaylist" cal:Message.Attach="[Event Click]=[Action SaveAsPlaylist($source)]"/>
+                <AppBarButton x:Name="ImportQueue" x:Uid="Navidrome_ImportQueue"/>
+                <AppBarButton x:Name="ExportQueue" x:Uid="Navidrome_ExportQueue"/>
+                <AppBarButton x:Name="SyncListening" x:Uid="Navidrome_SyncListening"/>
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel x:Name="Canvas" Margin="88,30,48,40">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="48"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <Button x:Name="GoBack" x:Uid="Navidrome_Back" Content="&#xE112;" FontFamily="Segoe UI Symbol" MinHeight="40" MinWidth="40"/>
+                <TextBlock x:Name="PageTitle" Grid.Column="1" Text="{Binding DisplayName}" FontSize="44" FontFamily="Segoe UI Light" Margin="12,0,0,0"/>
+            </Grid>
+            <StackPanel Margin="0,16,0,24">
+                <TextBlock Text="{Binding Error}" TextWrapping="Wrap" Visibility="{Binding HasError, Converter={StaticResource NavidromeVisibility}}"/>
+                <TextBlock Text="{Binding Audio.PlaybackError}" TextWrapping="Wrap" Visibility="{Binding HasPlaybackError, Converter={StaticResource NavidromeVisibility}}"/>
+                <ProgressRing IsActive="{Binding IsWorking}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsWorking, Converter={StaticResource NavidromeVisibility}}"/>
+            </StackPanel>
+            <Grid x:Name="ContentLayout">
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <Grid.ColumnDefinitions><ColumnDefinition x:Name="PlayerColumn" Width="360"/><ColumnDefinition x:Name="QueueColumn" Width="*"/><ColumnDefinition x:Name="LyricsColumn" Width="*"/></Grid.ColumnDefinitions>
+                <StackPanel x:Name="PlayerPanel">
+                    <Grid HorizontalAlignment="Left">
+                        <Image x:Name="ArtworkImage" Source="{Binding Artwork}" Width="320" Height="320" Stretch="UniformToFill"/>
+                        <TextBlock x:Uid="Navidrome_Starred" Text="★" Margin="12" FontSize="28" Visibility="{Binding CurrentItem.IsStarred, Converter={StaticResource NavidromeVisibility}}"/>
+                    </Grid>
+                    <TextBlock Text="{Binding Title}" FontSize="30" FontFamily="Segoe UI Light" TextWrapping="Wrap" Margin="0,16,20,0"/>
+                    <TextBlock Text="{Binding Artist}" FontSize="20" TextWrapping="Wrap" Margin="0,6,20,0"/>
+                    <TextBlock Text="{Binding Album}" FontSize="15" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" TextWrapping="Wrap" Margin="0,6,20,0"/>
+                    <TextBlock Text="{Binding RatingText}" FontSize="13" Margin="0,6,0,0"/>
+                    <ProgressBar IsIndeterminate="True" Margin="0,12,20,0" Visibility="{Binding Audio.IsBuffering, Converter={StaticResource NavidromeVisibility}}"/>
+                    <Slider x:Name="SeekSlider" x:Uid="Navidrome_Seek" Margin="0,12,20,0" Minimum="0" Maximum="{Binding DurationSeconds}" Value="{Binding PositionSeconds, Mode=TwoWay}" IsEnabled="{Binding Audio.CanSeek}"/>
+                    <Grid Margin="0,0,20,0">
+                        <TextBlock Text="{Binding PositionText}" FontSize="13"/>
+                        <TextBlock Text="{Binding DurationText}" FontSize="13" HorizontalAlignment="Right"/>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,18,0,0">
+                        <Button x:Name="Previous" x:Uid="Navidrome_Previous" Content="&#xE100;" FontFamily="Segoe UI Symbol" FontSize="24" MinWidth="60" MinHeight="48"/>
+                        <Button x:Name="PlayPause" Content="{Binding PlayPauseGlyph}" AutomationProperties.Name="{Binding PlayPauseLabel}" FontFamily="Segoe UI Symbol" FontSize="28" MinWidth="76" MinHeight="48" Margin="16,0"/>
+                        <Button x:Name="Next" x:Uid="Navidrome_Next" Content="&#xE101;" FontFamily="Segoe UI Symbol" FontSize="24" MinWidth="60" MinHeight="48"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                        <Button x:Name="Shuffle" Content="{Binding ShuffleLabel}" MinHeight="44"/>
+                        <Button x:Name="Repeat" Content="{Binding RepeatLabel}" MinHeight="44" Margin="12,0,0,0"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding PendingListeningText}" FontSize="13" Margin="0,24,0,0"/>
+                    <TextBlock Text="{Binding Activity.Error}" FontSize="13" TextWrapping="Wrap" Margin="0,6,20,0"/>
+                </StackPanel>
+                <StackPanel x:Name="QueuePanel" Grid.Column="1" Margin="20,0,20,0">
+                    <TextBlock x:Uid="Navidrome_Queue" FontSize="28" FontFamily="Segoe UI Light" Margin="0,0,0,16"/>
+                    <ListView ItemsSource="{Binding QueueEntries}" IsItemClickEnabled="True" SelectionMode="Multiple" MaxHeight="640" HorizontalContentAlignment="Stretch"
+                        selection:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}" cal:Message.Attach="[Event ItemClick]=[Action PlayEntry($eventArgs)]">
+                        <ListView.ItemTemplate><DataTemplate><Grid MinHeight="68" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="48"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="{Binding Number}" FontSize="13"/><TextBlock Text="&#xE102;" FontFamily="Segoe UI Symbol" Foreground="{StaticResource MixRadioAccentBrush}" Visibility="{Binding IsCurrent, Converter={StaticResource NavidromeVisibility}}"/></StackPanel>
+                            <Image Grid.Column="1" Source="{Binding Item.CoverArtUrl}" Width="44" Height="44" Stretch="UniformToFill" VerticalAlignment="Top"/>
+                            <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                                <TextBlock Text="{Binding Item.Title}" FontSize="18" FontFamily="Segoe UI Light" TextTrimming="WordEllipsis"/>
+                                <TextBlock Text="{Binding Item.Artist}" FontSize="12" TextTrimming="WordEllipsis"/>
+                                <TextBlock Text="★" FontSize="14" Visibility="{Binding Item.IsStarred, Converter={StaticResource NavidromeVisibility}}"/>
+                            </StackPanel>
+                        </Grid></DataTemplate></ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+                <StackPanel x:Name="LyricsPanel" Grid.Column="2" Margin="20,0,0,0">
+                    <TextBlock x:Uid="Navidrome_Lyrics" FontSize="28" FontFamily="Segoe UI Light" Margin="0,0,0,16"/>
+                    <ComboBox x:Uid="Navidrome_LyricVariant" ItemsSource="{Binding LyricVariants}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedLyrics, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
+                    <ToggleSwitch x:Uid="Navidrome_FollowLyrics" IsOn="{Binding FollowLyrics, Mode=TwoWay}" Margin="0,12,0,16"/>
+                    <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}"/>
+                    <TextBlock Text="{Binding LyricsStatus}" FontSize="18" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding LyricsError}" FontSize="15" TextWrapping="Wrap"/>
+                    <ListView x:Name="LyricsList" ItemsSource="{Binding LyricLines}" SelectionMode="None" MaxHeight="540" HorizontalContentAlignment="Stretch">
+                        <ListView.ItemTemplate><DataTemplate><Grid Margin="0,4,0,12">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="4"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Rectangle Fill="{StaticResource MixRadioAccentBrush}" Visibility="{Binding IsCurrent, Converter={StaticResource NavidromeVisibility}}"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Text}" FontSize="20" TextWrapping="Wrap" Margin="12,0,0,0" IsTextSelectionEnabled="True"/>
+                        </Grid></DataTemplate></ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</framework:AppPage>

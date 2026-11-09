@@ -27,6 +27,7 @@ namespace Subsonic8.Navidrome
         Task<IList<PlaylistItem>> CreateQueueAsync(IEnumerable<OfflineDownloadItem> items);
         Task<StorageFile> GetOriginalAsync(OfflineDownloadItem item);
         Task<IList<LyricVariant>> GetLyricsAsync(PlaylistItem item);
+        Task<Song> GetSongAsync(PlaylistItem item);
     }
 
     public sealed class OfflineLibraryService : PropertyChangedBase, IOfflineLibraryService
@@ -269,6 +270,19 @@ namespace Subsonic8.Navidrome
                 var catalog = await Read(await Folder(item.AccountKey), item.AccountKey);
                 var record = catalog.Songs.FirstOrDefault(entry => entry.Song.Id == item.SongId);
                 return record == null ? null : record.Lyrics;
+            }
+            finally { _catalogGate.Release(); }
+        }
+
+        public async Task<Song> GetSongAsync(PlaylistItem item)
+        {
+            if (item == null || item.AccountKey != _session.AccountKey) return null;
+            await _catalogGate.WaitAsync();
+            try
+            {
+                var catalog = await Read(await Folder(item.AccountKey), item.AccountKey);
+                var record = catalog.Songs.FirstOrDefault(entry => entry.Song.Id == item.SongId);
+                return record == null ? null : record.Song;
             }
             finally { _catalogGate.Release(); }
         }

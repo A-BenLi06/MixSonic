@@ -13,6 +13,7 @@ namespace Subsonic8.BrowsePlayer
     using Subsonic8.Framework.ViewModel;
     using Subsonic8.Listening;
     using Subsonic8.Playback;
+    using Subsonic8.Navidrome;
     using MugenInjection.Attributes;
     using Windows.UI.Xaml.Controls;
 
@@ -67,7 +68,7 @@ namespace Subsonic8.BrowsePlayer
         public Task LoadRecentAsync() { return _history.RefreshAsync(); }
         public void ToggleRepeat() { EventAggregator.PublishOnUIThread(new ToggleRepeatMessage()); }
         public void ToggleShuffle() { EventAggregator.PublishOnUIThread(new ToggleShuffleMessage()); }
-        public void OpenQueue() { NavigationService.NavigateToViewModel<PlaybackViewModel>(); }
+        public void OpenQueue() { NavigationService.NavigateToViewModel<NavidromePlayerViewModel>(); }
 
         public async Task ToggleFavourite()
         {

@@ -34,6 +34,8 @@ namespace Subsonic8.AudioPlayback
         private bool _isMuted;
         private double _rate = 1;
         private bool _stopped = true;
+        private bool _opened;
+        private bool _playWhenOpened;
 
         public AudioPlayerViewModel()
         {
@@ -56,7 +58,9 @@ namespace Subsonic8.AudioPlayback
         public event EventHandler PlaybackSeeked;
         public PlaylistItem CurrentItem { get { return _currentItem; } }
         public bool IsActuallyPlaying { get; private set; }
-        public bool CanSeek { get { return _playerControls != null && _playerControls.CanSeek; } }
+        public bool CanSeek { get { return _opened && !_stopped && _playerControls != null && _playerControls.CanSeek; } }
+        public bool IsBuffering { get; private set; }
+        public string PlaybackError { get; private set; }
         public TimeSpan LastStoppedPosition { get; private set; }
         public double Volume
         {
@@ -168,16 +172,20 @@ namespace Subsonic8.AudioPlayback
 
         public void MediaOpened()
         {
+            if (_stopped) return;
+            _opened = true;
             NotifyOfPropertyChange(() => CanSeek);
             if (_startOptions != null && _startOptions.PositionMilliseconds > 0)
                 Seek(TimeSpan.FromMilliseconds(_startOptions.PositionMilliseconds));
             _startOptions = null;
-            _playerControls.Play();
+            if (_playWhenOpened) _playerControls.Play();
+            else _playerControls.Pause();
         }
 
         public void Pause()
         {
-            if (_playerControls != null) _playerControls.Pause();
+            _playWhenOpened = false;
+            if (_opened && _playerControls != null) _playerControls.Pause();
         }
 
         public void Play(PlaylistItem item, object options = null)
@@ -185,6 +193,9 @@ namespace Subsonic8.AudioPlayback
             Stop();
             _currentItem = item;
             _stopped = false;
+            _opened = false; PlaybackError = null; IsBuffering = true;
+            _playWhenOpened = true;
+            NotifyOfPropertyChange(() => PlaybackError); NotifyOfPropertyChange(() => IsBuffering); NotifyOfPropertyChange(() => CanSeek);
             _reportedMediaStart = false;
             _startOptions = options as PlaybackStartOptions;
             IsActuallyPlaying = false;
@@ -195,15 +206,18 @@ namespace Subsonic8.AudioPlayback
 
         public void Resume()
         {
-            if (_playerControls != null) _playerControls.Play();
+            _playWhenOpened = true;
+            if (_opened && !_stopped && _playerControls != null) _playerControls.Play();
         }
 
         public void MediaStateChanged(object sender, RoutedEventArgs args)
         {
             var media = sender as Windows.UI.Xaml.Controls.MediaElement;
             if (media == null) return;
-            IsActuallyPlaying = media.CurrentState == MediaElementState.Playing;
+            IsActuallyPlaying = !_stopped && media.CurrentState == MediaElementState.Playing;
+            IsBuffering = !_stopped && (media.CurrentState == MediaElementState.Buffering || media.CurrentState == MediaElementState.Opening);
             NotifyOfPropertyChange(() => IsActuallyPlaying);
+            NotifyOfPropertyChange(() => IsBuffering);
             NotifyOfPropertyChange(() => CanSeek);
             if (media.CurrentState == MediaElementState.Paused && PlaybackPaused != null) PlaybackPaused(this, EventArgs.Empty);
             if (!IsActuallyPlaying) return;
@@ -217,12 +231,14 @@ namespace Subsonic8.AudioPlayback
 
         public void SongEnded()
         {
+            if (_stopped) return;
             FinishPlayback();
             EventAggregator.PublishOnUIThread(new PlayNextMessage());
         }
 
         public void SongFailed(ExceptionRoutedEventArgs eventArgs)
         {
+            PlaybackError = eventArgs.ErrorMessage; NotifyOfPropertyChange(() => PlaybackError);
             FinishPlayback();
             EventAggregator.PublishOnUIThread(new PlayFailedMessage(eventArgs.ErrorMessage, eventArgs.OriginalSource));
         }
@@ -231,6 +247,7 @@ namespace Subsonic8.AudioPlayback
         {
             FinishPlayback();
             if (_playerControls != null) _playerControls.Stop();
+            Source = null;
         }
 
         private void FinishPlayback()
@@ -239,7 +256,9 @@ namespace Subsonic8.AudioPlayback
             _stopped = true;
             LastStoppedPosition = GetCurrentPosition();
             IsActuallyPlaying = false;
+            IsBuffering = false;
             NotifyOfPropertyChange(() => IsActuallyPlaying);
+            NotifyOfPropertyChange(() => IsBuffering); NotifyOfPropertyChange(() => CanSeek);
             if (PlaybackStoped != null)
             {
                 PlaybackStoped(this, new EventArgs());

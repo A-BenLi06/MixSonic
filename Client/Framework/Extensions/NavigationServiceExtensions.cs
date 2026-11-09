@@ -27,6 +27,8 @@
             switch (subsonicModel.Type)
             {
                 case SubsonicModelTypeEnum.Song:
+                    navigationService.NavigateToViewModel<NavidromePlayerViewModel>();
+                    break;
                 case SubsonicModelTypeEnum.Video:
                     navigationService.NavigateToViewModel<PlaybackViewModel>();
                     break;

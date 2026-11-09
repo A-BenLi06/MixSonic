@@ -238,4 +238,37 @@
   <data name="Navidrome_Back.AutomationProperties.Name" xml:space="preserve"><value>Go back</value></data>
   <data name="Navidrome_Starred.AutomationProperties.Name" xml:space="preserve"><value>Favourite</value></data>
   <data name="Navidrome_Text_DownloadCleanupFailed" xml:space="preserve"><value>The new download is saved, but an older cached file could not be removed.</value></data>
+  <data name="Navidrome_Text_Player" xml:space="preserve"><value>now playing</value></data>
+  <data name="Navidrome_Text_NoCurrentSong" xml:space="preserve"><value>Choose a song from your library.</value></data>
+  <data name="Navidrome_Text_NoCurrentLyrics" xml:space="preserve"><value>Lyrics appear when a song is selected.</value></data>
+  <data name="Navidrome_Text_NoOfflineLyrics" xml:space="preserve"><value>No lyrics are saved for offline playback.</value></data>
+  <data name="Navidrome_Text_NoLyrics" xml:space="preserve"><value>No lyrics were returned for this song.</value></data>
+  <data name="Navidrome_Text_SyncedLyrics" xml:space="preserve"><value>synchronized</value></data>
+  <data name="Navidrome_Text_PlainLyrics" xml:space="preserve"><value>plain text</value></data>
+  <data name="Navidrome_Text_Pause" xml:space="preserve"><value>Pause</value></data>
+  <data name="Navidrome_Text_RatingValue" xml:space="preserve"><value>Rating: {0}/5</value></data>
+  <data name="Navidrome_Text_PendingListening" xml:space="preserve"><value>Listens waiting to sync: {0}</value></data>
+  <data name="Navidrome_Audio.Label" xml:space="preserve"><value>Audio controls</value></data>
+  <data name="Navidrome_VolumeLabel.Text" xml:space="preserve"><value>Volume</value></data>
+  <data name="Navidrome_Volume.AutomationProperties.Name" xml:space="preserve"><value>Volume</value></data>
+  <data name="Navidrome_Mute.Header" xml:space="preserve"><value>Mute</value></data>
+  <data name="Navidrome_PlaybackRateLabel.Text" xml:space="preserve"><value>Playback speed</value></data>
+  <data name="Navidrome_PlaybackRate.AutomationProperties.Name" xml:space="preserve"><value>Playback speed</value></data>
+  <data name="Navidrome_Previous.AutomationProperties.Name" xml:space="preserve"><value>Previous</value></data>
+  <data name="Navidrome_Next.AutomationProperties.Name" xml:space="preserve"><value>Next</value></data>
+  <data name="Navidrome_Stop.Label" xml:space="preserve"><value>Stop</value></data>
+  <data name="Navidrome_Downloads.Label" xml:space="preserve"><value>Downloads</value></data>
+  <data name="Navidrome_ReloadLyrics.Label" xml:space="preserve"><value>Refresh lyrics</value></data>
+  <data name="Navidrome_RemoveQueue.Label" xml:space="preserve"><value>Remove from queue</value></data>
+  <data name="Navidrome_ClearQueue.Label" xml:space="preserve"><value>Clear queue</value></data>
+  <data name="Navidrome_SaveQueue.Label" xml:space="preserve"><value>Save queue to server</value></data>
+  <data name="Navidrome_RestoreQueue.Label" xml:space="preserve"><value>Restore server queue</value></data>
+  <data name="Navidrome_SaveAsPlaylist.Label" xml:space="preserve"><value>Save as playlist</value></data>
+  <data name="Navidrome_ImportQueue.Label" xml:space="preserve"><value>Import queue file</value></data>
+  <data name="Navidrome_ExportQueue.Label" xml:space="preserve"><value>Export queue file</value></data>
+  <data name="Navidrome_SyncListening.Label" xml:space="preserve"><value>Sync listening</value></data>
+  <data name="Navidrome_Queue.Text" xml:space="preserve"><value>queue</value></data>
+  <data name="Navidrome_Lyrics.Text" xml:space="preserve"><value>lyrics</value></data>
+  <data name="Navidrome_LyricVariant.AutomationProperties.Name" xml:space="preserve"><value>Lyric variant</value></data>
+  <data name="Navidrome_FollowLyrics.Header" xml:space="preserve"><value>Follow the current line</value></data>
 </root>

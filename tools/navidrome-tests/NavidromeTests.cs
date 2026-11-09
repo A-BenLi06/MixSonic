@@ -139,6 +139,18 @@ public static class NavidromeTests
         variant.OffsetMilliseconds = -500;
         Check(variant.LineAt(500) == 1, "Negative lyric offset");
         Check(result.Result[1].LineAt(3000) == -1, "Unsynced lyric does not invent timing");
+        variant.OffsetMilliseconds = 0;
+        variant.Lines.Add(new LyricsLine { StartMilliseconds = 250, Text = "out of order" });
+        Check(variant.LineAt(999) == 2 && variant.LineAt(1000) == 1, "Returned line order cannot select a later timestamp too soon");
+        variant.Lines.Add(new LyricsLine { StartMilliseconds = 1000, Text = "parallel translation" });
+        variant.Lines.Add(new LyricsLine { Text = "untimed annotation" });
+        Check(variant.LineAt(1000) == 3, "Equal timestamps resolve consistently and untimed annotations do not become current");
+        variant.OffsetMilliseconds = long.MinValue;
+        Check(variant.LineAt(long.MaxValue) == 3, "Extreme server offsets cannot overflow the playback timeline");
+        variant.OffsetMilliseconds = long.MaxValue;
+        Check(variant.LineAt(long.MinValue) == -1, "Negative effective playback time does not wrap to a current line");
+        variant.Lines.Clear();
+        Check(variant.LineAt(1000) == -1, "An empty synchronized variant has no highlighted line");
         result.HandleResponse(Xml("<lyricsList/>"));
         Check(result.Result.Count == 0, "Missing lyrics is valid empty data");
     }

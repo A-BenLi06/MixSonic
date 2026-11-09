@@ -64,7 +64,7 @@ namespace Subsonic8.Navidrome
             return RunLocalOperation(async () =>
             {
                 var queue = await Offline.CreateQueueAsync(items); MediaQueue.PlayLocal(queue, index);
-                if (queue.Count > 0) NavigationService.NavigateToViewModel<PlaybackViewModel>();
+                if (queue.Count > 0) NavigationService.NavigateToViewModel<NavidromePlayerViewModel>();
             });
         }
         public Task OpenItem(ItemClickEventArgs args)

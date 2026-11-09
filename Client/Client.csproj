@@ -463,6 +463,10 @@
     <Compile Include="Navidrome\OfflineDownloadItem.cs" />
     <Compile Include="Navidrome\OfflineLibraryService.cs" />
     <Compile Include="Navidrome\NavidromeDownloadsViewModel.cs" />
+    <Compile Include="Navidrome\PlayerItems.cs" />
+    <Compile Include="Navidrome\NavidromePlayerViewModel.cs" />
+    <Compile Include="Navidrome\NavidromePlayerView.xaml.cs"><DependentUpon>NavidromePlayerView.xaml</DependentUpon></Compile>
+    <Page Include="Navidrome\NavidromePlayerView.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Compile Include="Navidrome\NavidromeDownloadsView.xaml.cs"><DependentUpon>NavidromeDownloadsView.xaml</DependentUpon></Compile>
     <Page Include="Navidrome\NavidromeDownloadsView.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Compile Include="Navidrome\NavidromePageViewModel.cs" />

@@ -19,7 +19,7 @@ namespace Subsonic8.Navidrome
     {
         string Error { get; }
         int PendingCount { get; }
-        Task SyncAsync();
+        Task SyncAsync(bool force = false);
         Task SuspendAsync();
     }
 
@@ -177,8 +177,9 @@ namespace Subsonic8.Navidrome
             catch (Exception exception) { _presenceRetry = Now + 30; SetError(exception.Message); }
             finally { _presenceGate.Release(); if (periodic) _periodicPending = false; }
         }
-        public async Task SyncAsync()
+        public async Task SyncAsync(bool force = false)
         {
+            if (force) _syncRetry = 0;
             if (_syncing || !_session.IsConnected || Now < _syncRetry) return;
             _syncing = true;
             var api = _session.CreateApi();

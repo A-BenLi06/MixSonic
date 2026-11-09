@@ -45,7 +45,12 @@ namespace Client.Common.Models
 
         public string ArtistId { get; set; }
 
-        public int UserRating { get; set; }
+        private int _userRating;
+        public int UserRating
+        {
+            get { return _userRating; }
+            set { if (_userRating == value) return; _userRating = value; NotifyOfPropertyChange(() => UserRating); }
+        }
 
         public string CoverArtId { get; set; }
 

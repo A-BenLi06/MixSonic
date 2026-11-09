@@ -16,6 +16,7 @@
     using Subsonic8.Framework.ViewModel;
     using Subsonic8.MenuItem;
     using Subsonic8.Playback;
+    using Subsonic8.Navidrome;
     using global::Common.Interfaces;
     using Action = System.Action;
 
@@ -34,7 +35,7 @@
         public DefaultBottomBarViewModel()
         {
             LoadPlaylistItem = this.LoadPlaylistItemFromSong;
-            NavigateOnPlay = () => NavigationService.NavigateToViewModel<PlaybackViewModel>();
+            NavigateOnPlay = NavigateToPlayer;
         }
 
         #endregion
@@ -97,7 +98,14 @@
         {
             CanDismiss = true;
             IsOpened = false;
-            NavigationService.NavigateToViewModel<PlaybackViewModel>();
+            NavigateToPlayer();
+        }
+
+        private void NavigateToPlayer()
+        {
+            if (PlaylistManagementService.CurrentItem != null && PlaylistManagementService.CurrentItem.Type == PlaylistItemTypeEnum.Video)
+                NavigationService.NavigateToViewModel<PlaybackViewModel>();
+            else NavigationService.NavigateToViewModel<NavidromePlayerViewModel>();
         }
 
         public async Task PlayAll()

@@ -165,8 +165,8 @@ namespace Client.Common.Models.Navidrome
 
         public int LineAt(long positionMilliseconds)
         {
-            if (!Synced) return -1;
-            var time = positionMilliseconds - OffsetMilliseconds;
+            if (!Synced || Lines == null) return -1;
+            var time = (decimal)positionMilliseconds - OffsetMilliseconds;
             var index = -1;
             for (var i = 0; i < Lines.Count; i++)
             {

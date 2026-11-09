@@ -182,7 +182,7 @@ namespace Subsonic8.Navidrome
             if (item.Share != null)
             { Uri link; if (TryWebLink(item.Share.Url, out link)) await Launcher.LaunchUriAsync(link); return; }
             if (item.Bookmark != null)
-            { MediaQueue.Play(_loadedApi, new[] { item.Bookmark.Song }, 0, item.Bookmark.PositionMilliseconds); NavigationService.NavigateToViewModel<PlaybackViewModel>(); return; }
+            { MediaQueue.Play(_loadedApi, new[] { item.Bookmark.Song }, 0, item.Bookmark.PositionMilliseconds); NavigationService.NavigateToViewModel<NavidromePlayerViewModel>(); return; }
             var radio = item.Media as InternetRadioStation;
             if (radio != null)
             {
@@ -190,13 +190,13 @@ namespace Subsonic8.Navidrome
                 if (!TryWebLink(radio.StreamUrl, out uri)) { Error = NavidromeText.Get("InvalidStationUrl"); return; }
                 EventAggregator.PublishOnUIThread(new PlayQueueMessage { Queue = new List<PlaylistItem> {
                     new PlaylistItem { Title = radio.Name, Uri = uri, Type = PlaylistItemTypeEnum.Audio, AccountKey = _loadedApi.AccountKey } }, StartIndex = 0 });
-                NavigationService.NavigateToViewModel<PlaybackViewModel>(); return;
+                NavigationService.NavigateToViewModel<NavidromePlayerViewModel>(); return;
             }
             if (item.Song != null)
             {
                 var context = Items.Where(entry => entry.Song != null).ToList();
                 MediaQueue.Play(_loadedApi, context.Select(entry => entry.Song), context.IndexOf(item));
-                NavigationService.NavigateToViewModel<PlaybackViewModel>(); return;
+                NavigationService.NavigateToViewModel<NavidromePlayerViewModel>(); return;
             }
             if (item.Media.Type == SubsonicModelTypeEnum.Genre)
                 NavigationService.NavigateToViewModel<NavidromeBrowserViewModel>(NavidromeRoute.For("genre", item.Media.Name));

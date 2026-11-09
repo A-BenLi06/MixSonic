@@ -113,7 +113,9 @@ namespace Subsonic8.Playback
         {
             StopProgressTimer();
             ItemDurationInSeconds = 0;
-            PlaybackProgressInSeconds = 0;
+            _updatingProgress = true;
+            try { PlaybackProgressInSeconds = 0; }
+            finally { _updatingProgress = false; }
             NotifyOfPropertyChange(() => CanSeek);
         }
 
