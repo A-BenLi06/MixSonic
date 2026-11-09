@@ -32,7 +32,7 @@ changes, and generate evidence from that clean commit:
 ```powershell
 ./tools/navidrome/verify.ps1
 python tools/navidrome/report.py
-python tools/mixradio/quality.py --spec tools/navidrome/acceptance-spec.json evaluate --run '<new report directory>/run.json'
+python tools/mixradio/quality.py --spec tools/navidrome/acceptance-spec.json evaluate --run '<new report directory>/run.json' --check-only
 ```
 
 Verification runs 14 checks and binds hashed logs to the same clean commit at
@@ -40,6 +40,8 @@ both ends. Mutating suites run sequentially. The report separates 77 automated
 cases from 38 native tasks; current native observations are absent by default.
 Exit 2 is a valid report with outstanding acceptance. No original MixRadio
 packages or historical native records are required for this functional report.
+The independent evaluator's `--check-only` mode preserves the function matrix;
+ordinary `evaluate` writes a generic case report.
 
 Do not store credentials in source, logs or reports. Disabled jukebox/provider
 responses prove denial behavior only; enabled device/provider tasks remain

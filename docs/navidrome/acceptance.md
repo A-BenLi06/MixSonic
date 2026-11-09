@@ -82,7 +82,7 @@ Generate final evidence only from that clean commit:
 ```powershell
 ./tools/navidrome/verify.ps1
 python tools/navidrome/report.py
-python tools/mixradio/quality.py --spec tools/navidrome/acceptance-spec.json evaluate --run '<new report directory>/run.json'
+python tools/mixradio/quality.py --spec tools/navidrome/acceptance-spec.json evaluate --run '<new report directory>/run.json' --check-only
 ```
 
 Verification performs 14 checks, builds/registers the desktop app without
@@ -92,6 +92,11 @@ fixture process and binary and writes hashed logs and
 the reviewed inventory, locked reference and current commit before bundling a
 new preserved run. Exit 2 means a valid report with outstanding acceptance;
 exit 1 indicates an error.
+
+The independent evaluator's `--check-only` option verifies the run without
+replacing the generated function matrix or stored evaluation. Its normal
+`evaluate` command writes a generic case report, which remains useful after
+recording later native results.
 
 ## Observe native tasks
 

@@ -445,6 +445,8 @@ def main():
     defect.add_argument("--evidence", action="append", default=[], metavar="KIND=PATH")
     evaluate = commands.add_parser("evaluate")
     evaluate.add_argument("--run", type=Path, required=True)
+    evaluate.add_argument("--check-only", action="store_true",
+                          help="Validate and print results without replacing saved reports or evaluations")
     args = parser.parse_args()
     spec = load_spec(args.spec)
     if args.command == "init":
@@ -493,10 +495,12 @@ def main():
         print(args.case + ": " + args.status)
         return 0
     evaluation = evaluate_run(run, spec, directory, digest(args.spec))
-    write_json(directory / "evaluation.json", {key: value for key, value in evaluation.items() if key != "checks"})
-    (directory / "report.html").write_text(render_report(run, spec, evaluation), encoding="utf-8")
+    if not args.check_only:
+        write_json(directory / "evaluation.json", {key: value for key, value in evaluation.items() if key != "checks"})
+        (directory / "report.html").write_text(render_report(run, spec, evaluation), encoding="utf-8")
     print(json.dumps({key: value for key, value in evaluation.items() if key not in {"checks", "reasons"}}, indent=2))
-    print("Report: " + str(directory / "report.html"))
+    if not args.check_only:
+        print("Report: " + str(directory / "report.html"))
     return 0 if evaluation["accepted"] else 2
 
 

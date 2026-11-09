@@ -176,6 +176,9 @@ a new committed run when implementation changes are needed.
 
 Evaluation writes `evaluation.json` and a local `report.html` with dimensions,
 case procedures, observations, reviewer/time, evidence links and status filter.
+Add `--check-only` to validate and print the current results without replacing
+either artifact. This preserves an existing specialized functional report during
+independent verification.
 The score retains missing/blocked required cases in its denominator. All 30
 required cases, every dimension minimum, the 85% overall threshold and absence
 of unresolved P0/P1 defects are independent gates. Evidence tampering and
@@ -212,6 +215,6 @@ all four modes, Actual pixels, crop bounds, unequal-size disabling, a 500px
 browser viewport, review JSON download and difference PNG download. Those
 checks used synthetic PNGs and verify the tool's browser behavior.
 
-Current native app capture still returns timeouts. Original/client runtime
+Earlier native app captures returned timeouts. Original/client runtime
 comparison and native task acceptance remain unverified; neither synthetic
 browser checks nor source regressions close those gates.

@@ -101,10 +101,33 @@ class QualityToolTests(unittest.TestCase):
 
     def test_navidrome_specification_promotes_complete_client_functions(self):
         spec = quality.load_spec(quality.ROOT / "tools/navidrome/acceptance-spec.json")
-        self.assertEqual({"functionality", "design"}, set(spec["requiredReferenceRoles"]))
+        self.assertEqual({"functionality"}, set(spec["requiredReferenceRoles"]))
+        self.assertEqual({"protocol", "service", "server", "native"}, set(spec["dimensions"]))
         self.assertTrue(all(case["required"] for case in spec["cases"]))
-        for case_id in ("SEEK", "OFFLINE", "ARTIST-MIX", "ND-LYRICS", "ND-QUEUE", "ND-PLAYLISTS"):
+        for feature in ("TRANSPORT", "DOWNLOADS", "RELATED", "LYRICS", "SERVER-QUEUE", "PLAYLISTS",
+                        "API-KEY", "TRANSCODING", "AVATAR", "JUKEBOX", "SONIC", "SONIC-PATH"):
+            case_id = "ND-" + feature + "-NATIVE"
             self.assertIn(case_id, {case["id"] for case in spec["cases"]})
+        for case in spec["cases"]:
+            if case["verificationLevel"] == "native":
+                self.assertTrue(case["prerequisites"])
+                self.assertNotIn("automatedProofs", case)
+                self.assertIn(["manual_record"], case["evidence"])
+                self.assertIn(["runtime_log"], case["evidence"])
+
+    def test_cli_check_only_preserves_acceptance_artifacts(self):
+        report_path = self.run_path.parent / "report.html"
+        evaluation_path = self.run_path.parent / "evaluation.json"
+        report_path.write_text("Preserved functional report.", encoding="utf-8")
+        quality.write_json(evaluation_path, {"preserved": "existing evaluation"})
+        before = {path: path.read_bytes() for path in (report_path, evaluation_path, self.run_path)}
+        result = subprocess.run([sys.executable, str(quality.ROOT / "tools/mixradio/quality.py"),
+                                 "--spec", str(self.spec_path), "evaluate", "--run", str(self.run_path),
+                                 "--check-only"], capture_output=True, text=True)
+        self.assertEqual(2, result.returncode, result.stderr)
+        self.assertIn('"accepted": false', result.stdout)
+        for path, content in before.items():
+            self.assertEqual(content, path.read_bytes())
 
     def test_default_specification_has_required_and_roadmap_cases(self):
         spec = quality.load_spec(quality.DEFAULT_SPEC)

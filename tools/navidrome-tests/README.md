@@ -99,7 +99,7 @@ accepted. See [the functional acceptance guide](../../docs/navidrome/acceptance.
 ```powershell
 ./tools/navidrome/verify.ps1
 python tools/navidrome/report.py
-python tools/mixradio/quality.py --spec tools/navidrome/acceptance-spec.json evaluate --run '<new run directory>/run.json'
+python tools/mixradio/quality.py --spec tools/navidrome/acceptance-spec.json evaluate --run '<new run directory>/run.json' --check-only
 ```
 
 `check-client.py` now checks XAML namescopes and project-owned StaticResource

@@ -140,7 +140,7 @@ def render_matrix(report, inventory, summary, code_evidence, server_facts):
                + '<table id="feature-table"><thead><tr><th>Navidrome function</th><th>Protocol</th><th>Service/control</th><th>Real server</th><th>Native task</th><th>Source / client</th></tr></thead><tbody>'
                + ''.join(rows) + '</tbody></table></details></section>')
     report = report.replace('<table><thead>', '<table id="case-table"><thead>')
-    report = report.replace("document.querySelectorAll('tbody tr')", "document.querySelectorAll('#case-table tbody tr')")
+    report = report.replace("document.querySelectorAll('tr[data-status]')", "document.querySelectorAll('#case-table tr[data-status]')")
     return report.replace('<details open><summary>Acceptance gaps', section + '<details open><summary>Acceptance gaps', 1)
 
 
