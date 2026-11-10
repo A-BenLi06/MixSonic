@@ -22,6 +22,10 @@ def resource_keys(path, visited=None):
     visited.add(path)
     tree = ET.parse(path)
     keys = {node.get(xaml_namespace + 'Key') for node in tree.iter() if node.get(xaml_namespace + 'Key')}
+    # Windows 8.1 also uses x:Name as a dictionary key, notably in the existing light styles.
+    for container in tree.iter():
+        if container.tag.endswith('ResourceDictionary') or container.tag.endswith('.Resources'):
+            keys.update(node.get(xaml_namespace + 'Name') for node in container if node.get(xaml_namespace + 'Name'))
     for node in tree.iter():
         source = node.get('Source') if node.tag.endswith('ResourceDictionary') else None
         if not source:
@@ -54,6 +58,7 @@ def audit_names(node, path, scope=None):
 
 application_keys = resource_keys(client / 'App.xaml')
 paths = (list((client / 'Navidrome').iterdir()) + list((client / 'Main').iterdir()) +
+         list((client / 'Shell').glob('ShellView*')) +
          list((client / 'Settings').glob('SettingsView*')) + list((client / 'Common').glob('MixRadio*')) +
          list((client / 'Common').glob('LibrarySearch*')))
 for path in paths:
@@ -67,6 +72,8 @@ for path in paths:
         document = ET.parse(path).getroot()
         audit_names(document, relative)
         for node in document.iter():
+            if node.tag.endswith('.ItemContainerTransitions') and len(node) and not node[0].tag.endswith('}TransitionCollection'):
+                issues.append('Item transitions must create their own TransitionCollection: ' + relative)
             uid = node.get(xaml_namespace + 'Uid')
             if not uid:
                 continue
@@ -81,7 +88,11 @@ for path in paths:
                 if name in properties and tag not in allowed:
                     issues.append('Resource ' + uid + '.' + name + ' cannot target ' + tag + ' in ' + relative)
         visible_keys = application_keys | resource_keys(path)
-        for key in re.findall(r'\{StaticResource\s+((?:Navidrome|MixRadio)[^}\s]+)\s*\}', source):
+        for key in re.findall(r'\{StaticResource\s+([^}\s]+)\s*\}', source):
+            # Native SDK theme resources are supplied by Windows. Audit every
+            # project-owned key, including recovered vector/template dependencies.
+            if key not in visible_keys and ('Theme' in key or re.fullmatch(r'SystemColor.+Color', key)):
+                continue
             static_lookups += 1
             if key not in visible_keys:
                 issues.append('Missing project resource: ' + key + ' in ' + relative)
@@ -101,6 +112,19 @@ for path in paths:
 for key in ('albums', 'artists', 'songs', 'genres', 'playlists', 'radio', 'activity', 'random', 'favourites', 'search', 'bookmarks', 'shares'):
     if 'Navidrome_Text_Section' + key not in resources:
         issues.append('Missing section title: ' + key)
+project_pages = [client / node.get('Include').replace('\\', '/') for node in project.iter()
+                 if node.tag.endswith('}Page') and node.get('Include')]
+uses_inline_search = any(re.search(r'<SearchBox\b', path.read_text(encoding='utf-8-sig'))
+                         for path in project_pages if path.is_file())
+if uses_inline_search:
+    # This desktop shell owns a single view. Activating its legacy SearchPane
+    # prevents the native SearchBox constructor from creating any page that uses it.
+    for node in project.iter():
+        if not node.tag.endswith('}Compile') or not node.get('Include'):
+            continue
+        path = client / node.get('Include').replace('\\', '/')
+        if path.is_file() and re.search(r'\bSearchPane\s*\.\s*GetForCurrentView\s*\(', path.read_text(encoding='utf-8-sig')):
+            issues.append('Inline SearchBox conflicts with legacy SearchPane initialization: ' + str(path.relative_to(root)))
 if issues:
     raise SystemExit('\n'.join(issues))
 print('PASS:', lookups, 'desktop string lookups,', static_lookups,

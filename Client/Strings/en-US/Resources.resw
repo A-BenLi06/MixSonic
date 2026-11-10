@@ -201,6 +201,7 @@
   <data name="Navidrome_Apply.Content" xml:space="preserve"><value>Apply</value></data>
   <data name="Navidrome_LoadMore.Content" xml:space="preserve"><value>Load more</value></data>
   <data name="Navidrome_Search.PlaceholderText" xml:space="preserve"><value>Search your library</value></data>
+  <data name="Navidrome_Text_HomeNavigationFailed" xml:space="preserve"><value>The home page could not be opened. Restart the app and try again.</value></data>
   <data name="Navidrome_Search.AutomationProperties.Name" xml:space="preserve"><value>Search your library</value></data>
   <data name="Navidrome_FromYear.AutomationProperties.Name" xml:space="preserve"><value>From year</value></data>
   <data name="Navidrome_ToYear.AutomationProperties.Name" xml:space="preserve"><value>To year</value></data>
@@ -424,7 +425,7 @@
   <data name="Navidrome_CloseQueue.AutomationProperties.Name" xml:space="preserve"><value>Close queue</value></data>
   <data name="Navidrome_ClearQueueButton.AutomationProperties.Name" xml:space="preserve"><value>Clear queue</value></data>
   <data name="Navidrome_LibraryTitle.Text" xml:space="preserve"><value>my music</value></data>
-  <data name="Navidrome_FollowLyricsToggle.Content" xml:space="preserve"><value>Follow lyrics</value></data>
+  <data name="Navidrome_FollowLyricsToggle.AutomationProperties.Name" xml:space="preserve"><value>Follow lyrics</value></data>
   <data name="FavouriteArtistsAddAnArtistLabel.Text" xml:space="preserve"><value>add an artist</value></data>
   <data name="MixRadioAllMixesButton.Text" xml:space="preserve"><value>see all</value></data>
   <data name="HubMyMusicSeeAllButton.Text" xml:space="preserve"><value>see all</value></data>

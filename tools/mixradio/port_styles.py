@@ -27,6 +27,7 @@ SELECTION = {
         "MainProgressBarStyle", "SeekSliderStyle", "LyricToggleButtonStyle",
     },
     "Common/StandardStyles.json": {"BackButtonStyle", "PageHeaderTextStyle", "SubheaderTextStyle"},
+    "Common/DesignAssets.json": set(),
     "Views/MyMusic/MyMusicView.json": {"FilterListItemStyle", "MyMusicFilterButtonStyle"},
     "Views/Search/SearchResultsView.json": {"TextRadioButtonStyle"},
 }
@@ -145,7 +146,9 @@ def render(obj, metadata, level=1, resource=False):
         for value in values:
             if "object" not in value:
                 output += "    " * depth + escape(scalar(value.get("value"))) + "\n"
-            elif flatten and value["object"]["type"].endswith("Collection"):
+            # Transition properties can inherit a sealed default collection.
+            # Assign a new collection instead of appending to that shared value.
+            elif flatten and value["object"]["type"].endswith("Collection") and value["object"]["type"] != "TransitionCollection":
                 for prop in value["object"]["properties"]:
                     output += render_values(prop["values"], depth)
             else:

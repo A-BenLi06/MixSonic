@@ -56,7 +56,8 @@
                 <HubSection.Header><TextBlock x:Uid="Navidrome_Lyrics" Style="{StaticResource MediumLightText}" Margin="2,-5,0,-10"/></HubSection.Header>
                 <DataTemplate><StackPanel Width="340" Loaded="OnLyricsPanelLoaded">
                     <ComboBox x:Uid="Navidrome_LyricVariant" ItemsSource="{Binding LyricVariants}" DisplayMemberPath="Name" SelectedItem="{Binding SelectedLyrics, Mode=TwoWay}" HorizontalAlignment="Stretch"/>
-                    <ToggleButton x:Uid="Navidrome_FollowLyricsToggle" Style="{StaticResource LyricToggleButtonStyle}" IsChecked="{Binding FollowLyrics, Mode=TwoWay}" Margin="0,12,0,16"/>
+                    <ToggleButton x:Uid="Navidrome_FollowLyricsToggle" Style="{StaticResource LyricToggleButtonStyle}"
+                        IsChecked="{Binding FollowLyrics, Mode=TwoWay}" MinWidth="88" MinHeight="88" VerticalContentAlignment="Center" Margin="0,12,0,16"/>
                     <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}"/>
                     <TextBlock Text="{Binding LyricsStatus}" Style="{StaticResource Medium2LightText}"/>
                     <TextBlock Text="{Binding LyricsError}" Style="{StaticResource NormalText}"/>

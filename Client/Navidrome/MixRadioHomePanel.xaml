@@ -6,17 +6,19 @@
     </ResourceDictionary.MergedDictionaries></ResourceDictionary></UserControl.Resources>
     <StackPanel x:Name="PanelLayout" Orientation="Horizontal" VerticalAlignment="Top">
         <!-- MyMusicPanel / FavouriteArtistsPanel: 170 px item cells, three vertical rows. -->
-        <GridView x:Name="AlbumList" Height="510" ItemsSource="{Binding Items}" ItemTemplateSelector="{StaticResource MixRadioHomeSmallSelector}"
+        <GridView x:Name="AlbumList" Height="510" Padding="0" ItemsSource="{Binding Items}" ItemTemplateSelector="{StaticResource MixRadioHomeSmallSelector}"
             ItemContainerStyle="{StaticResource GridViewItemStyle}" IsItemClickEnabled="True" ItemClick="OnItemClick"
             SelectionMode="None" IsSwipeEnabled="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden"
             ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollMode="Disabled"
             Visibility="{Binding UseMosaic, ElementName=ControlRoot, Converter={StaticResource NavidromeHidden}}">
             <GridView.ItemsPanel><ItemsPanelTemplate><WrapGrid MaximumRowsOrColumns="3" Orientation="Vertical"
                 VerticalChildrenAlignment="Top" HorizontalChildrenAlignment="Left" Margin="0" /></ItemsPanelTemplate></GridView.ItemsPanel>
-            <GridView.ItemContainerTransitions><AddDeleteThemeTransition /></GridView.ItemContainerTransitions>
+            <GridView.ItemContainerTransitions>
+                <TransitionCollection><AddDeleteThemeTransition /></TransitionCollection>
+            </GridView.ItemContainerTransitions>
         </GridView>
         <!-- RadioTopStations: one 332 px hero, four 162 px tiles and a final navigation tile. -->
-        <nav:MixRadioMosaicGridView x:Name="MosaicList" Width="510" Height="510" ItemsSource="{Binding Items}" ItemTemplateSelector="{StaticResource MixRadioHomeSelector}"
+        <nav:MixRadioMosaicGridView x:Name="MosaicList" Width="510" Height="510" Padding="0" ItemsSource="{Binding Items}" ItemTemplateSelector="{StaticResource MixRadioHomeSelector}"
             ItemContainerStyle="{StaticResource GridViewItemStyle}" IsItemClickEnabled="True" ItemClick="OnItemClick"
             SelectionMode="None" IsSwipeEnabled="False" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Auto"
             Visibility="{Binding UseMosaic, ElementName=ControlRoot, Converter={StaticResource NavidromeVisibility}}">

@@ -25,7 +25,6 @@
     using Subsonic8.AudioPlayback;
 
     using VideoPlayback;
-    using Windows.UI.Core;
     using Windows.UI.Xaml;
 
     public class ShellViewModel : Screen, IShellViewModel
@@ -35,6 +34,7 @@
         private IEventAggregator _eventAggregator;
 
         private IBottomBarViewModel _bottomBar;
+        private bool _isInitializing;
 
 
         #endregion
@@ -72,6 +72,11 @@
 
         public Action<SearchResultCollection> NavigateToSearchResult { get; set; }
         public bool HasBottomBar { get { return BottomBar != null; } }
+        public bool IsInitializing
+        {
+            get { return _isInitializing; }
+            private set { _isInitializing = value; NotifyOfPropertyChange(); }
+        }
 
 
         [Inject]
@@ -159,13 +164,29 @@
 
         protected async override void OnViewAttached(object view, object context)
         {
+            App.LogStartupEvent("Shell view attached");
             base.OnViewAttached(view, context);
-            await CoreWindow.GetForCurrentThread().Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => await InitializeViewDependentServices(view));
+            IsInitializing = true;
+            try
+            {
+                await InitializeViewDependentServices(view);
+            }
+            catch (Exception exception)
+            {
+                App.LogStartupException("Shell initialization failed", exception);
+                await ErrorDialogViewModel.HandleCriticalError(exception);
+            }
+            finally { IsInitializing = false; }
+#if NATIVE_UI_PROBE
+            await Subsonic8.Diagnostics.NativeUiProbe.RunAsync((ShellView)view, NavigationService);
+#endif
         }
 
         private async Task InitializeViewDependentServices(object view)
         {
-            CharmsBarService.RegisterSearchQueryHandler((sender, args) => SendSearchQueryMessage(args.QueryText));
+            App.LogStartupEvent("Shell initialization start");
+            // SearchBox owns the window's search integration. Initializing the legacy
+            // SearchPane here prevents SearchBox from being constructed on this view.
             CharmsBarService.RegisterSettingsRequestedHandler(
                 (sender, args) => args.AddSetting<SettingsViewModel>());
             CharmsBarService.RegisterSettingsRequestedHandler(
@@ -178,9 +199,12 @@
 
             InstantiateRequiredSingletons();
 
+            App.LogStartupEvent("Settings load start");
             await LoadSettings();
+            App.LogStartupEvent("Settings load complete");
 
             await RestoreLastViewOrGoToMain((ShellView) view);
+            App.LogStartupEvent("Shell initialization complete");
         }
 
         private void RegisterPlayers()
@@ -204,6 +228,7 @@
 
         private async Task RestoreLastViewOrGoToMain(ShellView shellView)
         {
+            App.LogStartupEvent("Session restore start");
             try
             {
                 await SuspensionManager.RestoreAsync();
@@ -213,11 +238,14 @@
             }
 
             SuspensionManager.RegisterFrame(shellView.ShellFrame, "MainFrame");
+            App.LogStartupEvent("Session restore complete: " + shellView.ShellFrame.SourcePageType);
 
             if (shellView.ShellFrame.SourcePageType == null ||
                 shellView.ShellFrame.SourcePageType == typeof(ErrorDialogView))
             {
-                NavigationService.NavigateToViewModel<MainViewModel>();
+                var navigated = NavigationExtensions.NavigateToViewModel<MainViewModel>(NavigationService);
+                if (!navigated) throw new InvalidOperationException(Subsonic8.Navidrome.NavidromeText.Get("HomeNavigationFailed"));
+                App.LogStartupEvent("Home navigation complete: " + shellView.ShellFrame.SourcePageType);
             }
         }
 

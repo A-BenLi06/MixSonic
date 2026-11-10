@@ -111,6 +111,12 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(NativeUiProbe)' == 'true'">
+    <DefineConstants>$(DefineConstants);NATIVE_UI_PROBE</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(NativeUiProbe)' == 'true'">
+    <Compile Include="..\tools\desktop\NativeUiProbe.cs"><Link>Diagnostics\NativeUiProbe.cs</Link></Compile>
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Album\AlbumViewModel.cs" />
     <Compile Include="Album\IAlbumViewModel.cs" />

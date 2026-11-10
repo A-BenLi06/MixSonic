@@ -87,9 +87,64 @@ localization properties, project inclusion, XAML names and resource references.
 These checks and a successful desktop build do not establish native click
 behavior, visual parity, media decoding or suspend/resume correctness.
 
-Native verification still needs rendered comparison against the original app,
-home/library/search/queue interaction and narrow-window checks. Capture attempts
-in this work returned `window capture timed out: timed out waiting on channel`;
-the earlier accessibility-only observation exposed no usable tree. Functional
-acceptance reports and MixRadio visual comparisons retain their separate evidence
-requirements. No native case is promoted by the source or build results.
+## Startup repair and native captures
+
+The indefinitely spinning home screen came from failed XAML construction. The
+shell initialized the legacy `SearchPane` before creating a page with `SearchBox`;
+Windows does not allow those two search integrations in the same view. The shell
+now leaves search integration to the inline control, awaits initialization and
+reports navigation failures through the existing error view. Its progress ring
+follows initialization state and stops on both success and failure.
+
+The first successful navigation also exposed an inherited, sealed transition
+collection. Home item transitions now explicitly create a `TransitionCollection`,
+and the style exporter preserves recovered transition collections. Zero grid
+padding restores the full three rows of 170 px cells, including the last two
+tiles. The exporter also resolves the original lyrics button's vector resources
+from `Common/DesignAssets.json`. The resource audit checks these dependencies and
+the incompatible search registration.
+
+The native screenshot driver is opt-in and compiled into an explicit Debug build:
+
+```powershell
+./tools/desktop/run.ps1 -NativeUiProbe
+```
+
+It waits for page loading and artwork decoding, then exports the running XAML
+tree through Windows 8.1 `RenderTargetBitmap`. Results are written to the app's
+`LocalState/native-ui-probe/<UTC timestamp>/` directory, with `latest.json` in
+the parent directory. The report records page state, decoded artwork, section
+loading, item bounds and capture errors. The driver visits home, albums, player,
+home again and a scrolled home view, then lays out the shell at 500 × 900. It uses
+the configured account and production navigation/services. A saved startup page
+other than home is captured without running the home navigation sequence.
+
+Run a normal build after capture to remove the driver:
+
+```powershell
+./tools/desktop/run.ps1
+```
+
+The runner rebuilds when switching capture modes because MSBuild 14 can reuse an
+executable after a conditional source item disappears. `-NoBuild` rejects a last
+build marked as a probe. Normal application binaries exclude `NativeUiProbe`.
+
+The 2026-11-10 18:32:58 +08:00 run produced six actual XAML PNGs. Every captured
+page finished initialization/loading without an error, all six home sections
+finished loading, and no observed remote image was awaiting decoding. All 88
+home item bounds across four captures fit their grid; the six-entry groups retain
+three complete rows. The screenshots and JSON are preserved locally under
+`.tmp/ui-acceptance/2026-11-10/`. A subsequent normal-build launch at
+20:13:31 +08:00 opened `MainView` and completed shell initialization successfully.
+
+The recovered style dictionaries reproduce exactly and all eight copied PNGs
+match the original package hashes. The captures were visually reviewed for the
+wordmark, typography, accent, tile layout, library rows and transport/lyrics
+controls. They establish the rendered client layout; they do not establish
+pixel-for-pixel parity with a running original. Original-window capture remains
+unavailable due to `window capture timed out: timed out waiting on channel`.
+The 500 × 900 capture uses an in-app root size override rather than an OS window
+resize, and navigation is driven programmatically rather than through clicks.
+Native input, search/queue interactions, OS resizing and media/lifecycle behavior
+retain their separate acceptance requirements. Existing functional and visual
+acceptance reports are unchanged.

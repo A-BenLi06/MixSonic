@@ -119,6 +119,7 @@
 
         private void RegisterNavigationService(Frame shellFrame, bool treatViewAsLoaded = false)
         {
+            shellFrame.NavigationFailed += (sender, args) => LogStartupException("Navigation failed: " + args.SourcePageType, args.Exception);
             _navigationService = new CustomFrameAdapter(shellFrame, treatViewAsLoaded);
             Kernel.Bind<INavigationService>().ToConstant(_navigationService);
             Kernel.Bind<ICustomFrameAdapter>().ToConstant(_navigationService);
@@ -138,12 +139,12 @@
             LogStartupEvent("StartApplication complete");
         }
 
-        private static void LogStartupEvent(string message)
+        internal static void LogStartupEvent(string message)
         {
             WriteStartupLog(message, null);
         }
 
-        private static void LogStartupException(string message, Exception exception)
+        internal static void LogStartupException(string message, Exception exception)
         {
             WriteStartupLog(message, exception);
         }
@@ -197,7 +198,12 @@
 
         private static void OnApplicationUnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
+#if NATIVE_UI_PROBE
+            e.Handled = true;
+            Subsonic8.Diagnostics.NativeUiProbe.RecordFatalAndExit(e.Message, e.Exception);
+#else
             LogStartupException("UnhandledException", e.Exception);
+#endif
         }
 
         #endregion
