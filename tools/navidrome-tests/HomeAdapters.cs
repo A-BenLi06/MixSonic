@@ -17,9 +17,14 @@ namespace Windows.UI.Xaml
     public class UIElement : DependencyObject { }
     public class FrameworkElement : UIElement { }
     public class DataTemplate { }
+    public class Style { }
 }
 namespace Windows.UI.Xaml.Controls
 {
+    public class StyleSelector
+    {
+        protected virtual Windows.UI.Xaml.Style SelectStyleCore(object item, Windows.UI.Xaml.DependencyObject container) { return null; }
+    }
     public sealed class ItemClickEventArgs : EventArgs { public object ClickedItem { get; set; } }
     public class DataTemplateSelector
     {

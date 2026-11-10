@@ -28,7 +28,10 @@ SELECTION = {
     },
     "Common/StandardStyles.json": {"BackButtonStyle", "PageHeaderTextStyle", "SubheaderTextStyle"},
     "Common/DesignAssets.json": set(),
-    "Views/MyMusic/MyMusicView.json": {"FilterListItemStyle", "MyMusicFilterButtonStyle"},
+    "Views/MyMusic/MyMusicView.json": {
+        "FilterListItemStyle", "MyMusicFilterButtonStyle",
+        "MyMusicItemContainerZoomedInAlbumStyle", "MyMusicItemContainerZoomedInSongStyle",
+    },
     "Views/Search/SearchResultsView.json": {"TextRadioButtonStyle"},
 }
 PRIMITIVES = {"Color", "SolidColorBrush", "Double", "Thickness", "FontFamily"}
@@ -126,7 +129,7 @@ def render(obj, metadata, level=1, resource=False):
         if len(values) == 1 and "value" in values[0]:
             raw = values[0]["value"]
             text = scalar(raw)
-            if name in {"Duration", "KeyTime"} and isinstance(raw, (float, int)):
+            if name in {"Duration", "KeyTime", "GeneratedDuration"} and isinstance(raw, (float, int)):
                 text = "0:0:" + format(raw, ".7g")
             if name == "x:Uid":
                 text = text.strip()
@@ -203,7 +206,29 @@ def export(reference):
             # Original strings were localized by these UIDs. Keep that contract;
             # the client's English resources provide the retained action labels.
             obj["properties"] = [p for p in obj["properties"] if p["name"] != "Inlines"]
-        resources.append("    <!-- " + filename + ": " + key + " -->\n" + render(obj, metadata, resource=True))
+        xml = render(obj, metadata, resource=True)
+        if key in {"MyMusicItemContainerZoomedInAlbumStyle", "MyMusicItemContainerZoomedInSongStyle", "MyMusicFilterButtonStyle"}:
+            # The recovered templates declare focus rectangles but leave Focused
+            # empty. Connect them to keyboard focus in the native desktop port.
+            focused = '''<VisualState x:Name="Focused">
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetName="FocusVisualWhite" Storyboard.TargetProperty="Opacity" To="1" Duration="0" />
+                                                <DoubleAnimation Storyboard.TargetName="FocusVisualBlack" Storyboard.TargetProperty="Opacity" To="1" Duration="0" />
+                                            </Storyboard>
+                                        </VisualState>'''
+            if '<VisualState x:Name="Focused" />' in xml:
+                xml = xml.replace('<VisualState x:Name="Focused" />', focused)
+                height = '145' if key.endswith('AlbumStyle') else '80'
+                width = '275' if key.endswith('AlbumStyle') else '280'
+                for rectangle in ['FocusVisualWhite', 'FocusVisualBlack']:
+                    xml = xml.replace('<Rectangle x:Name="' + rectangle + '"',
+                                      '<Rectangle x:Name="' + rectangle + '" Width="' + width + '" Height="' + height + '" Margin="0,0,24,0"')
+            else:
+                xml = xml.replace('</VisualStateManager.VisualStateGroups>',
+                                  '<VisualStateGroup x:Name="FocusStates">' + focused +
+                                  '<VisualState x:Name="Unfocused" /><VisualState x:Name="PointerFocused" /></VisualStateGroup>\n'
+                                  '                            </VisualStateManager.VisualStateGroups>')
+        resources.append("    <!-- " + filename + ": " + key + " -->\n" + xml)
     for key in sorted(selected):
         emit(key)
     # Original transport vectors are ContentTemplates on SmartButton. Move each

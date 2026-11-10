@@ -102,6 +102,19 @@ namespace Subsonic8.Navidrome
         }
     }
 
+    public sealed class MixRadioLibraryContainerStyleSelector : StyleSelector
+    {
+        public Style AlbumStyle { get; set; }
+        public Style SongStyle { get; set; }
+        protected override Style SelectStyleCore(object item, DependencyObject container)
+        {
+            var media = item as NavidromeItem;
+            return media == null || media.Media == null || media.Song != null ||
+                media.Media.Type == SubsonicModelTypeEnum.Genre || media.Media.Type == SubsonicModelTypeEnum.InternetRadioStation
+                ? SongStyle : AlbumStyle;
+        }
+    }
+
     public sealed class MixRadioMosaicGridView : GridView
     {
         protected override void PrepareContainerForItemOverride(DependencyObject element, object item)

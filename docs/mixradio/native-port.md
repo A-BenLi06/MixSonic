@@ -148,3 +148,48 @@ resize, and navigation is driven programmatically rather than through clicks.
 Native input, search/queue interactions, OS resizing and media/lifecycle behavior
 retain their separate acceptance requirements. Existing functional and visual
 acceptance reports are unchanged.
+
+## Library refinement (2026-11-11)
+
+The supplied original screenshot provides a 1744 × 1090 app-content reference
+after cropping at (102, 33). Its lower-right notification is excluded from the
+header/card comparison crops. Compare geometry and typography, not whole-frame
+pixel differences: the original uses Chinese UI labels and a different library
+ordering, while this client retains its English resources and server results.
+
+The library now uses the recovered `MyMusicItemContainerZoomedInAlbumStyle` and
+song counterpart, selected by media type. Album cards retain their 260 × 130
+content and 130 px artwork; the original container establishes 307 × 147 cell
+spacing. Artist entries use the pink, 3 px `MyMusicIndexZoomedInTemplate` border
+and bottom-aligned `ExtraLargeLightSubHeaderText`. They open the existing artist
+detail page. The original screenshot interleaves artist headings and albums;
+this port does not fetch every artist's albums to reproduce that grouping.
+
+Three rendered refinement rounds established the retained layout:
+
+| Parameter group | Before | Retained change / observation |
+| --- | --- | --- |
+| Category heading | Inherited button weight, 12 px gap | Explicit Light weight, original 54 px spacer and 60 px filter grid. Search has its own reserved column. |
+| Card spacing | General home item presenter; 293 × 138 cells | Recovered library containers; 307 × 147 cells and 47 / 17 px visible horizontal / vertical gaps. |
+| Card text | Pixel-height caps could push the count below the card | At most three title lines, one artist line and the count; full title/artist tooltips. |
+| Content anchor | First refinement at (127, 146) | Calibrated to the supplied screenshot's (130, 149). |
+| Bottom spacing | Adding 3 px at the top left only 881 px for six 147 px cells | Reduced bottom padding from 20 to 16, restoring six rows at 1744 × 1090 with Load more visible. The intermediate five-row candidate was rejected. |
+| Focus | Recovered Focused states were empty | White/black theme focus outlines are connected to keyboard focus; hover and selected frames keep the original geometry. |
+| Category menu | Generic unmarked menu items | Recovered list-item style, current-category highlight and all 13 localized destinations. |
+
+The first native attempt caught a XAML duration conversion failure in the newly
+imported transition. The exporter now serializes `GeneratedDuration` as a time
+value, like `Duration` and `KeyTime`. Both generated dictionaries still reproduce
+from the local XBF metadata. Focus behavior is an explicit native adaptation of
+the recovered templates.
+
+The Debug-only probe now also captures the reference viewport, 900/500 px album
+layouts, artists, songs, selection, keyboard focus and the category popup. It
+records header/card/text bounds and focus state. It invokes the actual filter
+button through its automation peer and selects another destination, verifying
+the production menu handler. Hover and missing-artwork previews are controlled
+states in real XAML; the artwork binding is restored after the preview. These
+checks do not constitute physical mouse/touch input or OS window-resize tests.
+Local round captures, the supplied-reference crops and the final verification
+record are stored under `.tmp/ui-acceptance/2026-11-11/`. No global visual or
+functional acceptance score is inferred from this refinement.

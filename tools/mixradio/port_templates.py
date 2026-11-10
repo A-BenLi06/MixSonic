@@ -57,6 +57,31 @@ def offline_template(reference):
     return xml.replace(marker, extra + marker)
 
 
+def library_artist_template(reference):
+    # The original artist screen inserts MyMusicIndexZoomedInTemplate before
+    # each artist's albums. Here the card opens the existing artist detail page.
+    # Keep the GridViewItem as the only input target (no nested index button).
+    xml = template('Views/MyMusic/MyMusicView.json', 'MyMusicIndexZoomedInTemplate',
+                   'MixRadioLibraryArtistTemplate', {'Album': 'Title'}, reference)
+    xml = xml.replace('<Button Style="{StaticResource IndexCardButtonStyle}">',
+                      '<Border Background="Black" BorderBrush="{StaticResource NokiaPinkBrush}" BorderThickness="3" Padding="12,4,12,5" ToolTipService.ToolTip="{Binding Subtitle}">')
+    xml = xml.replace('<Button.Content>', '<Border.Child>').replace('</Button.Content>', '</Border.Child>').replace('</Button>', '</Border>')
+    return xml.replace('Style="{Binding Path=Album, Converter={StaticResource StringToFontStyleConverter}}"',
+                       'Style="{StaticResource ExtraLargeLightSubHeaderText}" MaxLines="3" TextTrimming="CharacterEllipsis"')
+
+
+def library_album_template(reference):
+    xml = template('Views/MyMusic/MyMusicView.json', 'MyMusicAlbumZoomedInTemplate',
+                   'MixRadioLibraryAlbumTemplate', {'Album': 'Title'}, reference)
+    # Bound the text by whole lines: a three-line title, one artist line and
+    # the count fit inside the recovered 130 px information panel.
+    xml = xml.replace('MaxHeight="70" LineHeight="21"',
+                      'MaxLines="3" LineHeight="21" ToolTipService.ToolTip="{Binding Title}"')
+    xml = xml.replace('MaxHeight="45" Foreground="LightGray"',
+                      'MaxLines="1" TextWrapping="NoWrap" ToolTipService.ToolTip="{Binding Artist}" Foreground="LightGray"')
+    return xml
+
+
 def export(reference):
     parts = [
         template('Views/MyMusic/MyMusicPanel.json', 'MyMusicItemSmallTemplate', 'MixRadioHomeAlbumTemplate', reference=reference),
@@ -66,15 +91,11 @@ def export(reference):
         template('Common/NokiaMusicClient.json', 'MyMusicInfoItemTemplate', 'MyMusicInfoItemTemplate', {'Album': 'Title'}, reference),
         template('Common/NokiaMusicClient.json', 'RadioStationInfoItemTemplate', 'RadioStationInfoItemTemplate', {'Name': 'Title'}, reference),
         template('Common/DesignAssets.json', 'MyMusicAlbumPlayIcon', 'MyMusicAlbumPlayIcon', reference=reference),
-        template('Views/MyMusic/MyMusicView.json', 'MyMusicAlbumZoomedInTemplate', 'MixRadioLibraryAlbumTemplate', {'Album': 'Title'}, reference),
-        template('Views/MyMusic/MyMusicView.json', 'MyMusicArtistZoomedInTemplate', 'MixRadioLibraryArtistTemplate', {'Album': 'Title', 'Artist': 'CountText'}, reference),
+        library_album_template(reference),
+        library_artist_template(reference),
         template('Views/MyMusic/MyMusicView.json', 'MyMusicSongZoomedInTemplate', 'NavidromeTrackTemplate', {'Name': 'Title'}, reference),
         template('Views/MyMusic/MyMusicPanel.json', 'MyMusicItemSmallTemplate', 'NavidromeTileTemplate', reference=reference),
     ]
-    # Artist rows carry the returned album count once, without an invented song count.
-    for index, xml in enumerate(parts):
-        if 'x:Key="MixRadioLibraryArtistTemplate"' in xml:
-            parts[index] = re.sub(r'\s*<TextBlock[^>]*Text="\{Binding CountText\}"[^>]*/>', '', xml, count=1)
     preamble = '''<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:cal="using:Caliburn.Micro"
     xmlns:common="using:Subsonic8.Common" xmlns:nav="using:Subsonic8.Navidrome"
@@ -123,6 +144,22 @@ def export(reference):
     <nav:MixRadioLibraryTemplateSelector x:Key="MixRadioLibrarySelector"
         AlbumTemplate="{StaticResource MixRadioLibraryAlbumTemplate}" ArtistTemplate="{StaticResource MixRadioLibraryArtistTemplate}"
         SongTemplate="{StaticResource NavidromeTrackTemplate}" TextTemplate="{StaticResource MixRadioLibraryTextTemplate}" />
+    <Style x:Key="MixRadioLibraryAlbumItemStyle" TargetType="GridViewItem" BasedOn="{StaticResource MyMusicItemContainerZoomedInAlbumStyle}">
+        <Setter Property="AutomationProperties.Name" Value="{Binding Title}" />
+        <Setter Property="AutomationProperties.HelpText" Value="{Binding Subtitle}" />
+    </Style>
+    <Style x:Key="MixRadioLibrarySongItemStyle" TargetType="GridViewItem" BasedOn="{StaticResource MyMusicItemContainerZoomedInSongStyle}">
+        <Setter Property="AutomationProperties.Name" Value="{Binding Title}" />
+        <Setter Property="AutomationProperties.HelpText" Value="{Binding Subtitle}" />
+    </Style>
+    <nav:MixRadioLibraryContainerStyleSelector x:Key="MixRadioLibraryContainerSelector"
+        AlbumStyle="{StaticResource MixRadioLibraryAlbumItemStyle}" SongStyle="{StaticResource MixRadioLibrarySongItemStyle}" />
+    <Style x:Key="MixRadioLibraryMenuStyle" TargetType="FlyoutPresenter">
+        <Setter Property="Background" Value="#211D1E" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="MinWidth" Value="0" />
+    </Style>
 </ResourceDictionary>
 '''
     # Dependencies precede the recovered item templates in the resource dictionary.

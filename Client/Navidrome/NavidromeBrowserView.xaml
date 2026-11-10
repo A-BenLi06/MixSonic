@@ -58,28 +58,35 @@
     </Page.BottomAppBar>
     <Grid x:Name="Canvas" Background="Black">
         <Grid.RowDefinitions><RowDefinition x:Name="HeaderHeight" Height="134"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-        <Grid x:Name="PageHeader">
-            <Grid.ColumnDefinitions><ColumnDefinition x:Name="HeaderIndent" Width="116"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <Grid x:Name="PageHeader" Height="134" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="HeaderIndent" Width="116"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition x:Name="FilterGap" Width="54"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="HeaderSearchWidth" Width="318"/>
+            </Grid.ColumnDefinitions>
             <Button x:Name="GoBack" x:Uid="Navidrome_Back" Style="{StaticResource BackButtonStyle}"/>
             <TextBlock x:Name="PageTitle" x:Uid="Navidrome_LibraryTitle" Grid.Column="1" Style="{StaticResource PageHeaderTextStyle}"/>
-            <Button x:Name="CurrentFilter" Grid.Column="2" Style="{StaticResource MyMusicFilterButtonStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,0,0" Click="OnLibraryClicked">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock x:Name="CurrentFilterText" Text="{Binding DisplayName}" FontFamily="{StaticResource FontFamilyLight}" FontSize="40" Padding="8,7" TextTrimming="WordEllipsis"/>
-                    <TextBlock Text="&#xE011;" FontFamily="Segoe UI Symbol" FontSize="24" Margin="4,0,0,0" VerticalAlignment="Center"/>
-                </StackPanel>
+            <Button x:Name="CurrentFilter" Grid.Column="3" Style="{StaticResource MyMusicFilterButtonStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,10,0,0" Padding="0" Click="OnLibraryClicked" AutomationProperties.Name="{Binding DisplayName}">
+                <Grid Height="60">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="32"/></Grid.ColumnDefinitions>
+                    <TextBlock x:Name="CurrentFilterText" Text="{Binding DisplayName}" FontFamily="{StaticResource FontFamilyLight}" FontWeight="Light" FontSize="40" Padding="8,7" TextTrimming="WordEllipsis"/>
+                    <TextBlock Grid.Column="1" Text="&#xE011;" FontFamily="{StaticResource SymbolThemeFontFamily}" FontSize="{StaticResource ComboBoxArrowThemeFontSize}" FontWeight="Bold" Margin="0,7,6,4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                </Grid>
             </Button>
         </Grid>
         <common:LibrarySearch x:Name="SearchControl" Width="270" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,70,32,0"/>
-        <StackPanel x:Name="Feedback" Grid.Row="1" Margin="116,0,40,12">
-            <TextBlock Text="{Binding Error}" Style="{StaticResource NormalText}" Foreground="{StaticResource NokiaPinkBrush}" TextWrapping="Wrap" Visibility="{Binding HasError, Converter={StaticResource NavidromeVisibility}}"/>
-            <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}"/>
-            <ProgressRing IsActive="{Binding IsWorking}" Width="32" Height="32" HorizontalAlignment="Left" Visibility="{Binding IsWorking, Converter={StaticResource NavidromeVisibility}}"/>
-            <TextBlock x:Uid="Navidrome_ActivityRefreshHelp" Style="{StaticResource SmallGreyText}" Margin="0,8,0,0" Visibility="{Binding IsActivity, Converter={StaticResource NavidromeVisibility}}"/>
+        <StackPanel x:Name="Feedback" Grid.Row="1" Margin="116,0,40,0">
+            <TextBlock Text="{Binding Error}" Style="{StaticResource NormalText}" Foreground="{StaticResource NokiaPinkBrush}" Margin="0,0,0,12" TextWrapping="Wrap" Visibility="{Binding HasError, Converter={StaticResource NavidromeVisibility}}"/>
+            <ProgressRing IsActive="{Binding IsLoading}" Width="32" Height="32" Margin="0,0,0,12" HorizontalAlignment="Left" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}"/>
+            <ProgressRing IsActive="{Binding IsWorking}" Width="32" Height="32" Margin="0,0,0,12" HorizontalAlignment="Left" Visibility="{Binding IsWorking, Converter={StaticResource NavidromeVisibility}}"/>
+            <TextBlock x:Uid="Navidrome_ActivityRefreshHelp" Style="{StaticResource SmallGreyText}" Margin="0,8,0,12" Visibility="{Binding IsActivity, Converter={StaticResource NavidromeVisibility}}"/>
         </StackPanel>
         <Grid Grid.Row="2">
             <TextBlock x:Name="EmptyMessage" x:Uid="Navidrome_EmptyCollection" Style="{StaticResource MediumLightText}" Margin="116,0,40,0" Visibility="{Binding IsEmpty, Converter={StaticResource NavidromeVisibility}}"/>
             <GridView x:Name="LibraryItems" ItemsSource="{Binding Items}" ItemTemplateSelector="{StaticResource MixRadioLibrarySelector}"
-                ItemContainerStyle="{StaticResource GridViewItemStyle}" IsItemClickEnabled="True" SelectionMode="Multiple" Padding="116,0,40,20"
+                ItemContainerStyleSelector="{StaticResource MixRadioLibraryContainerSelector}" IsItemClickEnabled="True" SelectionMode="Multiple" Padding="119,3,40,16" Loaded="OnLibraryLoaded"
                 ScrollViewer.HorizontalScrollMode="Enabled" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                 ScrollViewer.VerticalScrollMode="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"
                 selection:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}" ItemClick="OnItemClicked">

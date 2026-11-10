@@ -14,6 +14,8 @@ namespace Subsonic8.Diagnostics
     using Windows.Graphics.Imaging;
     using Windows.Storage;
     using Windows.UI.Xaml;
+    using Windows.UI.Xaml.Automation.Peers;
+    using Windows.UI.Xaml.Automation.Provider;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Media;
     using Windows.UI.Xaml.Media.Imaging;
@@ -56,7 +58,91 @@ namespace Subsonic8.Diagnostics
                 if (shell.ShellFrame.Content is MainView)
                 {
                     if (NavigationExtensions.NavigateToViewModel<NavidromeBrowserViewModel>(navigation, "albums"))
+                    {
                         pages.Add(await Capture(shell, folder, "albums"));
+                        var originalWidth = shell.Width;
+                        var originalHeight = shell.Height;
+                        try
+                        {
+                            // Match the app-content viewport in the supplied MixRadio
+                            // screenshot, then inspect the supported compact layouts.
+                            shell.Width = 1744;
+                            shell.Height = 1090;
+                            shell.UpdateLayout();
+                            pages.Add(await Capture(shell, folder, "albums-reference-size"));
+                            var browser = shell.ShellFrame.Content as NavidromeBrowserView;
+                            var library = browser == null ? null : browser.FindName("LibraryItems") as GridView;
+                            if (library != null && library.Items.Count > 0)
+                            {
+                                library.SelectedItems.Add(library.Items[0]);
+                                var first = library.ContainerFromIndex(0) as Control;
+                                if (first != null) first.Focus(FocusState.Keyboard);
+                                pages.Add(await Capture(shell, folder, "albums-selected"));
+                                library.SelectedItems.Clear();
+                                if (first != null) first.Focus(FocusState.Keyboard);
+                                pages.Add(await Capture(shell, folder, "albums-focus"));
+                                if (first != null)
+                                {
+                                    VisualStateManager.GoToState(first, "PointerOver", false);
+                                    pages.Add(await Capture(shell, folder, "albums-hover-preview"));
+                                    VisualStateManager.GoToState(first, "Normal", false);
+                                    var artwork = Descendants(first).OfType<Subsonic8.Common.MixRadioArtwork>().FirstOrDefault();
+                                    if (artwork != null)
+                                    {
+                                        var binding = artwork.GetBindingExpression(Subsonic8.Common.MixRadioArtwork.SourceProperty);
+                                        var source = artwork.Source;
+                                        try
+                                        {
+                                            artwork.Source = null;
+                                            pages.Add(await Capture(shell, folder, "albums-missing-cover-preview"));
+                                        }
+                                        finally
+                                        {
+                                            if (binding != null) artwork.SetBinding(Subsonic8.Common.MixRadioArtwork.SourceProperty, binding.ParentBinding);
+                                            else artwork.Source = source;
+                                        }
+                                    }
+                                }
+                            }
+                            foreach (var compactWidth in new[] { 900, 500 })
+                            {
+                                shell.Width = compactWidth;
+                                shell.Height = 900;
+                                shell.UpdateLayout();
+                                pages.Add(await Capture(shell, folder, "albums-" + compactWidth));
+                            }
+                            shell.Width = 1744;
+                            shell.Height = 1090;
+                            shell.UpdateLayout();
+                            if (NavigationExtensions.NavigateToViewModel<NavidromeBrowserViewModel>(navigation, "artists"))
+                            {
+                                pages.Add(await Capture(shell, folder, "artists"));
+                                var artists = (NavidromeBrowserView)shell.ShellFrame.Content;
+                                var filter = (Button)artists.FindName("CurrentFilter");
+                                var peer = new ButtonAutomationPeer(filter);
+                                ((IInvokeProvider)peer.GetPattern(PatternInterface.Invoke)).Invoke();
+                                await Task.Delay(500);
+                                var popup = VisualTreeHelper.GetOpenPopups(Window.Current).FirstOrDefault();
+                                if (popup != null)
+                                {
+                                    var choices = Descendants(popup.Child).OfType<ListBox>().FirstOrDefault();
+                                    report["libraryMenuScreenshot"] = JsonValue.CreateStringValue(await WriteScreenshot(popup.Child, folder, "library-menu"));
+                                    report["libraryMenuChoiceCount"] = JsonValue.CreateNumberValue(choices == null ? 0 : choices.Items.Count);
+                                    if (choices != null)
+                                    {
+                                        choices.SelectedItem = choices.Items.OfType<LibraryDestination>().First(destination => destination.Route == "albums");
+                                        pages.Add(await Capture(shell, folder, "albums-from-menu"));
+                                        var destinationPage = shell.ShellFrame.Content as NavidromeBrowserView;
+                                        var destinationModel = destinationPage == null ? null : destinationPage.DataContext as NavidromeBrowserViewModel;
+                                        report["libraryMenuNavigated"] = JsonValue.CreateBooleanValue(destinationModel != null && destinationModel.Parameter == "albums");
+                                    }
+                                }
+                            }
+                            if (NavigationExtensions.NavigateToViewModel<NavidromeBrowserViewModel>(navigation, "songs"))
+                                pages.Add(await Capture(shell, folder, "songs"));
+                        }
+                        finally { shell.Width = originalWidth; shell.Height = originalHeight; shell.UpdateLayout(); }
+                    }
                     await SaveReport(root, folder, report);
                     if (NavigationExtensions.NavigateToViewModel<NavidromePlayerViewModel>(navigation))
                         pages.Add(await Capture(shell, folder, "player"));
@@ -120,6 +206,13 @@ namespace Subsonic8.Diagnostics
             result["initializing"] = JsonValue.CreateBooleanValue(((ShellViewModel)shell.DataContext).IsInitializing);
             result["artworkDecoded"] = JsonValue.CreateNumberValue(RemoteImages(shell).Count(bitmap => bitmap.PixelWidth > 0));
             result["artworkPendingOrUnavailable"] = JsonValue.CreateNumberValue(RemoteImages(shell).Count(bitmap => bitmap.PixelWidth == 0));
+            var header = new JsonObject();
+            foreach (var elementName in new[] { "GoBack", "PageTitle", "CurrentFilter", "SearchControl" })
+            {
+                var element = page == null ? null : page.FindName(elementName) as FrameworkElement;
+                if (element != null && element.Visibility == Visibility.Visible) header[elementName] = Bounds(element, page);
+            }
+            result["header"] = header;
             var lists = new JsonArray();
             foreach (var list in Descendants(shell).OfType<GridView>().Where(list => list.Visibility == Visibility.Visible))
             {
@@ -147,6 +240,27 @@ namespace Subsonic8.Diagnostics
                     box["y"] = JsonValue.CreateNumberValue(point.Y);
                     box["width"] = JsonValue.CreateNumberValue(item.ActualWidth);
                     box["height"] = JsonValue.CreateNumberValue(item.ActualHeight);
+                    var control = item as Control;
+                    if (control != null) box["focusState"] = JsonValue.CreateStringValue(control.FocusState.ToString());
+                    var focusVisual = Descendants(item).OfType<FrameworkElement>().FirstOrDefault(element => element.Name == "FocusVisualWhite");
+                    if (focusVisual != null) box["focusVisualOpacity"] = JsonValue.CreateNumberValue(focusVisual.Opacity);
+                    var media = list.Items[index] as NavidromeItem;
+                    var card = Descendants(item).OfType<Grid>().FirstOrDefault(grid => Math.Abs(grid.ActualWidth - 260) < 0.1 && Math.Abs(grid.ActualHeight - 130) < 0.1);
+                    if (card != null && media != null)
+                    {
+                        box["card"] = Bounds(card, page);
+                        var texts = new JsonArray();
+                        foreach (var block in Descendants(card).OfType<TextBlock>().Where(block => !string.IsNullOrEmpty(block.Text)))
+                        {
+                            var textBounds = Bounds(block, card);
+                            var position = block.TransformToVisual(card).TransformPoint(new Point());
+                            textBounds["isCount"] = JsonValue.CreateBooleanValue(block.Text == media.CountText);
+                            textBounds["withinCard"] = JsonValue.CreateBooleanValue(position.X >= 0 && position.Y >= 0 &&
+                                position.X + block.ActualWidth <= card.ActualWidth + 0.1 && position.Y + block.ActualHeight <= card.ActualHeight + 0.1);
+                            texts.Add(textBounds);
+                        }
+                        box["texts"] = texts;
+                    }
                     bounds.Add(box);
                 }
                 layout["items"] = bounds;
@@ -170,22 +284,36 @@ namespace Subsonic8.Diagnostics
             }
             try
             {
-                var bitmap = new RenderTargetBitmap();
-                await bitmap.RenderAsync(shell);
-                var pixels = await bitmap.GetPixelsAsync();
-                var filename = name + ".png";
-                var file = await folder.CreateFileAsync(filename, CreationCollisionOption.FailIfExists);
-                using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
-                {
-                    var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
-                    encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied,
-                        (uint)bitmap.PixelWidth, (uint)bitmap.PixelHeight, 96, 96, pixels.ToArray());
-                    await encoder.FlushAsync();
-                }
-                result["screenshot"] = JsonValue.CreateStringValue(filename);
+                result["screenshot"] = JsonValue.CreateStringValue(await WriteScreenshot(shell, folder, name));
             }
             catch (Exception exception) { result["captureError"] = JsonValue.CreateStringValue(exception.ToString()); }
             return result;
+        }
+
+        private static JsonObject Bounds(FrameworkElement element, UIElement relativeTo)
+        {
+            var point = element.TransformToVisual(relativeTo).TransformPoint(new Point());
+            return new JsonObject {
+                ["x"] = JsonValue.CreateNumberValue(point.X), ["y"] = JsonValue.CreateNumberValue(point.Y),
+                ["width"] = JsonValue.CreateNumberValue(element.ActualWidth), ["height"] = JsonValue.CreateNumberValue(element.ActualHeight)
+            };
+        }
+
+        private static async Task<string> WriteScreenshot(UIElement element, StorageFolder folder, string name)
+        {
+            var bitmap = new RenderTargetBitmap();
+            await bitmap.RenderAsync(element);
+            var pixels = await bitmap.GetPixelsAsync();
+            var filename = name + ".png";
+            var file = await folder.CreateFileAsync(filename, CreationCollisionOption.FailIfExists);
+            using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
+            {
+                var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
+                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied,
+                    (uint)bitmap.PixelWidth, (uint)bitmap.PixelHeight, 96, 96, pixels.ToArray());
+                await encoder.FlushAsync();
+            }
+            return filename;
         }
 
         private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
