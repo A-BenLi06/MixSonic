@@ -4,13 +4,15 @@ param(
     [string]$MSBuildPath = $env:SUBSONIC8_MSBUILD,
     [switch]$NoBuild,
     [switch]$NoLaunch,
-    [switch]$NativeUiProbe
+    [switch]$NativeUiProbe,
+    [switch]$NativeUiObserve
 )
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $clientRoot = Join-Path $projectRoot 'Client'
-if ($NativeUiProbe -and ($Configuration -ne 'Debug' -or $NoBuild)) { throw 'The native UI probe requires a fresh Debug build.' }
+if (($NativeUiProbe -or $NativeUiObserve) -and ($Configuration -ne 'Debug' -or $NoBuild)) { throw 'Native UI diagnostics require a fresh Debug build.' }
+if ($NativeUiProbe -and $NativeUiObserve) { throw 'Choose either the scripted probe or the passive observer.' }
 function Stop-WorkspaceClient {
     $clientProject = [xml](Get-Content -LiteralPath (Join-Path $clientRoot 'Client.csproj') -Raw)
     $processName = $clientProject.SelectSingleNode('//*[local-name()="AssemblyName"]').InnerText
@@ -24,9 +26,9 @@ if (-not $MSBuildPath) {
 $outputRoot = Join-Path $projectRoot '.tmp\desktop'
 New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
 $modeFile = Join-Path $outputRoot "build-mode-$Architecture-$Configuration.txt"
-$buildMode = if ($NativeUiProbe) { 'native-ui-probe' } else { 'normal' }
+$buildMode = if ($NativeUiObserve) { 'native-ui-observer' } elseif ($NativeUiProbe) { 'native-ui-probe' } else { 'normal' }
 $previousMode = if (Test-Path -LiteralPath $modeFile) { (Get-Content -LiteralPath $modeFile -Raw).Trim() } else { '' }
-if ($NoBuild -and $previousMode -eq 'native-ui-probe') { throw 'The last build contains the native UI probe. Run a normal build before using -NoBuild.' }
+if ($NoBuild -and $previousMode -like 'native-ui-*') { throw 'The last build contains native UI diagnostics. Run a normal build before using -NoBuild.' }
 if (-not $NoBuild) {
     Stop-WorkspaceClient
     if (-not (Test-Path -LiteralPath $MSBuildPath)) { throw 'Supply -MSBuildPath for the legacy Windows 8.1 build toolchain.' }
@@ -34,7 +36,7 @@ if (-not $NoBuild) {
     # MSBuild 14 can reuse CoreCompile outputs when a conditional Compile item
     # disappears. Changing the probe define must invalidate that cached binary.
     $buildTarget = if ($previousMode -ne $buildMode) { 'Rebuild' } else { 'Build' }
-    & $MSBuildPath (Join-Path $clientRoot 'Client.csproj') "/t:$buildTarget" "/p:Configuration=$Configuration" "/p:Platform=$Architecture" "/p:NativeUiProbe=$($NativeUiProbe.IsPresent.ToString().ToLowerInvariant())" /m /v:quiet /nologo /fl "/flp:logfile=$buildLog;verbosity=normal"
+    & $MSBuildPath (Join-Path $clientRoot 'Client.csproj') "/t:$buildTarget" "/p:Configuration=$Configuration" "/p:Platform=$Architecture" "/p:NativeUiProbe=$(($NativeUiProbe -or $NativeUiObserve).ToString().ToLowerInvariant())" "/p:NativeUiObserve=$($NativeUiObserve.IsPresent.ToString().ToLowerInvariant())" /m /v:quiet /nologo /fl "/flp:logfile=$buildLog;verbosity=normal"
     if ($LASTEXITCODE -ne 0) { throw "Desktop build failed. See $buildLog" }
     Set-Content -LiteralPath $modeFile -Value $buildMode -Encoding utf8NoBOM
 }

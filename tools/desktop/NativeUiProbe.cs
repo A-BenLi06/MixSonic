@@ -43,6 +43,9 @@ namespace Subsonic8.Diagnostics
 
         internal static async Task RunAsync(ShellView shell, INavigationService navigation)
         {
+#if NATIVE_UI_OBSERVE
+            await ObserveAsync(shell);
+#else
             try
             {
                 var root = await ApplicationData.Current.LocalFolder.CreateFolderAsync("native-ui-probe", CreationCollisionOption.OpenIfExists);
@@ -232,7 +235,83 @@ namespace Subsonic8.Diagnostics
                 App.LogStartupEvent("Native UI probe complete: " + folder.Path);
             }
             catch (Exception exception) { App.LogStartupException("Native UI probe failed", exception); }
+#endif
         }
+
+#if NATIVE_UI_OBSERVE
+        // Passive observation only. Requests name snapshots; they cannot invoke
+        // navigation, focus, selection, sizing or any product command.
+        private static async Task ObserveAsync(ShellView shell)
+        {
+            var root = await ApplicationData.Current.LocalFolder.CreateFolderAsync("native-ui-observer", CreationCollisionOption.OpenIfExists);
+            var folder = await root.CreateFolderAsync(DateTimeOffset.UtcNow.ToString("yyyyMMdd'T'HHmmss'Z'"), CreationCollisionOption.GenerateUniqueName);
+            string previous = null;
+            while (true)
+            {
+                try
+                {
+                    var request = await root.TryGetItemAsync("request.txt") as StorageFile;
+                    var name = request == null ? "startup" : (await FileIO.ReadTextAsync(request)).Trim();
+                    if (name != previous && name.Length > 0 && name.Length < 80 && name.All(character => char.IsLetterOrDigit(character) || character == '-'))
+                    {
+                        previous = name;
+                        var report = await Capture(shell, folder, name, false);
+                        report["observedAt"] = JsonValue.CreateStringValue(DateTimeOffset.Now.ToString("O"));
+                        report["mode"] = JsonValue.CreateStringValue("passive-no-injected-actions");
+                        report["directory"] = JsonValue.CreateStringValue(folder.Path);
+                        var focus = Windows.UI.Xaml.Input.FocusManager.GetFocusedElement() as FrameworkElement;
+                        report["focus"] = Describe(focus);
+                        var controls = new JsonArray();
+                        foreach (var control in Descendants(shell).OfType<Control>().Where(control => control.Visibility == Visibility.Visible && control.ActualWidth > 0 &&
+                            (control is Button || control is GridViewItem || control is ListBoxItem)))
+                        {
+                            var item = Describe(control); item["bounds"] = Bounds(control, shell); controls.Add(item);
+                        }
+                        report["controls"] = controls;
+                        var popups = new JsonArray();
+                        foreach (var popup in VisualTreeHelper.GetOpenPopups(Window.Current).Where(popup => popup.IsOpen))
+                        {
+                            var item = new JsonObject();
+                            item["screenshot"] = JsonValue.CreateStringValue(await WriteScreenshot(popup.Child, folder, name + "-popup-" + popups.Count));
+                            var choices = new JsonArray();
+                            foreach (var control in Descendants(popup.Child).OfType<Control>().Where(control => control is ListBoxItem || control is Button)) choices.Add(Describe(control));
+                            item["controls"] = choices; popups.Add(item);
+                        }
+                        report["popups"] = popups;
+                        var browser = shell.ShellFrame.Content as NavidromeBrowserView;
+                        var model = browser == null ? null : browser.DataContext as NavidromeBrowserViewModel;
+                        if (model != null)
+                        {
+                            report["route"] = JsonValue.CreateStringValue(model.Parameter ?? string.Empty);
+                            report["indexVisible"] = JsonValue.CreateBooleanValue(((Grid)browser.FindName("IndexSurface")).Visibility == Visibility.Visible);
+                            report["mediaCount"] = JsonValue.CreateNumberValue(model.Items.Count);
+                            report["selectedMediaCount"] = JsonValue.CreateNumberValue(model.SelectedItems.Count);
+                        }
+                        await FileIO.WriteTextAsync(await folder.CreateFileAsync(name + ".json", CreationCollisionOption.ReplaceExisting), report.Stringify());
+                        await FileIO.WriteTextAsync(await root.CreateFileAsync("latest.json", CreationCollisionOption.ReplaceExisting), report.Stringify());
+                    }
+                }
+                catch (Exception exception) { App.LogStartupException("Passive UI observation failed", exception); }
+                await Task.Delay(250);
+            }
+        }
+
+        private static JsonObject Describe(FrameworkElement element)
+        {
+            var control = element as Control;
+            var content = element as ContentControl;
+            var group = element == null ? null : element.DataContext as LibraryIndexGroup;
+            var media = element == null ? null : element.DataContext as NavidromeItem;
+            var destination = element == null ? null : element.DataContext as LibraryDestination;
+            return new JsonObject {
+                ["type"] = JsonValue.CreateStringValue(element == null ? string.Empty : element.GetType().Name),
+                ["name"] = JsonValue.CreateStringValue(element == null ? string.Empty : element.Name),
+                ["label"] = JsonValue.CreateStringValue(group != null ? group.Title : media != null ? media.Title ?? string.Empty : destination != null ? destination.Label : content != null && content.Content is string ? (string)content.Content : string.Empty),
+                ["enabled"] = JsonValue.CreateBooleanValue(control != null && control.IsEnabled),
+                ["focusState"] = JsonValue.CreateStringValue(control == null ? string.Empty : control.FocusState.ToString())
+            };
+        }
+#endif
 
         private static async Task SaveReport(StorageFolder root, StorageFolder folder, JsonObject report)
         {
@@ -241,7 +320,7 @@ namespace Subsonic8.Diagnostics
             await FileIO.WriteTextAsync(await root.CreateFileAsync("latest.json", CreationCollisionOption.ReplaceExisting), text);
         }
 
-        private static async Task<JsonObject> Capture(ShellView shell, StorageFolder folder, string name)
+        private static async Task<JsonObject> Capture(ShellView shell, StorageFolder folder, string name, bool settle = true)
         {
             var page = shell.ShellFrame.Content as FrameworkElement;
             var model = page == null ? null : page.DataContext as NavidromePageViewModel;
@@ -250,7 +329,7 @@ namespace Subsonic8.Diagnostics
             await Task.Delay(500);
             shell.UpdateLayout();
             var artworkDeadline = DateTimeOffset.UtcNow.AddSeconds(15);
-            while (RemoteImages(shell).Any(bitmap => bitmap.PixelWidth == 0) && DateTimeOffset.UtcNow < artworkDeadline)
+            while (settle && RemoteImages(shell).Any(bitmap => bitmap.PixelWidth == 0) && DateTimeOffset.UtcNow < artworkDeadline)
                 await Task.Delay(100);
             // Include the recovered 600 ms fade after the last image finishes decoding.
             await Task.Delay(700);

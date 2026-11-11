@@ -240,3 +240,29 @@ The Debug-only native probe now captures all four grouped/index/jump views,
 compact indices, and selection while paging. Actual runtime evidence is kept
 under `.tmp/ui-acceptance/2026-11-11/library-index/`; it establishes rendered XAML
 and programmatic navigation, not physical mouse/touch gestures or OS resizing.
+
+## Real keyboard acceptance and passive observation
+
+The subsequent [input acceptance report](index-input-acceptance.md) records real
+OS keyboard actions independently of the scripted probe. Album, artist and song
+jumps completed; genre activation was interrupted twice by process hangs, and
+startup exposed invisible error controls to Tab. The run is a partial result.
+
+For manual or computer-use acceptance, launch a fresh passive Debug build:
+
+```powershell
+./tools/desktop/run.ps1 -NativeUiObserve
+```
+
+Write a unique snapshot name (1–79 letters, digits or hyphens) to the package's
+`LocalState/native-ui-observer/request.txt`. The observer writes named JSON/PNG
+files under a timestamped directory and publishes `latest.json`. Verify the
+returned name, directory, page and route; a pending name can survive relaunch.
+Requests contain no actions. Navigate the actual app separately, wait for the
+observation, then choose the next input. The images cover XAML content; they do
+not establish Windows compositor state or pointer coordinates. Focus/control
+descriptions are diagnostics, not a replacement for an accessibility tree.
+
+`-NativeUiObserve` and `-NativeUiProbe` are mutually exclusive and require fresh
+Debug builds. `-NoBuild` refuses a diagnostic build. Finish with an ordinary
+`./tools/desktop/run.ps1` build to remove the diagnostics from the executable.
