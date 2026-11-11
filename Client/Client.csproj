@@ -486,6 +486,7 @@
     <Compile Include="Navidrome\NavidromeMediaPageViewModel.cs" />
     <Compile Include="Navidrome\NavidromeItem.cs" />
     <Compile Include="Navidrome\LibraryPresentation.cs" />
+    <Compile Include="Navidrome\LibraryIndex.cs" />
     <Compile Include="Navidrome\MixRadioPlayerSurface.xaml.cs"><DependentUpon>MixRadioPlayerSurface.xaml</DependentUpon></Compile>
     <Page Include="Navidrome\MixRadioPlayerSurface.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Compile Include="Navidrome\MixRadioHomePanel.xaml.cs"><DependentUpon>MixRadioHomePanel.xaml</DependentUpon></Compile>

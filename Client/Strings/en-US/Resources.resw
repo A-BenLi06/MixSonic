@@ -117,6 +117,9 @@
   <data name="Navidrome_Text_NoWritablePlaylists" xml:space="preserve"><value>There are no playlists you can add tracks to. Create a playlist first.</value></data>
   <data name="Navidrome_Text_SharingUnavailable" xml:space="preserve"><value>Sharing is unavailable for this server or account.</value></data>
   <data name="Navidrome_Text_UnknownSection" xml:space="preserve"><value>This section is unavailable.</value></data>
+  <data name="Navidrome_Index.Label" xml:space="preserve"><value>Index</value></data>
+  <data name="Navidrome_Text_UnknownArtist" xml:space="preserve"><value>Unknown artist</value></data>
+  <data name="Navidrome_Text_UnknownGenre" xml:space="preserve"><value>Unknown genre</value></data>
   <data name="Navidrome_Text_InvalidYears" xml:space="preserve"><value>Enter valid years.</value></data>
   <data name="Navidrome_Text_GenreRequired" xml:space="preserve"><value>Enter a genre to filter by.</value></data>
   <data name="Navidrome_Text_InvalidStationUrl" xml:space="preserve"><value>This station does not have a valid HTTP or HTTPS stream URL.</value></data>

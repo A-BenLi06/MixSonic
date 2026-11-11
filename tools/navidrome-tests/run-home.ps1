@@ -14,7 +14,7 @@ $sources += @(
     'Client.Common\Models\Navidrome\OfflineCatalog.cs', 'Client.Common\Services\Navidrome\MediaDownload.cs',
     'Client\Navidrome\NavidromeSessionService.cs', 'Client\Navidrome\NavidromePageViewModel.cs',
     'Client\Navidrome\NavidromeDialogContracts.cs', 'Client\Navidrome\NavidromeItem.cs', 'Client\Navidrome\NavidromeText.cs',
-    'Client\Navidrome\OfflineDownloadItem.cs', 'Client\Navidrome\LibraryPresentation.cs',
+    'Client\Navidrome\OfflineDownloadItem.cs', 'Client\Navidrome\LibraryPresentation.cs', 'Client\Navidrome\LibraryIndex.cs',
     'Client\Main\IMainViewModel.cs', 'Client\Main\MainViewModel.cs', 'Client\Framework\ViewModel\IHaveState.cs',
     'tools\serializer-tests\VisualStateResultStub.cs', 'tools\navidrome-tests\StorageAdapters.cs',
     'tools\navidrome-tests\HomeAdapters.cs', 'tools\navidrome-tests\HomeTests.cs', 'tools\navidrome-tests\ProtocolServer.cs'

@@ -25,11 +25,51 @@ public static class NavidromeHomeTests
     {
         try
         {
+            LibraryIndexChecks();
             using (var pump = new Pump()) pump.Run(Run);
             Console.WriteLine("PASS: " + _assertions + " production home/navigation assertions with controlled services and loopback HTTP. Native clicks and layout remain unverified.");
             return 0;
         }
         catch (Exception error) { Console.Error.WriteLine(error); return 1; }
+    }
+    private static void LibraryIndexChecks()
+    {
+        Check(LibraryIndex.Initial(" 1989") == "#", "Numbers use the symbol index.");
+        Check(LibraryIndex.Initial(null) == "#" && LibraryIndex.Initial("  ") == "#", "Missing titles have a valid index.");
+        Check(LibraryIndex.Initial("Écho") == "e" && LibraryIndex.Initial("e\u0301cho") == "e", "Composed and combining Latin accents share a group.");
+        Check(LibraryIndex.Initial("シネマ") == "シ" && LibraryIndex.Initial("迷跡波") == "迷", "Non-Latin script initials come from metadata.");
+        Check(LibraryIndex.Initial("\U0001f3b5 music") == "#", "Emoji use the symbol index without splitting a surrogate.");
+        Check(LibraryIndex.Initial("\U00020000 title") == "\U00020000", "Supplementary letters keep their complete initial.");
+        var titles = new[] { "Zoo", "1989", "beta", "Alpha", "シネマ", "迷跡波", "Écho" };
+        var items = titles.Select((title, number) => new NavidromeItem { Title = title, Media = new Album { Id = number.ToString(), Name = title, Artist = "Artist", ArtistId = "artist", Genre = "Pop" } }).ToList();
+        var index = LibraryIndex.Create(items, "albums", "Unknown artist", "Unknown genre");
+        Check(index.Groups.Count == 29, "The alphabet includes #, all 26 Latin letters, and discovered script initials.");
+        Check(!index.Groups.Single(group => group.Key == "x").IsEnabled, "A truly absent letter is disabled.");
+        Check(index.Groups.Single(group => group.Key == "z").IsEnabled, "The last populated letter is enabled.");
+        Check(index.Entries.OfType<NavidromeItem>().Count() == items.Count, "Headers do not duplicate or replace playable media.");
+        foreach (var group in index.Groups.Where(group => group.IsEnabled))
+            Check(ReferenceEquals(index.Entries[index.Entries.IndexOf(group) + 1], group.Items[0]), "An active index targets its exact inline header and following media.");
+        var songs = LibraryIndex.Create(items.Select(item => new NavidromeItem { Title = item.Title, Media = new Song { Id = item.Media.Id, Title = item.Title } }), "songs", "", "");
+        Check(songs.Groups.All(group => group.IsSong), "Song headers use the compact song-row template.");
+        Check(songs.Entries.OfType<NavidromeItem>().Select(item => item.Title).Take(3).SequenceEqual(new[] { "1989", "Alpha", "beta" }), "Playback can follow the displayed song ordering.");
+        var artists = LibraryIndex.Create(items, "artists", "Unknown artist", "Unknown genre");
+        Check(artists.Groups.Count == 1 && artists.Groups[0].Items.Count == items.Count && artists.Groups[0].IsArtist, "Artist indices contain their actual albums.");
+        var shared = (Album)items[0].Media;
+        shared.Artists = new List<MediaArtist> { new MediaArtist { Id = "artist", Name = "Artist" }, new MediaArtist { Id = "guest", Name = "Guest" } };
+        shared.Genres = new List<MediaGenre> { new MediaGenre { Name = "Pop" }, new MediaGenre { Name = "Rock" }, new MediaGenre { Name = "Rock" } };
+        artists = LibraryIndex.Create(items, "artists", "Unknown artist", "Unknown genre");
+        Check(artists.Groups.Count == 2 && artists.Groups.Single(group => group.Title == "Guest").Items.Single() == items[0], "Multiple album artists are grouped by their server identifiers.");
+        var genres = LibraryIndex.Create(items, "genres", "Unknown artist", "Unknown genre");
+        Check(genres.Groups.Count == 2 && genres.Groups.Single(group => group.Title == "Rock").Items.Count == 1, "All metadata genres are indexed without duplicating an album within a genre.");
+        var unknown = new NavidromeItem { Title = "Unknown", Media = new Album { Id = "unknown" } };
+        Check(LibraryIndex.Create(new[] { unknown }, "artists", "Fallback artist", "Fallback genre").Groups[0].Title == "Fallback artist", "Unknown artists use the supplied localized label.");
+        Check(LibraryIndex.Create(new[] { unknown }, "genres", "Fallback artist", "Fallback genre").Groups[0].Title == "Fallback genre", "Unknown genres use the supplied localized label.");
+        var distinctArtists = new[] { "ArtistId", "artistid" }.Select(id => new NavidromeItem { Title = id, Media = new Album { Id = id, ArtistId = id, Artist = "Same name" } });
+        Check(LibraryIndex.Create(distinctArtists, "artists", "", "").Groups.Count == 2, "Opaque artist IDs remain case sensitive even when their names match.");
+        var filtered = LibraryIndex.Create(items.Take(1), "albums", "", "");
+        Check(!filtered.Groups.Single(group => group.Key == "a").IsEnabled && filtered.Groups.Single(group => group.Key == "z").IsEnabled, "Rebuilding after filtering removes stale index targets.");
+        var empty = LibraryIndex.Create(Enumerable.Empty<NavidromeItem>(), "albums", "", "");
+        Check(empty.Entries.Count == 0 && empty.Groups.All(group => !group.IsEnabled), "An empty library has no clickable header targets.");
     }
     private static async Task WaitFor(Func<bool> predicate)
     {

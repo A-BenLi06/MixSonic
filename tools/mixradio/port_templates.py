@@ -58,8 +58,7 @@ def offline_template(reference):
 
 
 def library_artist_template(reference):
-    # The original artist screen inserts MyMusicIndexZoomedInTemplate before
-    # each artist's albums. Here the card opens the existing artist detail page.
+    # Reused for artist results and inline album/artist/genre index headers.
     # Keep the GridViewItem as the only input target (no nested index button).
     xml = template('Views/MyMusic/MyMusicView.json', 'MyMusicIndexZoomedInTemplate',
                    'MixRadioLibraryArtistTemplate', {'Album': 'Title'}, reference)
@@ -70,16 +69,56 @@ def library_artist_template(reference):
                        'Style="{StaticResource ExtraLargeLightSubHeaderText}" MaxLines="3" TextTrimming="CharacterEllipsis"')
 
 
-def library_album_template(reference):
-    xml = template('Views/MyMusic/MyMusicView.json', 'MyMusicAlbumZoomedInTemplate',
-                   'MixRadioLibraryAlbumTemplate', {'Album': 'Title'}, reference)
+def library_album_template(reference, genre=False):
+    xml = template('Views/MyMusic/MyMusicView.json', 'MyMusicGenreZoomedInTemplate' if genre else 'MyMusicAlbumZoomedInTemplate',
+                   'MixRadioLibraryGenreAlbumTemplate' if genre else 'MixRadioLibraryAlbumTemplate', {'Album': 'Title'}, reference)
     # Bound the text by whole lines: a three-line title, one artist line and
     # the count fit inside the recovered 130 px information panel.
     xml = xml.replace('MaxHeight="70" LineHeight="21"',
                       'MaxLines="3" LineHeight="21" ToolTipService.ToolTip="{Binding Title}"')
     xml = xml.replace('MaxHeight="45" Foreground="LightGray"',
                       'MaxLines="1" TextWrapping="NoWrap" ToolTipService.ToolTip="{Binding Artist}" Foreground="LightGray"')
+    xml = xml.replace('Text="{Binding Path=ReleaseYear, Converter={StaticResource ReleaseYearConverter}}"', 'Text="{Binding YearText}"')
     return xml
+
+
+def index_templates(reference):
+    parts = []
+    for original, output in [('ActiveCharacterGridTemplate', 'MixRadioActiveIndexTemplate'),
+                             ('InactiveCharacterGridTemplate', 'MixRadioInactiveIndexTemplate'),
+                             ('MyMusicArtistZoomedOutTemplate', 'MixRadioArtistIndexTemplate'),
+                             ('MyMusicGenreZoomedOutTemplate', 'MixRadioGenreIndexTemplate')]:
+        xml = template('Views/MyMusic/MyMusicView.json', original, output, {'Key': 'Title'}, reference)
+        # GridViewItem owns pointer and keyboard activation; no nested Button.
+        xml = re.sub(r'<Button(?:\s[^>]*)?>', '<Grid>', xml)
+        xml = re.sub(r'<Button.RenderTransform>.*?</Button.RenderTransform>', '', xml, flags=re.S)
+        xml = xml.replace('<Button.Content>', '').replace('</Button.Content>', '').replace('</Button>', '</Grid>')
+        if 'Artist' in original or 'Genre' in original:
+            replacement = ('<Grid Background="{StaticResource NokiaPinkBrush}">' +
+                           ('<Image Source="ms-appx:///Assets/MixRadio/DefaultSemanticZoomArtist_158px.png" Width="158" Height="158" Stretch="Uniform"/>' if 'Artist' in original else '') + '</Grid>')
+            xml = re.sub(r'<common:MixRadioArtwork[^>]*/>', lambda match: replacement, xml)
+            xml = xml.replace('TextWrapping="Wrap"', 'TextWrapping="Wrap" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Title}"')
+        parts.append('\n'.join(line.rstrip() for line in xml.splitlines()) + '\n')
+    parts.append('''    <DataTemplate x:Key="MixRadioSongIndexHeaderTemplate">
+        <Grid Width="270" Height="65" Margin="0,0,25,0">
+            <Border Background="Black" BorderBrush="{StaticResource NokiaPinkBrush}" BorderThickness="3" Padding="12,4,12,5">
+                <TextBlock Text="{Binding Title}" Style="{StaticResource ExtraLargeLightSubHeaderText}" VerticalAlignment="Bottom"/>
+            </Border>
+        </Grid>
+    </DataTemplate>
+    <nav:MixRadioIndexTemplateSelector x:Key="MixRadioIndexSelector"
+        ActiveTemplate="{StaticResource MixRadioActiveIndexTemplate}" InactiveTemplate="{StaticResource MixRadioInactiveIndexTemplate}"
+        ArtistTemplate="{StaticResource MixRadioArtistIndexTemplate}" GenreTemplate="{StaticResource MixRadioGenreIndexTemplate}"/>
+    <Style x:Key="MixRadioIndexItemStyle" TargetType="GridViewItem">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="IsEnabled" Value="{Binding IsEnabled}"/>
+        <Setter Property="AutomationProperties.Name" Value="{Binding Title}"/>
+    </Style>
+''')
+    return '\n'.join(parts)
 
 
 def export(reference):
@@ -142,6 +181,8 @@ def export(reference):
         PlaylistTemplate="{StaticResource MixRadioHomePlaylistTemplate}" HeroTemplate="{StaticResource MixRadioHomeHeroTemplate}"
         LinkTemplate="{StaticResource MixRadioNavigationTileTemplate}" />
     <nav:MixRadioLibraryTemplateSelector x:Key="MixRadioLibrarySelector"
+        IndexTemplate="{StaticResource MixRadioLibraryArtistTemplate}" SongIndexTemplate="{StaticResource MixRadioSongIndexHeaderTemplate}"
+        GenreAlbumTemplate="{StaticResource MixRadioLibraryGenreAlbumTemplate}"
         AlbumTemplate="{StaticResource MixRadioLibraryAlbumTemplate}" ArtistTemplate="{StaticResource MixRadioLibraryArtistTemplate}"
         SongTemplate="{StaticResource NavidromeTrackTemplate}" TextTemplate="{StaticResource MixRadioLibraryTextTemplate}" />
     <Style x:Key="MixRadioLibraryAlbumItemStyle" TargetType="GridViewItem" BasedOn="{StaticResource MyMusicItemContainerZoomedInAlbumStyle}">
@@ -164,7 +205,7 @@ def export(reference):
 '''
     # Dependencies precede the recovered item templates in the resource dictionary.
     order = [4, 5, 6, 0, 1, 2, 3, 7, 8, 9, 10]
-    return preamble + wordmark(reference) + '\n'.join(parts[index] for index in order) + offline_template(reference) + extras
+    return preamble + wordmark(reference) + '\n'.join(parts[index] for index in order) + library_album_template(reference, genre=True) + offline_template(reference) + index_templates(reference) + extras
 
 
 if __name__ == '__main__':

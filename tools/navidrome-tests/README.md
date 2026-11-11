@@ -10,7 +10,10 @@ storage boundaries. A loopback HTTP peer supplies real protocol responses for
 home previews. It checks all 13 destinations, section and tile dispatch,
 independent section failures, disconnected/current-account downloads, stale
 playback rejection, embedded player state forwarding and compact/featured
-template selection. Its 41 assertions do not exercise native pointer input,
+template selection. The library-index checks cover Unicode initials, disabled
+letters, exact header targets, media ordering, multiple album artists/genres,
+opaque artist IDs, localized fallbacks and rebuilding after filtering. Its 68
+assertions do not exercise native pointer input,
 XAML layout, audio decoding or the actual suspension lifecycle.
 
 `./tools/navidrome-tests/run-connection.ps1` compiles the production route, session

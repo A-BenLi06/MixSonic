@@ -215,6 +215,35 @@
             </Grid.Children>
         </Grid>
     </DataTemplate>
+    <!-- Views/MyMusic/MyMusicView.json: MyMusicGenreZoomedInTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioLibraryGenreAlbumTemplate">
+        <Grid Width="260" Height="130" Margin="0,0,25,0" HorizontalAlignment="Left">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.Children>
+                <Grid>
+                    <Grid.Children>
+                        <common:MixRadioArtwork Grid.RowSpan="2" DefaultSource="ms-appx:///Assets/MixRadio/PackArt-Explorer.Targetsize-256.png"  Source="{Binding ImageUrl}" />
+                        <ContentControl Width="32" Height="32" Margin="0,7,7,0" HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource MyMusicAlbumPlayIcon}" />
+                    </Grid.Children>
+                </Grid>
+                <Rectangle Grid.Column="1" Fill="Gray" Opacity="0.30000001" />
+                <Grid Grid.Column="1" Width="130" Height="130" Background="Transparent">
+                    <Grid.Children>
+                        <StackPanel Grid.Column="1" Margin="10,6,6,0">
+                            <StackPanel.Children>
+                                <TextBlock MaxLines="3" LineHeight="21" ToolTipService.ToolTip="{Binding Title}" Style="{StaticResource Medium2LightText}" Text="{Binding Path=Title}" TextWrapping="Wrap" />
+                                <TextBlock Foreground="LightGray" LineHeight="21" Style="{StaticResource NormalSemiLightText}" Text="{Binding CountText}" />
+                                <TextBlock Foreground="LightGray" LineHeight="21" Style="{StaticResource NormalSemiLightText}" Text="{Binding YearText}" />
+                            </StackPanel.Children>
+                        </StackPanel>
+                    </Grid.Children>
+                </Grid>
+            </Grid.Children>
+        </Grid>
+    </DataTemplate>
     <!-- Common/NokiaMusicClient.json: RadioStationItemOfflineTemplate; data bindings adapted to Navidrome. -->
     <DataTemplate x:Key="MixRadioOfflineTemplate">
         <Grid Height="162" Width="162" HorizontalAlignment="Left" Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
@@ -248,6 +277,96 @@
             </Grid.Children>
         </Grid>
     </DataTemplate>
+    <!-- Views/MyMusic/MyMusicView.json: ActiveCharacterGridTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioActiveIndexTemplate">
+        <Grid>
+
+                <StackPanel Width="126" Height="106" Margin="0,0,0,0" Background="{StaticResource NokiaPinkBrush}">
+                    <StackPanel.Children>
+                        <TextBlock Margin="8,70,0,12" FontSize="26.67" Foreground="White" Style="{StaticResource Medium2LightText}" Text="{Binding Path=Title}" TextAlignment="Left" />
+                    </StackPanel.Children>
+                </StackPanel>
+
+        </Grid>
+    </DataTemplate>
+
+    <!-- Views/MyMusic/MyMusicView.json: InactiveCharacterGridTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioInactiveIndexTemplate">
+        <Grid>
+
+                <StackPanel Width="126" Height="106" Margin="0,0,0,0" Background="#414141">
+                    <StackPanel.Children>
+                        <TextBlock Margin="8,70,0,12" FontSize="26.67" Foreground="White" Style="{StaticResource Medium2LightText}" Text="{Binding Path=Title}" TextAlignment="Left" />
+                    </StackPanel.Children>
+                </StackPanel>
+
+        </Grid>
+    </DataTemplate>
+
+    <!-- Views/MyMusic/MyMusicView.json: MyMusicArtistZoomedOutTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioArtistIndexTemplate">
+        <Grid>
+
+
+                <Grid Width="158">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="88" />
+                        <RowDefinition Height="236" />
+                    </Grid.RowDefinitions>
+                    <Grid.Children>
+                        <TextBlock Grid.Row="0" MaxHeight="88" Margin="0,0,24,5" VerticalAlignment="Bottom" LineStackingStrategy="MaxHeight" Style="{StaticResource Medium2LightText}" Text="{Binding Path=Title}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Title}" />
+                        <Grid Grid.Row="1" Background="#414141">
+                            <Grid.Children>
+                                <Grid Background="{StaticResource NokiaPinkBrush}"><Image Source="ms-appx:///Assets/MixRadio/DefaultSemanticZoomArtist_158px.png" Width="158" Height="158" Stretch="Uniform"/></Grid>
+                            </Grid.Children>
+                        </Grid>
+                    </Grid.Children>
+                </Grid>
+
+        </Grid>
+    </DataTemplate>
+
+    <!-- Views/MyMusic/MyMusicView.json: MyMusicGenreZoomedOutTemplate; data bindings adapted to Navidrome. -->
+    <DataTemplate x:Key="MixRadioGenreIndexTemplate">
+        <Grid>
+
+
+                <Grid Width="158">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="88" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid.Children>
+                        <TextBlock Grid.Row="0" MaxHeight="88" Margin="0,0,24,5" VerticalAlignment="Bottom" LineStackingStrategy="MaxHeight" Style="{StaticResource Medium2LightText}" Text="{Binding Path=Title}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Title}" />
+                        <Grid Grid.Row="1" Height="236">
+                            <Grid.Children>
+                                <Grid Background="{StaticResource NokiaPinkBrush}"></Grid>
+                            </Grid.Children>
+                        </Grid>
+                    </Grid.Children>
+                </Grid>
+
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate x:Key="MixRadioSongIndexHeaderTemplate">
+        <Grid Width="270" Height="65" Margin="0,0,25,0">
+            <Border Background="Black" BorderBrush="{StaticResource NokiaPinkBrush}" BorderThickness="3" Padding="12,4,12,5">
+                <TextBlock Text="{Binding Title}" Style="{StaticResource ExtraLargeLightSubHeaderText}" VerticalAlignment="Bottom"/>
+            </Border>
+        </Grid>
+    </DataTemplate>
+    <nav:MixRadioIndexTemplateSelector x:Key="MixRadioIndexSelector"
+        ActiveTemplate="{StaticResource MixRadioActiveIndexTemplate}" InactiveTemplate="{StaticResource MixRadioInactiveIndexTemplate}"
+        ArtistTemplate="{StaticResource MixRadioArtistIndexTemplate}" GenreTemplate="{StaticResource MixRadioGenreIndexTemplate}"/>
+    <Style x:Key="MixRadioIndexItemStyle" TargetType="GridViewItem">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="IsEnabled" Value="{Binding IsEnabled}"/>
+        <Setter Property="AutomationProperties.Name" Value="{Binding Title}"/>
+    </Style>
 
     <!-- StandardButtonStyle's 162 px layout rendered inside the clickable GridViewItem. -->
     <DataTemplate x:Key="MixRadioNavigationTileTemplate">
@@ -280,6 +399,8 @@
         PlaylistTemplate="{StaticResource MixRadioHomePlaylistTemplate}" HeroTemplate="{StaticResource MixRadioHomeHeroTemplate}"
         LinkTemplate="{StaticResource MixRadioNavigationTileTemplate}" />
     <nav:MixRadioLibraryTemplateSelector x:Key="MixRadioLibrarySelector"
+        IndexTemplate="{StaticResource MixRadioLibraryArtistTemplate}" SongIndexTemplate="{StaticResource MixRadioSongIndexHeaderTemplate}"
+        GenreAlbumTemplate="{StaticResource MixRadioLibraryGenreAlbumTemplate}"
         AlbumTemplate="{StaticResource MixRadioLibraryAlbumTemplate}" ArtistTemplate="{StaticResource MixRadioLibraryArtistTemplate}"
         SongTemplate="{StaticResource NavidromeTrackTemplate}" TextTemplate="{StaticResource MixRadioLibraryTextTemplate}" />
     <Style x:Key="MixRadioLibraryAlbumItemStyle" TargetType="GridViewItem" BasedOn="{StaticResource MyMusicItemContainerZoomedInAlbumStyle}">

@@ -140,6 +140,64 @@ namespace Subsonic8.Diagnostics
                             }
                             if (NavigationExtensions.NavigateToViewModel<NavidromeBrowserViewModel>(navigation, "songs"))
                                 pages.Add(await Capture(shell, folder, "songs"));
+                            var indexChecks = new JsonArray();
+                            report["indexChecks"] = indexChecks;
+                            foreach (var section in new[] { "albums", "songs", "artists", "genres" })
+                            {
+                                if (!NavigationExtensions.NavigateToViewModel<NavidromeBrowserViewModel>(navigation, section)) continue;
+                                pages.Add(await Capture(shell, folder, section + "-grouped"));
+                                var indexedView = (NavidromeBrowserView)shell.ShellFrame.Content;
+                                var indexedModel = (NavidromeBrowserViewModel)indexedView.DataContext;
+                                var before = indexedModel.Items.Count;
+                                var listBeforeIndex = (GridView)indexedView.FindName("LibraryItems");
+                                var pagingSelection = indexedModel.Items.LastOrDefault();
+                                if (pagingSelection != null && indexedModel.CanLoadMore)
+                                {
+                                    listBeforeIndex.SelectedItems.Add(pagingSelection);
+                                    listBeforeIndex.ScrollIntoView(pagingSelection, ScrollIntoViewAlignment.Leading);
+                                    await indexedModel.LoadMore();
+                                    pages.Add(await Capture(shell, folder, section + "-paged"));
+                                }
+                                var pagingPreserved = pagingSelection == null || indexedModel.SelectedItems.Contains(pagingSelection);
+                                listBeforeIndex.SelectedItems.Clear();
+                                if (listBeforeIndex.Items.Count > 0) listBeforeIndex.ScrollIntoView(listBeforeIndex.Items[0], ScrollIntoViewAlignment.Leading);
+                                listBeforeIndex.UpdateLayout();
+                                await indexedView.ShowIndex();
+                                pages.Add(await Capture(shell, folder, section + "-index"));
+                                var target = indexedModel.IndexGroups.LastOrDefault(group => group.IsEnabled);
+                                var check = new JsonObject();
+                                check["section"] = JsonValue.CreateStringValue(section);
+                                check["pagingSelectionPreserved"] = JsonValue.CreateBooleanValue(pagingPreserved);
+                                check["beforeCount"] = JsonValue.CreateNumberValue(before);
+                                check["afterCount"] = JsonValue.CreateNumberValue(indexedModel.Items.Count);
+                                check["complete"] = JsonValue.CreateBooleanValue(!indexedModel.CanLoadMore && !indexedModel.HasError);
+                                check["indexVisible"] = JsonValue.CreateBooleanValue(((Grid)indexedView.FindName("IndexSurface")).Visibility == Visibility.Visible);
+                                check["groupCount"] = JsonValue.CreateNumberValue(indexedModel.IndexGroups.Count);
+                                if (target != null)
+                                {
+                                    indexedView.JumpToIndex(target);
+                                    pages.Add(await Capture(shell, folder, section + "-index-jump"));
+                                    var indexedList = (GridView)indexedView.FindName("LibraryItems");
+                                    var targetContainer = indexedList.ContainerFromItem(target) as FrameworkElement;
+                                    check["target"] = JsonValue.CreateStringValue(target.Title);
+                                    if (targetContainer != null)
+                                    {
+                                        var point = targetContainer.TransformToVisual(indexedList).TransformPoint(new Point());
+                                        check["targetVisible"] = JsonValue.CreateBooleanValue(point.X >= 0 && point.Y >= 0 && point.X < indexedList.ActualWidth && point.Y < indexedList.ActualHeight);
+                                    }
+                                    indexedList.SelectedItems.Add(target);
+                                    check["headerExcludedFromSelection"] = JsonValue.CreateBooleanValue(!indexedModel.SelectedItems.Contains(target) && !indexedList.SelectedItems.Contains(target));
+                                    var firstMedia = indexedList.Items.OfType<NavidromeItem>().FirstOrDefault();
+                                    if (firstMedia != null) indexedList.SelectedItems.Add(firstMedia);
+                                    await indexedView.ShowIndex();
+                                    check["mediaSelectionPreserved"] = JsonValue.CreateBooleanValue(firstMedia == null || indexedModel.SelectedItems.Contains(firstMedia));
+                                    shell.Width = 500; shell.Height = 900; shell.UpdateLayout();
+                                    pages.Add(await Capture(shell, folder, section + "-index-500"));
+                                    shell.Width = 1744; shell.Height = 1090; shell.UpdateLayout();
+                                }
+                                indexChecks.Add(check);
+                                await SaveReport(root, folder, report);
+                            }
                         }
                         finally { shell.Width = originalWidth; shell.Height = originalHeight; shell.UpdateLayout(); }
                     }

@@ -21,6 +21,8 @@ namespace Subsonic8.Navidrome
         public string ImageUrl { get; set; }
         public string Kind { get; set; }
         public bool IsHero { get; set; }
+        public bool IsGenreAlbum { get; set; }
+        public string YearText { get { var album = Media as Album; return album == null || album.Year == 0 ? null : album.Year.ToString(CultureInfo.CurrentCulture); } }
         public OfflineDownloadItem Download { get; set; }
         public string Artist { get { return Song != null ? Song.Artist : Media is Album ? ((Album)Media).Artist : Media is Playlist ? ((Playlist)Media).Owner : Subtitle; } }
         public string Album { get { return Song != null ? Song.Album : null; } }

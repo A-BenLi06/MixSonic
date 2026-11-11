@@ -87,14 +87,20 @@ namespace Subsonic8.Navidrome
 
     public sealed class MixRadioLibraryTemplateSelector : DataTemplateSelector
     {
+        public DataTemplate IndexTemplate { get; set; }
+        public DataTemplate SongIndexTemplate { get; set; }
+        public DataTemplate GenreAlbumTemplate { get; set; }
         public DataTemplate AlbumTemplate { get; set; }
         public DataTemplate ArtistTemplate { get; set; }
         public DataTemplate SongTemplate { get; set; }
         public DataTemplate TextTemplate { get; set; }
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
+            var group = item as LibraryIndexGroup;
+            if (group != null) return group.IsSong ? SongIndexTemplate : IndexTemplate;
             var media = item as NavidromeItem;
             if (media == null || media.Media == null) return TextTemplate;
+            if (media.IsGenreAlbum) return GenreAlbumTemplate;
             if (media.Song != null) return SongTemplate;
             if (media.Media.Type == SubsonicModelTypeEnum.Artist) return ArtistTemplate;
             if (media.Media.Type == SubsonicModelTypeEnum.Genre || media.Media.Type == SubsonicModelTypeEnum.InternetRadioStation) return TextTemplate;
@@ -108,10 +114,25 @@ namespace Subsonic8.Navidrome
         public Style SongStyle { get; set; }
         protected override Style SelectStyleCore(object item, DependencyObject container)
         {
+            var group = item as LibraryIndexGroup;
+            if (group != null) return group.IsSong ? SongStyle : AlbumStyle;
             var media = item as NavidromeItem;
             return media == null || media.Media == null || media.Song != null ||
                 media.Media.Type == SubsonicModelTypeEnum.Genre || media.Media.Type == SubsonicModelTypeEnum.InternetRadioStation
                 ? SongStyle : AlbumStyle;
+        }
+    }
+
+    public sealed class MixRadioIndexTemplateSelector : DataTemplateSelector
+    {
+        public DataTemplate ActiveTemplate { get; set; }
+        public DataTemplate InactiveTemplate { get; set; }
+        public DataTemplate ArtistTemplate { get; set; }
+        public DataTemplate GenreTemplate { get; set; }
+        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        {
+            var group = (LibraryIndexGroup)item;
+            return group.IsNamed ? (group.IsArtist ? ArtistTemplate : GenreTemplate) : (group.IsEnabled ? ActiveTemplate : InactiveTemplate);
         }
     }
 

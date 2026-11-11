@@ -1,6 +1,6 @@
 <framework:AppPage x:Class="Subsonic8.Navidrome.NavidromeBrowserView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:common="using:Subsonic8.Common" xmlns:framework="using:Subsonic8.Framework" xmlns:cal="using:Caliburn.Micro" xmlns:selection="using:Common.Behaviors" KeyDown="OnPageKeyDown">
+    xmlns:common="using:Subsonic8.Common" xmlns:framework="using:Subsonic8.Framework" xmlns:cal="using:Caliburn.Micro" KeyDown="OnPageKeyDown">
     <Page.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="NavidromeResources.xaml"/></ResourceDictionary.MergedDictionaries></ResourceDictionary></Page.Resources>
     <Page.BottomAppBar>
         <CommandBar>
@@ -8,6 +8,7 @@
             <AppBarButton x:Name="PlayNext" x:Uid="Navidrome_PlayNext" Icon="Forward"/>
             <AppBarButton x:Name="Append" x:Uid="Navidrome_Append" Icon="Add"/>
             <AppBarButton x:Name="Details" x:Uid="Navidrome_Details" Icon="View"/>
+            <AppBarButton x:Uid="Navidrome_Index" Icon="List" Click="OnShowIndex" IsEnabled="{Binding CanShowIndex}" Visibility="{Binding HasIndex, Converter={StaticResource NavidromeVisibility}}"/>
             <AppBarButton x:Uid="Navidrome_Filter" Icon="Filter">
                 <AppBarButton.Flyout><Flyout><StackPanel Width="280">
                     <TextBlock x:Uid="Navidrome_Library" FontSize="20"/>
@@ -66,7 +67,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition x:Name="HeaderSearchWidth" Width="318"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="GoBack" x:Uid="Navidrome_Back" Style="{StaticResource BackButtonStyle}"/>
+            <Button x:Name="LibraryBack" x:Uid="Navidrome_Back" Style="{StaticResource BackButtonStyle}" Click="OnLibraryBack"/>
             <TextBlock x:Name="PageTitle" x:Uid="Navidrome_LibraryTitle" Grid.Column="1" Style="{StaticResource PageHeaderTextStyle}"/>
             <Button x:Name="CurrentFilter" Grid.Column="3" Style="{StaticResource MyMusicFilterButtonStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,10,0,0" Padding="0" Click="OnLibraryClicked" AutomationProperties.Name="{Binding DisplayName}">
                 <Grid Height="60">
@@ -85,13 +86,22 @@
         </StackPanel>
         <Grid Grid.Row="2">
             <TextBlock x:Name="EmptyMessage" x:Uid="Navidrome_EmptyCollection" Style="{StaticResource MediumLightText}" Margin="116,0,40,0" Visibility="{Binding IsEmpty, Converter={StaticResource NavidromeVisibility}}"/>
-            <GridView x:Name="LibraryItems" ItemsSource="{Binding Items}" ItemTemplateSelector="{StaticResource MixRadioLibrarySelector}"
+            <GridView x:Name="LibraryItems" ItemsSource="{Binding LibraryEntries}" ItemTemplateSelector="{StaticResource MixRadioLibrarySelector}"
                 ItemContainerStyleSelector="{StaticResource MixRadioLibraryContainerSelector}" IsItemClickEnabled="True" SelectionMode="Multiple" Padding="119,3,40,16" Loaded="OnLibraryLoaded"
                 ScrollViewer.HorizontalScrollMode="Enabled" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                 ScrollViewer.VerticalScrollMode="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                selection:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}" ItemClick="OnItemClicked">
+                SelectionChanged="OnLibrarySelectionChanged" ItemClick="OnItemClicked">
                 <GridView.ItemsPanel><ItemsPanelTemplate><WrapGrid Orientation="Vertical"/></ItemsPanelTemplate></GridView.ItemsPanel>
             </GridView>
+            <Grid x:Name="IndexSurface" Background="Black" Visibility="Collapsed">
+                <GridView x:Name="LibraryIndexItems" ItemsSource="{Binding IndexGroups}" ItemTemplateSelector="{StaticResource MixRadioIndexSelector}"
+                    ItemContainerStyle="{StaticResource MixRadioIndexItemStyle}" SelectionMode="None" IsItemClickEnabled="True" ItemClick="OnIndexClicked"
+                    VerticalAlignment="Center" HorizontalAlignment="Stretch" Padding="119,0,40,0" Loaded="OnLibraryLoaded"
+                    ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <GridView.ItemsPanel><ItemsPanelTemplate><WrapGrid Orientation="Horizontal"/></ItemsPanelTemplate></GridView.ItemsPanel>
+                </GridView>
+            </Grid>
         </Grid>
         <Button Grid.Row="3" x:Name="LoadMore" x:Uid="Navidrome_LoadMore" Style="{StaticResource NullButtonStyleWithPress}" Foreground="{StaticResource NokiaPinkBrush}"
             Margin="116,12,40,20" HorizontalAlignment="Left" Visibility="{Binding CanLoadMore, Converter={StaticResource NavidromeVisibility}}"/>

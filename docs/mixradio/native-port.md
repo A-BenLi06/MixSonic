@@ -163,7 +163,8 @@ content and 130 px artwork; the original container establishes 307 × 147 cell
 spacing. Artist entries use the pink, 3 px `MyMusicIndexZoomedInTemplate` border
 and bottom-aligned `ExtraLargeLightSubHeaderText`. They open the existing artist
 detail page. The original screenshot interleaves artist headings and albums;
-this port does not fetch every artist's albums to reproduce that grouping.
+the later index implementation below replaces those standalone artist entries
+with grouped album cards.
 
 Three rendered refinement rounds established the retained layout:
 
@@ -193,3 +194,49 @@ checks do not constitute physical mouse/touch input or OS window-resize tests.
 Local round captures, the supplied-reference crops and the final verification
 record are stored under `.tmp/ui-acceptance/2026-11-11/`. No global visual or
 functional acceptance score is inferred from this refinement.
+
+## Library indices (2026-11-11)
+
+The eight supplied MixRadio screenshots establish the album/song letter grids,
+artist/genre named indices, and pink outlined headers flowing through the same
+columns as the music cards. The browser now builds those headers from actual
+metadata. Album-title and song indices include `#`, `a`–`z`, and discovered
+non-Latin initials. Numbers and symbols use `#`; accented Latin initials share
+their base letter, while other scripts retain their original text element.
+Empty groups appear only in the index, with a disabled gray tile.
+
+Artist and genre browsing pages group albums using their album-artist and genre
+metadata, including multiple values. Artist identifiers remain opaque and case
+sensitive. Missing values use localized resources; server-provided names remain
+unchanged. Genre cards use the recovered title/count/year template. Other album
+sort modes keep their requested ordering without adding title-group headings.
+
+Click an inline header or use the Index app-bar command to open the index.
+Ctrl+minus and Ctrl+mouse-wheel-down also open it; selecting an enabled tile
+scrolls to that exact header. Escape, the page Back button, or Ctrl+wheel-up return
+to the music grid. Two bounded GridViews deliberately map index entries to their
+inline header objects because the reference headers occupy ordinary card cells.
+This is an explicit jump view; native SemanticZoom pinch gestures are not wired.
+The index preserves keyboard focus and media selection, excludes headers from
+media commands, and reflows into vertical scrolling at compact widths.
+
+Normal browsing still requests 100 records per page. The first explicit index
+request finishes the current metadata listing before showing disabled letters:
+Subsonic has no complete title-initial endpoint, so the first page cannot prove
+that a letter is empty. Album metadata is reused for artist and genre groupings,
+avoiding per-artist detail requests. Metadata remains in memory for subsequent
+jumps; artwork and item containers remain virtualized. Account, folder and page
+version checks reject stale completions. Refresh discards the old index and
+filtering rebuilds its targets. Large libraries can take longer on the first
+index request, with the existing progress/error and navigation paths available.
+
+The recovered templates remain reproducible through `port_templates.py`.
+Character tiles retain 126 × 106 content; named tiles use a 158 px width, an
+88 px label area and a 236 px pink panel. The default semantic artist asset is
+reused unchanged. The index container supplies the observed 8 px cell gaps.
+The recovered content panels cap song columns at seven rows and album columns
+at ten, filling fewer rows where the viewport height requires it.
+The Debug-only native probe now captures all four grouped/index/jump views,
+compact indices, and selection while paging. Actual runtime evidence is kept
+under `.tmp/ui-acceptance/2026-11-11/library-index/`; it establishes rendered XAML
+and programmatic navigation, not physical mouse/touch gestures or OS resizing.

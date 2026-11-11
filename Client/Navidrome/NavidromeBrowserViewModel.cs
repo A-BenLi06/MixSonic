@@ -28,10 +28,13 @@ namespace Subsonic8.Navidrome
         private NavidromeApi _loadedApi;
         private string _loadedFolder;
         private readonly DispatcherTimer _activityTimer;
+        private LibraryIndex _libraryIndex;
 
         public NavidromeBrowserViewModel()
         {
             Items = new BindableCollection<NavidromeItem>();
+            LibraryEntries = new BindableCollection<object>();
+            IndexGroups = new BindableCollection<LibraryIndexGroup>();
             SelectedItems = new ObservableCollection<object>();
             SelectedItems.CollectionChanged += (sender, args) => Changed();
             AlbumSorts = Enum.GetValues(typeof(AlbumListType)).Cast<AlbumListType>()
@@ -47,6 +50,13 @@ namespace Subsonic8.Navidrome
 
         public string Parameter { get { return _parameter; } set { _parameter = value; } }
         public BindableCollection<NavidromeItem> Items { get; private set; }
+        public BindableCollection<object> LibraryEntries { get; private set; }
+        public BindableCollection<LibraryIndexGroup> IndexGroups { get; private set; }
+        public bool IsUpdatingLibrary { get; private set; }
+        public bool HasIndex { get { return Route[0] == "artists" || Route[0] == "genres" || Route[0] == "songs" ||
+            (IsAlbums && SelectedSort != null && SelectedSort.Value == AlbumListType.AlphabeticalByName); } }
+        public bool IsNamedIndex { get { return Route[0] == "artists" || Route[0] == "genres"; } }
+        public bool CanShowIndex { get { return HasIndex && !IsLoading && !IsWorking && Items.Count > 0; } }
         public ObservableCollection<object> SelectedItems { get; private set; }
         public IList<NamedOption<AlbumListType>> AlbumSorts { get; private set; }
         public NamedOption<AlbumListType> SelectedSort { get; set; }
@@ -71,7 +81,7 @@ namespace Subsonic8.Navidrome
         public bool CanDetails { get { return !IsWorking && SelectedItems.Count == 1 && ((NavidromeItem)SelectedItems[0]).Media != null &&
             new[] { SubsonicModelTypeEnum.Song, SubsonicModelTypeEnum.Album, SubsonicModelTypeEnum.Artist, SubsonicModelTypeEnum.Playlist }.Contains(((NavidromeItem)SelectedItems[0]).Media.Type); } }
         private string[] Route { get { return NavidromeRoute.Parse(Parameter); } }
-        protected override IList<NavidromeItem> CommandItems { get { return SelectedItems.Count > 0 ? SelectedItems.Cast<NavidromeItem>().ToList() : Items.Where(item => item.Media != null).ToList(); } }
+        protected override IList<NavidromeItem> CommandItems { get { return SelectedItems.Count > 0 ? SelectedItems.Cast<NavidromeItem>().ToList() : LibraryEntries.OfType<NavidromeItem>().Where(item => item.Media != null).Distinct().ToList(); } }
         protected override IList<NavidromeItem> AnnotationItems { get { return SelectedItems.Cast<NavidromeItem>().ToList(); } }
         protected override Task<IList<Song>> ResolvePlaylistAsync()
         { return SelectedItems.Count > 0 ? base.ResolveCommandAsync() : Task.FromResult<IList<Song>>(new List<Song>()); }
@@ -82,7 +92,7 @@ namespace Subsonic8.Navidrome
         protected override void Changed()
         {
             base.Changed();
-            foreach (var property in new[] { "CanLoadMore", "IsEmpty", "CanDelete", "CanEditShare", "CanCopyLink", "CanDetails", "IsAlbums", "IsRandom", "IsActivity", "CanCreateRadio", "CanEditRadio", "CanDeleteRadio" }) NotifyOfPropertyChange(property);
+            foreach (var property in new[] { "CanLoadMore", "IsEmpty", "CanDelete", "CanEditShare", "CanCopyLink", "CanDetails", "IsAlbums", "IsRandom", "IsActivity", "CanCreateRadio", "CanEditRadio", "CanDeleteRadio", "HasIndex", "IsNamedIndex", "CanShowIndex" }) NotifyOfPropertyChange(property);
         }
 
         protected override void OnActivate() { _activityTimer.Start(); base.OnActivate(); }
@@ -112,6 +122,7 @@ namespace Subsonic8.Navidrome
         {
             var version = ++LoadVersion;
             IsLoading = true; Error = null; SelectedItems.Clear(); Items.Clear();
+            LibraryEntries.Clear(); IndexGroups.Clear(); _libraryIndex = null;
             _albumOffset = _artistOffset = _songOffset = 0;
             _moreAlbums = _moreArtists = _moreSongs = false;
             try
@@ -140,7 +151,7 @@ namespace Subsonic8.Navidrome
             finally { if (version == LoadVersion) IsLoading = false; }
         }
 
-        private async Task LoadPage(NavidromeApi api, string folder, string[] route, int version)
+        private async Task LoadPage(NavidromeApi api, string folder, string[] route, int version, bool updateProjection = true)
         {
             var media = new List<IMediaModel>();
             var extras = new List<NavidromeItem>();
@@ -157,8 +168,12 @@ namespace Subsonic8.Navidrome
                     media.AddRange(albums); albumsRead = albums.Count;
                     moreAlbums = albums.Count == PageSize && SelectedSort.Value != AlbumListType.Random;
                     break;
-                case "artists": media.AddRange(await api.GetArtists(folder).ReadAsync()); break;
-                case "genres": media.AddRange(await api.GetGenres(folder).ReadAsync()); break;
+                case "artists":
+                case "genres":
+                    var groupedAlbums = await api.GetAlbums(new AlbumQuery { Type = route[0] == "artists" ? AlbumListType.AlphabeticalByArtist : AlbumListType.AlphabeticalByName,
+                        MusicFolderId = folder, Offset = _albumOffset, Size = PageSize }).ReadAsync();
+                    media.AddRange(groupedAlbums); albumsRead = groupedAlbums.Count; moreAlbums = albumsRead == PageSize;
+                    break;
                 case "playlists": media.AddRange(await api.GetPlaylists().ReadAsync()); break;
                 case "radio": media.AddRange(await api.GetRadio().ReadAsync()); break;
                 case "activity": media.AddRange(await api.GetNowPlaying().ReadAsync()); break;
@@ -193,9 +208,51 @@ namespace Subsonic8.Navidrome
                 default: throw new InvalidOperationException(NavidromeText.Get("UnknownSection"));
             }
             if (!IsCurrent(version, api) || folder != Session.FolderId) return;
-            Items.AddRange(media.Select(item => NavidromeItem.From(item, api)).Concat(extras));
+            Items.AddRange(media.Select(item => { var entry = NavidromeItem.From(item, api); entry.IsGenreAlbum = route[0] == "genres"; return entry; }).Concat(extras));
             _albumOffset += albumsRead; _artistOffset += artistsRead; _songOffset += songsRead;
             _moreAlbums = moreAlbums; _moreArtists = moreArtists; _moreSongs = moreSongs;
+            if (updateProjection) RebuildIndex();
+        }
+
+        private void RebuildIndex()
+        {
+            IsUpdatingLibrary = true;
+            NotifyOfPropertyChange(() => IsUpdatingLibrary);
+            try
+            {
+                _libraryIndex = HasIndex ? LibraryIndex.Create(Items, Route[0], NavidromeText.Get("UnknownArtist"), NavidromeText.Get("UnknownGenre")) : null;
+                LibraryEntries.Clear();
+                LibraryEntries.AddRange(_libraryIndex == null ? Items.Cast<object>() : _libraryIndex.Entries);
+                IndexGroups.Clear();
+                if (_libraryIndex != null) IndexGroups.AddRange(_libraryIndex.Groups);
+            }
+            finally { IsUpdatingLibrary = false; NotifyOfPropertyChange(() => IsUpdatingLibrary); }
+        }
+
+        public async Task<bool> PrepareIndex()
+        {
+            if (!CanShowIndex || _loadedApi == null) return false;
+            var version = LoadVersion;
+            var api = _loadedApi;
+            var folder = _loadedFolder;
+            if (!IsCurrent(version, api) || folder != Session.FolderId) return false;
+            if (!_moreAlbums && !_moreArtists && !_moreSongs) return true;
+            IsLoading = true; Error = null;
+            try
+            {
+                // The Subsonic protocol has no complete title-initial endpoint.
+                // Finish metadata paging only when the user requests the index;
+                // an empty letter must never mean merely "not loaded yet".
+                while (_moreAlbums || _moreArtists || _moreSongs)
+                {
+                    if (!IsCurrent(version, api) || folder != Session.FolderId) return false;
+                    await LoadPage(api, folder, Route, version, false);
+                }
+                return IsCurrent(version, api) && folder == Session.FolderId && !HasError;
+            }
+            catch (OperationCanceledException) { return false; }
+            catch (Exception exception) { if (version == LoadVersion) Error = exception.Message; return false; }
+            finally { if (version == LoadVersion) { RebuildIndex(); IsLoading = false; } }
         }
 
         protected override async Task<IList<Song>> ResolveCommandAsync()
@@ -230,7 +287,7 @@ namespace Subsonic8.Navidrome
             }
             if (item.Song != null)
             {
-                var context = Items.Where(entry => entry.Song != null).ToList();
+                var context = LibraryEntries.OfType<NavidromeItem>().Where(entry => entry.Song != null).Distinct().ToList();
                 MediaQueue.Play(_loadedApi, context.Select(entry => entry.Song), context.IndexOf(item));
                 NavigationService.NavigateToViewModel<NavidromePlayerViewModel>(); return;
             }
