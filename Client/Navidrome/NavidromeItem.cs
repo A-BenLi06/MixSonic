@@ -12,6 +12,22 @@ namespace Subsonic8.Navidrome
 
     public sealed class NavidromeItem : PropertyChangedBase
     {
+        private NavidromeItem _sourceItem;
+        public NavidromeItem SelectionItem { get { return _sourceItem ?? this; } }
+        public string LibraryGroupKey { get; private set; }
+
+        // Each grouped occurrence needs an independent XAML/automation identity.
+        // Its media and command/selection identity remain shared with the source.
+        internal NavidromeItem InGroup(string key)
+        {
+            return new NavidromeItem {
+                _sourceItem = SelectionItem, LibraryGroupKey = key,
+                Media = Media, Bookmark = Bookmark, Share = Share, Download = Download,
+                Ordinal = Ordinal, Title = Title, Subtitle = Subtitle, ImageUrl = ImageUrl,
+                Kind = Kind, IsHero = IsHero, IsGenreAlbum = IsGenreAlbum
+            };
+        }
+
         public IMediaModel Media { get; set; }
         public Bookmark Bookmark { get; set; }
         public Share Share { get; set; }

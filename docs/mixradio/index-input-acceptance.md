@@ -1,5 +1,9 @@
 # Library index input acceptance — 2026-11-11
 
+**Follow-up, 2026-11-14:** the two reported defects have been repaired and
+targeted keyboard retests completed. See the fix verification below. The
+2026-11-11 observations remain preserved as the original acceptance record.
+
 **Result: partial acceptance; not an overall pass.** Actual keyboard input
 completed the album, artist and song index paths. The final genre jump did not
 produce a completed observation in two fresh-process attempts; Windows recorded
@@ -113,3 +117,74 @@ At **12:36:34 +08:00**, its mode marker was `normal`, the executable contained
 neither the `NativeUiProbe` type nor `ObserveAsync` method name, and the workspace
 process was responding. This restores the standard client; it does not resolve
 or override the open input findings.
+
+## Fix verification — 2026-11-14 (+08:00)
+
+The saved follow-up dump at
+`.tmp/ui-acceptance/2026-11-11/index-fix/genre-hang.dmp` and its symbolized
+`native-hang-stack.txt` place the UI thread in
+`ItemsControlAutomationPeer::GetItemPeerFromChildrenCache` during UI Automation
+sibling traversal. The grouped projection reused the same album objects in
+multiple artist/genre groups. Each named-group occurrence now has an independent
+presentation identity and stable group key, with selection and commands mapped
+back to the original media item. This keeps multi-genre albums in every group
+without ambiguous item-peer identity or duplicate command targets.
+
+The error overlay's visibility and enabled bindings now explicitly reference
+`ShellRoot.DataContext.ErrorDialogViewModel.IsHidden`, with collapsed/disabled
+defaults during attachment. Selection restoration also maps the original media
+item back to all its displayed occurrences after a projection rebuild.
+
+Real OS keyboard input used the computer-use `sky.press_key` API. The passive
+observer performed no navigation, selection, focus or resizing. Completed JSON
+and app-rendered PNG evidence is saved outside Git under
+`.tmp/ui-acceptance/2026-11-14/index-fix/`.
+
+| Retest | Observed result | Evidence |
+| --- | --- | --- |
+| Startup | Initial focus belongs to the shell; the first Tab reaches the visible Choose music control. No invisible report control precedes it. | `fix-01-home`, `fix-02-home-tab`, `fix-03-library` |
+| Genre metadata | Ctrl+minus completes the 425-album listing and opens the index; End focuses Unknown genre. | `fix-17-genres-index`, `fix-18-genres-last` |
+| Final genre jump | Enter closes the index and focuses the visible Unknown genre header. Reopen/Enter repeats the jump successfully. | `fix-19-genres-jump`, `fix-20-genres-reopen`, `fix-21-genres-repeat-jump` |
+| Selection and return | Space selects the focused album. Ctrl+minus and Escape retain one selected album and restore header focus. A third Enter jump also retains the visible selection check mark. | `fix-24-genre-album-selection-state`–`fix-28-selected-genre-jump` |
+
+The genre keyboard retests used the actual **670 × 770** app viewport, with no
+root-size override. Three Enter jumps completed without a process hang. This is
+targeted keyboard verification; mouse, touch and full application acceptance are
+still unverified. Windows compositor capture still reports `FrameArrived timed
+out`, and external accessibility capture returns null. The images are actual
+XAML renders, not OS screenshots.
+
+Snapshot requests `fix-07`, `fix-11` and `fix-14` did not complete after transient
+observer file-access failures. Later uniquely named observations established
+the current state before any further input. These failed observations are not
+counted as successful actions. Pending/latest publication is now atomic, and an
+unsuccessful snapshot remains retryable until the completed record is published.
+
+The final scripted native probe completed **37 actual XAML captures**. All four
+indices pass complete paging, final-group visibility, unique entry identities,
+header selection exclusion, selection retention, and shared occurrence
+selection/deselection. Named-group paging starts by selecting a displayed
+occurrence and retains its canonical media selection across rebuilding. The
+overlay is collapsed/disabled at startup, visible/enabled when shown, and
+collapsed/disabled again after hiding.
+
+Wide checks use **1744 × 1090** root dimensions; the extra genre jump uses
+**1920 × 1138**, matching the original acceptance viewport. These scripted
+root-size and navigation checks supplement the real keyboard retest; they do
+not certify OS resizing or pointer/touch input. The corrected probe, PNGs,
+initial probe results, final observer-branch compile log, and verification JSON
+are preserved in the same local evidence folder. The initial probe's failed
+named-group paging results are retained: it incorrectly attempted to select a
+canonical source item outside the new displayed collection. The corrected
+fresh-process run selects an actual occurrence and passes both paging cases.
+
+The production home/navigation/index harness passes **76 assertions**. These
+checks and the focused native results do not promote the global application
+acceptance score or establish mouse/touch acceptance.
+
+The ordinary Windows 8.1 Store Debug x86 package was rebuilt, deployed and
+launched after verification. Its mode marker is `normal`, the executable
+contains neither `NativeUiProbe` nor `ObserveAsync`, and the workspace process
+responds. `normal-verification.json` records the timestamp, binary hashes and
+process check. Source changes and verification are also recorded with a +08:00
+timestamp in the root walkthrough.

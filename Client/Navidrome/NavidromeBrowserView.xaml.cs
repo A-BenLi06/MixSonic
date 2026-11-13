@@ -95,11 +95,21 @@ namespace Subsonic8.Navidrome
             try
             {
                 foreach (var header in LibraryItems.SelectedItems.OfType<LibraryIndexGroup>().ToList()) LibraryItems.SelectedItems.Remove(header);
-                var selected = LibraryItems.SelectedItems.OfType<NavidromeItem>().ToList();
-                foreach (var removed in model.SelectedItems.Where(item => !selected.Contains(item)).ToList()) model.SelectedItems.Remove(removed);
-                foreach (var item in selected.Where(item => !model.SelectedItems.Contains(item))) model.SelectedItems.Add(item);
+                foreach (var item in args.RemovedItems.OfType<NavidromeItem>().Select(item => item.SelectionItem).Distinct()) model.SelectedItems.Remove(item);
+                foreach (var item in args.AddedItems.OfType<NavidromeItem>().Select(item => item.SelectionItem).Distinct())
+                    if (!model.SelectedItems.Contains(item)) model.SelectedItems.Add(item);
+                RestoreSelection(model);
             }
             finally { _syncingSelection = false; }
+        }
+        private void RestoreSelection(NavidromeBrowserViewModel model)
+        {
+            foreach (var item in LibraryItems.Items.OfType<NavidromeItem>())
+            {
+                var selected = model.SelectedItems.Contains(item.SelectionItem);
+                if (selected && !LibraryItems.SelectedItems.Contains(item)) LibraryItems.SelectedItems.Add(item);
+                else if (!selected && LibraryItems.SelectedItems.Contains(item)) LibraryItems.SelectedItems.Remove(item);
+            }
         }
         private void OnModelChanged(object sender, PropertyChangedEventArgs args)
         {
@@ -109,10 +119,13 @@ namespace Subsonic8.Navidrome
             if (args.PropertyName == "IsUpdatingLibrary" && !_model.IsUpdatingLibrary)
             {
                 _syncingSelection = true;
-                try { foreach (var item in _model.SelectedItems) if (!LibraryItems.SelectedItems.Contains(item)) LibraryItems.SelectedItems.Add(item); }
+                try { RestoreSelection(_model); }
                 finally { _syncingSelection = false; }
                 var header = _scrollAnchor as LibraryIndexGroup;
                 if (header != null) _scrollAnchor = _model.IndexGroups.FirstOrDefault(group => group.Key == header.Key);
+                var media = _scrollAnchor as NavidromeItem;
+                if (media != null) _scrollAnchor = LibraryItems.Items.OfType<NavidromeItem>().FirstOrDefault(item =>
+                    item.SelectionItem == media.SelectionItem && item.LibraryGroupKey == media.LibraryGroupKey);
                 if (_scrollAnchor != null && LibraryItems.Items.Contains(_scrollAnchor))
                 { LibraryItems.UpdateLayout(); LibraryItems.ScrollIntoView(_scrollAnchor, ScrollIntoViewAlignment.Leading); }
             }
@@ -136,7 +149,9 @@ namespace Subsonic8.Navidrome
             if (model == null) return;
             // Opening from the command bar retains the current scroll context.
             var entry = FirstVisibleEntry();
-            _indexOrigin = origin ?? entry as LibraryIndexGroup ?? model.IndexGroups.FirstOrDefault(group => group.Items.Contains(entry as NavidromeItem));
+            var media = entry as NavidromeItem;
+            _indexOrigin = origin ?? entry as LibraryIndexGroup ?? model.IndexGroups.FirstOrDefault(group =>
+                media != null && (media.LibraryGroupKey != null ? group.Key == media.LibraryGroupKey : group.Items.Contains(media.SelectionItem)));
             if (BottomAppBar != null) BottomAppBar.IsOpen = false;
             if (!await model.PrepareIndex() || !ReferenceEquals(model, DataContext)) return;
             if (_indexOrigin != null) _indexOrigin = model.IndexGroups.FirstOrDefault(group => group.Key == _indexOrigin.Key);
@@ -156,25 +171,37 @@ namespace Subsonic8.Navidrome
         private void OnIndexClicked(object sender, ItemClickEventArgs args) { JumpToIndex(args.ClickedItem as LibraryIndexGroup); }
         internal void JumpToIndex(LibraryIndexGroup group)
         {
+            TraceIndex("jump requested");
             if (group == null || !group.IsEnabled) return;
             _indexOrigin = group;
             CloseIndex(true);
         }
         private void CloseIndex(bool restoreFocus)
         {
+            TraceIndex("close entered");
             if (IndexSurface.Visibility != Visibility.Visible) return;
             IndexSurface.Visibility = Visibility.Collapsed;
+            TraceIndex("index collapsed");
             LibraryItems.Visibility = Visibility.Visible;
+            TraceIndex("library visible");
             LoadMore.SetBinding(VisibilityProperty, new Windows.UI.Xaml.Data.Binding { Path = new PropertyPath("CanLoadMore"), Converter = (Windows.UI.Xaml.Data.IValueConverter)Resources["NavidromeVisibility"] });
+            TraceIndex("load more binding restored");
             if (restoreFocus && _indexOrigin != null && LibraryItems.Items.Contains(_indexOrigin))
             {
+                TraceIndex("layout before scroll");
                 LibraryItems.UpdateLayout();
+                TraceIndex("scroll requested");
                 LibraryItems.ScrollIntoView(_indexOrigin, ScrollIntoViewAlignment.Leading);
+                TraceIndex("layout after scroll");
                 LibraryItems.UpdateLayout();
+                TraceIndex("focus requested");
                 var container = LibraryItems.ContainerFromItem(_indexOrigin) as Control;
                 if (container != null) container.Focus(FocusState.Keyboard);
             }
+            TraceIndex("close completed");
         }
+        [System.Diagnostics.Conditional("NATIVE_UI_OBSERVE")]
+        private void TraceIndex(string stage) { App.LogStartupEvent("Library index: " + stage); }
         private void OnLibraryBack(object sender, RoutedEventArgs args)
         {
             if (IndexSurface.Visibility == Visibility.Visible) CloseIndex(true);

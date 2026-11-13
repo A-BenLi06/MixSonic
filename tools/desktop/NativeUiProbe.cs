@@ -57,6 +57,20 @@ namespace Subsonic8.Diagnostics
                 var pages = new JsonArray();
                 report["pages"] = pages;
                 pages.Add(await Capture(shell, folder, "home-startup"));
+                var errorView = Descendants(shell).OfType<Subsonic8.ErrorDialog.ErrorDialogView>().Single();
+                var errorModel = ((ShellViewModel)shell.DataContext).ErrorDialogViewModel;
+                var errorChecks = new JsonObject();
+                report["errorOverlayChecks"] = errorChecks;
+                errorChecks["hiddenAtStartup"] = JsonValue.CreateBooleanValue(errorView.Visibility == Visibility.Collapsed && !errorView.IsEnabled);
+                try
+                {
+                    errorModel.Show();
+                    shell.UpdateLayout();
+                    errorChecks["enabledWhenShown"] = JsonValue.CreateBooleanValue(errorView.Visibility == Visibility.Visible && errorView.IsEnabled);
+                    pages.Add(await Capture(shell, folder, "error-overlay-shown"));
+                }
+                finally { errorModel.Hide(); shell.UpdateLayout(); }
+                errorChecks["disabledWhenHiddenAgain"] = JsonValue.CreateBooleanValue(errorView.Visibility == Visibility.Collapsed && !errorView.IsEnabled);
                 await SaveReport(root, folder, report);
                 if (shell.ShellFrame.Content is MainView)
                 {
@@ -153,7 +167,7 @@ namespace Subsonic8.Diagnostics
                                 var indexedModel = (NavidromeBrowserViewModel)indexedView.DataContext;
                                 var before = indexedModel.Items.Count;
                                 var listBeforeIndex = (GridView)indexedView.FindName("LibraryItems");
-                                var pagingSelection = indexedModel.Items.LastOrDefault();
+                                var pagingSelection = listBeforeIndex.Items.OfType<NavidromeItem>().LastOrDefault();
                                 if (pagingSelection != null && indexedModel.CanLoadMore)
                                 {
                                     listBeforeIndex.SelectedItems.Add(pagingSelection);
@@ -161,7 +175,7 @@ namespace Subsonic8.Diagnostics
                                     await indexedModel.LoadMore();
                                     pages.Add(await Capture(shell, folder, section + "-paged"));
                                 }
-                                var pagingPreserved = pagingSelection == null || indexedModel.SelectedItems.Contains(pagingSelection);
+                                var pagingPreserved = pagingSelection == null || indexedModel.SelectedItems.Contains(pagingSelection.SelectionItem);
                                 listBeforeIndex.SelectedItems.Clear();
                                 if (listBeforeIndex.Items.Count > 0) listBeforeIndex.ScrollIntoView(listBeforeIndex.Items[0], ScrollIntoViewAlignment.Leading);
                                 listBeforeIndex.UpdateLayout();
@@ -176,6 +190,7 @@ namespace Subsonic8.Diagnostics
                                 check["complete"] = JsonValue.CreateBooleanValue(!indexedModel.CanLoadMore && !indexedModel.HasError);
                                 check["indexVisible"] = JsonValue.CreateBooleanValue(((Grid)indexedView.FindName("IndexSurface")).Visibility == Visibility.Visible);
                                 check["groupCount"] = JsonValue.CreateNumberValue(indexedModel.IndexGroups.Count);
+                                check["uniqueEntryIdentities"] = JsonValue.CreateBooleanValue(HasUniqueEntryIdentities(listBeforeIndex));
                                 if (target != null)
                                 {
                                     indexedView.JumpToIndex(target);
@@ -190,10 +205,23 @@ namespace Subsonic8.Diagnostics
                                     }
                                     indexedList.SelectedItems.Add(target);
                                     check["headerExcludedFromSelection"] = JsonValue.CreateBooleanValue(!indexedModel.SelectedItems.Contains(target) && !indexedList.SelectedItems.Contains(target));
-                                    var firstMedia = indexedList.Items.OfType<NavidromeItem>().FirstOrDefault();
+                                    var firstMedia = indexedList.Items.OfType<NavidromeItem>().GroupBy(item => item.SelectionItem).OrderByDescending(group => group.Count()).Select(group => group.First()).FirstOrDefault();
                                     if (firstMedia != null) indexedList.SelectedItems.Add(firstMedia);
                                     await indexedView.ShowIndex();
-                                    check["mediaSelectionPreserved"] = JsonValue.CreateBooleanValue(firstMedia == null || indexedModel.SelectedItems.Contains(firstMedia));
+                                    check["mediaSelectionPreserved"] = JsonValue.CreateBooleanValue(firstMedia == null || indexedModel.SelectedItems.Contains(firstMedia.SelectionItem));
+                                    check["sharedOccurrenceSelection"] = JsonValue.CreateBooleanValue(firstMedia == null || indexedList.Items.OfType<NavidromeItem>()
+                                        .Where(item => item.SelectionItem == firstMedia.SelectionItem).All(item => indexedList.SelectedItems.Contains(item)));
+                                    indexedView.JumpToIndex(target);
+                                    if (section == "genres")
+                                    {
+                                        shell.Width = 1920; shell.Height = 1138; shell.UpdateLayout();
+                                        await indexedView.ShowIndex(target);
+                                        indexedView.JumpToIndex(target);
+                                        pages.Add(await Capture(shell, folder, "genres-jump-original-viewport"));
+                                    }
+                                    if (firstMedia != null) indexedList.SelectedItems.Remove(firstMedia);
+                                    check["sharedOccurrenceDeselection"] = JsonValue.CreateBooleanValue(indexedModel.SelectedItems.Count == 0 && indexedList.SelectedItems.Count == 0);
+                                    await indexedView.ShowIndex(target);
                                     shell.Width = 500; shell.Height = 900; shell.UpdateLayout();
                                     pages.Add(await Capture(shell, folder, section + "-index-500"));
                                     shell.Width = 1744; shell.Height = 1090; shell.UpdateLayout();
@@ -254,13 +282,32 @@ namespace Subsonic8.Diagnostics
                     var name = request == null ? "startup" : (await FileIO.ReadTextAsync(request)).Trim();
                     if (name != previous && name.Length > 0 && name.Length < 80 && name.All(character => char.IsLetterOrDigit(character) || character == '-'))
                     {
-                        previous = name;
+                        var pending = new JsonObject {
+                            ["name"] = JsonValue.CreateStringValue(name),
+                            ["directory"] = JsonValue.CreateStringValue(folder.Path),
+                            ["observedAt"] = JsonValue.CreateStringValue(DateTimeOffset.Now.ToString("O")),
+                            ["focus"] = Describe(Windows.UI.Xaml.Input.FocusManager.GetFocusedElement() as FrameworkElement)
+                        };
+                        var currentBrowser = shell.ShellFrame.Content as NavidromeBrowserView;
+                        if (currentBrowser != null)
+                        {
+                            pending["indexVisible"] = JsonValue.CreateBooleanValue(((Grid)currentBrowser.FindName("IndexSurface")).Visibility == Visibility.Visible);
+                            pending["route"] = JsonValue.CreateStringValue(((NavidromeBrowserViewModel)currentBrowser.DataContext).Parameter);
+                        }
+                        await PublishObservation(root, "pending", pending);
                         var report = await Capture(shell, folder, name, false);
                         report["observedAt"] = JsonValue.CreateStringValue(DateTimeOffset.Now.ToString("O"));
                         report["mode"] = JsonValue.CreateStringValue("passive-no-injected-actions");
                         report["directory"] = JsonValue.CreateStringValue(folder.Path);
                         var focus = Windows.UI.Xaml.Input.FocusManager.GetFocusedElement() as FrameworkElement;
                         report["focus"] = Describe(focus);
+                        var ancestors = new JsonArray();
+                        for (DependencyObject ancestor = focus; ancestor != null; ancestor = VisualTreeHelper.GetParent(ancestor))
+                        {
+                            var element = ancestor as FrameworkElement;
+                            if (element != null) ancestors.Add(Describe(element));
+                        }
+                        report["focusAncestors"] = ancestors;
                         var controls = new JsonArray();
                         foreach (var control in Descendants(shell).OfType<Control>().Where(control => control.Visibility == Visibility.Visible && control.ActualWidth > 0 &&
                             (control is Button || control is GridViewItem || control is ListBoxItem)))
@@ -287,8 +334,11 @@ namespace Subsonic8.Diagnostics
                             report["mediaCount"] = JsonValue.CreateNumberValue(model.Items.Count);
                             report["selectedMediaCount"] = JsonValue.CreateNumberValue(model.SelectedItems.Count);
                         }
-                        await FileIO.WriteTextAsync(await folder.CreateFileAsync(name + ".json", CreationCollisionOption.ReplaceExisting), report.Stringify());
-                        await FileIO.WriteTextAsync(await root.CreateFileAsync("latest.json", CreationCollisionOption.ReplaceExisting), report.Stringify());
+                        // Publish only completed JSON. Polling readers must never
+                        // open an empty destination between CreateFile and WriteText.
+                        await PublishObservation(folder, name, report);
+                        previous = name;
+                        await PublishObservation(root, "latest", report);
                     }
                 }
                 catch (Exception exception) { App.LogStartupException("Passive UI observation failed", exception); }
@@ -306,12 +356,25 @@ namespace Subsonic8.Diagnostics
             return new JsonObject {
                 ["type"] = JsonValue.CreateStringValue(element == null ? string.Empty : element.GetType().Name),
                 ["name"] = JsonValue.CreateStringValue(element == null ? string.Empty : element.Name),
+                ["visibility"] = JsonValue.CreateStringValue(element == null ? string.Empty : element.Visibility.ToString()),
+                ["dataContext"] = JsonValue.CreateStringValue(element == null || element.DataContext == null ? string.Empty : element.DataContext.GetType().FullName),
                 ["label"] = JsonValue.CreateStringValue(group != null ? group.Title : media != null ? media.Title ?? string.Empty : destination != null ? destination.Label : content != null && content.Content is string ? (string)content.Content : string.Empty),
                 ["enabled"] = JsonValue.CreateBooleanValue(control != null && control.IsEnabled),
                 ["focusState"] = JsonValue.CreateStringValue(control == null ? string.Empty : control.FocusState.ToString())
             };
         }
+        private static async Task PublishObservation(StorageFolder folder, string name, JsonObject report)
+        {
+            var completed = await folder.CreateFileAsync(name + ".writing", CreationCollisionOption.ReplaceExisting);
+            await FileIO.WriteTextAsync(completed, report.Stringify());
+            await completed.RenameAsync(name + ".json", NameCollisionOption.ReplaceExisting);
+        }
 #endif
+
+        private static bool HasUniqueEntryIdentities(GridView list)
+        {
+            return list.Items.Cast<object>().Distinct().Count() == list.Items.Count;
+        }
 
         private static async Task SaveReport(StorageFolder root, StorageFolder folder, JsonObject report)
         {

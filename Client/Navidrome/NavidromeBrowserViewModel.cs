@@ -81,7 +81,7 @@ namespace Subsonic8.Navidrome
         public bool CanDetails { get { return !IsWorking && SelectedItems.Count == 1 && ((NavidromeItem)SelectedItems[0]).Media != null &&
             new[] { SubsonicModelTypeEnum.Song, SubsonicModelTypeEnum.Album, SubsonicModelTypeEnum.Artist, SubsonicModelTypeEnum.Playlist }.Contains(((NavidromeItem)SelectedItems[0]).Media.Type); } }
         private string[] Route { get { return NavidromeRoute.Parse(Parameter); } }
-        protected override IList<NavidromeItem> CommandItems { get { return SelectedItems.Count > 0 ? SelectedItems.Cast<NavidromeItem>().ToList() : LibraryEntries.OfType<NavidromeItem>().Where(item => item.Media != null).Distinct().ToList(); } }
+        protected override IList<NavidromeItem> CommandItems { get { return SelectedItems.Count > 0 ? SelectedItems.Cast<NavidromeItem>().ToList() : LibraryEntries.OfType<NavidromeItem>().Where(item => item.Media != null).Select(item => item.SelectionItem).Distinct().ToList(); } }
         protected override IList<NavidromeItem> AnnotationItems { get { return SelectedItems.Cast<NavidromeItem>().ToList(); } }
         protected override Task<IList<Song>> ResolvePlaylistAsync()
         { return SelectedItems.Count > 0 ? base.ResolveCommandAsync() : Task.FromResult<IList<Song>>(new List<Song>()); }

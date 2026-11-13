@@ -61,6 +61,18 @@ public static class NavidromeHomeTests
         Check(artists.Groups.Count == 2 && artists.Groups.Single(group => group.Title == "Guest").Items.Single() == items[0], "Multiple album artists are grouped by their server identifiers.");
         var genres = LibraryIndex.Create(items, "genres", "Unknown artist", "Unknown genre");
         Check(genres.Groups.Count == 2 && genres.Groups.Single(group => group.Title == "Rock").Items.Count == 1, "All metadata genres are indexed without duplicating an album within a genre.");
+        foreach (var grouped in new[] { artists, genres })
+        {
+            Check(grouped.Entries.Distinct().Count() == grouped.Entries.Count, "Every displayed occurrence has a unique identity for XAML automation peers.");
+            var occurrences = grouped.Entries.OfType<NavidromeItem>().Where(item => item.SelectionItem == items[0]).ToList();
+            Check(occurrences.Count == 2 && occurrences.Select(item => item.LibraryGroupKey).Distinct().Count() == 2,
+                "The shared album retains both distinct group occurrences.");
+            Check(occurrences.All(item => ReferenceEquals(item.Media, shared) && item.Title == items[0].Title && item.Subtitle == items[0].Subtitle),
+                "Occurrences retain shared metadata and canonical selection identity.");
+            var rebuilt = LibraryIndex.Create(items, grouped == artists ? "artists" : "genres", "", "");
+            Check(rebuilt.Entries.OfType<NavidromeItem>().Count(item => item.SelectionItem == items[0]) == 2,
+                "Rebuilding keeps the selected source album mapped to both occurrences.");
+        }
         var unknown = new NavidromeItem { Title = "Unknown", Media = new Album { Id = "unknown" } };
         Check(LibraryIndex.Create(new[] { unknown }, "artists", "Fallback artist", "Fallback genre").Groups[0].Title == "Fallback artist", "Unknown artists use the supplied localized label.");
         Check(LibraryIndex.Create(new[] { unknown }, "genres", "Fallback artist", "Fallback genre").Groups[0].Title == "Fallback genre", "Unknown genres use the supplied localized label.");

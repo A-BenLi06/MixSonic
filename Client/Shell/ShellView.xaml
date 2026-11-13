@@ -47,8 +47,9 @@
             <ContentControl x:Name="BottomBar" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
         </controls:CustomAppBar>
 
-        <errorDialog:ErrorDialogView cal:Bind.Model="{Binding Path=ErrorDialogViewModel}" 
-                                    Visibility="{Binding Path=IsHidden, Converter={StaticResource InvertedBooleanToVisibilityConverter}}"/>
+        <errorDialog:ErrorDialogView cal:Bind.Model="{Binding Path=ErrorDialogViewModel}"
+                                    IsEnabled="{Binding DataContext.ErrorDialogViewModel.IsHidden, ElementName=ShellRoot, Converter={StaticResource InvertedBooleanConverter}, FallbackValue=False}"
+                                    Visibility="{Binding DataContext.ErrorDialogViewModel.IsHidden, ElementName=ShellRoot, Converter={StaticResource InvertedBooleanToVisibilityConverter}, FallbackValue=Collapsed}"/>
 
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>

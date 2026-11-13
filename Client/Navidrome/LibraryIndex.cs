@@ -86,7 +86,7 @@ namespace Subsonic8.Navidrome
                 group.Items.Clear();
                 foreach (var item in sorted) group.Items.Add(item);
                 result.Entries.Add(group);
-                foreach (var item in group.Items) result.Entries.Add(item);
+                foreach (var item in group.Items) result.Entries.Add(named ? item.InGroup(group.Key) : item);
             }
             return result;
         }
