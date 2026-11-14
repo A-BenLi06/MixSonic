@@ -1,6 +1,7 @@
 param([Parameter(Mandatory)][string]$CompilerPath)
 
 $ErrorActionPreference = 'Stop'
+if ($env:GITHUB_ACTIONS -ne 'true') { throw 'Run signature trust self-tests on the disposable hosted Windows runner.' }
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $scratch = Join-Path $projectRoot ('.tmp/ci/signature-test-' + [Guid]::NewGuid().ToString('N'))
 $layout = Join-Path $scratch 'layout'
@@ -44,7 +45,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Synthetic signing failed.' }
     $pin = (Get-FileHash -LiteralPath (Join-Path $verified 'SigningCertificate.cer') -Algorithm SHA256).Hash
     & (Join-Path $PSScriptRoot 'verify-signatures.ps1') -Directory $verified -CertificateSha256 $pin -SignToolPath $signTool -TrustPinnedCertificate
-    $store = [Security.Cryptography.X509Certificates.X509Store]::new('Root', 'CurrentUser')
+    $store = [Security.Cryptography.X509Certificates.X509Store]::new('Root', 'LocalMachine')
     try {
         $store.Open([Security.Cryptography.X509Certificates.OpenFlags]::ReadOnly)
         if ($store.Certificates.Find('FindByThumbprint', $certificate.Thumbprint, $false).Count -ne 0) { throw 'Temporary certificate trust was not removed.' }

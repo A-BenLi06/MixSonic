@@ -39,11 +39,11 @@ gh variable set RELEASE_CERTIFICATE_SHA256 --body $pin
 gh workflow run release.yml --ref main -f tag='v<版本>'
 ```
 
-CD 只从 `main` 运行，在 `github-releases` 环境中依次验证：目标标签不可变化且源码已合并 main；该提交的 push CI 成功；标签、源码清单和安装包版本/Publisher/Name 相同；全部文件清单及 SHA-256 正确；公开证书与仓库指纹匹配；主 AppX 确由该证书签名；主包与全部依赖通过 SignTool 完整性/签名验证。自签名证书只在临时 CI Runner 上按已配置指纹暂时加入 CurrentUser Root，验证后移除。最后重查草稿和资产未变化，才将 draft 发布。失败时保留草稿及日志，不发布、不覆盖已发布版本。
+CD 只从 `main` 运行，在 `github-releases` 环境中依次验证：目标标签不可变化且源码已合并 main；该提交的 push CI 成功；标签、源码清单和安装包版本/Publisher/Name 相同；全部文件清单及 SHA-256 正确；公开证书与仓库指纹匹配；主 AppX 确由该证书签名；主包与全部依赖通过 SignTool 完整性/签名验证。自签名证书只在临时 CI Runner 上按已配置指纹暂时加入 LocalMachine Root，验证后移除。最后重查草稿和资产未变化，才将 draft 发布。失败时保留草稿及日志，不发布、不覆盖已发布版本。
 
 此流程校验分发包和发布来源记录，不提供编译产物的可复现构建证明。目前每个 Release 上传一种主包架构，AnyCPU 为 neutral；需要多架构 bundle 时先扩展构建和依赖验证，再改变流程。
 
-云端临时证书信任使用 Windows `CertOpenStore` 的 `CERT_SYSTEM_STORE_UNPROTECTED_FLAG`，避免默认 CurrentUser Root 写入时弹出的交互确认框。仅在显式指定 `-TrustPinnedCertificate`、证书指纹及 AppX 签名者匹配后启用，成功或失败均撤销本次添加的信任；已有信任不删除。普通本地构建验证仍使用已有证书信任。
+云端临时证书信任仅在具有管理员权限的临时 GitHub Actions Runner 中，显式指定 `-TrustPinnedCertificate` 并核对证书指纹及 AppX 签名者后，使用标准 API 将证书加入 LocalMachine Root。它避免 CurrentUser Root 的交互确认，成功或失败均撤销本次添加的信任；已有信任不删除。普通本地构建验证使用已有证书信任，本地回归不运行会写入机器根证书库的合成签名测试。
 
 ## 安装者
 
