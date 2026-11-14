@@ -484,3 +484,9 @@
 - 远程 Navidrome-support 已同步全部既有提交，main 已建立并成为 GitHub 默认分支；初次推送工作流因 OAuth 缺少 workflow scope 被 GitHub 拒绝，在用户同意并完成官方设备授权后，5ad7619 已成功推送。
 - 首次云端 CI 发现验收规格的 featureInventorySha256 基于本地 CRLF，而 Linux 的 Git 检出使用 LF，导致生成规格被正确判定为过期。本次为 tools/navidrome/*.json 指定 text eol=lf，在本地统一这些输入并重新生成 acceptance-spec.json；只更新输入字节哈希，115 项验收内容不变。保留严格的字节校验，未通过跳过检查掩盖不一致。
 - Actions 官方当前 v6 已使用 Node 24；将 checkout、setup-python 和 upload-artifact 更新为已查证的 v6 commit，避免旧运行时弃用告警。Actionlint 和规格再生成检查通过；准备重跑云端检查后应用版本化保护规则。
+
+## 2026-11-15 03:07:51 +08:00
+
+- 为正式发布收尾检查建立 codex/finalize-release-rules 短期分支。GitHub CLI 读取证书变量改为显式 JSON value 输出，避免依赖人类可读格式；ZIP 校验补充拒绝 NUL 路径；依赖目录必须匹配包声明架构，neutral 主包如有原生依赖须覆盖 x86/x64/ARM，不能因只包含一种架构而声称所有 AnyCPU 安装都可用。
+- 为规格生成器显式指定 LF 输出，使 Windows 上重新生成的文件也遵循已提交的字节规则。新增依赖目录错误、neutral 依赖覆盖和 NUL 路径边界检查，发布工具共 14 项自测通过，115 项规格检查及 git diff --check 通过。原生 AppX 的当前 neutral 开发包没有 PackageDependency，此次不改变产品代码或依赖。
+- 后续通过 PR 和实际必需检查合并这组收尾改动，以验证已经编写的分支流程。

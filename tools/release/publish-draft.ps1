@@ -8,7 +8,7 @@ Push-Location $projectRoot
 try {
     $repo = & gh repo view --json nameWithOwner --jq .nameWithOwner
     if ($LASTEXITCODE -ne 0) { throw 'Cannot identify the GitHub repository.' }
-    $pin = & gh variable get RELEASE_CERTIFICATE_SHA256 --repo $repo
+    $pin = & gh variable get RELEASE_CERTIFICATE_SHA256 --repo $repo --json value --jq .value
     if ($LASTEXITCODE -ne 0) { throw 'Configure RELEASE_CERTIFICATE_SHA256 from your release certificate first.' }
     & python tools/release/release.py verify --directory $Directory --tag $metadata.tag --commit $metadata.commit --certificate-sha256 $pin
     if ($LASTEXITCODE -ne 0) { throw 'Release validation failed.' }
