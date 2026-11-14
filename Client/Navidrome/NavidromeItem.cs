@@ -53,6 +53,8 @@ namespace Subsonic8.Navidrome
             }
         }
         public Song Song { get { return Media as Song; } }
+        public string TrackNumberText { get { return string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("TrackNumber"), Song != null && Song.Track > 0 ? Song.Track : Ordinal + 1); } }
+        public string DurationText { get { return Song == null ? null : FormatTime(Song.Duration); } }
         public bool IsStarred { get { return Media != null && !string.IsNullOrEmpty(((SubsonicModelBase)Media).Starred); } }
         public void UpdateStarred(bool value)
         {

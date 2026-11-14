@@ -9,6 +9,12 @@ namespace Subsonic8.Navidrome
         private NavidromePlayerViewModel Model { get { return DataContext as NavidromePlayerViewModel; } }
         public MixRadioQueuePanel() { InitializeComponent(); }
         public void FocusCloseButton() { CloseButton.Focus(FocusState.Programmatic); }
+        public void ScrollToCurrent()
+        {
+            if (Model == null) return;
+            foreach (var row in Model.QueueEntries)
+                if (row.IsCurrent) { QueueList.ScrollIntoView(row); break; }
+        }
         private void OnQueueItemClicked(object sender, ItemClickEventArgs args) { if (Model != null) Model.PlayEntry(args); }
         private void OnShuffleClicked(object sender, RoutedEventArgs args) { if (Model != null) Model.Shuffle(); }
         private void OnRepeatClicked(object sender, RoutedEventArgs args) { if (Model != null) Model.Repeat(); }

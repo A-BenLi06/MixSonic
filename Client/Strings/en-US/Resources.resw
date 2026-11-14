@@ -436,4 +436,10 @@
   <data name="Navidrome_PlayerQueueMenu.Label" xml:space="preserve"><value>Queue</value></data>
   <data name="Navidrome_PlayerLibraryMenu.Label" xml:space="preserve"><value>Library</value></data>
   <data name="Navidrome_ShowQueue.Label" xml:space="preserve"><value>Show queue</value></data>
+  <data name="Navidrome_CloseAlbumPreview.AutomationProperties.Name" xml:space="preserve"><value>Close album preview</value></data>
+  <data name="Navidrome_AlbumDetailsButton.Content" xml:space="preserve"><value>Details</value></data>
+  <data name="Navidrome_EmptyQueue.Text" xml:space="preserve"><value>Your queue is empty. Select music and add it to the queue to play next.</value></data>
+  <data name="Navidrome_Text_QueueDurationMinutes" xml:space="preserve"><value>{0} min</value></data>
+  <data name="Navidrome_Text_QueueDurationHours" xml:space="preserve"><value>{0} h {1} min</value></data>
+  <data name="Navidrome_Text_TrackNumber" xml:space="preserve"><value>{0}.</value></data>
 </root>

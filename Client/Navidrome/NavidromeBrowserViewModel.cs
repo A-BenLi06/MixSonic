@@ -268,6 +268,9 @@ namespace Subsonic8.Navidrome
             return await base.ResolveCommandAsync();
         }
 
+        internal bool CanPreviewAlbum(NavidromeItem item)
+        { return PageActive && !IsLoading && _loadedApi != null && _loadedApi.AccountKey == Session.AccountKey && _loadedFolder == Session.FolderId &&
+            item != null && item.Media is Album && Items.Contains(item.SelectionItem); }
         public async Task OpenItem(ItemClickEventArgs args)
         {
             var item = (NavidromeItem)args.ClickedItem;

@@ -47,6 +47,12 @@ namespace Subsonic8.Navidrome
         public bool HasTracks { get { return Tracks.Count > 0; } }
         public bool HasRelated { get { return Related.Count > 0; } }
         public bool CanOpenExternal { get { Uri uri; return NavidromeBrowserViewModel.TryWebLink(_externalUrl, out uri); } }
+        private NavidromeItem AlbumArtist { get { return Related.FirstOrDefault(item => item.Media is ExpandedArtist); } }
+        public bool CanOpenAlbumArtist { get { return PageActive && _loadedApi != null && _loadedApi.AccountKey == Session.AccountKey && AlbumArtist != null; } }
+        public void OpenAlbumArtist()
+        { if (CanOpenAlbumArtist) NavigationService.NavigateToViewModel<NavidromeDetailViewModel>(NavidromeRoute.For("artist", AlbumArtist.Media.Id)); }
+        public void OpenFullDetails()
+        { if (PageActive && _loadedApi != null && _loadedApi.AccountKey == Session.AccountKey && Current != null) NavigationService.NavigateToViewModel<NavidromeDetailViewModel>(Parameter); }
         private Playlist Playlist { get { return _current == null ? null : _current.Media as Playlist; } }
         private bool OwnsPlaylist { get { return Playlist != null && Session.User != null && Playlist.Owner == Session.User.Username; } }
         public bool CanEditPlaylist { get { return !IsWorking && !IsLoading && OwnsPlaylist; } }
@@ -69,7 +75,7 @@ namespace Subsonic8.Navidrome
         {
             base.Changed();
             foreach (var property in new[] { "Current", "Notes", "ImageUrl", "HasNotes", "HasTracks", "HasRelated", "CanOpenExternal", "CanEditPlaylist",
-                "CanDeletePlaylist", "CanRemoveTracks", "CanMoveUp", "CanMoveDown", "CanArtistMix", "CanTopSongs", "CanBookmark", "CanSonicMix", "CanSonicPath" }) NotifyOfPropertyChange(property);
+                "CanDeletePlaylist", "CanRemoveTracks", "CanMoveUp", "CanMoveDown", "CanArtistMix", "CanTopSongs", "CanBookmark", "CanSonicMix", "CanSonicPath", "CanOpenAlbumArtist" }) NotifyOfPropertyChange(property);
         }
 
         public override async Task Reload()

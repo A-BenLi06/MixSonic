@@ -34,6 +34,9 @@ SELECTION = {
         "MyMusicItemContainerZoomedInAlbumStyle", "MyMusicItemContainerZoomedInSongStyle",
     },
     "Views/Search/SearchResultsView.json": {"TextRadioButtonStyle"},
+    "Views/Player/PlayerQueue.json": {
+        "QueueControlButtonStyle", "QueueControlToggleButtonStyle",
+    },
 }
 PRIMITIVES = {"Color", "SolidColorBrush", "Double", "Thickness", "FontFamily"}
 ATTACHED = {

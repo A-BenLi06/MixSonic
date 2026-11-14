@@ -1,41 +1,54 @@
 <UserControl x:Class="Subsonic8.Navidrome.MixRadioQueuePanel"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:common="using:Subsonic8.Common" xmlns:selection="using:Common.Behaviors" Width="300">
-    <UserControl.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="NavidromeResources.xaml" /></ResourceDictionary.MergedDictionaries>
-        <Style x:Key="QueueItemStyle" TargetType="ListViewItem">
-            <Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Background" Value="Transparent" />
-        </Style>
-    </ResourceDictionary></UserControl.Resources>
+    <UserControl.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="NavidromeResources.xaml" /><ResourceDictionary Source="MixRadioOverlayResources.xaml" />
+    </ResourceDictionary.MergedDictionaries></ResourceDictionary></UserControl.Resources>
+    <UserControl.Transitions><TransitionCollection><PaneThemeTransition Edge="Left"/></TransitionCollection></UserControl.Transitions>
     <!-- PlayerQueue.json: 300 px pane, 84 px title, 56 px toolbar and 58 px queue entries. -->
-    <Grid Background="Black">
+    <Grid>
         <Grid.RowDefinitions><RowDefinition Height="84" /><RowDefinition Height="56" /><RowDefinition Height="*" /></Grid.RowDefinitions>
         <Grid Background="{StaticResource NokiaSecondaryPinkBrush}">
-            <TextBlock x:Uid="Navidrome_Queue" Margin="40,30,0,0" VerticalAlignment="Bottom" Style="{StaticResource MediumLightText}" />
-            <Button x:Name="CloseButton" Style="{StaticResource ButtonBase}" Content="&#xE10A;" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,4,0"
+            <Grid Margin="40,30,12,0" VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock x:Uid="Navidrome_Queue" VerticalAlignment="Bottom" Style="{StaticResource MediumLightText}" />
+                <TextBlock Grid.Column="1" Text="{Binding QueueDurationText}" Margin="16,0,0,3" VerticalAlignment="Bottom" Style="{StaticResource NormalLightText}" TextWrapping="NoWrap" TextTrimming="WordEllipsis" ToolTipService.ToolTip="{Binding QueueDurationText}"/>
+            </Grid>
+            <Button x:Name="CloseButton" Style="{StaticResource QueueControlButtonStyle}" Content="&#xE10A;" Width="34" Height="34" HorizontalAlignment="Right" VerticalAlignment="Top"
                 x:Uid="Navidrome_CloseQueue" Click="OnCloseClicked" />
         </Grid>
         <Grid Grid.Row="1" Background="{StaticResource NokiaSecondaryPinkBrush}">
             <Grid.ColumnDefinitions><ColumnDefinition Width="40" /><ColumnDefinition Width="56" /><ColumnDefinition Width="56" /><ColumnDefinition Width="56" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-            <Button Grid.Column="1" Style="{StaticResource ButtonBase}" Content="&#xE14B;" IsEnabled="{Binding CanShuffle}" AutomationProperties.Name="{Binding ShuffleLabel}" Click="OnShuffleClicked" />
-            <Button Grid.Column="2" Style="{StaticResource ButtonBase}" Content="&#xE149;" IsEnabled="{Binding CanRepeat}" AutomationProperties.Name="{Binding RepeatLabel}" Click="OnRepeatClicked" />
-            <Button Grid.Column="3" Style="{StaticResource ButtonBase}" Content="&#xE107;" IsEnabled="{Binding CanClearQueue}" x:Uid="Navidrome_ClearQueueButton" Click="OnClearClicked" />
+            <ToggleButton Grid.Column="1" Style="{StaticResource QueueControlToggleButtonStyle}" Content="&#xE14B;" IsChecked="{Binding ShuffleOn}" IsEnabled="{Binding CanShuffle}" AutomationProperties.Name="{Binding ShuffleLabel}" Click="OnShuffleClicked" VerticalAlignment="Top"/>
+            <Button x:Name="RepeatButton" Grid.Column="2" Style="{StaticResource MixRadioQueueRepeatButtonStyle}" IsEnabled="{Binding CanRepeat}" AutomationProperties.Name="{Binding RepeatLabel}" ToolTipService.ToolTip="{Binding RepeatLabel}" Click="OnRepeatClicked" VerticalAlignment="Top">
+                <Grid Width="32" Height="32">
+                    <TextBlock Text="&#xE149;" FontFamily="Segoe UI Symbol" FontSize="26.667" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                        <TextBlock.RenderTransform><RotateTransform Angle="90"/></TextBlock.RenderTransform>
+                    </TextBlock>
+                    <TextBlock Text="{Binding RepeatCountText}" FontFamily="{StaticResource FontFamilyNormal}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                </Grid>
+            </Button>
+            <Button Grid.Column="3" Style="{StaticResource QueueControlButtonStyle}" Content="&#xE107;" IsEnabled="{Binding CanClearQueue}" x:Uid="Navidrome_ClearQueueButton" Click="OnClearClicked" VerticalAlignment="Top"/>
         </Grid>
-        <ListView x:Name="QueueList" Grid.Row="2" ItemsSource="{Binding QueueEntries}" ItemContainerStyle="{StaticResource QueueItemStyle}"
+        <ListView x:Name="QueueList" Grid.Row="2" ItemsSource="{Binding QueueEntries}" ItemContainerStyle="{StaticResource MixRadioQueueItemStyle}"
+            Background="{StaticResource NokiaSecondaryPinkBrush}" BorderThickness="0" Padding="0,0,17,0" ScrollViewer.VerticalScrollBarVisibility="Visible"
+            ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             IsItemClickEnabled="True" SelectionMode="Multiple" IsSwipeEnabled="True" ItemClick="OnQueueItemClicked"
             selection:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}">
             <ListView.ItemTemplate><DataTemplate>
-                <Grid Height="58" Width="300">
+                <Grid Height="58">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="40" /><ColumnDefinition Width="58" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                     <Rectangle Grid.ColumnSpan="3" Height="56" Fill="{StaticResource NokiaPinkBrush}" Visibility="{Binding IsCurrent, Converter={StaticResource NavidromeVisibility}}" />
-                    <TextBlock Text="{Binding Number}" Style="{StaticResource SmallGreyText}" VerticalAlignment="Center" HorizontalAlignment="Center" />
                     <common:MixRadioArtwork Grid.Column="1" Width="56" Height="56" FadeDuration="0" Source="{Binding Item.CoverArtUrl}" DefaultSource="ms-appx:///Assets/MixRadio/PackArt-Explorer.Targetsize-256.png" />
                     <StackPanel Grid.Column="2" Margin="8,0,4,0">
-                        <TextBlock Text="{Binding Item.Title}" FontSize="18" LineHeight="20" MaxHeight="42" Style="{StaticResource Medium2LightText}" />
-                        <TextBlock Text="{Binding Item.Artist}" LineHeight="14" MaxHeight="16" Style="{StaticResource SmallGreyText}" />
+                        <TextBlock Text="{Binding Item.Title}" FontSize="18" LineHeight="20" MaxLines="2" Style="{StaticResource Medium2LightText}" ToolTipService.ToolTip="{Binding Item.Title}"/>
+                        <TextBlock Text="{Binding Item.Artist}" LineHeight="14" MaxLines="1" Style="{StaticResource SmallGreyText}" TextWrapping="NoWrap"/>
                     </StackPanel>
                 </Grid>
             </DataTemplate></ListView.ItemTemplate>
+            <ListView.ItemContainerTransitions><TransitionCollection/></ListView.ItemContainerTransitions>
         </ListView>
+        <Grid Grid.Row="2" Background="{StaticResource NokiaSecondaryPinkBrush}" Visibility="{Binding HasQueueEntries, Converter={StaticResource NavidromeHidden}}">
+            <TextBlock x:Uid="Navidrome_EmptyQueue" Margin="44,0,16,0" Style="{StaticResource Medium2LightText}"/>
+        </Grid>
     </Grid>
 </UserControl>

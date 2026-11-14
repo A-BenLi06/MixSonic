@@ -134,7 +134,7 @@ namespace Subsonic8.Navidrome
             if (_commandMenu != null) { _commandMenu.Hide(); _commandMenu = null; }
         }
         private void OnQueueRequested(object sender, EventArgs args)
-        { QueueDismiss.Visibility = QueueDrawer.Visibility = Visibility.Visible; QueueDrawer.FocusCloseButton(); }
+        { QueueDismiss.Visibility = QueueDrawer.Visibility = Visibility.Visible; QueueDrawer.ScrollToCurrent(); QueueDrawer.FocusCloseButton(); }
         private void OnQueueClosed(object sender, EventArgs args) { CloseQueue(); }
         private void OnQueueDismissed(object sender, RoutedEventArgs args) { CloseQueue(); }
         private void CloseQueue() { QueueDismiss.Visibility = QueueDrawer.Visibility = Visibility.Collapsed; }

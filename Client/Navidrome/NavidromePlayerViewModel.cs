@@ -85,6 +85,19 @@ namespace Subsonic8.Navidrome
         public string PlayPauseLabel { get { return NavidromeText.Get(PlaylistQueue.IsPlaying ? "Pause" : "Play"); } }
         public string ShuffleLabel { get { return MixRadioText.Get(PlaylistQueue.ShuffleOn ? "ShuffleOn" : "ShuffleOff"); } }
         public string RepeatLabel { get { return MixRadioText.Get("Repeat" + PlaylistQueue.RepeatMode); } }
+        public bool ShuffleOn { get { return PlaylistQueue.ShuffleOn; } }
+        public double RepeatControlOpacity { get { return PlaylistQueue.RepeatMode == PlaybackRepeatMode.Off ? 0.5 : 1; } }
+        public string RepeatCountText { get { return PlaylistQueue.RepeatMode == PlaybackRepeatMode.One ? 1.ToString(CultureInfo.CurrentCulture) : null; } }
+        public string QueueDurationText
+        {
+            get
+            {
+                var time = TimeSpan.FromSeconds(PlaylistQueue.Items.Sum(item => (double)Math.Max(0, item.Duration)));
+                return time.TotalHours >= 1 ? string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("QueueDurationHours"), (long)time.TotalHours, time.Minutes)
+                    : string.Format(CultureInfo.CurrentCulture, NavidromeText.Get("QueueDurationMinutes"), time.Minutes);
+            }
+        }
+        public bool HasQueueEntries { get { return QueueEntries.Count > 0; } }
         public bool CanShuffle { get { return PlaylistQueue.Items.Count > 1; } }
         public bool CanRepeat { get { return PlaylistQueue.HasElements; } }
         public bool CanStop { get { return PlaylistQueue.IsPlaying || PlaylistQueue.IsPaused; } }
@@ -214,7 +227,8 @@ namespace Subsonic8.Navidrome
             base.Changed();
             foreach (var name in new[] { "CurrentItem", "HasCurrentItem", "HasPlaybackError", "Artwork", "BackgroundArtwork", "Title", "Artist", "Album", "RatingText", "CanPlayPause", "CanPrevious", "CanNext",
                 "PlayPauseGlyph", "PlayPauseLabel", "IsPlaying", "CanOpenArtist", "ShuffleLabel", "RepeatLabel", "CanShuffle", "CanRepeat", "CanStop", "CanClearQueue", "CanFavourite", "CanRate", "CanBookmark", "CanDetails", "CanDownload",
-                "CanSaveQueue", "CanRestoreQueue", "CanSaveAsPlaylist", "CanRemove", "CanMoveUp", "CanMoveDown", "CanReloadLyrics", "FavouriteLabel", "CanSyncListening", "CanImportQueue", "CanExportQueue" }) NotifyOfPropertyChange(name);
+                "CanSaveQueue", "CanRestoreQueue", "CanSaveAsPlaylist", "CanRemove", "CanMoveUp", "CanMoveDown", "CanReloadLyrics", "FavouriteLabel", "CanSyncListening", "CanImportQueue", "CanExportQueue",
+                "ShuffleOn", "RepeatControlOpacity", "RepeatCountText", "QueueDurationText", "HasQueueEntries" }) NotifyOfPropertyChange(name);
         }
         public override async Task Reload()
         {

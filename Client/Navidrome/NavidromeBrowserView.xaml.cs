@@ -18,6 +18,8 @@ namespace Subsonic8.Navidrome
         private LibraryIndexGroup _indexOrigin;
         private object _scrollAnchor;
         private bool _syncingSelection;
+        private NavidromeDetailViewModel _albumModel;
+        private NavidromeItem _albumOrigin;
         public NavidromeBrowserView()
         {
             InitializeComponent();
@@ -28,11 +30,14 @@ namespace Subsonic8.Navidrome
                 if (_model != null) _model.PropertyChanged += OnModelChanged;
                 Reflow(ActualWidth);
             };
-            Unloaded += (sender, args) => { if (_model != null) _model.PropertyChanged -= OnModelChanged; _model = null; };
+            Unloaded += (sender, args) => { CloseAlbumPreview(false); if (_model != null) _model.PropertyChanged -= OnModelChanged; _model = null; };
+            DataContextChanged += (sender, args) => CloseAlbumPreview(false);
             AddHandler(PointerWheelChangedEvent, new PointerEventHandler(OnZoomWheel), true);
         }
         private void Reflow(double width)
         {
+            AlbumPreview.Width = Math.Min(880, Math.Max(280, width - 32));
+            AlbumPreview.Height = Math.Min(600, Math.Max(240, ActualHeight - 48));
             var narrow = width < 800;
             var searchBelowTitle = width < 1200;
             var inset = width < 500 ? 12 : narrow ? 20 : 116;
@@ -84,7 +89,40 @@ namespace Subsonic8.Navidrome
         {
             var group = args.ClickedItem as LibraryIndexGroup;
             if (group != null) { await ShowIndex(group); return; }
+            var item = args.ClickedItem as NavidromeItem;
+            if (item != null && item.Media is Client.Common.Models.Subsonic.Album) { ShowAlbumPreview(item); return; }
             var model = DataContext as NavidromeBrowserViewModel; if (model != null) await model.OpenItem(args);
+        }
+        internal void ShowAlbumPreview(NavidromeItem item)
+        {
+            var model = DataContext as NavidromeBrowserViewModel;
+            if (model == null || !model.CanPreviewAlbum(item)) return;
+            CloseAlbumPreview(false);
+            _albumOrigin = item;
+            _albumModel = new NavidromeDetailViewModel { Parameter = NavidromeRoute.For("album", item.Media.Id) };
+            IoC.BuildUp(_albumModel);
+            AlbumPreview.DataContext = _albumModel;
+            AlbumOverlay.Visibility = Visibility.Visible;
+            LibraryContent.IsHitTestVisible = false;
+            if (BottomAppBar != null) { BottomAppBar.IsOpen = false; BottomAppBar.IsEnabled = false; }
+            ((IScreen)_albumModel).Activate();
+            Reflow(ActualWidth);
+            AlbumPreview.FocusCloseButton();
+        }
+        private void OnAlbumDismissed(object sender, RoutedEventArgs args) { CloseAlbumPreview(true); }
+        private void OnAlbumClosed(object sender, EventArgs args) { CloseAlbumPreview(true); }
+        private void CloseAlbumPreview(bool restoreFocus)
+        {
+            if (_albumModel != null) { ((IScreen)_albumModel).Deactivate(true); _albumModel = null; }
+            AlbumOverlay.Visibility = Visibility.Collapsed; AlbumPreview.DataContext = null;
+            LibraryContent.IsHitTestVisible = true;
+            if (BottomAppBar != null) BottomAppBar.IsEnabled = true;
+            if (restoreFocus && _albumOrigin != null)
+            {
+                var container = LibraryItems.ContainerFromItem(_albumOrigin) as Control;
+                if (container != null) container.Focus(FocusState.Programmatic);
+            }
+            _albumOrigin = null;
         }
         private void OnLibrarySelectionChanged(object sender, SelectionChangedEventArgs args)
         {
@@ -113,6 +151,7 @@ namespace Subsonic8.Navidrome
         }
         private void OnModelChanged(object sender, PropertyChangedEventArgs args)
         {
+            if (args.PropertyName == "IsLoading" && _model.IsLoading) CloseAlbumPreview(false);
             if (args.PropertyName == "IsLoading" && _model.IsLoading) CloseIndex(false);
             if (args.PropertyName == "IsNamedIndex" || args.PropertyName == "HasIndex") Reflow(ActualWidth);
             if (args.PropertyName == "IsUpdatingLibrary" && _model.IsUpdatingLibrary) _scrollAnchor = FirstVisibleEntry();
@@ -209,6 +248,7 @@ namespace Subsonic8.Navidrome
         }
         private async void OnZoomWheel(object sender, PointerRoutedEventArgs args)
         {
+            if (AlbumOverlay.Visibility == Visibility.Visible) return;
             if ((Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) & CoreVirtualKeyStates.Down) == 0) return;
             var delta = args.GetCurrentPoint(this).Properties.MouseWheelDelta;
             if (delta < 0 && _model != null && _model.CanShowIndex) { args.Handled = true; await ShowIndex(); }
@@ -241,6 +281,8 @@ namespace Subsonic8.Navidrome
         }
         private async void OnPageKeyDown(object sender, KeyRoutedEventArgs args)
         {
+            if (AlbumOverlay.Visibility == Visibility.Visible)
+            { if (args.Key == VirtualKey.Escape) { args.Handled = true; CloseAlbumPreview(true); } return; }
             if (args.Key == VirtualKey.Escape && IndexSurface.Visibility == Visibility.Visible) { args.Handled = true; CloseIndex(true); return; }
             if ((args.Key == VirtualKey.Subtract || (int)args.Key == 189) &&
                 (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) & CoreVirtualKeyStates.Down) != 0 && _model != null && _model.CanShowIndex)

@@ -1,0 +1,37 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style x:Key="MixRadioDismissButtonStyle" TargetType="Button">
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}"/>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="MixRadioQueueRepeatButtonStyle" TargetType="Button" BasedOn="{StaticResource QueueControlButtonStyle}">
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+            <Grid Background="Transparent">
+                <VisualStateManager.VisualStateGroups><VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal"/><VisualState x:Name="PointerOver"/>
+                    <VisualState x:Name="Pressed"><Storyboard><PointerDownThemeAnimation TargetName="RepeatContent"/></Storyboard></VisualState>
+                    <VisualState x:Name="Disabled"><Storyboard><DoubleAnimation Storyboard.TargetName="RepeatContent" Storyboard.TargetProperty="Opacity" To="0.2" Duration="0"/></Storyboard></VisualState>
+                </VisualStateGroup></VisualStateManager.VisualStateGroups>
+                <ContentPresenter x:Name="RepeatContent" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="{Binding RepeatControlOpacity}"/>
+            </Grid>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style x:Key="MixRadioOverlayItemStyle" TargetType="ListViewItem">
+        <Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="VerticalContentAlignment" Value="Top"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListViewItem">
+            <ListViewItemPresenter ContentTransitions="{TemplateBinding ContentTransitions}" Padding="{TemplateBinding Padding}"
+                ContentMargin="0" SelectionCheckMarkVisualEnabled="False" FocusBorderBrush="{ThemeResource ListViewItemFocusBorderThemeBrush}"
+                PointerOverBackground="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}"
+                SelectedBackground="{StaticResource NokiaPinkBrush}" SelectedPointerOverBackground="{StaticResource NokiaPinkBrush}"
+                SelectedForeground="White" SelectedBorderThickness="2" DisabledOpacity="{ThemeResource ListViewItemDisabledThemeOpacity}"/>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <!-- PlayerQueue's original item container adds 5 px above and below each 58 px entry. -->
+    <Style x:Key="MixRadioQueueItemStyle" TargetType="ListViewItem" BasedOn="{StaticResource MixRadioOverlayItemStyle}">
+        <Setter Property="Margin" Value="0,5,0,5"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+</ResourceDictionary>

@@ -1,0 +1,56 @@
+<UserControl x:Class="Subsonic8.Navidrome.MixRadioAlbumPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:common="using:Subsonic8.Common" xmlns:selection="using:Common.Behaviors">
+    <UserControl.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="NavidromeResources.xaml" />
+        <ResourceDictionary Source="MixRadioOverlayResources.xaml" />
+    </ResourceDictionary.MergedDictionaries></ResourceDictionary></UserControl.Resources>
+    <!-- MyMusicAlbumPopup: 880 x 600, 326 px overview, 250 px cover and 34 px inset. -->
+    <Grid x:Name="PanelLayout" Background="{StaticResource NokiaSecondaryPinkBrush}" Opacity="0.95">
+        <Grid.ColumnDefinitions><ColumnDefinition x:Name="OverviewWidth" Width="326"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <Grid.RowDefinitions><RowDefinition x:Name="OverviewHeight" Height="*"/><RowDefinition Height="0" x:Name="TracksHeight"/></Grid.RowDefinitions>
+        <Grid x:Name="Overview" Margin="34,34,0,24" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions><ColumnDefinition x:Name="CoverWidth" Width="250"/><ColumnDefinition Width="0" x:Name="DescriptionWidth"/></Grid.ColumnDefinitions>
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <Button x:Name="PlayAlbum" Style="{StaticResource NullButtonStyleWithPress}" IsEnabled="{Binding CanPlay}" x:Uid="Navidrome_PlayButton" Click="OnPlayClicked" HorizontalAlignment="Left">
+                <Grid>
+                    <common:MixRadioArtwork x:Name="Cover" Width="250" Height="250" Source="{Binding ImageUrl}" DefaultSource="ms-appx:///Assets/MixRadio/PackArt-Explorer.Targetsize-256.png"/>
+                    <ContentControl Template="{StaticResource MyMusicAlbumPlayIcon}" Width="32" Height="32" Margin="0,7,7,0" HorizontalAlignment="Right" VerticalAlignment="Top" IsHitTestVisible="False"/>
+                </Grid>
+            </Button>
+            <StackPanel x:Name="Description" Grid.Row="1" Width="250" HorizontalAlignment="Left">
+                <TextBlock x:Name="AlbumTitle" Text="{Binding Current.Title}" Style="{StaticResource MediumLightText}" FontSize="26.667" MaxLines="3" Margin="0,25,0,0" ToolTipService.ToolTip="{Binding Current.Title}"/>
+                <Button x:Name="ArtistLink" Style="{StaticResource NullButtonStyleWithPress}" Margin="0,16,0,0" IsEnabled="{Binding CanOpenAlbumArtist}" AutomationProperties.Name="{Binding Current.Artist}" Click="OnArtistClicked" HorizontalAlignment="Left">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions>
+                        <TextBlock x:Name="ArtistName" Text="{Binding Current.Artist}" Style="{StaticResource Medium2LightText}" MaxLines="2" ToolTipService.ToolTip="{Binding Current.Artist}"/>
+                        <TextBlock Grid.Column="1" Text="&#xE013;" FontFamily="Segoe UI Symbol" FontSize="20" VerticalAlignment="Center"/>
+                    </Grid>
+                </Button>
+                <Button x:Uid="Navidrome_AlbumDetailsButton" Style="{StaticResource NullButtonStyleWithPress}" Margin="0,20,0,0" HorizontalAlignment="Left" Click="OnDetailsClicked"/>
+            </StackPanel>
+        </Grid>
+        <Grid x:Name="TrackRegion" Grid.Column="1" Margin="0,34,0,0">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <StackPanel Margin="12,0,34,0">
+                <ProgressRing Width="32" Height="32" HorizontalAlignment="Left" IsActive="{Binding IsLoading}" Visibility="{Binding IsLoading, Converter={StaticResource NavidromeVisibility}}"/>
+                <TextBlock Text="{Binding Error}" Style="{StaticResource NormalText}" Visibility="{Binding HasError, Converter={StaticResource NavidromeVisibility}}"/>
+            </StackPanel>
+            <ListView x:Name="SongsList" Grid.Row="1" ItemsSource="{Binding Tracks}" Background="Transparent" BorderThickness="0" Padding="0,0,70,0"
+                ItemContainerStyle="{StaticResource MixRadioOverlayItemStyle}" IsItemClickEnabled="True" SelectionMode="Multiple" ItemClick="OnTrackClicked"
+                ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible"
+                selection:MultipleSelectBehavior.SelectedItems="{Binding SelectedItems, Mode=TwoWay}">
+                <ListView.ItemTemplate><DataTemplate>
+                    <Grid Height="60">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="47"/><ColumnDefinition Width="*"/><ColumnDefinition Width="107"/></Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding TrackNumberText}" FontSize="20" Margin="0,0,12,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="20" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="WordEllipsis" ToolTipService.ToolTip="{Binding Title}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding DurationText}" FontSize="18" Margin="0,3,0,0" VerticalAlignment="Center" TextAlignment="Right"/>
+                    </Grid>
+                </DataTemplate></ListView.ItemTemplate>
+                <ListView.ItemContainerTransitions><TransitionCollection/></ListView.ItemContainerTransitions>
+            </ListView>
+        </Grid>
+        <Button x:Name="CloseButton" Grid.Column="1" Style="{StaticResource QueueControlButtonStyle}" Content="&#xE10A;" x:Uid="Navidrome_CloseAlbumPreview"
+            Width="34" Height="34" HorizontalAlignment="Right" VerticalAlignment="Top" Click="OnCloseClicked"/>
+    </Grid>
+</UserControl>

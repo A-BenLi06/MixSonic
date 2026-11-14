@@ -503,6 +503,9 @@
     <Compile Include="Navidrome\MixRadioHomePanel.xaml.cs"><DependentUpon>MixRadioHomePanel.xaml</DependentUpon></Compile>
     <Page Include="Navidrome\MixRadioHomePanel.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Compile Include="Navidrome\MixRadioQueuePanel.xaml.cs"><DependentUpon>MixRadioQueuePanel.xaml</DependentUpon></Compile>
+    <Compile Include="Navidrome\MixRadioAlbumPanel.xaml.cs"><DependentUpon>MixRadioAlbumPanel.xaml</DependentUpon></Compile>
+    <Page Include="Navidrome\MixRadioAlbumPanel.xaml"><Generator>MSBuild:Compile</Generator></Page>
+    <Page Include="Navidrome\MixRadioOverlayResources.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Page Include="Navidrome\MixRadioQueuePanel.xaml"><Generator>MSBuild:Compile</Generator></Page>
     <Compile Include="Common\MixRadioArtwork.xaml.cs"><DependentUpon>MixRadioArtwork.xaml</DependentUpon></Compile>
     <Page Include="Common\MixRadioArtwork.xaml"><Generator>MSBuild:Compile</Generator></Page>
