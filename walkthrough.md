@@ -478,3 +478,9 @@
 - 新增版本化 GitHub 仓库配置及幂等应用脚本：main 默认分支，PR、最新基线、CI required 和讨论解决为必需，禁止删除/强推，采用 squash/rebase 与线性历史；单人仓库不要求他人审批；v* 标签禁止更新/删除；github-releases 环境只允许 main。新增 CONTRIBUTING.md、PR 模板和 AGENTS.md，记录用户的 PowerShell、提交身份、UTC 偏移与正确逻辑要求，更新根 README。
 - 本地验证：七组 CLR 回归通过（协议/模型 196、音频 54、连接 19、jukebox 28、首页 76、播放 521 项断言，另含序列化回归）；资源审计通过（291 个字符串查找、469 个项目资源引用）；两组既有 Python 工具自测各 23 项通过；Navidrome 审计覆盖 38 个功能、91 条路由注册；新增 12 项发布资产边界测试通过。Actionlint 1.7.12、YAML 解析、PowerShell 语法与 git diff --check 通过。
 - 额外用独立合成 AppX 验证真实签名与 SignTool：临时内存私钥生成的证书用于测试，完整包验证成功，修改包内容后验证失败；成功和失败路径均清理 CurrentUser Root 中的临时信任，测试私钥文件删除。该包未安装、未运行，不代表客户端原生验收。
+
+## 2026-11-15 03:01:30 +08:00
+
+- 远程 Navidrome-support 已同步全部既有提交，main 已建立并成为 GitHub 默认分支；初次推送工作流因 OAuth 缺少 workflow scope 被 GitHub 拒绝，在用户同意并完成官方设备授权后，5ad7619 已成功推送。
+- 首次云端 CI 发现验收规格的 featureInventorySha256 基于本地 CRLF，而 Linux 的 Git 检出使用 LF，导致生成规格被正确判定为过期。本次为 tools/navidrome/*.json 指定 text eol=lf，在本地统一这些输入并重新生成 acceptance-spec.json；只更新输入字节哈希，115 项验收内容不变。保留严格的字节校验，未通过跳过检查掩盖不一致。
+- Actions 官方当前 v6 已使用 Node 24；将 checkout、setup-python 和 upload-artifact 更新为已查证的 v6 commit，避免旧运行时弃用告警。Actionlint 和规格再生成检查通过；准备重跑云端检查后应用版本化保护规则。

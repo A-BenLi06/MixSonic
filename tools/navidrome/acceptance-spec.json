@@ -7,7 +7,7 @@
     "configuration": "Debug"
   },
   "scope": "Navidrome source defines music-client functionality. MixRadio is a separate component/layout/visual/design reference. Native web administration APIs and Windows Phone UI are separate scopes.",
-  "featureInventorySha256": "a14424cb8dd20f75f28116245bac79069523627db26828c795079e7267bf10d7",
+  "featureInventorySha256": "cf2da1b0ac213e8acf5f92c86b6482a1afb3be6d01bf08e95917e659de7bd9c5",
   "functionalityReference": {
     "repository": "https://github.com/navidrome/navidrome.git",
     "commit": "f5b6805b3150ed6e5b92d8f0fcf5174823ae9a2e"
