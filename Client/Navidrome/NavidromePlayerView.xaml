@@ -22,22 +22,26 @@
                 </StackPanel></Flyout></AppBarButton.Flyout>
             </AppBarButton>
             <CommandBar.SecondaryCommands>
-                <AppBarButton x:Name="Stop" x:Uid="Navidrome_Stop"/>
-                <AppBarButton x:Name="Download" x:Uid="Navidrome_Download"/>
-                <AppBarButton x:Name="Downloads" x:Uid="Navidrome_Downloads"/>
-                <AppBarButton x:Name="ReloadLyrics" x:Uid="Navidrome_ReloadLyrics"/>
-                <AppBarButton x:Uid="Navidrome_Rate" IsEnabled="{Binding CanRate}" cal:Message.Attach="[Event Click]=[Action Rate($source)]"/>
-                <AppBarButton x:Name="MoveUp" x:Uid="Navidrome_MoveUp"/>
-                <AppBarButton x:Name="MoveDown" x:Uid="Navidrome_MoveDown"/>
-                <AppBarButton x:Name="Remove" x:Uid="Navidrome_RemoveQueue"/>
-                <AppBarButton x:Name="ClearQueue" x:Uid="Navidrome_ClearQueue"/>
-                <AppBarButton x:Name="SaveQueue" x:Uid="Navidrome_SaveQueue"/>
-                <AppBarButton x:Name="RestoreQueue" x:Uid="Navidrome_RestoreQueue"/>
-                <AppBarButton x:Name="SaveAsPlaylist" x:Uid="Navidrome_SaveAsPlaylist" cal:Message.Attach="[Event Click]=[Action SaveAsPlaylist($source)]"/>
-                <AppBarButton x:Name="ImportQueue" x:Uid="Navidrome_ImportQueue"/>
-                <AppBarButton x:Name="ExportQueue" x:Uid="Navidrome_ExportQueue"/>
-                <AppBarButton x:Name="SyncListening" x:Uid="Navidrome_SyncListening"/>
-                <AppBarButton x:Name="Account" x:Uid="Navidrome_Account"/>
+                <AppBarButton x:Name="Stop" x:Uid="Navidrome_Stop" Icon="Stop"/>
+                <AppBarButton x:Name="Download" x:Uid="Navidrome_Download" Icon="Download"/>
+                <AppBarButton x:Name="Downloads" x:Uid="Navidrome_Downloads" Icon="Library"/>
+                <AppBarButton x:Name="ReloadLyrics" x:Uid="Navidrome_ReloadLyrics" Icon="Refresh"/>
+                <AppBarButton x:Uid="Navidrome_Rate" Icon="Favorite" IsEnabled="{Binding CanRate}" cal:Message.Attach="[Event Click]=[Action Rate($source)]"/>
+                <AppBarButton x:Name="MoveUp" x:Uid="Navidrome_MoveUp" Icon="Up"/>
+                <AppBarButton x:Name="MoveDown" x:Uid="Navidrome_MoveDown">
+                    <AppBarButton.Icon><SymbolIcon Symbol="Up" RenderTransformOrigin="0.5,0.5">
+                        <SymbolIcon.RenderTransform><RotateTransform Angle="180"/></SymbolIcon.RenderTransform>
+                    </SymbolIcon></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Name="Remove" x:Uid="Navidrome_RemoveQueue" Icon="Remove"/>
+                <AppBarButton x:Name="ClearQueue" x:Uid="Navidrome_ClearQueue" Icon="Clear"/>
+                <AppBarButton x:Name="SaveQueue" x:Uid="Navidrome_SaveQueue" Icon="Upload"/>
+                <AppBarButton x:Name="RestoreQueue" x:Uid="Navidrome_RestoreQueue" Icon="Download"/>
+                <AppBarButton x:Name="SaveAsPlaylist" x:Uid="Navidrome_SaveAsPlaylist" Icon="Save" cal:Message.Attach="[Event Click]=[Action SaveAsPlaylist($source)]"/>
+                <AppBarButton x:Name="ImportQueue" x:Uid="Navidrome_ImportQueue" Icon="OpenFile"/>
+                <AppBarButton x:Name="ExportQueue" x:Uid="Navidrome_ExportQueue" Icon="SaveLocal"/>
+                <AppBarButton x:Name="SyncListening" x:Uid="Navidrome_SyncListening" Icon="Sync"/>
+                <AppBarButton x:Name="Account" x:Uid="Navidrome_Account" Icon="Setting"/>
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>
