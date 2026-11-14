@@ -213,7 +213,11 @@
     <Compile Include="Converters\PlaybackStateToVisibilityConverter.cs" />
     <Compile Include="Converters\PlayingStateToVisibilityConverter.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />
-    <Compile Include="EchoNestCredentials.cs" />
+    <Compile Include="EchoNestCredentials.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EchoNestCredentials.resw</DependentUpon>
+    </Compile>
     <Compile Include="ErrorDialog\ErrorDialogViewModelStrings.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
