@@ -503,3 +503,9 @@
 - 正确实现改为仅在 GitHub Actions 且进程具有管理员权限时，通过标准 X509Store API 临时写入 LocalMachine Root，并在 finally 撤销本次添加的证书。完整 SignTool 签名、证书链和 AppX 内容验证始终必需；SignedCms 只负责嵌入签名者解码与固定证书比较。
 - 本机七组 CLR 回归不写机器证书库；合成签名测试只在临时 hosted Windows Runner 中执行并检查成功/失败的信任清理。已停止明确识别为本轮测试的挂起 PowerShell 进程，没有停止开发客户端；接下来以云端结果确认修复。
 - 中断的本机测试在 .tmp/ci/signature-test-82ae60a28b3046e7954eb0bafa07bfe6 留下 ephemeral.pfx（测试代码生成、随机密码加密）。自动审批拒绝了对这个临时文件的删除，返回理由只有 blocked by policy；保留原文件，不改用其他方式绕过拒绝。此前正常完成的测试已自行清理私钥和信任。
+
+## 2026-11-15 03:27:26 +08:00
+
+- GitHub 云端 CI 已真实全部成功：PR 运行 https://github.com/A-BenLi06/SubSonic8/actions/runs/43631944835 的 Desktop regressions、Source and tool checks、CI required 均通过，同一提交的 push 检查也通过。hosted Windows 的完整合成 AppX 签名、篡改拒绝、临时机器信任清理和测试私钥清理均通过；Linux 的资源、14 项发布自测、两组工具自测及 38 功能来源审计通过。
+- 已应用并读取确认 GitHub 配置：main 为默认且受保护的分支；main stability 规则集 27276002 要求 PR、线性历史、最新基线、讨论解决及 GitHub Actions 的 CI required（应用 ID 15368），无管理员直接推送绕过；immutable release tags 规则集 27276004 禁止 v* 标签更新和删除；github-releases 环境仅允许 main。仓库启用 squash/rebase、自动删除合并分支，禁止 merge commit。
+- PR #1 的实际保护状态为 CLEAN，所需 CI 全部成功。本条配置与验证记录将作为独立提交经相同检查合入 main。正式发布证书指纹仍由维护者选择后配置；本次不创建或公开任何 Release。
