@@ -56,6 +56,33 @@ def audit_names(node, path, scope=None):
         audit_names(child, path, scope)
 
 
+def audit_storyboards(node, path):
+    # Templates own separate namescopes; each storyboard must name a part in
+    # its own template. Also reject untyped colors assigned to Brush properties.
+    def scoped_parts(part):
+        yield part
+        for child in part:
+            if child.tag.split('}')[-1] not in {'ControlTemplate', 'DataTemplate', 'ItemsPanelTemplate', 'ResourceDictionary'}:
+                yield from scoped_parts(child)
+
+    for template in node.iter():
+        if template.tag.split('}')[-1] != 'ControlTemplate':
+            continue
+        parts = list(scoped_parts(template))
+        names = {part.get(xaml_namespace + 'Name') for part in parts}
+        for animation in parts:
+            target = animation.get('Storyboard.TargetName')
+            if target and target not in names:
+                issues.append('Missing storyboard target: ' + target + ' in ' + path)
+            if animation.tag.split('}')[-1] != 'ObjectAnimationUsingKeyFrames':
+                continue
+            if animation.get('Storyboard.TargetProperty') not in {'Fill', 'Stroke', 'Background', 'Foreground', 'BorderBrush'}:
+                continue
+            for frame in animation.iter():
+                if re.fullmatch(r'#[0-9A-Fa-f]{6,8}', frame.get('Value', '')):
+                    issues.append('Brush animation has an untyped color value in ' + path)
+
+
 application_keys = resource_keys(client / 'App.xaml')
 paths = (list((client / 'Navidrome').iterdir()) + list((client / 'Main').iterdir()) +
          list((client / 'Shell').glob('ShellView*')) +
@@ -71,6 +98,7 @@ for path in paths:
     if path.suffix == '.xaml':
         document = ET.parse(path).getroot()
         audit_names(document, relative)
+        audit_storyboards(document, relative)
         for node in document.iter():
             if node.tag.endswith('.ItemContainerTransitions') and len(node) and not node[0].tag.endswith('}TransitionCollection'):
                 issues.append('Item transitions must create their own TransitionCollection: ' + relative)

@@ -432,3 +432,12 @@
 - Added AutoGen, DesignTime and DependentUpon metadata for the existing EchoNestCredentials.cs output in Client/Client.csproj so VS can associate it with EchoNestCredentials.resw and its declared custom generator.
 - Retained NuGet requireReinstallation flags in Common/packages.config and Client.Common/packages.config: the reported package-retargeting warnings require actual package reconciliation and are not corrected by deleting warning metadata. No package versions or target frameworks were changed.
 - Validation at 2026-11-14T22:25:01.1905486+08:00: MSBuild 14 Debug Any CPU Rebuild exits successfully, and both generated MainView partials now inherit AppPage. XML checks confirm the generated EchoNest output association. Prior generated files, build logs and verification JSON are preserved under ignored .tmp/vs2015-debug-fix. The ordinary x86 layout was not replaced. Windows UI control was stopped by the user with Escape, so a new Visual Studio F5 debugging session has not been verified; the user can reload Client and press F5. Existing API/compiler and NuGet retargeting warnings remain distinct from the resolved CS0263 error.
+
+## 2026-11-15 00:28:45 +08:00
+
+- 根据用户截图修复首页及完整播放器共用的 XAML：歌曲信息原来只占 172 逻辑像素的一行，收藏按钮和评分被裁切；现在随封面占两行，窄屏重新排为单独的自动高度行。时间文字、进度滑轨及播放按钮分别按内容测量，底部状态区也使用自动行高，避免相互覆盖。
+- 拖动期间只预览位置，松手才向 MediaElement 提交一次 seek，防止连续位置赋值导致解码器反复跳转。计时刷新保留拖动位置；重复松手/捕获丢失不会重复提交；取消、页面卸载、DataContext 更换、停止及当前歌曲变化会放弃旧位置。拒绝非有限位置、忽略未变化的绑定值，并保留实际音频时长的边界限制。键盘事件同时监听已处理事件。
+- 将 SeekSliderStyle 中的颜色对象关键帧恢复为 SolidColorBrush 对象，同时修复样式导出脚本，避免重新生成时丢失修复；扩展源代码检查以验证模板自己的动画目标名称及画刷值类型。
+- 新增仅在显式 NativePlaybackProbe 调试构建中包含的原生验证，使用独立队列及本地生成的 PCM 音频，不修改账号、服务器内容或个人播放队列。部署脚本支持 AnyCPU 的实际输出目录，用于匹配当前 VS 调试安装的 neutral 包；最初的 x86 部署因架构冲突失败，随后使用 AnyCPU 成功复用现有注册，未卸载应用。
+- 验证：54 项生产音频逻辑断言、521 项生产播放队列断言、298 个桌面字符串查找和 444 个项目资源引用检查通过。29 项原生检查通过，包括 200 次拖动预览无 seek、松手仅一次 native seek、取消/移除/停止、无效位置、重复绑定、恢复播放，以及 1744/900/500 逻辑像素下的收藏评分、滑轨与按钮几何关系和四种滑轨视觉状态。已查看宽屏、窄屏真实 XAML 渲染，收藏按钮和评分完整显示。
+- 00:27:44 +08:00 已成功重建、部署并启动普通 Debug AnyCPU 客户端，进程响应正常，构建模式为 normal，普通可执行文件不包含原生探针元数据。证据保存在忽略目录 .tmp/ui-acceptance/2026-11-15/playback-layout-fix。Computer Use 的窗口截图两次超时，因此真实鼠标/触摸事件及截图中服务器提供的具体编码音源仍未实播认证；本地 PCM/native seek 与布局验证不代替这些检查。

@@ -43,7 +43,9 @@ namespace Subsonic8.Diagnostics
 
         internal static async Task RunAsync(ShellView shell, INavigationService navigation)
         {
-#if NATIVE_UI_OBSERVE
+#if NATIVE_PLAYBACK_PROBE
+            await NativePlaybackProbe.RunAsync(shell);
+#elif NATIVE_UI_OBSERVE
             await ObserveAsync(shell);
 #else
             try

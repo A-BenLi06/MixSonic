@@ -34,6 +34,8 @@ namespace Subsonic8.Navidrome
         private Song _song;
         private PlaylistItem _resumeItem;
         private long _resumePosition;
+        private PlaylistItem _scrubItem;
+        private bool _scrubChanged;
 
         public NavidromePlayerViewModel()
         {
@@ -106,7 +108,25 @@ namespace Subsonic8.Navidrome
         public bool HasLyrics { get { return LyricLines.Count > 0; } }
         public string LyricsStatus { get; private set; }
         public string LyricsError { get; private set; }
-        public bool IsScrubbing { get; set; }
+        public bool IsScrubbing { get; private set; }
+        public void BeginScrub()
+        {
+            if (IsScrubbing || Audio == null || !Audio.CanSeek || CurrentItem == null) return;
+            _scrubItem = CurrentItem;
+            _scrubChanged = false;
+            IsScrubbing = true;
+        }
+        public void FinishScrub(bool commit)
+        {
+            if (!IsScrubbing) return;
+            var position = _position;
+            var shouldSeek = commit && _scrubChanged && ReferenceEquals(_scrubItem, CurrentItem) && Audio.CanSeek;
+            IsScrubbing = false;
+            _scrubItem = null;
+            _scrubChanged = false;
+            if (shouldSeek) Audio.Seek(TimeSpan.FromSeconds(position));
+            UpdateTiming();
+        }
         public bool FollowLyrics { get { return _followLyrics; } set { _followLyrics = value; NotifyOfPropertyChange(); NotifyOfPropertyChange(() => HighlightedLine); } }
         public int HighlightedLine { get { return _highlightedLine; } }
         public string PositionText { get { return NavidromeItem.FormatTime(_position); } }
@@ -118,8 +138,14 @@ namespace Subsonic8.Navidrome
             set
             {
                 if (double.IsNaN(value) || double.IsInfinity(value)) return;
-                _position = Math.Max(0, Math.Min(_duration, value));
-                if (!_updatingPosition && Audio.CanSeek) Audio.Seek(TimeSpan.FromSeconds(_position));
+                var position = Math.Max(0, Math.Min(_duration, value));
+                if (position == _position) return;
+                _position = position;
+                if (!_updatingPosition)
+                {
+                    if (IsScrubbing) _scrubChanged = true;
+                    else if (Audio != null && Audio.CanSeek) Audio.Seek(TimeSpan.FromSeconds(_position));
+                }
                 NotifyOfPropertyChange(); NotifyOfPropertyChange(() => PositionText);
             }
         }
@@ -149,6 +175,7 @@ namespace Subsonic8.Navidrome
         }
         protected override void OnDeactivate(bool close)
         {
+            FinishScrub(false);
             _timer.Stop(); Audio.PropertyChanged -= AudioChanged; Audio.PlaybackSeeked -= Seeked;
             PlaylistQueue.PropertyChanged -= QueueChanged; PlaylistQueue.Items.CollectionChanged -= QueueItemsChanged;
             Session.PropertyChanged -= SessionChanged; Activity.PropertyChanged -= ActivityChanged;
@@ -157,6 +184,7 @@ namespace Subsonic8.Navidrome
         }
         private async void AudioChanged(object sender, PropertyChangedEventArgs args)
         {
+            if (args.PropertyName == "CurrentItem" || args.PropertyName == "CanSeek" && !Audio.CanSeek) FinishScrub(false);
             if (args.PropertyName == "CurrentItem") ApplyResumePosition();
             if (args.PropertyName == "GainMode") NotifyOfPropertyChange(() => SelectedGainMode);
             if (args.PropertyName == "PreAmplification") NotifyOfPropertyChange(() => PreAmplificationText);
@@ -240,6 +268,8 @@ namespace Subsonic8.Navidrome
         public void UpdateTiming()
         {
             if (Audio == null) return;
+            if (IsScrubbing && (!ReferenceEquals(_scrubItem, CurrentItem) || !Audio.CanSeek))
+            { IsScrubbing = false; _scrubItem = null; _scrubChanged = false; }
             var position = Math.Max(0, Audio.GetCurrentPosition().TotalSeconds);
             _updatingPosition = true;
             try

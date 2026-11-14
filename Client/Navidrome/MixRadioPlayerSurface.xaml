@@ -16,7 +16,7 @@
                     <ColumnDefinition Width="172" /><ColumnDefinition Width="172" /><ColumnDefinition Width="172" />
                     <ColumnDefinition Width="172" /><ColumnDefinition Width="344" />
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions><RowDefinition Height="172" /><RowDefinition Height="172" /><RowDefinition Height="172" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="172" /><RowDefinition Height="172" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                 <Button x:Name="ArtworkButton" Style="{StaticResource NullButtonStyleWithPress}" Grid.ColumnSpan="2" Grid.RowSpan="2"
                     Margin="0,0,10,10" IsEnabled="{Binding CanDetails}" Click="OnDetailsClicked" x:Uid="Navidrome_ArtworkButton"
                     Visibility="{Binding HasCurrentItem, Converter={StaticResource NavidromeVisibility}}">
@@ -31,14 +31,14 @@
                             Data="F1 M 228.867,86.599 L 145.889,107.833 C 143.834,108.362 142.150,110.531 142.150,112.651 L 142.150,208.131 C 137.433,205.635 131.317,204.388 124.504,204.926 C 108.538,206.165 94.847,216.627 93.934,228.279 C 93.016,239.932 105.215,248.363 121.181,247.124 C 137.147,245.877 152.090,234.941 152.090,222.588 L 152.090,142.978 L 222.665,124.826 L 222.665,186.456 C 217.952,183.961 212.126,182.656 205.312,183.187 C 189.347,184.434 175.656,194.888 174.738,206.540 C 173.821,218.193 186.020,226.633 201.990,225.385 C 217.956,224.137 232.544,213.202 232.544,200.906 C 232.544,200.416 232.609,89.502 232.609,89.502 C 232.609,87.382 230.926,86.077 228.867,86.599" />
                     </Canvas></Viewbox>
                 </Grid>
-                <StackPanel x:Name="QuietPanel" Grid.Column="2" Grid.ColumnSpan="3" Margin="10,0,400,0"
+                <StackPanel x:Name="QuietPanel" Grid.Column="2" Grid.ColumnSpan="3" Grid.RowSpan="2" Margin="10,0,400,0"
                     Visibility="{Binding HasCurrentItem, Converter={StaticResource NavidromeHidden}}">
                     <TextBlock x:Uid="Navidrome_QuietPlayer" Style="{StaticResource MediumLightText}" LineHeight="32" />
                     <Button Style="{StaticResource NullButtonStyleWithPress}" Click="OnBrowseClicked" Margin="0,24,0,0">
                         <TextBlock x:Uid="Navidrome_ChooseMusic" Style="{StaticResource MediumLightText}" Foreground="{StaticResource NokiaPinkBrush}" />
                     </Button>
                 </StackPanel>
-                <StackPanel x:Name="TrackInformation" Grid.Column="2" Grid.ColumnSpan="3" Margin="8,0,0,0"
+                <StackPanel x:Name="TrackInformation" Grid.Column="2" Grid.ColumnSpan="3" Grid.RowSpan="2" Margin="8,0,0,0"
                     Visibility="{Binding HasCurrentItem, Converter={StaticResource NavidromeVisibility}}">
                     <Button Style="{StaticResource NullButtonStyleWithPressAndDisable}" IsEnabled="{Binding CanDetails}" Click="OnDetailsClicked">
                         <TextBlock x:Name="TrackTitle" Text="{Binding Title}" Style="{StaticResource LargeLightGreyText}" LineHeight="50" Margin="0,20,0,0" TextWrapping="NoWrap" />
@@ -55,13 +55,14 @@
                         <TextBlock Text="{Binding RatingText}" Style="{StaticResource SmallGreyText}" Margin="0,14,0,0" />
                     </StackPanel>
                 </StackPanel>
-                <!-- PlayerTransportControls.json, retaining its 63 px progress row and 68 px vectors. -->
+                <!-- Give time labels and the slider separate measured rows. -->
                 <Grid x:Name="Transport" Grid.Row="2" Grid.ColumnSpan="2" Margin="0,12,10,0" VerticalAlignment="Top">
-                    <Grid.RowDefinitions><RowDefinition Height="63" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                     <Grid Visibility="{Binding HasCurrentItem, Converter={StaticResource NavidromeVisibility}}">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
                         <TextBlock Text="{Binding PositionText}" Style="{StaticResource SmallGreyText}" HorizontalAlignment="Left" />
                         <TextBlock Text="{Binding DurationText}" Style="{StaticResource SmallGreyText}" HorizontalAlignment="Right" />
-                        <Slider x:Name="SeekSlider" x:Uid="Navidrome_Seek" Style="{StaticResource SeekSliderStyle}" Margin="0,22,0,0"
+                        <Slider Grid.Row="1" x:Name="SeekSlider" x:Uid="Navidrome_Seek" Style="{StaticResource SeekSliderStyle}"
                             Minimum="0" Maximum="{Binding DurationSeconds}" Value="{Binding PositionSeconds, Mode=TwoWay}"
                             Foreground="{StaticResource NokiaPinkBrush}" IsEnabled="{Binding Audio.CanSeek}" IsThumbToolTipEnabled="False" />
                     </Grid>

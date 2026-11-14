@@ -8,6 +8,7 @@ in the application's templates, separately from this mechanical XBF reconstructi
 import argparse
 import copy
 import json
+import re
 from pathlib import Path
 from xml.sax.saxutils import escape, quoteattr
 
@@ -207,6 +208,11 @@ def export(reference):
             # the client's English resources provide the retained action labels.
             obj["properties"] = [p for p in obj["properties"] if p["name"] != "Inlines"]
         xml = render(obj, metadata, resource=True)
+        if key == "SeekSliderStyle":
+            # Object keyframes need Brush values for brush properties. A color
+            # recovered as a scalar must not become an untyped runtime string.
+            xml = re.sub(r'<DiscreteObjectKeyFrame KeyTime="([^"]+)" Value="(#[0-9A-Fa-f]{8})" />',
+                         r'<DiscreteObjectKeyFrame KeyTime="\1"><DiscreteObjectKeyFrame.Value><SolidColorBrush Color="\2" /></DiscreteObjectKeyFrame.Value></DiscreteObjectKeyFrame>', xml)
         if key in {"MyMusicItemContainerZoomedInAlbumStyle", "MyMusicItemContainerZoomedInSongStyle", "MyMusicFilterButtonStyle"}:
             # The recovered templates declare focus rectangles but leave Focused
             # empty. Connect them to keyboard focus in the native desktop port.
@@ -244,7 +250,6 @@ def export(reference):
     template = next(o for o in objects(base) if o["type"] == "ControlTemplate")
     for name, (data, width, height, margin) in vectors.items():
         xml = render(template, metadata, level=4)
-        import re
         xml = re.sub(r'<ContentPresenter x:Name="Content"[^>]*/>',
                      '<Path x:Name="Content" Data=' + quoteattr(data) + ' Fill="{TemplateBinding Foreground}" '
                      'Width="' + width + '" Height="' + height + '" Margin="' + margin + '" '

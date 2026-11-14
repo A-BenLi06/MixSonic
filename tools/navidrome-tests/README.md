@@ -130,3 +130,16 @@ tests for endpoint accounting, generated requirements, balanced request parsing,
 missing/duplicate proofs, changed logs/code and historical native rejection.
 The generic evaluator's own tests run separately. Native task completion and
 MixRadio design comparison are independent of these tool self-tests.
+
+The focused native playback/layout probe is available through
+`./tools/desktop/run.ps1 -Architecture AnyCPU -NativePlaybackProbe` (use the
+architecture of the registered development package). It creates an isolated
+local PCM file and queue, exercises the production player view model and native
+MediaElement, and renders the player at 1744, 900 and 500 logical pixels. Check
+the fresh `LocalState/native-playback-probe/result.json` for `passed: true`;
+successful build/deployment alone does not establish the probe result. The
+checks cover held scrub previews, a single release commit, cancellation,
+removed/stopped items, invalid positions, slider visual states and clipping.
+It does not inject pointer input or certify seeking in server-provided codecs.
+After verification, run the same command without `-NativePlaybackProbe` to
+rebuild and launch the ordinary app without diagnostic code.

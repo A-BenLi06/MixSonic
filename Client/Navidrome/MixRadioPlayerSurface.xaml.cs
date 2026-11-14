@@ -11,16 +11,19 @@ namespace Subsonic8.Navidrome
         public event EventHandler QueueRequested;
         public event EventHandler BrowseRequested;
         private NavidromePlayerViewModel Model { get { return DataContext as NavidromePlayerViewModel; } }
+        private NavidromePlayerViewModel _scrubModel;
         public MixRadioPlayerSurface()
         {
             InitializeComponent();
             SeekSlider.AddHandler(PointerPressedEvent, new PointerEventHandler(OnScrubStarted), true);
             SeekSlider.AddHandler(PointerReleasedEvent, new PointerEventHandler(OnScrubFinished), true);
             SeekSlider.AddHandler(PointerCaptureLostEvent, new PointerEventHandler(OnScrubFinished), true);
-            SeekSlider.KeyDown += (sender, args) => { if (IsSeekKey(args.Key) && Model != null) Model.IsScrubbing = true; };
-            SeekSlider.KeyUp += (sender, args) => { if (IsSeekKey(args.Key)) FinishScrub(); };
+            SeekSlider.AddHandler(PointerCanceledEvent, new PointerEventHandler((sender, args) => FinishScrub(false)), true);
+            SeekSlider.AddHandler(KeyDownEvent, new KeyEventHandler((sender, args) => { if (IsSeekKey(args.Key)) BeginScrub(); }), true);
+            SeekSlider.AddHandler(KeyUpEvent, new KeyEventHandler((sender, args) => { if (IsSeekKey(args.Key)) FinishScrub(); }), true);
             SeekSlider.LostFocus += (sender, args) => FinishScrub();
-            Unloaded += (sender, args) => FinishScrub();
+            Unloaded += (sender, args) => FinishScrub(false);
+            DataContextChanged += (sender, args) => FinishScrub(false);
         }
         public void SetViewport(double width, double height)
         {
@@ -33,10 +36,10 @@ namespace Subsonic8.Navidrome
                 PlayerLayout.ColumnDefinitions[index].Width = new GridLength(narrow ? (index < 2 ? artwork / 2 : 0) : index == 4 ? 344 : 172);
             PlayerLayout.RowDefinitions[0].Height = new GridLength(narrow ? artwork : 172);
             PlayerLayout.RowDefinitions[1].Height = narrow ? GridLength.Auto : new GridLength(172);
-            PlayerLayout.RowDefinitions[2].Height = narrow ? GridLength.Auto : new GridLength(172);
+            PlayerLayout.RowDefinitions[2].Height = GridLength.Auto;
             foreach (var element in new FrameworkElement[] { ArtworkButton, EmptyArtwork }) Grid.SetRowSpan(element, narrow ? 1 : 2);
             foreach (var element in new FrameworkElement[] { TrackInformation, QuietPanel })
-            { Grid.SetColumn(element, narrow ? 0 : 2); Grid.SetRow(element, narrow ? 1 : 0); Grid.SetColumnSpan(element, narrow ? 2 : 3); }
+            { Grid.SetColumn(element, narrow ? 0 : 2); Grid.SetRow(element, narrow ? 1 : 0); Grid.SetColumnSpan(element, narrow ? 2 : 3); Grid.SetRowSpan(element, narrow ? 1 : 2); }
             TrackInformation.Margin = narrow ? new Thickness(0, 0, 0, 12) : new Thickness(8, 0, 0, 0);
             QuietPanel.Margin = narrow ? new Thickness(0, 16, 0, 16) : new Thickness(10, 0, 400, 0);
             foreach (var button in new[] { PreviousButton, PlayButton, PauseButton, NextButton })
@@ -48,10 +51,21 @@ namespace Subsonic8.Navidrome
             StreamStatus.Margin = narrow ? new Thickness(0, 0, 0, 20) : new Thickness(8, 12, 32, 0);
         }
         private static bool IsSeekKey(VirtualKey key)
-        { return key == VirtualKey.Left || key == VirtualKey.Right || key == VirtualKey.Home || key == VirtualKey.End || key == VirtualKey.PageUp || key == VirtualKey.PageDown; }
-        private void OnScrubStarted(object sender, PointerRoutedEventArgs args) { if (Model != null) Model.IsScrubbing = true; }
+        { return key == VirtualKey.Left || key == VirtualKey.Right || key == VirtualKey.Up || key == VirtualKey.Down || key == VirtualKey.Home || key == VirtualKey.End || key == VirtualKey.PageUp || key == VirtualKey.PageDown; }
+        private void BeginScrub()
+        {
+            if (_scrubModel != null || Model == null) return;
+            Model.BeginScrub();
+            if (Model.IsScrubbing) _scrubModel = Model;
+        }
+        private void OnScrubStarted(object sender, PointerRoutedEventArgs args) { BeginScrub(); }
         private void OnScrubFinished(object sender, PointerRoutedEventArgs args) { FinishScrub(); }
-        private void FinishScrub() { if (Model != null) { Model.IsScrubbing = false; Model.UpdateTiming(); } }
+        private void FinishScrub(bool commit = true)
+        {
+            var model = _scrubModel;
+            _scrubModel = null;
+            if (model != null) model.FinishScrub(commit);
+        }
         private void OnPreviousClicked(object sender, RoutedEventArgs args) { if (Model != null) Model.Previous(); }
         private void OnPlayPauseClicked(object sender, RoutedEventArgs args) { if (Model != null) Model.PlayPause(); }
         private void OnNextClicked(object sender, RoutedEventArgs args) { if (Model != null) Model.Next(); }

@@ -1,16 +1,18 @@
 param(
     [ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug',
-    [ValidateSet('x86', 'x64', 'ARM')][string]$Architecture = 'x86',
+    [ValidateSet('AnyCPU', 'x86', 'x64', 'ARM')][string]$Architecture = 'x86',
     [string]$MSBuildPath = $env:SUBSONIC8_MSBUILD,
     [switch]$NoBuild,
     [switch]$NoLaunch,
     [switch]$NativeUiProbe,
+    [switch]$NativePlaybackProbe,
     [switch]$NativeUiObserve
 )
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 $clientRoot = Join-Path $projectRoot 'Client'
+if ($NativePlaybackProbe) { $NativeUiProbe = $true }
 if (($NativeUiProbe -or $NativeUiObserve) -and ($Configuration -ne 'Debug' -or $NoBuild)) { throw 'Native UI diagnostics require a fresh Debug build.' }
 if ($NativeUiProbe -and $NativeUiObserve) { throw 'Choose either the scripted probe or the passive observer.' }
 function Stop-WorkspaceClient {
@@ -26,7 +28,7 @@ if (-not $MSBuildPath) {
 $outputRoot = Join-Path $projectRoot '.tmp\desktop'
 New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
 $modeFile = Join-Path $outputRoot "build-mode-$Architecture-$Configuration.txt"
-$buildMode = if ($NativeUiObserve) { 'native-ui-observer' } elseif ($NativeUiProbe) { 'native-ui-probe' } else { 'normal' }
+$buildMode = if ($NativeUiObserve) { 'native-ui-observer' } elseif ($NativePlaybackProbe) { 'native-ui-playback-probe' } elseif ($NativeUiProbe) { 'native-ui-probe' } else { 'normal' }
 $previousMode = if (Test-Path -LiteralPath $modeFile) { (Get-Content -LiteralPath $modeFile -Raw).Trim() } else { '' }
 if ($NoBuild -and $previousMode -like 'native-ui-*') { throw 'The last build contains native UI diagnostics. Run a normal build before using -NoBuild.' }
 if (-not $NoBuild) {
@@ -36,11 +38,12 @@ if (-not $NoBuild) {
     # MSBuild 14 can reuse CoreCompile outputs when a conditional Compile item
     # disappears. Changing the probe define must invalidate that cached binary.
     $buildTarget = if ($previousMode -ne $buildMode) { 'Rebuild' } else { 'Build' }
-    & $MSBuildPath (Join-Path $clientRoot 'Client.csproj') "/t:$buildTarget" "/p:Configuration=$Configuration" "/p:Platform=$Architecture" "/p:NativeUiProbe=$(($NativeUiProbe -or $NativeUiObserve).ToString().ToLowerInvariant())" "/p:NativeUiObserve=$($NativeUiObserve.IsPresent.ToString().ToLowerInvariant())" /m /v:quiet /nologo /fl "/flp:logfile=$buildLog;verbosity=normal"
+    & $MSBuildPath (Join-Path $clientRoot 'Client.csproj') "/t:$buildTarget" "/p:Configuration=$Configuration" "/p:Platform=$Architecture" "/p:NativeUiProbe=$(($NativeUiProbe -or $NativeUiObserve).ToString().ToLowerInvariant())" "/p:NativeUiObserve=$($NativeUiObserve.IsPresent.ToString().ToLowerInvariant())" "/p:NativePlaybackProbe=$($NativePlaybackProbe.IsPresent.ToString().ToLowerInvariant())" /m /v:quiet /nologo /fl "/flp:logfile=$buildLog;verbosity=normal"
     if ($LASTEXITCODE -ne 0) { throw "Desktop build failed. See $buildLog" }
     Set-Content -LiteralPath $modeFile -Value $buildMode -Encoding utf8NoBOM
 }
-$builtManifest = Join-Path $clientRoot "bin\$Architecture\$Configuration\AppxManifest.xml"
+$builtOutput = if ($Architecture -eq 'AnyCPU') { "bin\$Configuration" } else { "bin\$Architecture\$Configuration" }
+$builtManifest = Join-Path $clientRoot (Join-Path $builtOutput 'AppxManifest.xml')
 if (-not (Test-Path -LiteralPath $builtManifest)) { throw 'Build output is missing.' }
 $identity = ([xml](Get-Content -LiteralPath $builtManifest -Raw)).Package.Identity
 Import-Module Appx -UseWindowsPowerShell -WarningAction SilentlyContinue

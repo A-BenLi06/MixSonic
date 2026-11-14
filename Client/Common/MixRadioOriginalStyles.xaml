@@ -3285,7 +3285,7 @@
                                                     <Storyboard.Children>
                                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Fill" Storyboard.TargetName="HorizontalTrackRect">
                                                             <ObjectAnimationUsingKeyFrames.KeyFrames>
-                                                                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="#FFB7B7B7" />
+                                                                <DiscreteObjectKeyFrame KeyTime="0:0:0"><DiscreteObjectKeyFrame.Value><SolidColorBrush Color="#FFB7B7B7" /></DiscreteObjectKeyFrame.Value></DiscreteObjectKeyFrame>
                                                             </ObjectAnimationUsingKeyFrames.KeyFrames>
                                                         </ObjectAnimationUsingKeyFrames>
                                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Fill" Storyboard.TargetName="VerticalDecreaseRect">
@@ -3323,7 +3323,7 @@
                                                     <Storyboard.Children>
                                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Stroke" Storyboard.TargetName="HorizontalBorder">
                                                             <ObjectAnimationUsingKeyFrames.KeyFrames>
-                                                                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="#FFB7B7B7" />
+                                                                <DiscreteObjectKeyFrame KeyTime="0:0:0"><DiscreteObjectKeyFrame.Value><SolidColorBrush Color="#FFB7B7B7" /></DiscreteObjectKeyFrame.Value></DiscreteObjectKeyFrame>
                                                             </ObjectAnimationUsingKeyFrames.KeyFrames>
                                                         </ObjectAnimationUsingKeyFrames>
                                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Stroke" Storyboard.TargetName="VerticalBorder">
@@ -3333,12 +3333,12 @@
                                                         </ObjectAnimationUsingKeyFrames>
                                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Fill" Storyboard.TargetName="HorizontalDecreaseRect">
                                                             <ObjectAnimationUsingKeyFrames.KeyFrames>
-                                                                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="#FFB7B7B7" />
+                                                                <DiscreteObjectKeyFrame KeyTime="0:0:0"><DiscreteObjectKeyFrame.Value><SolidColorBrush Color="#FFB7B7B7" /></DiscreteObjectKeyFrame.Value></DiscreteObjectKeyFrame>
                                                             </ObjectAnimationUsingKeyFrames.KeyFrames>
                                                         </ObjectAnimationUsingKeyFrames>
                                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Fill" Storyboard.TargetName="HorizontalTrackRect">
                                                             <ObjectAnimationUsingKeyFrames.KeyFrames>
-                                                                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="#FFB7B7B7" />
+                                                                <DiscreteObjectKeyFrame KeyTime="0:0:0"><DiscreteObjectKeyFrame.Value><SolidColorBrush Color="#FFB7B7B7" /></DiscreteObjectKeyFrame.Value></DiscreteObjectKeyFrame>
                                                             </ObjectAnimationUsingKeyFrames.KeyFrames>
                                                         </ObjectAnimationUsingKeyFrames>
                                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Fill" Storyboard.TargetName="VerticalDecreaseRect">
@@ -3411,7 +3411,7 @@
                                                     <Storyboard.Children>
                                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Fill" Storyboard.TargetName="HorizontalTrackRect">
                                                             <ObjectAnimationUsingKeyFrames.KeyFrames>
-                                                                <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="#FFB7B7B7" />
+                                                                <DiscreteObjectKeyFrame KeyTime="0:0:0"><DiscreteObjectKeyFrame.Value><SolidColorBrush Color="#FFB7B7B7" /></DiscreteObjectKeyFrame.Value></DiscreteObjectKeyFrame>
                                                             </ObjectAnimationUsingKeyFrames.KeyFrames>
                                                         </ObjectAnimationUsingKeyFrames>
                                                         <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Fill" Storyboard.TargetName="VerticalDecreaseRect">

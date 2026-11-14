@@ -117,8 +117,12 @@
   <PropertyGroup Condition="'$(NativeUiObserve)' == 'true'">
     <DefineConstants>$(DefineConstants);NATIVE_UI_OBSERVE</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(NativePlaybackProbe)' == 'true'">
+    <DefineConstants>$(DefineConstants);NATIVE_PLAYBACK_PROBE</DefineConstants>
+  </PropertyGroup>
   <ItemGroup Condition="'$(NativeUiProbe)' == 'true'">
     <Compile Include="..\tools\desktop\NativeUiProbe.cs"><Link>Diagnostics\NativeUiProbe.cs</Link></Compile>
+    <Compile Include="..\tools\desktop\NativePlaybackProbe.cs" Condition="'$(NativePlaybackProbe)' == 'true'"><Link>Diagnostics\NativePlaybackProbe.cs</Link></Compile>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Album\AlbumViewModel.cs" />
