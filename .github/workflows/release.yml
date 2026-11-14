@@ -1,0 +1,96 @@
+name: Publish release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing draft release tag (vMajor.Minor.Build.Revision)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-publication
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    name: Verify and publish AppX
+    runs-on: windows-2022
+    timeout-minutes: 20
+    environment: github-releases
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.tag }}
+      RELEASE_CERTIFICATE_SHA256: ${{ vars.RELEASE_CERTIFICATE_SHA256 }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13'
+      - name: Resolve immutable source and require CI
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RELEASE_TAG -cnotmatch '^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$') { throw 'Invalid AppX release tag.' }
+          if ($env:RELEASE_CERTIFICATE_SHA256 -notmatch '^[0-9a-fA-F]{64}$') { throw 'Configure RELEASE_CERTIFICATE_SHA256 first.' }
+          $commit = & git rev-parse --verify "refs/tags/$env:RELEASE_TAG^{commit}"
+          if ($LASTEXITCODE -ne 0) { throw 'The release tag does not exist.' }
+          & git merge-base --is-ancestor $commit origin/main
+          if ($LASTEXITCODE -ne 0) { throw 'The release commit is not merged into main.' }
+          $passed = $false
+          for ($attempt = 0; $attempt -lt 20; $attempt++) {
+            $json = & gh api "repos/$env:GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$commit&event=push&per_page=100"
+            if ($LASTEXITCODE -ne 0) { throw 'Cannot read CI runs.' }
+            $runs = @(($json | ConvertFrom-Json).workflow_runs | Where-Object head_sha -EQ $commit)
+            if (@($runs | Where-Object { $_.status -eq 'completed' -and $_.conclusion -eq 'success' }).Count -gt 0) { $passed = $true; break }
+            if ($runs.Count -gt 0 -and @($runs | Where-Object status -NE 'completed').Count -eq 0) { throw 'CI failed for the release commit.' }
+            Start-Sleep -Seconds 30
+          }
+          if (-not $passed) { throw 'No successful push CI for the release commit within ten minutes.' }
+          "RELEASE_COMMIT=$commit" >> $env:GITHUB_ENV
+      - name: Download draft assets
+        shell: pwsh
+        run: |
+          $json = & gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$env:RELEASE_TAG"
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot read the draft release.' }
+          $release = $json | ConvertFrom-Json
+          if (-not $release.draft) { throw 'Only draft releases can be published; published versions are immutable.' }
+          New-Item -ItemType Directory -Path .tmp/release-download -Force | Out-Null
+          $json | Set-Content .tmp/release-snapshot.json
+          & gh release download $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --dir .tmp/release-download
+          if ($LASTEXITCODE -ne 0) { throw 'Release asset download failed.' }
+      - name: Verify source, version and package inventory
+        shell: pwsh
+        run: |
+          python tools/release/release.py verify --directory .tmp/release-download --tag $env:RELEASE_TAG --commit $env:RELEASE_COMMIT --certificate-sha256 $env:RELEASE_CERTIFICATE_SHA256 --extract .tmp/release-verified
+          if ($LASTEXITCODE -ne 0) { throw 'Release metadata validation failed.' }
+      - name: Verify pinned signer and dependency signatures
+        shell: pwsh
+        run: ./tools/release/verify-signatures.ps1 -Directory .tmp/release-verified -CertificateSha256 $env:RELEASE_CERTIFICATE_SHA256 -TrustPinnedCertificate
+      - name: Publish verified draft
+        shell: pwsh
+        run: |
+          $before = Get-Content .tmp/release-snapshot.json -Raw | ConvertFrom-Json
+          $json = & gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$env:RELEASE_TAG"
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot recheck the release.' }
+          $after = $json | ConvertFrom-Json
+          $originalAssets = $before.assets | Select-Object id,name,size,updated_at | ConvertTo-Json -Compress
+          $currentAssets = $after.assets | Select-Object id,name,size,updated_at | ConvertTo-Json -Compress
+          $tagCommit = & git ls-remote origin "refs/tags/$env:RELEASE_TAG^{}"
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot recheck the tag.' }
+          if (-not $tagCommit) { $tagCommit = & git ls-remote origin "refs/tags/$env:RELEASE_TAG" }
+          if ($LASTEXITCODE -ne 0 -or ($tagCommit -split '\s+')[0] -ne $env:RELEASE_COMMIT) { throw 'The release tag changed during verification.' }
+          if (-not $after.draft -or $after.id -ne $before.id -or $after.updated_at -ne $before.updated_at -or $originalAssets -cne $currentAssets) { throw 'The release changed during verification.' }
+          & gh release edit $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --draft=false
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }
+          "Published $($after.html_url) from $env:RELEASE_COMMIT" >> $env:GITHUB_STEP_SUMMARY

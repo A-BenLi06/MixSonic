@@ -13,6 +13,9 @@
 # Build results
 [Dd]ebug/
 [Rr]elease/
+# Release automation is source, not a compiler output directory.
+!tools/release/
+!tools/release/**
 *_i.c
 *_p.c
 *.ilk

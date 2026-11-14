@@ -32,13 +32,10 @@ If you install the app and when switching away to another app the sound volume l
 # Restart the application and... it works ;)
 
 h1. Contributing
-# You can check the status of the project on the following trello board: https://trello.com/b/bKV8jezc/subsonic8
-# Fork it.
-# Create a branch (git checkout -b my_cool_feature)
-# Commit your changes (git commit -am "Added CoolFeature")
-# Push to the branch (git push origin my_cool_feature)
-# Make sure all the tests pass
-# Open a Pull Request
+
+The default stable branch is @main@. Use short-lived branches and pull requests with the required @CI required@ check. See "branch and contribution rules":CONTRIBUTING.md for local regression commands, commit records and native verification boundaries.
+
+Cloud CI runs desktop CLR regressions and source/tool checks. Windows 8.1 AppX packages are built and signed locally, then verified and published to GitHub Releases by CD. See "release workflow":docs/releasing.md for certificate configuration and publishing commands.
 
 h1. Contact
 

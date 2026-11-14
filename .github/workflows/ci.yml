@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  desktop:
+    name: Desktop regressions
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Restore desktop harness dependency
+        shell: pwsh
+        run: |
+          nuget install Caliburn.Micro.Core -Version 3.2.0 -OutputDirectory packages -Source https://api.nuget.org/v3/index.json -NonInteractive -DirectDownload
+          if ($LASTEXITCODE -ne 0) { throw 'Desktop dependency restore failed.' }
+      - name: Run production-source CLR regressions
+        shell: pwsh
+        run: ./tools/ci/run-desktop.ps1
+  source:
+    name: Source and tool checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.13'
+      - run: python tools/ci/check.py
+      - name: Retain source inventory
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: source-inventory
+          path: .tmp/ci/*-inventory.json
+          if-no-files-found: ignore
+          retention-days: 14
+  required:
+    name: CI required
+    if: always()
+    needs: [desktop, source]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - name: Require every regression job
+        env:
+          DESKTOP_RESULT: ${{ needs.desktop.result }}
+          SOURCE_RESULT: ${{ needs.source.result }}
+        run: test "$DESKTOP_RESULT" = success && test "$SOURCE_RESULT" = success
