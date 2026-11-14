@@ -43,7 +43,7 @@ def safe_archive(archive):
         # ZipInfo.filename is normalized on Windows; inspect the raw archive name.
         name = entry.orig_filename
         parts = PurePosixPath(name).parts
-        if (not name or '\\' in name or ':' in name or name.startswith('/') or
+        if (not name or '\x00' in name or '\\' in name or ':' in name or name.startswith('/') or
                 any(part in ('..', '.') for part in parts) or
                 PurePosixPath(name).as_posix() != name.rstrip('/') or name.casefold() in names):
             raise ValueError('Unsafe or duplicate archive path: ' + name)
@@ -79,15 +79,20 @@ def validate_contents(files, expected):
         if len(path.parts) != 3 or path.parts[0] != 'Dependencies' or path.suffix.lower() != '.appx':
             raise ValueError('Unexpected release file: ' + name)
         item, _ = appx_info(data)
+        if path.parts[1].lower() != item.get('ProcessorArchitecture', 'neutral'):
+            raise ValueError('Dependency directory differs from its architecture: ' + name)
         dependencies.append(item)
         if not any(req['Name'] == item['Name'] and req.get('Publisher') == item.get('Publisher') for req in requirements):
             raise ValueError('Unrelated dependency: ' + name)
+    architecture = main.get('ProcessorArchitecture', 'neutral')
+    architectures = ('x86', 'x64', 'arm') if architecture == 'neutral' else (architecture,)
     for required in requirements:
-        if not any(item['Name'] == required['Name'] and item.get('Publisher') == required.get('Publisher') and
-                   item.get('ProcessorArchitecture', 'neutral') in ('neutral', main.get('ProcessorArchitecture', 'neutral')) and
-                   tuple(map(int, item['Version'].split('.'))) >= tuple(map(int, required['MinVersion'].split('.')))
-                   for item in dependencies):
-            raise ValueError('Missing compatible dependency: ' + required['Name'])
+        for architecture in architectures:
+            if not any(item['Name'] == required['Name'] and item.get('Publisher') == required.get('Publisher') and
+                       item.get('ProcessorArchitecture', 'neutral') in ('neutral', architecture) and
+                       tuple(map(int, item['Version'].split('.'))) >= tuple(map(int, required['MinVersion'].split('.')))
+                       for item in dependencies):
+                raise ValueError('Missing compatible dependency: ' + required['Name'] + '/' + architecture)
 
 
 def git(*args):

@@ -111,7 +111,7 @@ def main():
     args = parser.parse_args()
     spec = build()
     if args.write:
-        SPEC.write_text(json.dumps(spec, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+        SPEC.write_text(json.dumps(spec, indent=2, ensure_ascii=False) + '\n', encoding='utf-8', newline='\n')
     elif read_json(SPEC) != spec:
         raise ValueError('The specification is stale; run build_spec.py --write and review the result')
     print(f"PASS: {len(spec['cases'])} function-based acceptance cases; only Navidrome functional authority is required.")

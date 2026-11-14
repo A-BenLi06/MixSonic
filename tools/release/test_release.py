@@ -73,6 +73,23 @@ class ReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Unsigned'):
             self.verify()
 
+    def test_dependency_directory_must_match_declared_architecture(self):
+        self.files['Dependencies/x64/Test.Dependency.appx'] = self.files.pop('Dependencies/x86/Test.Dependency.appx')
+        self.save()
+        with self.assertRaisesRegex(ValueError, 'directory differs'):
+            self.verify()
+
+    def test_neutral_main_requires_dependencies_for_each_supported_architecture(self):
+        self.files[release.PACKAGE] = appx(XML.replace(b'ProcessorArchitecture="x86"', b'ProcessorArchitecture="neutral"'))
+        self.save()
+        with self.assertRaisesRegex(ValueError, 'Missing compatible dependency'):
+            self.verify()
+        dependency = b'<Package><Identity Name="Test.Dependency" Publisher="CN=Vendor" Version="1.0.0.0" ProcessorArchitecture="neutral"/></Package>'
+        del self.files['Dependencies/x86/Test.Dependency.appx']
+        self.files['Dependencies/neutral/Test.Dependency.appx'] = appx(dependency)
+        self.save()
+        self.verify()
+
     def test_identity_version_mismatch(self):
         self.files[release.PACKAGE] = appx(XML.replace(b'1.2.3.4', b'1.2.3.5'))
         self.save()
@@ -115,7 +132,7 @@ class ReleaseTests(unittest.TestCase):
             self.verify()
 
     def test_reject_unsafe_and_case_duplicate_paths(self):
-        for names in (('../escape.appx',), ('/escape.appx',), ('C:/escape.appx',), ('a\\escape.appx',), ('Same.appx', 'same.appx')):
+        for names in (('../escape.appx',), ('/escape.appx',), ('C:/escape.appx',), ('a\\escape.appx',), ('null\x00suffix.appx',), ('Same.appx', 'same.appx')):
             with self.subTest(names=names):
                 output = io.BytesIO()
                 with zipfile.ZipFile(output, 'w') as archive:
