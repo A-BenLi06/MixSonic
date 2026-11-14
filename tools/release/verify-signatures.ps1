@@ -12,6 +12,7 @@ if (-not $SignToolPath) {
 }
 if (-not $SignToolPath -or -not (Test-Path -LiteralPath $SignToolPath)) { throw 'Supply SUBSONIC8_SIGNTOOL or -SignToolPath.' }
 $certificatePath = Join-Path $Directory 'SigningCertificate.cer'
+Write-Host 'Checking the configured certificate pin and embedded AppX signer.'
 if ((Get-FileHash -LiteralPath $certificatePath -Algorithm SHA256).Hash -ne $CertificateSha256) { throw 'Signing certificate pin differs.' }
 $certificate = [Security.Cryptography.X509Certificates.X509Certificate2]::new($certificatePath)
 Add-Type -AssemblyName System.Security.Cryptography.Pkcs
@@ -34,7 +35,38 @@ $store = [Security.Cryptography.X509Certificates.X509Store]::new('Root', 'Curren
 try {
     # Only disposable CI verification opts in. Never trust an unpinned uploaded key.
     if ($TrustPinnedCertificate -and $certificate.Subject -eq $certificate.Issuer) {
-        $store.Open([Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+        # CurrentUser Root normally displays a Windows consent dialog when Add is
+        # called. Headless verification must use the documented unprotected-store
+        # flag; the caller has already explicitly enabled trust of this exact pin.
+        if (-not ('SubSonic8.ReleaseCertificateStore' -as [type])) {
+            Add-Type -TypeDefinition @'
+using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
+namespace SubSonic8 {
+    public static class ReleaseCertificateStore {
+        [DllImport("crypt32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern IntPtr CertOpenStore(IntPtr provider, uint encoding, IntPtr cryptoProvider, uint flags, string name);
+        [DllImport("crypt32.dll", SetLastError = true)]
+        private static extern bool CertCloseStore(IntPtr handle, uint flags);
+        public static X509Store OpenCurrentUserRoot() {
+            const int SystemWideStringProvider = 10; // CERT_STORE_PROV_SYSTEM_W
+            const uint CurrentUser = 0x00010000;
+            const uint UnprotectedRoot = 0x40000000; // CERT_SYSTEM_STORE_UNPROTECTED_FLAG
+            const uint OpenExisting = 0x00004000;
+            IntPtr handle = CertOpenStore(new IntPtr(SystemWideStringProvider), 0, IntPtr.Zero,
+                CurrentUser | UnprotectedRoot | OpenExisting, "Root");
+            if (handle == IntPtr.Zero) throw new Win32Exception(Marshal.GetLastWin32Error());
+            try { return new X509Store(handle); }
+            finally { CertCloseStore(handle, 0); }
+        }
+    }
+}
+'@
+        }
+        $store.Dispose()
+        $store = [SubSonic8.ReleaseCertificateStore]::OpenCurrentUserRoot()
         if ($store.Certificates.Find('FindByThumbprint', $certificate.Thumbprint, $false).Count -eq 0) {
             $store.Add($certificate)
             $addedTrust = $true
