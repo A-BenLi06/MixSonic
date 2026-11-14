@@ -496,3 +496,10 @@
 - 云端 Windows 的七组 CLR 回归已在日志中确认通过，延迟定位到合成签名测试写入 CurrentUser Root：Windows 默认根证书保护会弹出确认对话框，headless Runner 无法响应。
 - 临时验证改用 CertOpenStore 文档规定的 CERT_SYSTEM_STORE_UNPROTECTED_FLAG 打开 CurrentUser Root。此路径仍需显式 TrustPinnedCertificate 开关，先验证固定 DER 证书 SHA-256 和包签名者，再验证完整 CMS/SignTool 包签名；不更改全局保护配置，已有信任不删，本次添加的信任在 finally 撤销。使用 X509Store 复制 native handle 并关闭原句柄，避免泄漏。
 - 完整合成 AppX 签名、篡改拒绝及成功/失败信任清理测试已在约 8 秒内通过，临时私钥已删除；将修改补充到 PR #1，重新执行 CI。停止了已被此修复取代的等待运行，未把挂起检查当作通过。
+
+## 2026-11-15 03:23:23 +08:00
+
+- 进一步阶段日志及本机 Windows SDK wincrypt.h 定义确认：CERT_SYSTEM_STORE_UNPROTECTED_FLAG 只影响缓存根证书的读取保护列表，不能关闭 Root 写入确认。撤销这处不准确实现，避免把手动确认后的本地测试成功误当作 headless 验证。
+- 正确实现改为仅在 GitHub Actions 且进程具有管理员权限时，通过标准 X509Store API 临时写入 LocalMachine Root，并在 finally 撤销本次添加的证书。完整 SignTool 签名、证书链和 AppX 内容验证始终必需；SignedCms 只负责嵌入签名者解码与固定证书比较。
+- 本机七组 CLR 回归不写机器证书库；合成签名测试只在临时 hosted Windows Runner 中执行并检查成功/失败的信任清理。已停止明确识别为本轮测试的挂起 PowerShell 进程，没有停止开发客户端；接下来以云端结果确认修复。
+- 中断的本机测试在 .tmp/ci/signature-test-82ae60a28b3046e7954eb0bafa07bfe6 留下 ephemeral.pfx（测试代码生成、随机密码加密）。自动审批拒绝了对这个临时文件的删除，返回理由只有 blocked by policy；保留原文件，不改用其他方式绕过拒绝。此前正常完成的测试已自行清理私钥和信任。

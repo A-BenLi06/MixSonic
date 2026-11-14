@@ -24,4 +24,6 @@ foreach ($suite in $suites) {
     & (Join-Path $projectRoot $suite) -CompilerPath $CompilerPath
 }
 Write-Host 'PASS: all seven CLR regression suites. Native WinRT checks are separate.'
-& (Join-Path $projectRoot 'tools/release/test-signatures.ps1') -CompilerPath $CompilerPath
+if ($env:GITHUB_ACTIONS -eq 'true') {
+    & (Join-Path $projectRoot 'tools/release/test-signatures.ps1') -CompilerPath $CompilerPath
+}

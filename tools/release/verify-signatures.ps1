@@ -25,52 +25,28 @@ try {
     if ([Text.Encoding]::ASCII.GetString($signature, 0, 4) -ne 'PKCX') { throw 'Invalid AppX signature header.' }
     $cms = [Security.Cryptography.Pkcs.SignedCms]::new()
     $cms.Decode([byte[]]$signature[4..($signature.Length - 1)])
-    $cms.CheckSignature($true)
     if ($cms.SignerInfos.Count -ne 1 -or $cms.SignerInfos[0].Certificate.Thumbprint -ne $certificate.Thumbprint) {
         throw 'The AppX was not signed by the pinned certificate.'
     }
+    Write-Host 'The embedded signer matches the pin; SignTool will verify the complete cryptographic signature and package integrity.'
 } finally { $archive.Dispose() }
 $addedTrust = $false
-$store = [Security.Cryptography.X509Certificates.X509Store]::new('Root', 'CurrentUser')
+$store = [Security.Cryptography.X509Certificates.X509Store]::new('Root', 'LocalMachine')
 try {
     # Only disposable CI verification opts in. Never trust an unpinned uploaded key.
     if ($TrustPinnedCertificate -and $certificate.Subject -eq $certificate.Issuer) {
-        # CurrentUser Root normally displays a Windows consent dialog when Add is
-        # called. Headless verification must use the documented unprotected-store
-        # flag; the caller has already explicitly enabled trust of this exact pin.
-        if (-not ('SubSonic8.ReleaseCertificateStore' -as [type])) {
-            Add-Type -TypeDefinition @'
-using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
-namespace SubSonic8 {
-    public static class ReleaseCertificateStore {
-        [DllImport("crypt32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern IntPtr CertOpenStore(IntPtr provider, uint encoding, IntPtr cryptoProvider, uint flags, string name);
-        [DllImport("crypt32.dll", SetLastError = true)]
-        private static extern bool CertCloseStore(IntPtr handle, uint flags);
-        public static X509Store OpenCurrentUserRoot() {
-            const int SystemWideStringProvider = 10; // CERT_STORE_PROV_SYSTEM_W
-            const uint CurrentUser = 0x00010000;
-            const uint UnprotectedRoot = 0x40000000; // CERT_SYSTEM_STORE_UNPROTECTED_FLAG
-            const uint OpenExisting = 0x00004000;
-            IntPtr handle = CertOpenStore(new IntPtr(SystemWideStringProvider), 0, IntPtr.Zero,
-                CurrentUser | UnprotectedRoot | OpenExisting, "Root");
-            if (handle == IntPtr.Zero) throw new Win32Exception(Marshal.GetLastWin32Error());
-            try { return new X509Store(handle); }
-            finally { CertCloseStore(handle, 0); }
-        }
-    }
-}
-'@
-        }
-        $store.Dispose()
-        $store = [SubSonic8.ReleaseCertificateStore]::OpenCurrentUserRoot()
+        # CurrentUser Root writes invoke Windows consent UI. The disposable hosted
+        # runner is elevated, so it can use LocalMachine Root through standard APIs.
+        if ($env:GITHUB_ACTIONS -ne 'true') { throw 'Temporary root trust is allowed only on disposable GitHub Actions runners.' }
+        $principal = [Security.Principal.WindowsPrincipal]::new([Security.Principal.WindowsIdentity]::GetCurrent())
+        if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { throw 'The hosted signature verifier needs an elevated runner.' }
+        $store.Open([Security.Cryptography.X509Certificates.OpenFlags]::ReadWrite)
+        Write-Host 'Opened the temporary LocalMachine Root store on the disposable runner.'
         if ($store.Certificates.Find('FindByThumbprint', $certificate.Thumbprint, $false).Count -eq 0) {
             $store.Add($certificate)
             $addedTrust = $true
         }
+        Write-Host 'Pinned certificate trust is ready for SignTool verification.'
     }
     foreach ($package in (Get-ChildItem -LiteralPath $Directory -Filter '*.appx' -Recurse)) {
         & $SignToolPath verify /pa /all /v $package.FullName
