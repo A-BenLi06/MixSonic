@@ -3,10 +3,11 @@
     xmlns:common="using:Subsonic8.Common" xmlns:nav="using:Subsonic8.Navidrome" xmlns:framework="using:Subsonic8.Framework" xmlns:cal="using:Caliburn.Micro" xmlns:selection="using:Common.Behaviors" KeyDown="OnPageKeyDown">
     <Page.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="NavidromeResources.xaml"/></ResourceDictionary.MergedDictionaries></ResourceDictionary></Page.Resources>
     <Page.BottomAppBar>
-        <CommandBar>
+        <CommandBar IsOpen="True">
             <AppBarButton x:Name="Favourite" Label="{Binding FavouriteLabel}" Icon="Favorite"/>
-            <AppBarButton x:Name="Bookmark" x:Uid="Navidrome_SaveBookmark" Icon="Save" cal:Message.Attach="[Event Click]=[Action Bookmark($source)]"/>
-            <AppBarButton x:Name="Details" x:Uid="Navidrome_Details" Icon="View"/>
+            <AppBarButton x:Name="Bookmark" x:Uid="Navidrome_SaveBookmark" cal:Message.Attach="[Event Click]=[Action Bookmark($source)]">
+                <AppBarButton.Icon><PathIcon Width="20" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M4,0 L16,0 L16,22 L10,17 L4,22 Z"/></AppBarButton.Icon>
+            </AppBarButton>
             <AppBarButton x:Uid="Navidrome_Audio" Icon="Volume">
                 <AppBarButton.Flyout><Flyout><StackPanel Width="240">
                     <TextBlock x:Uid="Navidrome_VolumeLabel" FontSize="22"/>
@@ -22,26 +23,13 @@
                 </StackPanel></Flyout></AppBarButton.Flyout>
             </AppBarButton>
             <CommandBar.SecondaryCommands>
-                <AppBarButton x:Name="Stop" x:Uid="Navidrome_Stop" Icon="Stop"/>
-                <AppBarButton x:Name="Download" x:Uid="Navidrome_Download" Icon="Download"/>
-                <AppBarButton x:Name="Downloads" x:Uid="Navidrome_Downloads" Icon="Library"/>
-                <AppBarButton x:Name="ReloadLyrics" x:Uid="Navidrome_ReloadLyrics" Icon="Refresh"/>
-                <AppBarButton x:Uid="Navidrome_Rate" Icon="Favorite" IsEnabled="{Binding CanRate}" cal:Message.Attach="[Event Click]=[Action Rate($source)]"/>
-                <AppBarButton x:Name="MoveUp" x:Uid="Navidrome_MoveUp" Icon="Up"/>
-                <AppBarButton x:Name="MoveDown" x:Uid="Navidrome_MoveDown">
-                    <AppBarButton.Icon><SymbolIcon Symbol="Up" RenderTransformOrigin="0.5,0.5">
-                        <SymbolIcon.RenderTransform><RotateTransform Angle="180"/></SymbolIcon.RenderTransform>
-                    </SymbolIcon></AppBarButton.Icon>
+                <AppBarButton x:Uid="Navidrome_PlayerTrackMenu" Click="OnTrackMenuClicked">
+                    <AppBarButton.Icon><PathIcon Width="24" Height="22" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M8,3 L20,0 L20,14 C20,18 14,18 14,14 C14,12 16,11 18,11 L18,4 L10,6 L10,17 C10,21 4,21 4,17 C4,15 6,14 8,14 Z"/></AppBarButton.Icon>
                 </AppBarButton>
-                <AppBarButton x:Name="Remove" x:Uid="Navidrome_RemoveQueue" Icon="Remove"/>
-                <AppBarButton x:Name="ClearQueue" x:Uid="Navidrome_ClearQueue" Icon="Clear"/>
-                <AppBarButton x:Name="SaveQueue" x:Uid="Navidrome_SaveQueue" Icon="Upload"/>
-                <AppBarButton x:Name="RestoreQueue" x:Uid="Navidrome_RestoreQueue" Icon="Download"/>
-                <AppBarButton x:Name="SaveAsPlaylist" x:Uid="Navidrome_SaveAsPlaylist" Icon="Save" cal:Message.Attach="[Event Click]=[Action SaveAsPlaylist($source)]"/>
-                <AppBarButton x:Name="ImportQueue" x:Uid="Navidrome_ImportQueue" Icon="OpenFile"/>
-                <AppBarButton x:Name="ExportQueue" x:Uid="Navidrome_ExportQueue" Icon="SaveLocal"/>
-                <AppBarButton x:Name="SyncListening" x:Uid="Navidrome_SyncListening" Icon="Sync"/>
-                <AppBarButton x:Name="Account" x:Uid="Navidrome_Account" Icon="Setting"/>
+                <AppBarButton x:Uid="Navidrome_PlayerQueueMenu" Click="OnQueueMenuClicked">
+                    <AppBarButton.Icon><PathIcon Width="24" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" Data="M2,2 L6,2 L6,6 L2,6 Z M9,2 L22,2 L22,6 L9,6 Z M2,10 L6,10 L6,14 L2,14 Z M9,10 L22,10 L22,14 L9,14 Z M2,18 L6,18 L6,22 L2,22 Z M9,18 L22,18 L22,22 L9,22 Z"/></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton x:Uid="Navidrome_PlayerLibraryMenu" Icon="Library" Click="OnLibraryMenuClicked"/>
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>

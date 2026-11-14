@@ -432,4 +432,8 @@
   <data name="FavouriteArtistsAddAnArtistLabel.Text" xml:space="preserve"><value>add an artist</value></data>
   <data name="MixRadioAllMixesButton.Text" xml:space="preserve"><value>see all</value></data>
   <data name="HubMyMusicSeeAllButton.Text" xml:space="preserve"><value>see all</value></data>
+  <data name="Navidrome_PlayerTrackMenu.Label" xml:space="preserve"><value>Track</value></data>
+  <data name="Navidrome_PlayerQueueMenu.Label" xml:space="preserve"><value>Queue</value></data>
+  <data name="Navidrome_PlayerLibraryMenu.Label" xml:space="preserve"><value>Library</value></data>
+  <data name="Navidrome_ShowQueue.Label" xml:space="preserve"><value>Show queue</value></data>
 </root>

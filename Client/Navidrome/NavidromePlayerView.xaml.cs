@@ -2,11 +2,13 @@ namespace Subsonic8.Navidrome
 {
     using System;
     using System.ComponentModel;
+    using System.Threading.Tasks;
     using Caliburn.Micro;
     using Microsoft.Practices.ServiceLocation;
     using Windows.System;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Data;
     using Windows.UI.Xaml.Input;
 
     public sealed partial class NavidromePlayerView
@@ -16,6 +18,7 @@ namespace Subsonic8.Navidrome
         private ListView _lyrics;
         private FrameworkElement _lyricsPanel;
         private bool _loaded;
+        private MenuFlyout _commandMenu;
         public NavidromePlayerView()
         {
             InitializeComponent();
@@ -24,10 +27,11 @@ namespace Subsonic8.Navidrome
             Unloaded += (sender, args) =>
             {
                 _loaded = false;
+                CloseCommandMenu();
                 if (_model != null) _model.PropertyChanged -= ModelChanged;
                 _model = null; _surface = null; _lyrics = null; _lyricsPanel = null;
             };
-            DataContextChanged += (sender, args) => Attach();
+            DataContextChanged += (sender, args) => { CloseCommandMenu(); Attach(); };
         }
         private void OnPlayerLoaded(object sender, RoutedEventArgs args) { _surface = (MixRadioPlayerSurface)sender; Reflow(); }
         private void OnLyricsPanelLoaded(object sender, RoutedEventArgs args) { _lyricsPanel = (FrameworkElement)sender; Reflow(); }
@@ -61,6 +65,73 @@ namespace Subsonic8.Navidrome
             if (_surface != null) _surface.SetViewport(ActualWidth, ActualHeight);
             if (_lyricsPanel != null) _lyricsPanel.Width = Math.Min(340, Math.Max(270, ActualWidth - 40));
             if (_lyrics != null) _lyrics.MaxHeight = Math.Max(200, ActualHeight - 300);
+        }
+        private void OnTrackMenuClicked(object sender, RoutedEventArgs args)
+        {
+            var model = DataContext as NavidromePlayerViewModel;
+            if (model == null) return;
+            var anchor = (FrameworkElement)sender;
+            var menu = new MenuFlyout();
+            AddMenuAction(menu, model, "Navidrome_Details", nameof(model.CanDetails), model.Details);
+            AddCommand(menu, model, "Navidrome_Rate", nameof(model.CanRate), () => model.Rate(anchor));
+            AddCommand(menu, model, "Navidrome_Download", nameof(model.CanDownload), model.Download);
+            AddCommand(menu, model, "Navidrome_ReloadLyrics", nameof(model.CanReloadLyrics), model.ReloadLyrics);
+            menu.Items.Add(new MenuFlyoutSeparator());
+            AddMenuAction(menu, model, "Navidrome_Stop", nameof(model.CanStop), model.Stop);
+            ShowCommandMenu(menu, anchor);
+        }
+        private void OnQueueMenuClicked(object sender, RoutedEventArgs args)
+        {
+            var model = DataContext as NavidromePlayerViewModel;
+            if (model == null) return;
+            var anchor = (FrameworkElement)sender;
+            var menu = new MenuFlyout();
+            AddMenuAction(menu, model, "Navidrome_ShowQueue", null, () => OnQueueRequested(this, EventArgs.Empty));
+            AddMenuAction(menu, model, "Navidrome_MoveUp", nameof(model.CanMoveUp), model.MoveUp);
+            AddMenuAction(menu, model, "Navidrome_MoveDown", nameof(model.CanMoveDown), model.MoveDown);
+            AddMenuAction(menu, model, "Navidrome_RemoveQueue", nameof(model.CanRemove), model.Remove);
+            AddMenuAction(menu, model, "Navidrome_ClearQueue", nameof(model.CanClearQueue), model.ClearQueue);
+            menu.Items.Add(new MenuFlyoutSeparator());
+            AddCommand(menu, model, "Navidrome_SaveQueue", nameof(model.CanSaveQueue), model.SaveQueue);
+            AddCommand(menu, model, "Navidrome_RestoreQueue", nameof(model.CanRestoreQueue), model.RestoreQueue);
+            AddCommand(menu, model, "Navidrome_SaveAsPlaylist", nameof(model.CanSaveAsPlaylist), () => model.SaveAsPlaylist(anchor));
+            menu.Items.Add(new MenuFlyoutSeparator());
+            AddCommand(menu, model, "Navidrome_ImportQueue", nameof(model.CanImportQueue), model.ImportQueue);
+            AddCommand(menu, model, "Navidrome_ExportQueue", nameof(model.CanExportQueue), model.ExportQueue);
+            ShowCommandMenu(menu, anchor);
+        }
+        private void OnLibraryMenuClicked(object sender, RoutedEventArgs args)
+        {
+            var model = DataContext as NavidromePlayerViewModel;
+            if (model == null) return;
+            var menu = new MenuFlyout();
+            AddMenuAction(menu, model, "Navidrome_Downloads", null, model.Downloads);
+            AddCommand(menu, model, "Navidrome_SyncListening", nameof(model.CanSyncListening), model.SyncListening);
+            menu.Items.Add(new MenuFlyoutSeparator());
+            AddMenuAction(menu, model, "Navidrome_Account", null, model.Account);
+            ShowCommandMenu(menu, (FrameworkElement)sender);
+        }
+        private void AddMenuAction(MenuFlyout menu, NavidromePlayerViewModel model, string uid, string guard, System.Action execute)
+        {
+            AddCommand(menu, model, uid, guard, () => { execute(); return Task.FromResult(true); });
+        }
+        private void AddCommand(MenuFlyout menu, NavidromePlayerViewModel model, string uid, string guard, Func<Task> execute)
+        {
+            var item = new MenuFlyoutItem { Text = NavidromeText.Label(uid) };
+            if (guard != null) item.SetBinding(IsEnabledProperty, new Binding { Source = model, Path = new PropertyPath(guard) });
+            item.Click += async (sender, args) => { if (item.IsEnabled && ReferenceEquals(model, DataContext)) await execute(); };
+            menu.Items.Add(item);
+        }
+        private void ShowCommandMenu(MenuFlyout menu, FrameworkElement anchor)
+        {
+            CloseCommandMenu();
+            _commandMenu = menu;
+            menu.Closed += (sender, args) => { if (ReferenceEquals(_commandMenu, menu)) _commandMenu = null; };
+            menu.ShowAt(anchor);
+        }
+        private void CloseCommandMenu()
+        {
+            if (_commandMenu != null) { _commandMenu.Hide(); _commandMenu = null; }
         }
         private void OnQueueRequested(object sender, EventArgs args)
         { QueueDismiss.Visibility = QueueDrawer.Visibility = Visibility.Visible; QueueDrawer.FocusCloseButton(); }
