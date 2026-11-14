@@ -43,6 +43,8 @@ CD 只从 `main` 运行，在 `github-releases` 环境中依次验证：目标�
 
 此流程校验分发包和发布来源记录，不提供编译产物的可复现构建证明。目前每个 Release 上传一种主包架构，AnyCPU 为 neutral；需要多架构 bundle 时先扩展构建和依赖验证，再改变流程。
 
+云端临时证书信任使用 Windows `CertOpenStore` 的 `CERT_SYSTEM_STORE_UNPROTECTED_FLAG`，避免默认 CurrentUser Root 写入时弹出的交互确认框。仅在显式指定 `-TrustPinnedCertificate`、证书指纹及 AppX 签名者匹配后启用，成功或失败均撤销本次添加的信任；已有信任不删除。普通本地构建验证仍使用已有证书信任。
+
 ## 安装者
 
 从 Release 下载归档及 `release-manifest.json`，核对归档的 SHA-256；公开证书的 SHA-256 应与维护者公布的指纹一致。确认信任后导入公开证书，将归档内适用架构的依赖路径传入系统 `Add-AppxPackage -Path <主包.appx> -DependencyPath <依赖路径数组>`。归档不含会自动修改证书信任或执行其他操作的安装脚本。

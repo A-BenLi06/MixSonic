@@ -490,3 +490,9 @@
 - 为正式发布收尾检查建立 codex/finalize-release-rules 短期分支。GitHub CLI 读取证书变量改为显式 JSON value 输出，避免依赖人类可读格式；ZIP 校验补充拒绝 NUL 路径；依赖目录必须匹配包声明架构，neutral 主包如有原生依赖须覆盖 x86/x64/ARM，不能因只包含一种架构而声称所有 AnyCPU 安装都可用。
 - 为规格生成器显式指定 LF 输出，使 Windows 上重新生成的文件也遵循已提交的字节规则。新增依赖目录错误、neutral 依赖覆盖和 NUL 路径边界检查，发布工具共 14 项自测通过，115 项规格检查及 git diff --check 通过。原生 AppX 的当前 neutral 开发包没有 PackageDependency，此次不改变产品代码或依赖。
 - 后续通过 PR 和实际必需检查合并这组收尾改动，以验证已经编写的分支流程。
+
+## 2026-11-15 03:12:35 +08:00
+
+- 云端 Windows 的七组 CLR 回归已在日志中确认通过，延迟定位到合成签名测试写入 CurrentUser Root：Windows 默认根证书保护会弹出确认对话框，headless Runner 无法响应。
+- 临时验证改用 CertOpenStore 文档规定的 CERT_SYSTEM_STORE_UNPROTECTED_FLAG 打开 CurrentUser Root。此路径仍需显式 TrustPinnedCertificate 开关，先验证固定 DER 证书 SHA-256 和包签名者，再验证完整 CMS/SignTool 包签名；不更改全局保护配置，已有信任不删，本次添加的信任在 finally 撤销。使用 X509Store 复制 native handle 并关闭原句柄，避免泄漏。
+- 完整合成 AppX 签名、篡改拒绝及成功/失败信任清理测试已在约 8 秒内通过，临时私钥已删除；将修改补充到 PR #1，重新执行 CI。停止了已被此修复取代的等待运行，未把挂起检查当作通过。
