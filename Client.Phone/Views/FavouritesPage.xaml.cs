@@ -14,6 +14,7 @@ namespace Mixdrome.Phone.Views
 
     public sealed partial class FavouritesPage : Page
     {
+        private bool _pageActive;
         private WP8SubsonicService _subsonicService;
         private ProgressRing _loadingIndicator;
         private TextBlock _emptyStateText;
@@ -34,19 +35,34 @@ namespace Mixdrome.Phone.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            _pageActive = true;
             HardwareButtons.BackPressed += OnHardwareBackPressed;
-            _subsonicService = await PhoneSubsonicServiceFactory.CreatePlaybackServiceAsync();
-            await LoadSongs();
+            try
+            {
+                _subsonicService = await PhoneSubsonicServiceFactory.CreatePlaybackServiceAsync();
+                if (!_pageActive) return;
+                await LoadSongs();
+            }
+            catch (Exception exception)
+            {
+                if (_pageActive && _emptyStateText != null)
+                {
+                    _emptyStateText.Text = exception.Message;
+                    _emptyStateText.Visibility = Visibility.Visible;
+                }
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+            _pageActive = false;
             HardwareButtons.BackPressed -= OnHardwareBackPressed;
         }
 
         private void OnHardwareBackPressed(object sender, BackPressedEventArgs e)
         {
+            if (e.Handled) return;
             if (Frame.CanGoBack)
             {
                 e.Handled = true;
@@ -62,6 +78,7 @@ namespace Mixdrome.Phone.Views
             try
             {
                 var songs = await _subsonicService.GetStarredSongsAsync();
+                if (!_pageActive) return;
                 Songs.Clear();
 
                 var track = 1;
@@ -70,18 +87,19 @@ namespace Mixdrome.Phone.Views
                     Songs.Add(ToSongDisplayItem(song, track++));
                 }
 
-                if (_songCountText != null) _songCountText.Text = string.Format("{0} songs", Songs.Count);
+                if (_songCountText != null) _songCountText.Text = string.Format(Mixdrome.Phone.Common.PhoneText.Get("SongCount"), Songs.Count);
                 if (_emptyStateText != null) _emptyStateText.Visibility = Songs.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             }
             catch (Exception ex)
             {
+                if (!_pageActive) return;
                 if (_emptyStateText != null)
                 {
-                    _emptyStateText.Text = "Failed to load favourites.";
+                    _emptyStateText.Text = Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadFavourites");
                     _emptyStateText.Visibility = Visibility.Visible;
                 }
 
-                await new MessageDialog("Failed to load favourites: " + ex.Message).ShowAsync();
+                await new MessageDialog(Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadFavourites") + ex.Message).ShowAsync();
             }
             finally
             {
@@ -95,9 +113,8 @@ namespace Mixdrome.Phone.Views
             {
                 Id = song.Id,
                 Track = track,
-                Title = song.Title ?? song.Name ?? "Unknown",
-                Artist = song.Artist ?? "Unknown artist",
-                Duration = song.Duration,
+                Title = song.Title ?? song.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownTrack"),
+                Artist = song.Artist ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownArtist"), Album = song.Album, Duration = song.Duration,
                 DurationString = FormatDuration(song.Duration),
                 CoverArt = !string.IsNullOrEmpty(song.CoverArt)
                                ? _subsonicService.GetCoverArtUrl(song.CoverArt)

@@ -9,14 +9,14 @@
 
     <Page.BottomAppBar>
         <CommandBar Background="{StaticResource MixRadioCommandBarBrush}" Foreground="White">
-            <AppBarButton Icon="Play" Label="play all" Click="OnPlayAllClick" />
-            <AppBarButton Icon="Shuffle" Label="shuffle" Click="OnShuffleClick" />
-            <AppBarButton Icon="Refresh" Label="refresh" Click="OnRefreshClick" />
+            <AppBarButton Icon="Play" x:Uid="PhoneUi_Label_PlayAll" Click="OnPlayAllClick" />
+            <AppBarButton Icon="Shuffle" x:Uid="PhoneUi_Label_Shuffle" Click="OnShuffleClick" />
+            <AppBarButton Icon="Refresh" x:Uid="PhoneUi_Label_Refresh" Click="OnRefreshClick" />
         </CommandBar>
     </Page.BottomAppBar>
 
     <Grid Background="Black">
-        <Image Source="/Assets/CoverArtPlaceholderLarge.jpg" Stretch="UniformToFill" Opacity="0.48" />
+        <Image Source="ms-appx:///Assets/MixRadio/DefaultArtist300.png" Stretch="UniformToFill" Opacity="0.48" />
         <Rectangle Fill="#66000000" />
         <Rectangle>
             <Rectangle.Fill>
@@ -35,25 +35,25 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Margin="12,10,12,20">
-                <TextBlock Style="{StaticResource MixRadioWordmarkTextStyle}"><Run x:Uid="BrandPrefix" FontWeight="Bold" /><Run x:Uid="BrandSuffix" FontWeight="Light" /></TextBlock>
+                <TextBlock x:Uid="PhoneUi_Text_MixRadio" Style="{StaticResource MixRadioWordmarkTextStyle}" />
                 <StackPanel Orientation="Horizontal" Margin="1,-4,0,14">
                     <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
                         <TextBlock Text="&#xE113;"
                                    Style="{StaticResource MixRadioSectionIconTextStyle}" />
                     </Border>
-                    <TextBlock Text="starred music"
+                    <TextBlock x:Uid="PhoneUi_Text_StarredMusic"
                                Style="{StaticResource BodyTextStyle}"
                                Foreground="White"
                                Margin="7,-1,0,0" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="favour"
+                    <TextBlock x:Uid="PhoneUi_Text_Favour"
                                FontSize="42"
                                FontWeight="Light"
                                Foreground="White"
                                TextTrimming="CharacterEllipsis"
                                MaxLines="1" />
-                    <TextBlock Text="ites"
+                    <TextBlock x:Uid="PhoneUi_Text_Ites"
                                FontSize="42"
                                FontWeight="Light"
                                Foreground="#99FFFFFF"
@@ -61,7 +61,7 @@
                                MaxLines="1" />
                 </StackPanel>
                 <TextBlock x:Name="SongCountText"
-                           Text="songs"
+                           x:Uid="PhoneUi_Text_Songs"
                            Style="{StaticResource BodyTextStyle}"
                            Margin="0,4,0,0" />
                 <Rectangle Width="64"
@@ -138,7 +138,7 @@
 
                 <ProgressRing x:Name="LoadingIndicator" IsActive="False" Width="60" Height="60" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <TextBlock x:Name="EmptyStateText"
-                           Text="No favourites yet"
+                           x:Uid="PhoneUi_Text_NoFavouritesYet"
                            FontSize="30"
                            FontWeight="Light"
                            Foreground="White"

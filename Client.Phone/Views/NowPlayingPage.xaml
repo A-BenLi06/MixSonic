@@ -9,13 +9,13 @@
 
     <Page.BottomAppBar>
         <CommandBar Background="{StaticResource MixRadioCommandBarBrush}" Foreground="White">
-            <AppBarButton Icon="Refresh" Label="refresh" Click="OnRefreshClick" />
+            <AppBarButton Icon="Refresh" x:Uid="PhoneUi_Label_Refresh" Click="OnRefreshClick" />
         </CommandBar>
     </Page.BottomAppBar>
 
     <Grid Background="Black">
         <Image x:Name="BackgroundImage"
-               Source="/Assets/CoverArtPlaceholderLarge.jpg"
+               Source="ms-appx:///Assets/MixRadio/DefaultArtist300.png"
                Stretch="UniformToFill"
                Opacity="0.5" />
         <Rectangle Fill="#66000000" />
@@ -36,26 +36,26 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Margin="12,10,12,20">
-                <TextBlock Style="{StaticResource MixRadioWordmarkTextStyle}"><Run x:Uid="BrandPrefix" FontWeight="Bold" /><Run x:Uid="BrandSuffix" FontWeight="Light" /></TextBlock>
+                <TextBlock x:Uid="PhoneUi_Text_MixRadio" Style="{StaticResource MixRadioWordmarkTextStyle}" />
                 <StackPanel Orientation="Horizontal" Margin="1,-4,0,14">
                     <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
                         <TextBlock Text="&#xE102;"
                                    Style="{StaticResource MixRadioSectionIconTextStyle}"
                                    Margin="1,0,0,0" />
                     </Border>
-                    <TextBlock Text="server activity"
+                    <TextBlock x:Uid="PhoneUi_Text_ServerActivity"
                                Style="{StaticResource BodyTextStyle}"
                                Foreground="White"
                                Margin="7,-1,0,0" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="now"
+                    <TextBlock x:Uid="PhoneUi_Text_Now"
                                FontSize="42"
                                FontWeight="Light"
                                Foreground="White"
                                TextTrimming="CharacterEllipsis"
                                MaxLines="1" />
-                    <TextBlock Text=" playing"
+                    <TextBlock x:Uid="PhoneUi_Text_Playing"
                                FontSize="42"
                                FontWeight="Light"
                                Foreground="#99FFFFFF"
@@ -63,7 +63,7 @@
                                MaxLines="1" />
                 </StackPanel>
                 <TextBlock x:Name="EntryCountText"
-                           Text="server activity"
+                           x:Uid="PhoneUi_Text_ServerActivity"
                            Style="{StaticResource BodyTextStyle}"
                            Margin="0,4,0,0" />
                 <Rectangle Width="64"
@@ -146,7 +146,7 @@
                               VerticalAlignment="Center" />
 
                 <TextBlock x:Name="EmptyStateText"
-                           Text="Nobody is playing right now"
+                           x:Uid="PhoneUi_Text_NobodyIsPlayingRightNow"
                            FontSize="30"
                            FontWeight="Light"
                            Foreground="White"

@@ -15,6 +15,7 @@ namespace Mixdrome.Phone.Views
 
     public sealed partial class GenreSongsPage : Page
     {
+        private bool _pageActive;
         private ISubsonicService _subsonicService;
         private string _genre;
         private ProgressRing _loadingIndicator;
@@ -38,21 +39,38 @@ namespace Mixdrome.Phone.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            _pageActive = true;
             HardwareButtons.BackPressed += OnHardwareBackPressed;
             _genre = e.Parameter as string;
-            if (_genreNameText != null) _genreNameText.Text = string.IsNullOrEmpty(_genre) ? "genre" : _genre;
-            _subsonicService = await PhoneSubsonicServiceFactory.CreateAsync();
-            await LoadSongs();
+            if (_genreNameText != null) _genreNameText.Text = string.IsNullOrEmpty(_genre) ? Mixdrome.Phone.Common.PhoneText.Get("UiGenre") : _genre;
+            try
+            {
+                _subsonicService = await PhoneSubsonicServiceFactory.CreateAsync();
+                if (!_subsonicService.HasValidSubsonicUrl)
+                    throw new InvalidOperationException(Mixdrome.Phone.Common.PhoneText.Get("ConfigureServer"));
+                if (!_pageActive) return;
+                await LoadSongs();
+            }
+            catch (Exception exception)
+            {
+                if (_pageActive && _emptyStateText != null)
+                {
+                    _emptyStateText.Text = exception.Message;
+                    _emptyStateText.Visibility = Visibility.Visible;
+                }
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+            _pageActive = false;
             HardwareButtons.BackPressed -= OnHardwareBackPressed;
         }
 
         private void OnHardwareBackPressed(object sender, BackPressedEventArgs e)
         {
+            if (e.Handled) return;
             if (Frame.CanGoBack)
             {
                 e.Handled = true;
@@ -74,9 +92,11 @@ namespace Mixdrome.Phone.Views
             {
                 var result = _subsonicService.GetSongsByGenre(_genre);
                 await result.Execute();
+                if (!_pageActive) return;
+                if (result.Error != null) throw result.Error;
                 Songs.Clear();
 
-                if (result.Error == null && result.Result != null)
+                if (result.Result != null)
                 {
                     var track = 1;
                     foreach (var song in result.Result)
@@ -85,18 +105,19 @@ namespace Mixdrome.Phone.Views
                     }
                 }
 
-                if (_songCountText != null) _songCountText.Text = string.Format("{0} songs", Songs.Count);
+                if (_songCountText != null) _songCountText.Text = string.Format(Mixdrome.Phone.Common.PhoneText.Get("SongCount"), Songs.Count);
                 if (_emptyStateText != null) _emptyStateText.Visibility = Songs.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             }
             catch (Exception ex)
             {
+                if (!_pageActive) return;
                 if (_emptyStateText != null)
                 {
-                    _emptyStateText.Text = "Failed to load songs.";
+                    _emptyStateText.Text = Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadSongs");
                     _emptyStateText.Visibility = Visibility.Visible;
                 }
 
-                await new MessageDialog("Failed to load genre: " + ex.Message).ShowAsync();
+                await new MessageDialog(Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadGenre") + ex.Message).ShowAsync();
             }
             finally
             {
@@ -110,9 +131,8 @@ namespace Mixdrome.Phone.Views
             {
                 Id = song.Id,
                 Track = track,
-                Title = song.Title ?? song.Name ?? "Unknown",
-                Artist = song.Artist ?? "Unknown artist",
-                Duration = song.Duration,
+                Title = song.Title ?? song.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownTrack"),
+                Artist = song.Artist ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownArtist"), Album = song.Album, Duration = song.Duration,
                 DurationString = FormatDuration(song.Duration),
                 CoverArt = song.CoverArt
             };

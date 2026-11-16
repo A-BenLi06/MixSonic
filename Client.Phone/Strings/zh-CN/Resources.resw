@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+<data name="AppDescription" xml:space="preserve"><value>Navidrome 音乐客户端</value></data>
+<data name="AppName" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="Phone_Text_AlbumCount" xml:space="preserve"><value>{0} 张专辑</value></data>
+<data name="Phone_Text_ApiKeyHelp" xml:space="preserve"><value>使用此 Navidrome 账号的 API 密钥。</value></data>
+<data name="Phone_Text_AuthenticationApiKey" xml:space="preserve"><value>API 密钥</value></data>
+<data name="Phone_Text_AuthenticationPassword" xml:space="preserve"><value>密码</value></data>
+<data name="Phone_Text_ConfigureServer" xml:space="preserve"><value>请在账号设置中配置 Navidrome 服务器。</value></data>
+<data name="Phone_Text_ConnectionFailed" xml:space="preserve"><value>连接失败：{0}</value></data>
+<data name="Phone_Text_ConnectionSuccessful" xml:space="preserve"><value>已连接到 {0}</value></data>
+<data name="Phone_Text_CredentialsRequired" xml:space="preserve"><value>请输入用户名和密码或 API 密钥。</value></data>
+<data name="Phone_Text_InvalidAuthentication" xml:space="preserve"><value>请选择认证方式。</value></data>
+<data name="Phone_Text_InvalidBitRate" xml:space="preserve"><value>请输入不小于零的码率。</value></data>
+<data name="Phone_Text_InvalidServerAddress" xml:space="preserve"><value>请输入 HTTP 或 HTTPS 地址，不包含凭据、查询参数或片段。</value></data>
+<data name="Phone_Text_LibraryEmpty" xml:space="preserve"><value>此分类中没有音乐。</value></data>
+<data name="Phone_Text_LoadFailed" xml:space="preserve"><value>无法加载音乐：{0}</value></data>
+<data name="Phone_Text_NoRecentAlbums" xml:space="preserve"><value>最近播放的专辑将显示在这里。</value></data>
+<data name="Phone_Text_NoSongs" xml:space="preserve"><value>没有可播放的歌曲。</value></data>
+<data name="Phone_Text_OpenAlbum" xml:space="preserve"><value>打开 {1} 的专辑《{0}》</value></data>
+<data name="Phone_Text_PasswordHelp" xml:space="preserve"><value>使用服务器账号密码。</value></data>
+<data name="Phone_Text_Pause" xml:space="preserve"><value>暂停</value></data>
+<data name="Phone_Text_Play" xml:space="preserve"><value>播放</value></data>
+<data name="Phone_Text_PlaybackEmpty" xml:space="preserve"><value>尚未播放</value></data>
+<data name="Phone_Text_PlaybackFailed" xml:space="preserve"><value>无法播放此歌曲。</value></data>
+<data name="Phone_Text_PlaybackLoading" xml:space="preserve"><value>正在加载…</value></data>
+<data name="Phone_Text_PlaybackUnavailable" xml:space="preserve"><value>播放器无法启动，请重试。</value></data>
+<data name="Phone_Text_PlaylistEmpty" xml:space="preserve"><value>此播放列表为空。</value></data>
+<data name="Phone_Text_RepeatAll" xml:space="preserve"><value>列表循环</value></data>
+<data name="Phone_Text_RepeatOff" xml:space="preserve"><value>关闭循环</value></data>
+<data name="Phone_Text_RepeatOne" xml:space="preserve"><value>单曲循环</value></data>
+<data name="Phone_Text_ServerAddressRequired" xml:space="preserve"><value>请输入至少一个服务器地址。</value></data>
+<data name="Phone_Text_SettingsSaved" xml:space="preserve"><value>设置已保存。</value></data>
+<data name="Phone_Text_SettingsSavedUnreachable" xml:space="preserve"><value>设置已保存。服务器当前无法连接：{0}</value></data>
+<data name="Phone_Text_SongCount" xml:space="preserve"><value>{0} 首歌曲</value></data>
+<data name="Phone_Text_TestingConnection" xml:space="preserve"><value>正在测试连接…</value></data>
+<data name="Phone_Text_Ui0ActiveListeners" xml:space="preserve"><value>{0} 人正在播放</value></data>
+<data name="Phone_Text_Ui0Albums" xml:space="preserve"><value>0 张专辑</value></data>
+<data name="Phone_Text_Ui0MinAgo" xml:space="preserve"><value>{0} 分钟前</value></data>
+<data name="Phone_Text_Ui0On12" xml:space="preserve"><value>{0} · {1} · {2}</value></data>
+<data name="Phone_Text_Ui0Songs" xml:space="preserve"><value>0 首歌曲</value></data>
+<data name="Phone_Text_Ui0Songs1Albums" xml:space="preserve"><value>{0} 首歌曲 · {1} 张专辑</value></data>
+<data name="Phone_Text_Ui1ActiveListener" xml:space="preserve"><value>1 人正在播放</value></data>
+<data name="Phone_Text_UiAbout" xml:space="preserve"><value>关于</value></data>
+<data name="Phone_Text_UiAccount" xml:space="preserve"><value>账号</value></data>
+<data name="Phone_Text_UiActivity" xml:space="preserve"><value>动态</value></data>
+<data name="Phone_Text_UiAlbum" xml:space="preserve"><value>专辑</value></data>
+<data name="Phone_Text_UiAlbums" xml:space="preserve"><value>专辑</value></data>
+<data name="Phone_Text_UiArtist" xml:space="preserve"><value>艺术家</value></data>
+<data name="Phone_Text_UiArtists" xml:space="preserve"><value>艺术家</value></data>
+<data name="Phone_Text_UiAuthentication" xml:space="preserve"><value>认证方式</value></data>
+<data name="Phone_Text_UiClear" xml:space="preserve"><value>清除</value></data>
+<data name="Phone_Text_UiCompatiblePlayback" xml:space="preserve"><value>兼容播放</value></data>
+<data name="Phone_Text_UiFailedToLoadAlbums" xml:space="preserve"><value>无法加载专辑。</value></data>
+<data name="Phone_Text_UiFailedToLoadArtist" xml:space="preserve"><value>加载艺术家失败：</value></data>
+<data name="Phone_Text_UiFailedToLoadArtists" xml:space="preserve"><value>加载艺术家失败：</value></data>
+<data name="Phone_Text_UiFailedToLoadFavourites" xml:space="preserve"><value>加载收藏失败：</value></data>
+<data name="Phone_Text_UiFailedToLoadGenre" xml:space="preserve"><value>加载流派失败：</value></data>
+<data name="Phone_Text_UiFailedToLoadGenres" xml:space="preserve"><value>加载流派失败：</value></data>
+<data name="Phone_Text_UiFailedToLoadNowPlaying" xml:space="preserve"><value>加载播放动态失败：</value></data>
+<data name="Phone_Text_UiFailedToLoadPlaylist" xml:space="preserve"><value>加载播放列表失败：</value></data>
+<data name="Phone_Text_UiFailedToLoadPlaylists" xml:space="preserve"><value>加载播放列表失败：</value></data>
+<data name="Phone_Text_UiFailedToLoadRadioStations" xml:space="preserve"><value>加载电台失败：</value></data>
+<data name="Phone_Text_UiFailedToLoadSongs" xml:space="preserve"><value>无法加载歌曲。</value></data>
+<data name="Phone_Text_UiFavourites" xml:space="preserve"><value>收藏</value></data>
+<data name="Phone_Text_UiFindArtistsAlbumsOrSongs" xml:space="preserve"><value>搜索艺术家、专辑或歌曲</value></data>
+<data name="Phone_Text_UiGenre" xml:space="preserve"><value>流派</value></data>
+<data name="Phone_Text_UiGenres" xml:space="preserve"><value>流派</value></data>
+<data name="Phone_Text_UiInternetRadio" xml:space="preserve"><value>网络电台</value></data>
+<data name="Phone_Text_UiJustNow" xml:space="preserve"><value>刚刚</value></data>
+<data name="Phone_Text_UiLeaveBlankForTheServerDefaultOrEnterAFormatSupportedByYourServer" xml:space="preserve"><value>留空以使用服务器默认格式，或输入服务器支持的音频格式。</value></data>
+<data name="Phone_Text_UiMaximumBitrateKbps" xml:space="preserve"><value>最大码率（kbps）</value></data>
+<data name="Phone_Text_UiMixDrome" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="Phone_Text_UiMixes" xml:space="preserve"><value>歌单</value></data>
+<data name="Phone_Text_UiMixRadio" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="Phone_Text_UiMore" xml:space="preserve"><value>更多</value></data>
+<data name="Phone_Text_UiMyMusic" xml:space="preserve"><value>我的音乐</value></data>
+<data name="Phone_Text_UiNext" xml:space="preserve"><value>下一首</value></data>
+<data name="Phone_Text_UiNoAlbumsFoundForThisArtist" xml:space="preserve"><value>此艺术家没有专辑。</value></data>
+<data name="Phone_Text_UiNoArtistsFound" xml:space="preserve"><value>未找到艺术家。</value></data>
+<data name="Phone_Text_UiNoFavouritesFound" xml:space="preserve"><value>尚无收藏。</value></data>
+<data name="Phone_Text_UiNoGenresFound" xml:space="preserve"><value>未找到流派。</value></data>
+<data name="Phone_Text_UiNoOneIsPlayingMusicRightNow" xml:space="preserve"><value>当前没有人在播放音乐。</value></data>
+<data name="Phone_Text_UiNoPlaylistsFound" xml:space="preserve"><value>未找到播放列表。</value></data>
+<data name="Phone_Text_UiNoRadioStationsFound" xml:space="preserve"><value>未找到电台。</value></data>
+<data name="Phone_Text_UiNoResultsFound" xml:space="preserve"><value>未找到结果。</value></data>
+<data name="Phone_Text_UiNoSongsFoundForThisGenre" xml:space="preserve"><value>此流派没有歌曲。</value></data>
+<data name="Phone_Text_UiNowPlaying" xml:space="preserve"><value>正在播放</value></data>
+<data name="Phone_Text_UiOff" xml:space="preserve"><value>关闭</value></data>
+<data name="Phone_Text_UiOn" xml:space="preserve"><value>开启</value></data>
+<data name="Phone_Text_UiPassword" xml:space="preserve"><value>密码</value></data>
+<data name="Phone_Text_UiPlayAll" xml:space="preserve"><value>播放全部</value></data>
+<data name="Phone_Text_UiPlayback" xml:space="preserve"><value>播放</value></data>
+<data name="Phone_Text_UiPlayMe" xml:space="preserve"><value>随心播放</value></data>
+<data name="Phone_Text_UiPrevious" xml:space="preserve"><value>上一首</value></data>
+<data name="Phone_Text_UiPrimaryAddress" xml:space="preserve"><value>首选地址</value></data>
+<data name="Phone_Text_UiQueue" xml:space="preserve"><value>队列</value></data>
+<data name="Phone_Text_UiRadio" xml:space="preserve"><value>电台</value></data>
+<data name="Phone_Text_UiRecentlyPlayed" xml:space="preserve"><value>最近播放</value></data>
+<data name="Phone_Text_UiRefresh" xml:space="preserve"><value>刷新</value></data>
+<data name="Phone_Text_UiRepeat" xml:space="preserve"><value>循环播放</value></data>
+<data name="Phone_Text_UiRequestMP3AudioForOlderDevicesAZeroBitrateUsesTheCompatibilityDefault" xml:space="preserve"><value>为旧设备请求 MP3 音频。码率为零时使用兼容模式默认值。</value></data>
+<data name="Phone_Text_UiSave" xml:space="preserve"><value>保存</value></data>
+<data name="Phone_Text_UiSearch" xml:space="preserve"><value>搜索</value></data>
+<data name="Phone_Text_UiSearchFailed" xml:space="preserve"><value>搜索失败：</value></data>
+<data name="Phone_Text_UiSecondaryAddress" xml:space="preserve"><value>备用地址</value></data>
+<data name="Phone_Text_UiSeek" xml:space="preserve"><value>播放进度</value></data>
+<data name="Phone_Text_UiServer" xml:space="preserve"><value>服务器</value></data>
+<data name="Phone_Text_UiServerDefault" xml:space="preserve"><value>服务器默认</value></data>
+<data name="Phone_Text_UiSettings" xml:space="preserve"><value>设置</value></data>
+<data name="Phone_Text_UiSetUpYourNavidromeServerInSettingsFirst" xml:space="preserve"><value>请先在设置中配置 Navidrome 服务器。</value></data>
+<data name="Phone_Text_UiShuffle" xml:space="preserve"><value>随机播放</value></data>
+<data name="Phone_Text_UiSong" xml:space="preserve"><value>歌曲</value></data>
+<data name="Phone_Text_UiSongs" xml:space="preserve"><value>歌曲</value></data>
+<data name="Phone_Text_UiStreamFormat" xml:space="preserve"><value>音频格式</value></data>
+<data name="Phone_Text_UiTest" xml:space="preserve"><value>测试</value></data>
+<data name="Phone_Text_UiThisNowPlayingItemCannotBePlayedLocally" xml:space="preserve"><value>此播放记录无法在本机播放。</value></data>
+<data name="Phone_Text_UiThisStationDoesNotHaveAStreamURL" xml:space="preserve"><value>此电台没有播放地址。</value></data>
+<data name="Phone_Text_UiTypeSomethingToSearchYourMusic" xml:space="preserve"><value>输入内容以搜索音乐。</value></data>
+<data name="Phone_Text_UiUntitledPlaylist" xml:space="preserve"><value>未命名播放列表</value></data>
+<data name="Phone_Text_UiUntitledStation" xml:space="preserve"><value>未命名电台</value></data>
+<data name="Phone_Text_UiUsername" xml:space="preserve"><value>用户名</value></data>
+<data name="Phone_Text_UnknownAlbum" xml:space="preserve"><value>未知专辑</value></data>
+<data name="Phone_Text_UnknownArtist" xml:space="preserve"><value>未知艺术家</value></data>
+<data name="Phone_Text_UnknownTrack" xml:space="preserve"><value>未知歌曲</value></data>
+<data name="PhoneUi_Header_Albums.Header" xml:space="preserve"><value>专辑</value></data>
+<data name="PhoneUi_Header_Artists.Header" xml:space="preserve"><value>艺术家</value></data>
+<data name="PhoneUi_Header_Genres.Header" xml:space="preserve"><value>流派</value></data>
+<data name="PhoneUi_Header_Playlists.Header" xml:space="preserve"><value>playlists</value></data>
+<data name="PhoneUi_Header_Songs.Header" xml:space="preserve"><value>歌曲</value></data>
+<data name="PhoneUi_Label_Account.Label" xml:space="preserve"><value>账号</value></data>
+<data name="PhoneUi_Label_Clear.Label" xml:space="preserve"><value>清除</value></data>
+<data name="PhoneUi_Label_More.Label" xml:space="preserve"><value>更多</value></data>
+<data name="PhoneUi_Label_PlayAll.Label" xml:space="preserve"><value>播放全部</value></data>
+<data name="PhoneUi_Label_Refresh.Label" xml:space="preserve"><value>刷新</value></data>
+<data name="PhoneUi_Label_Search.Label" xml:space="preserve"><value>搜索</value></data>
+<data name="PhoneUi_Label_Shuffle.Label" xml:space="preserve"><value>随机播放</value></data>
+<data name="PhoneUi_PlaceholderText_FindArtistsAlbumsOrSongs.PlaceholderText" xml:space="preserve"><value>搜索艺术家、专辑或歌曲</value></data>
+<data name="PhoneUi_Text_000.Text" xml:space="preserve"><value>0:00</value></data>
+<data name="PhoneUi_Text_1.Text" xml:space="preserve"><value>1</value></data>
+<data name="PhoneUi_Text_Activity.Text" xml:space="preserve"><value>动态</value></data>
+<data name="PhoneUi_Text_Albums.Text" xml:space="preserve"><value>专辑</value></data>
+<data name="PhoneUi_Text_Artist.Text" xml:space="preserve"><value>艺术家</value></data>
+<data name="PhoneUi_Text_Artists.Text" xml:space="preserve"><value>艺术家</value></data>
+<data name="PhoneUi_Text_Categories.Text" xml:space="preserve"><value> categories</value></data>
+<data name="PhoneUi_Text_Favour.Text" xml:space="preserve"><value>favour</value></data>
+<data name="PhoneUi_Text_Favourites.Text" xml:space="preserve"><value>收藏</value></data>
+<data name="PhoneUi_Text_Featured.Text" xml:space="preserve"><value>featured</value></data>
+<data name="PhoneUi_Text_Genre.Text" xml:space="preserve"><value>流派</value></data>
+<data name="PhoneUi_Text_GenreMix.Text" xml:space="preserve"><value>genre mix</value></data>
+<data name="PhoneUi_Text_Genres.Text" xml:space="preserve"><value>流派</value></data>
+<data name="PhoneUi_Text_InternetRadio.Text" xml:space="preserve"><value>网络电台</value></data>
+<data name="PhoneUi_Text_Ites.Text" xml:space="preserve"><value>ites</value></data>
+<data name="PhoneUi_Text_Lists.Text" xml:space="preserve"><value>lists</value></data>
+<data name="PhoneUi_Text_LIVE.Text" xml:space="preserve"><value>LIVE</value></data>
+<data name="PhoneUi_Text_MixDrome.Text" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="PhoneUi_Text_Mixes.Text" xml:space="preserve"><value>歌单</value></data>
+<data name="PhoneUi_Text_MixRadio.Text" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="PhoneUi_Text_MyMusic.Text" xml:space="preserve"><value>我的音乐</value></data>
+<data name="PhoneUi_Text_NoAlbumsFound.Text" xml:space="preserve"><value>No albums found</value></data>
+<data name="PhoneUi_Text_NoArtistsFound.Text" xml:space="preserve"><value>未找到艺术家。</value></data>
+<data name="PhoneUi_Text_NobodyIsPlayingRightNow.Text" xml:space="preserve"><value>Nobody is playing right now</value></data>
+<data name="PhoneUi_Text_NoFavouritesYet.Text" xml:space="preserve"><value>No favourites yet</value></data>
+<data name="PhoneUi_Text_NoGenresFound.Text" xml:space="preserve"><value>未找到流派。</value></data>
+<data name="PhoneUi_Text_NoRadioStationsFound.Text" xml:space="preserve"><value>No radio stations found</value></data>
+<data name="PhoneUi_Text_NoRemotePlaylistsYet.Text" xml:space="preserve"><value>No remote playlists yet.</value></data>
+<data name="PhoneUi_Text_NoSongsFound.Text" xml:space="preserve"><value>No songs found</value></data>
+<data name="PhoneUi_Text_Now.Text" xml:space="preserve"><value>now</value></data>
+<data name="PhoneUi_Text_NowPlaying.Text" xml:space="preserve"><value>正在播放</value></data>
+<data name="PhoneUi_Text_Play.Text" xml:space="preserve"><value>play</value></data>
+<data name="PhoneUi_Text_Playing.Text" xml:space="preserve"><value> playing</value></data>
+<data name="PhoneUi_Text_PlayMe.Text" xml:space="preserve"><value>随心播放</value></data>
+<data name="PhoneUi_Text_Radio.Text" xml:space="preserve"><value>电台</value></data>
+<data name="PhoneUi_Text_RecentlyPlayed.Text" xml:space="preserve"><value>最近播放</value></data>
+<data name="PhoneUi_Text_RemotePlaylists.Text" xml:space="preserve"><value>remote playlists</value></data>
+<data name="PhoneUi_Text_Search.Text" xml:space="preserve"><value>搜索</value></data>
+<data name="PhoneUi_Text_ServerActivity.Text" xml:space="preserve"><value>server activity</value></data>
+<data name="PhoneUi_Text_Songs.Text" xml:space="preserve"><value>歌曲</value></data>
+<data name="PhoneUi_Text_StarredMusic.Text" xml:space="preserve"><value>starred music</value></data>
+<data name="PhoneUi_Text_Stations.Text" xml:space="preserve"><value>stations</value></data>
+<data name="PhoneUi_Text_Tracks.Text" xml:space="preserve"><value>tracks</value></data>
+<data name="PhoneUi_Text_TypeSomethingToSearchYourMusic.Text" xml:space="preserve"><value>输入内容以搜索音乐。</value></data>
+<data name="Playback_About.Header" xml:space="preserve"><value>关于</value></data>
+<data name="Playback_AlbumLabel.Text" xml:space="preserve"><value>专辑</value></data>
+<data name="Playback_ArtistLabel.Text" xml:space="preserve"><value>艺术家</value></data>
+<data name="Playback_Next.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>下一首</value></data>
+<data name="Playback_NowPlaying.Header" xml:space="preserve"><value>正在播放</value></data>
+<data name="Playback_Previous.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>上一首</value></data>
+<data name="Playback_Queue.Header" xml:space="preserve"><value>队列</value></data>
+<data name="Playback_Repeat.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>循环播放</value></data>
+<data name="Playback_Seek.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>播放进度</value></data>
+<data name="Playback_Shuffle.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>随机播放</value></data>
+<data name="Playback_Title.Text" xml:space="preserve"><value>我的音乐</value></data>
+<data name="Settings_Account.Text" xml:space="preserve"><value>账号</value></data>
+<data name="Settings_Authentication.Header" xml:space="preserve"><value>认证方式</value></data>
+<data name="Settings_Brand.Text" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="Settings_Compatibility.Header" xml:space="preserve"><value>兼容播放</value></data>
+<data name="Settings_Compatibility.OffContent" xml:space="preserve"><value>关闭</value></data>
+<data name="Settings_Compatibility.OnContent" xml:space="preserve"><value>开启</value></data>
+<data name="Settings_CompatibilityHelp.Text" xml:space="preserve"><value>为旧设备请求 MP3 音频。码率为零时使用兼容模式默认值。</value></data>
+<data name="Settings_MaximumBitRate.PlaceholderText" xml:space="preserve"><value>0</value></data>
+<data name="Settings_MaximumBitRateLabel.Text" xml:space="preserve"><value>最大码率（kbps）</value></data>
+<data name="Settings_Playback.Text" xml:space="preserve"><value>播放</value></data>
+<data name="Settings_PrimaryLabel.Text" xml:space="preserve"><value>首选地址</value></data>
+<data name="Settings_PrimaryUrl.PlaceholderText" xml:space="preserve"><value>http://music.example.com</value></data>
+<data name="Settings_Save.Label" xml:space="preserve"><value>保存</value></data>
+<data name="Settings_SecondaryLabel.Text" xml:space="preserve"><value>备用地址</value></data>
+<data name="Settings_SecondaryUrl.PlaceholderText" xml:space="preserve"><value>https://music.example.com</value></data>
+<data name="Settings_Server.Text" xml:space="preserve"><value>服务器</value></data>
+<data name="Settings_StreamFormat.PlaceholderText" xml:space="preserve"><value>服务器默认</value></data>
+<data name="Settings_StreamFormatHelp.Text" xml:space="preserve"><value>留空以使用服务器默认格式，或输入服务器支持的音频格式。</value></data>
+<data name="Settings_StreamFormatLabel.Text" xml:space="preserve"><value>音频格式</value></data>
+<data name="Settings_Test.Label" xml:space="preserve"><value>测试</value></data>
+<data name="Settings_Title.Text" xml:space="preserve"><value>设置</value></data>
+<data name="Settings_Username.PlaceholderText" xml:space="preserve"><value>用户名</value></data>
+<data name="Settings_UsernameLabel.Text" xml:space="preserve"><value>用户名</value></data>
+</root>

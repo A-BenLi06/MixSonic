@@ -8,7 +8,7 @@
     Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Background="Black">
-        <Image x:Name="ArtistBackgroundImage" Source="/Assets/CoverArtPlaceholderLarge.jpg" Stretch="UniformToFill" Opacity="0.5" />
+        <Image x:Name="ArtistBackgroundImage" Source="ms-appx:///Assets/MixRadio/DefaultArtist300.png" Stretch="UniformToFill" Opacity="0.5" />
         <Rectangle Fill="#66000000" />
         <Rectangle>
             <Rectangle.Fill>
@@ -27,26 +27,26 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Margin="12,10,12,20">
-                <TextBlock Style="{StaticResource MixRadioWordmarkTextStyle}"><Run x:Uid="BrandPrefix" FontWeight="Bold" /><Run x:Uid="BrandSuffix" FontWeight="Light" /></TextBlock>
+                <TextBlock x:Uid="PhoneUi_Text_MixRadio" Style="{StaticResource MixRadioWordmarkTextStyle}" />
                 <StackPanel Orientation="Horizontal" Margin="1,-4,0,12">
                     <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
                         <TextBlock Text="&#xE13D;"
                                    Style="{StaticResource MixRadioSectionIconTextStyle}" />
                     </Border>
-                    <TextBlock Text="artist"
+                    <TextBlock x:Uid="PhoneUi_Text_Artist"
                                Style="{StaticResource BodyTextStyle}"
                                Foreground="White"
                                Margin="7,-1,0,0" />
                 </StackPanel>
                 <TextBlock x:Name="ArtistNameText"
-                           Text="artist"
+                           x:Uid="PhoneUi_Text_Artist"
                            FontSize="40"
                            FontWeight="Light"
                            Foreground="White"
                            TextWrapping="Wrap"
                            MaxLines="2" />
                 <TextBlock x:Name="AlbumCountText"
-                           Text="albums"
+                           x:Uid="PhoneUi_Text_Albums"
                            Style="{StaticResource BodyTextStyle}"
                            Margin="0,4,0,0" />
                 <Rectangle Width="72"
@@ -117,7 +117,7 @@
                                                FontWeight="Light"
                                                Foreground="{StaticResource MixRadioTealBrush}"
                                                HorizontalAlignment="Right" />
-                                    <TextBlock Text="tracks"
+                                    <TextBlock x:Uid="PhoneUi_Text_Tracks"
                                                FontSize="11"
                                                Foreground="#B3FFFFFF"
                                                HorizontalAlignment="Right" />
@@ -134,7 +134,7 @@
 
                 <ProgressRing x:Name="LoadingIndicator" IsActive="False" Width="60" Height="60" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <TextBlock x:Name="EmptyStateText"
-                           Text="No albums found"
+                           x:Uid="PhoneUi_Text_NoAlbumsFound"
                            FontSize="30"
                            FontWeight="Light"
                            Foreground="White"

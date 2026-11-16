@@ -9,12 +9,12 @@
 
     <Page.BottomAppBar>
         <CommandBar Background="{StaticResource MixRadioCommandBarBrush}" Foreground="White">
-            <AppBarButton Icon="Refresh" Label="refresh" Click="OnRefreshClick" />
+            <AppBarButton Icon="Refresh" x:Uid="PhoneUi_Label_Refresh" Click="OnRefreshClick" />
         </CommandBar>
     </Page.BottomAppBar>
 
     <Grid Background="Black">
-        <Image Source="/Assets/CoverArtPlaceholderLarge.jpg" Stretch="UniformToFill" Opacity="0.48" />
+        <Image Source="ms-appx:///Assets/MixRadio/DefaultArtist300.png" Stretch="UniformToFill" Opacity="0.48" />
         <Rectangle Fill="#66000000" />
         <Rectangle>
             <Rectangle.Fill>
@@ -33,25 +33,25 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Margin="12,10,12,18">
-                <TextBlock Style="{StaticResource MixRadioWordmarkTextStyle}"><Run x:Uid="BrandPrefix" FontWeight="Bold" /><Run x:Uid="BrandSuffix" FontWeight="Light" /></TextBlock>
+                <TextBlock x:Uid="PhoneUi_Text_MixRadio" Style="{StaticResource MixRadioWordmarkTextStyle}" />
                 <StackPanel Orientation="Horizontal" Margin="1,-4,0,12">
                     <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
                         <TextBlock Text="&#xE189;"
                                    Style="{StaticResource MixRadioSectionIconTextStyle}" />
                     </Border>
-                    <TextBlock Text="internet radio"
+                    <TextBlock x:Uid="PhoneUi_Text_InternetRadio"
                                Style="{StaticResource BodyTextStyle}"
                                Foreground="White"
                                Margin="7,-1,0,0" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="radio"
+                    <TextBlock x:Uid="PhoneUi_Text_Radio"
                                FontSize="42"
                                FontWeight="Light"
                                Foreground="White"
                                TextTrimming="CharacterEllipsis"
                                MaxLines="1" />
-                    <TextBlock Text=" stations"
+                    <TextBlock x:Uid="PhoneUi_Text_Stations"
                                FontSize="42"
                                FontWeight="Light"
                                Foreground="#99FFFFFF"
@@ -59,7 +59,7 @@
                                MaxLines="1" />
                 </StackPanel>
                 <TextBlock x:Name="StationCountText"
-                           Text="stations"
+                           x:Uid="PhoneUi_Text_Stations"
                            Style="{StaticResource BodyTextStyle}"
                            Margin="0,4,0,0" />
                 <Rectangle Width="72"
@@ -96,7 +96,7 @@
                                   Height="150"
                                   Margin="4"
                                   Background="{StaticResource MixRadioYellowBrush}">
-                                <Image Source="/Assets/CoverArtPlaceholder.jpg"
+                                <Image Source="ms-appx:///Assets/MixRadio/DefaultArtwork300.png"
                                        Stretch="UniformToFill"
                                        Opacity="0.2" />
                                 <Rectangle Fill="#22000000" />
@@ -107,7 +107,7 @@
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            Margin="0,0,0,32" />
-                                <TextBlock Text="LIVE"
+                                <TextBlock x:Uid="PhoneUi_Text_LIVE"
                                            FontSize="13"
                                            FontWeight="SemiBold"
                                            Foreground="White"
@@ -139,7 +139,7 @@
 
                 <ProgressRing x:Name="LoadingIndicator" IsActive="False" Width="60" Height="60" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <TextBlock x:Name="EmptyStateText"
-                           Text="No radio stations found"
+                           x:Uid="PhoneUi_Text_NoRadioStationsFound"
                            FontSize="30"
                            FontWeight="Light"
                            Foreground="White"

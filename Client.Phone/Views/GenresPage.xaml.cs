@@ -15,6 +15,7 @@ namespace Mixdrome.Phone.Views
 
     public sealed partial class GenresPage : Page
     {
+        private bool _pageActive;
         private ISubsonicService _subsonicService;
         private ProgressRing _loadingIndicator;
         private TextBlock _emptyStateText;
@@ -33,19 +34,36 @@ namespace Mixdrome.Phone.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            _pageActive = true;
             HardwareButtons.BackPressed += OnHardwareBackPressed;
-            _subsonicService = await PhoneSubsonicServiceFactory.CreateAsync();
-            await LoadGenres();
+            try
+            {
+                _subsonicService = await PhoneSubsonicServiceFactory.CreateAsync();
+                if (!_subsonicService.HasValidSubsonicUrl)
+                    throw new InvalidOperationException(Mixdrome.Phone.Common.PhoneText.Get("ConfigureServer"));
+                if (!_pageActive) return;
+                await LoadGenres();
+            }
+            catch (Exception exception)
+            {
+                if (_pageActive && _emptyStateText != null)
+                {
+                    _emptyStateText.Text = exception.Message;
+                    _emptyStateText.Visibility = Visibility.Visible;
+                }
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+            _pageActive = false;
             HardwareButtons.BackPressed -= OnHardwareBackPressed;
         }
 
         private void OnHardwareBackPressed(object sender, BackPressedEventArgs e)
         {
+            if (e.Handled) return;
             if (Frame.CanGoBack)
             {
                 e.Handled = true;
@@ -62,9 +80,11 @@ namespace Mixdrome.Phone.Views
             {
                 var result = _subsonicService.GetGenres();
                 await result.Execute();
+                if (!_pageActive) return;
+                if (result.Error != null) throw result.Error;
 
                 Genres.Clear();
-                if (result.Error == null && result.Result != null)
+                if (result.Result != null)
                 {
                     var index = 0;
                     foreach (var genre in result.Result)
@@ -72,7 +92,7 @@ namespace Mixdrome.Phone.Views
                         Genres.Add(new GenreDisplayItem
                         {
                             Name = genre.Name,
-                            Subtitle = string.Format("{0} songs  {1} albums", genre.SongCount, genre.AlbumCount),
+                            Subtitle = string.Format(Mixdrome.Phone.Common.PhoneText.Get("Ui0Songs1Albums"), genre.SongCount, genre.AlbumCount),
                             Glyph = GetGenreGlyph(index),
                             AccentBrush = GetAccentBrush(index++)
                         });
@@ -83,13 +103,14 @@ namespace Mixdrome.Phone.Views
             }
             catch (Exception ex)
             {
+                if (!_pageActive) return;
                 if (_emptyStateText != null)
                 {
-                    _emptyStateText.Text = "Failed to load genres.";
+                    _emptyStateText.Text = Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadGenres");
                     _emptyStateText.Visibility = Visibility.Visible;
                 }
 
-                await new MessageDialog("Failed to load genres: " + ex.Message).ShowAsync();
+                await new MessageDialog(Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadGenres") + ex.Message).ShowAsync();
             }
             finally
             {

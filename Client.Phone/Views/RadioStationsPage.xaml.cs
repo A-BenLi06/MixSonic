@@ -13,6 +13,7 @@ namespace Mixdrome.Phone.Views
 
     public sealed partial class RadioStationsPage : Page
     {
+        private bool _pageActive;
         private WP8SubsonicService _subsonicService;
         private ProgressRing _loadingIndicator;
         private TextBlock _emptyStateText;
@@ -33,19 +34,34 @@ namespace Mixdrome.Phone.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            _pageActive = true;
             HardwareButtons.BackPressed += OnHardwareBackPressed;
-            _subsonicService = await PhoneSubsonicServiceFactory.CreatePlaybackServiceAsync();
-            await LoadStations();
+            try
+            {
+                _subsonicService = await PhoneSubsonicServiceFactory.CreatePlaybackServiceAsync();
+                if (!_pageActive) return;
+                await LoadStations();
+            }
+            catch (Exception exception)
+            {
+                if (_pageActive && _emptyStateText != null)
+                {
+                    _emptyStateText.Text = exception.Message;
+                    _emptyStateText.Visibility = Visibility.Visible;
+                }
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+            _pageActive = false;
             HardwareButtons.BackPressed -= OnHardwareBackPressed;
         }
 
         private void OnHardwareBackPressed(object sender, BackPressedEventArgs e)
         {
+            if (e.Handled) return;
             if (Frame.CanGoBack)
             {
                 e.Handled = true;
@@ -61,6 +77,7 @@ namespace Mixdrome.Phone.Views
             try
             {
                 var stations = await _subsonicService.GetInternetRadioStationsAsync();
+                if (!_pageActive) return;
                 Stations.Clear();
 
                 foreach (var station in stations)
@@ -68,9 +85,9 @@ namespace Mixdrome.Phone.Views
                     Stations.Add(new RadioStationDisplayItem
                     {
                         Id = station.Id,
-                        Name = station.Name ?? "Untitled station",
+                        Name = station.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UiUntitledStation"),
                         StreamUrl = station.StreamUrl,
-                        Subtitle = string.IsNullOrEmpty(station.HomePageUrl) ? "internet radio" : station.HomePageUrl
+                        Subtitle = string.IsNullOrEmpty(station.HomePageUrl) ? Mixdrome.Phone.Common.PhoneText.Get("UiInternetRadio") : station.HomePageUrl
                     });
                 }
 
@@ -79,13 +96,14 @@ namespace Mixdrome.Phone.Views
             }
             catch (Exception ex)
             {
+                if (!_pageActive) return;
                 if (_emptyStateText != null)
                 {
-                    _emptyStateText.Text = "Failed to load radio stations.";
+                    _emptyStateText.Text = Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadRadioStations");
                     _emptyStateText.Visibility = Visibility.Visible;
                 }
 
-                await new MessageDialog("Failed to load radio stations: " + ex.Message).ShowAsync();
+                await new MessageDialog(Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadRadioStations") + ex.Message).ShowAsync();
             }
             finally
             {
@@ -98,7 +116,7 @@ namespace Mixdrome.Phone.Views
             var station = e.ClickedItem as RadioStationDisplayItem;
             if (station == null || string.IsNullOrEmpty(station.StreamUrl))
             {
-                await new MessageDialog("This station does not have a stream URL.").ShowAsync();
+                await new MessageDialog(Mixdrome.Phone.Common.PhoneText.Get("UiThisStationDoesNotHaveAStreamURL")).ShowAsync();
                 return;
             }
 
@@ -112,7 +130,7 @@ namespace Mixdrome.Phone.Views
                         {
                             Id = station.Id ?? station.StreamUrl,
                             Title = station.Name,
-                            Artist = "internet radio",
+                            Artist = Mixdrome.Phone.Common.PhoneText.Get("UiInternetRadio"),
                             Duration = 0,
                             DurationString = "live",
                             StreamUrl = station.StreamUrl

@@ -6,7 +6,9 @@ namespace Mixdrome.Phone.Views
     using System.Linq;
     using System.Threading.Tasks;
     using Client.Common.Models.Subsonic;
+    using Client.Common.Models.Navidrome;
     using Client.Common.Services;
+    using Client.Common.Services.Navidrome;
     using Client.Common.Services.DataStructures.SubsonicService;
     using Windows.Phone.UI.Input;
     using Windows.Storage;
@@ -23,10 +25,23 @@ namespace Mixdrome.Phone.Views
         private TextBox _searchTextBox;
         private ProgressRing _loadingIndicator;
         private TextBlock _emptyStateText;
-        private ListView _resultsListView;
+        private Pivot _resultsListView;
+        private int _generation;
+        private bool _active;
+        private int _navigationGeneration;
+        private Task _initializing;
+        private NavidromeApi _api;
+        private AppBarButton _moreButton;
+        private bool _isSearching;
+        private string _query;
+        private const int PageSize = 100;
+        private readonly HashSet<SearchResultKind> _hasMore = new HashSet<SearchResultKind>();
 
         public ObservableCollection<SearchResultDisplayItem> Results { get; private set; }
         public List<SongDisplayItem> SongResults { get; private set; }
+        public ObservableCollection<SearchResultDisplayItem> ArtistResults { get; private set; } = new ObservableCollection<SearchResultDisplayItem>();
+        public ObservableCollection<SearchResultDisplayItem> AlbumResults { get; private set; } = new ObservableCollection<SearchResultDisplayItem>();
+        public ObservableCollection<SearchResultDisplayItem> TrackResults { get; private set; } = new ObservableCollection<SearchResultDisplayItem>();
 
         public SearchPage()
         {
@@ -39,7 +54,8 @@ namespace Mixdrome.Phone.Views
             _searchTextBox = FindName("SearchTextBox") as TextBox;
             _loadingIndicator = FindName("LoadingIndicator") as ProgressRing;
             _emptyStateText = FindName("EmptyStateText") as TextBlock;
-            _resultsListView = FindName("ResultsListView") as ListView;
+            _resultsListView = FindName("ResultsPivot") as Pivot;
+            _moreButton = FindName("MoreButton") as AppBarButton;
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -47,7 +63,16 @@ namespace Mixdrome.Phone.Views
             base.OnNavigatedTo(e);
             HardwareButtons.BackPressed += OnHardwareBackPressed;
 
-            await InitializeService();
+            _active = true;
+            var version = ++_generation;
+            _api = null; _subsonicService = null; _query = null;
+            ClearResults();
+            _initializing = InitializeService(++_navigationGeneration);
+            SetBusy(true);
+            try { await _initializing; }
+            catch (Exception ex) { if (_active && version == _generation) ShowEmpty(Mixdrome.Phone.Common.PhoneText.Format("LoadFailed", ex.Message)); return; }
+            finally { if (_active && version == _generation) SetBusy(false); }
+            if (!_active || version != _generation) return;
 
             var query = e.Parameter as string;
             if (!string.IsNullOrWhiteSpace(query) && _searchTextBox != null)
@@ -63,12 +88,15 @@ namespace Mixdrome.Phone.Views
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            _active = false; _generation++; _navigationGeneration++;
+            SetBusy(false);
             base.OnNavigatedFrom(e);
             HardwareButtons.BackPressed -= OnHardwareBackPressed;
         }
 
         private void OnHardwareBackPressed(object sender, BackPressedEventArgs e)
         {
+            if (e.Handled) return;
             if (Frame.CanGoBack)
             {
                 e.Handled = true;
@@ -76,69 +104,12 @@ namespace Mixdrome.Phone.Views
             }
         }
 
-        private async Task InitializeService()
+        private async Task InitializeService(int navigationVersion)
         {
-            var configuration = await LoadConfiguration();
-            _subsonicService = new SubsonicService();
-            _subsonicService.Configuration = configuration;
-        }
-
-        private async Task<SubsonicServiceConfiguration> LoadConfiguration()
-        {
-            var config = new SubsonicServiceConfiguration();
-
-            try
-            {
-                var settings = ApplicationData.Current.LocalSettings;
-                config.Username = settings.Values.ContainsKey("Username")
-                    ? settings.Values["Username"] as string
-                    : string.Empty;
-                config.Password = settings.Values.ContainsKey("Password")
-                    ? settings.Values["Password"] as string
-                    : string.Empty;
-                config.CompatibleMode = settings.Values.ContainsKey("CompatibleMode")
-                    && (bool)settings.Values["CompatibleMode"];
-
-                var primaryUrl = settings.Values.ContainsKey("PrimaryUrl")
-                    ? settings.Values["PrimaryUrl"] as string
-                    : string.Empty;
-                var secondaryUrl = settings.Values.ContainsKey("SecondaryUrl")
-                    ? settings.Values["SecondaryUrl"] as string
-                    : string.Empty;
-
-                if (string.IsNullOrEmpty(primaryUrl) && settings.Values.ContainsKey("BaseUrl"))
-                {
-                    primaryUrl = settings.Values["BaseUrl"] as string;
-                }
-
-                config.PrimaryUrl = primaryUrl;
-                config.SecondaryUrl = secondaryUrl;
-
-                if (!string.IsNullOrEmpty(primaryUrl) || !string.IsNullOrEmpty(secondaryUrl))
-                {
-                    var networkService = new NetworkDetectionService();
-                    var routeService = new RouteSelectionService(networkService);
-                    var result = await routeService.SelectBestRouteAsync(
-                        primaryUrl,
-                        secondaryUrl,
-                        config.Username,
-                        config.Password);
-
-                    config.BaseUrl = result.Success
-                        ? result.SelectedUrl
-                        : (!string.IsNullOrEmpty(secondaryUrl) ? secondaryUrl : primaryUrl);
-                }
-            }
-            catch
-            {
-                var settings = ApplicationData.Current.LocalSettings;
-                config.BaseUrl = settings.Values.ContainsKey("PrimaryUrl")
-                    ? settings.Values["PrimaryUrl"] as string
-                    : string.Empty;
-                config.PrimaryUrl = config.BaseUrl;
-            }
-
-            return config;
+            var service = await Mixdrome.Phone.Services.PhoneSubsonicServiceFactory.CreateAsync();
+            if (!_active || navigationVersion != _navigationGeneration) return;
+            _subsonicService = service;
+            if (HasConfiguredServer()) _api = new NavidromeApi(service.Configuration);
         }
 
         private bool HasConfiguredServer()
@@ -148,43 +119,49 @@ namespace Mixdrome.Phone.Views
                    && !string.IsNullOrEmpty(_subsonicService.Configuration.BaseUrl);
         }
 
-        private async Task Search(string query)
+        private async Task Search(string query, bool append = false)
         {
+            var version = ++_generation;
             if (string.IsNullOrWhiteSpace(query))
             {
-                ShowEmpty("Type something to search your music.");
+                _query = null; ClearResults(); SetBusy(false);
+                ShowEmpty(Mixdrome.Phone.Common.PhoneText.Get("UiTypeSomethingToSearchYourMusic"));
                 return;
             }
-
-            if (!HasConfiguredServer())
-            {
-                ShowEmpty("Set up your Navidrome server in settings first.");
-                return;
-            }
-
-            if (_loadingIndicator != null) _loadingIndicator.IsActive = true;
+            var kind = SelectedKind;
+            if (!append) { _query = query.Trim(); ClearResults(); }
+            SetBusy(true);
             if (_emptyStateText != null) _emptyStateText.Visibility = Visibility.Collapsed;
 
             try
             {
-                var result = _subsonicService.Search(query.Trim());
-                await result.Execute();
-
-                Results.Clear();
-                SongResults.Clear();
-
-                if (result.Error != null)
+                if (_initializing != null) await _initializing;
+                if (!_active || version != _generation) return;
+                if (_api == null)
                 {
-                    ShowEmpty("Search failed: " + result.Error.Message);
+                    ShowEmpty(Mixdrome.Phone.Common.PhoneText.Get("ConfigureServer"));
                     return;
                 }
-
-                var collection = result.Result;
+                var request = new SearchQuery
+                {
+                    Query = _query,
+                    ArtistCount = !append || kind == SearchResultKind.Artist ? PageSize : 0,
+                    AlbumCount = !append || kind == SearchResultKind.Album ? PageSize : 0,
+                    SongCount = !append || kind == SearchResultKind.Song ? PageSize : 0,
+                    ArtistOffset = append ? ArtistResults.Count : 0,
+                    AlbumOffset = append ? AlbumResults.Count : 0,
+                    SongOffset = append ? TrackResults.Count : 0
+                };
+                var collection = await _api.Search(request).ReadAsync();
+                if (!_active || version != _generation) return;
                 if (collection != null)
                 {
-                    AddArtists(collection.Artists);
-                    AddAlbums(collection.Albums);
-                    AddSongs(collection.Songs);
+                    if (!append || kind == SearchResultKind.Artist)
+                    { AddArtists(collection.Artists); SetMore(SearchResultKind.Artist, collection.Artists == null ? 0 : collection.Artists.Count); }
+                    if (!append || kind == SearchResultKind.Album)
+                    { AddAlbums(collection.Albums); SetMore(SearchResultKind.Album, collection.Albums == null ? 0 : collection.Albums.Count); }
+                    if (!append || kind == SearchResultKind.Song)
+                    { AddSongs(collection.Songs); SetMore(SearchResultKind.Song, collection.Songs == null ? 0 : collection.Songs.Count); }
                 }
 
                 if (_resultsListView != null)
@@ -194,17 +171,26 @@ namespace Mixdrome.Phone.Views
 
                 if (Results.Count == 0)
                 {
-                    ShowEmpty("No results found.");
+                    ShowEmpty(Mixdrome.Phone.Common.PhoneText.Get("UiNoResultsFound"));
                 }
             }
             catch (Exception ex)
             {
-                ShowEmpty("Search failed: " + ex.Message);
+                if (!_active || version != _generation) return;
+                ShowEmpty(Mixdrome.Phone.Common.PhoneText.Get("UiSearchFailed") + ex.Message);
             }
             finally
             {
-                if (_loadingIndicator != null) _loadingIndicator.IsActive = false;
+                if (_active && version == _generation) SetBusy(false);
             }
+        }
+
+        private void AddResult(SearchResultDisplayItem item)
+        {
+            Results.Add(item);
+            if (item.Kind == SearchResultKind.Artist) ArtistResults.Add(item);
+            else if (item.Kind == SearchResultKind.Album) AlbumResults.Add(item);
+            else TrackResults.Add(item);
         }
 
         private void AddArtists(IEnumerable<ExpandedArtist> artists)
@@ -216,13 +202,13 @@ namespace Mixdrome.Phone.Views
 
             foreach (var artist in artists)
             {
-                Results.Add(new SearchResultDisplayItem
+                AddResult(new SearchResultDisplayItem
                 {
                     Kind = SearchResultKind.Artist,
-                    KindLabel = "artist",
+                    KindLabel = Mixdrome.Phone.Common.PhoneText.Get("UiArtist"),
                     Id = artist.Id,
-                    Title = artist.Name ?? "Unknown artist",
-                    Subtitle = string.Format("{0} albums", artist.AlbumCount),
+                    Title = artist.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownArtist"),
+                    Subtitle = string.Format(Mixdrome.Phone.Common.PhoneText.Get("AlbumCount"), artist.AlbumCount),
                     Glyph = "\uE13D",
                     AccentBrush = App.Current.Resources["MixRadioYellowBrush"] as Brush,
                     ImageOpacity = 0
@@ -239,13 +225,13 @@ namespace Mixdrome.Phone.Views
 
             foreach (var album in albums)
             {
-                Results.Add(new SearchResultDisplayItem
+                AddResult(new SearchResultDisplayItem
                 {
                     Kind = SearchResultKind.Album,
-                    KindLabel = "album",
+                    KindLabel = Mixdrome.Phone.Common.PhoneText.Get("UiAlbum"),
                     Id = album.Id,
-                    Title = album.Name ?? "Unknown album",
-                    Subtitle = album.Artist ?? "Unknown artist",
+                    Title = album.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownAlbum"),
+                    Subtitle = album.Artist ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownArtist"),
                     CoverArt = GetCoverArtUrl(album.CoverArt),
                     Glyph = string.Empty,
                     AccentBrush = App.Current.Resources["MixRadioTealBrush"] as Brush,
@@ -261,27 +247,28 @@ namespace Mixdrome.Phone.Views
                 return;
             }
 
-            var track = 1;
+            var track = SongResults.Count + 1;
             foreach (var song in songs)
             {
                 SongResults.Add(new SongDisplayItem
                 {
                     Id = song.Id,
                     Track = track,
-                    Title = song.Title ?? song.Name ?? "Unknown",
-                    Artist = song.Artist ?? "Unknown artist",
+                    Title = song.Title ?? song.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownTrack"),
+                    Artist = song.Artist ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownArtist"),
+                    Album = song.Album,
                     Duration = song.Duration,
                     DurationString = FormatDuration(song.Duration),
                     CoverArt = song.CoverArt
                 });
 
-                Results.Add(new SearchResultDisplayItem
+                AddResult(new SearchResultDisplayItem
                 {
                     Kind = SearchResultKind.Song,
-                    KindLabel = "song",
+                    KindLabel = Mixdrome.Phone.Common.PhoneText.Get("UiSong"),
                     Id = song.Id,
-                    Title = song.Title ?? song.Name ?? "Unknown",
-                    Subtitle = song.Artist ?? "Unknown artist",
+                    Title = song.Title ?? song.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownTrack"),
+                    Subtitle = song.Artist ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownArtist"),
                     CoverArt = GetCoverArtUrl(song.CoverArt),
                     Glyph = string.IsNullOrEmpty(song.CoverArt) ? "\uE102" : string.Empty,
                     AccentBrush = App.Current.Resources["MixRadioAccentBrush"] as Brush,
@@ -326,16 +313,45 @@ namespace Mixdrome.Phone.Views
 
         private void OnClearClick(object sender, RoutedEventArgs e)
         {
+            _generation++; _query = null; SetBusy(false);
             if (_searchTextBox != null)
             {
                 _searchTextBox.Text = string.Empty;
                 _searchTextBox.Focus(FocusState.Programmatic);
             }
 
-            Results.Clear();
-            SongResults.Clear();
-            ShowEmpty("Type something to search your music.");
+            ClearResults();
+            ShowEmpty(Mixdrome.Phone.Common.PhoneText.Get("UiTypeSomethingToSearchYourMusic"));
         }
+
+        private void ClearResults()
+        {
+            Results.Clear(); ArtistResults.Clear(); AlbumResults.Clear(); TrackResults.Clear(); SongResults.Clear();
+            _hasMore.Clear(); UpdateMore();
+        }
+
+        private SearchResultKind SelectedKind
+        {
+            get { var index = _resultsListView == null ? 0 : _resultsListView.SelectedIndex;
+                return index == 1 ? SearchResultKind.Album : index == 2 ? SearchResultKind.Song : SearchResultKind.Artist; }
+        }
+
+        private void SetMore(SearchResultKind kind, int count)
+        { if (count == PageSize) _hasMore.Add(kind); else _hasMore.Remove(kind); }
+
+        private void SetBusy(bool value)
+        { _isSearching = value; if (_loadingIndicator != null) _loadingIndicator.IsActive = value; UpdateMore(); }
+
+        private void UpdateMore()
+        {
+            if (_moreButton == null) return;
+            _moreButton.Visibility = _hasMore.Contains(SelectedKind) ? Visibility.Visible : Visibility.Collapsed;
+            _moreButton.IsEnabled = !_isSearching;
+        }
+
+        private void OnResultsTabChanged(object sender, SelectionChangedEventArgs e) { UpdateMore(); }
+        private async void OnMoreClick(object sender, RoutedEventArgs e)
+        { if (!_isSearching && _hasMore.Contains(SelectedKind)) await Search(_query, true); }
 
         private async void OnSearchTextBoxKeyDown(object sender, KeyRoutedEventArgs e)
         {

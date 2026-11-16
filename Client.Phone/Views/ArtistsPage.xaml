@@ -9,12 +9,12 @@
 
     <Page.BottomAppBar>
         <CommandBar Background="{StaticResource MixRadioCommandBarBrush}" Foreground="White">
-            <AppBarButton Icon="Refresh" Label="refresh" Click="OnRefreshClick" />
+            <AppBarButton Icon="Refresh" x:Uid="PhoneUi_Label_Refresh" Click="OnRefreshClick" />
         </CommandBar>
     </Page.BottomAppBar>
 
     <Grid Background="Black">
-        <Image Source="/Assets/CoverArtPlaceholderLarge.jpg" Stretch="UniformToFill" Opacity="0.48" />
+        <Image Source="ms-appx:///Assets/MixRadio/DefaultArtist300.png" Stretch="UniformToFill" Opacity="0.48" />
         <Rectangle Fill="#66000000" />
         <Rectangle>
             <Rectangle.Fill>
@@ -33,13 +33,13 @@
             </Grid.RowDefinitions>
 
             <StackPanel Grid.Row="0" Margin="12,10,12,18">
-                <TextBlock Style="{StaticResource MixRadioWordmarkTextStyle}"><Run x:Uid="BrandPrefix" FontWeight="Bold" /><Run x:Uid="BrandSuffix" FontWeight="Light" /></TextBlock>
+                <TextBlock x:Uid="PhoneUi_Text_MixRadio" Style="{StaticResource MixRadioWordmarkTextStyle}" />
                 <StackPanel Orientation="Horizontal" Margin="1,-4,0,0">
                     <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
                         <TextBlock Text="&#xE13D;"
                                    Style="{StaticResource MixRadioSectionIconTextStyle}" />
                     </Border>
-                    <TextBlock Text="artists"
+                    <TextBlock x:Uid="PhoneUi_Text_Artists"
                                Style="{StaticResource BodyTextStyle}"
                                Foreground="White"
                                Margin="7,-1,0,0" />
@@ -110,7 +110,7 @@
                               HorizontalAlignment="Center"
                               VerticalAlignment="Center" />
                 <TextBlock x:Name="EmptyStateText"
-                           Text="No artists found."
+                           x:Uid="PhoneUi_Text_NoArtistsFound"
                            Style="{StaticResource BodyTextStyle}"
                            TextAlignment="Center"
                            TextWrapping="Wrap"

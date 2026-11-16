@@ -33,6 +33,12 @@ If you install the app and when switching away to another app the sound volume l
 # Disable the option "Allow applications to take exclusive control of this device"
 # Restart the application and... it works ;)
 
+h1. Mixdrome for Windows Phone 8.1
+
+The phone client reconstructs the MixRadio 4.5.3.470 panorama and player using native Windows Phone 8.1 WinRT controls, backed by the desktop client’s shared Navidrome protocol and models. It includes a five-category library, paged search, playlists, starred songs, radio and background audio. English and Simplified Chinese strings use packaged resources.
+
+See "phone reference, build and verification":docs/mixradio/phone-port.md for the recovered design, supported adaptations, build commands and native verification limits. The original XAPs are local references and are not build dependencies.
+
 h1. Contributing
 
 The default stable branch is @main@. Use short-lived branches and pull requests with the required @CI required@ check. See "branch and contribution rules":CONTRIBUTING.md for local regression commands, commit records and native verification boundaries.
