@@ -139,6 +139,8 @@ namespace Mixdrome.Phone.BackgroundAudioTask
             finally { await file.DeleteAsync(); }
             if (closed != 0) return;
             var index = GetInt(data, BackgroundAudioMessages.CurrentIndex, -1);
+            if (data.ContainsKey(BackgroundAudioMessages.Shuffle) && !(data[BackgroundAudioMessages.Shuffle] is bool))
+                throw new InvalidOperationException("Invalid audio shuffle mode.");
             // Validate before replacing the live queue or its durable snapshot.
             var candidate = new AudioQueueState();
             if (!candidate.Replace(tracks, index)) throw new InvalidOperationException("Invalid audio queue.");
@@ -153,6 +155,7 @@ namespace Mixdrome.Phone.BackgroundAudioTask
             catch { await temporary.DeleteAsync(); throw; }
             if (closed != 0) return;
             queue.Replace(tracks, index);
+            if (data.ContainsKey(BackgroundAudioMessages.Shuffle)) queue.SetShuffle((bool)data[BackgroundAudioMessages.Shuffle]);
             version = nextVersion;
             PlayCurrent();
             SendState(BackgroundAudioMessages.Snapshot);

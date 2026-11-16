@@ -23,6 +23,7 @@ PLATFORM_RESOURCES = frozenset({
     'ContentControlFontSize', 'PhoneAccentBrush', 'PhoneForegroundBrush',
     'PhoneFontFamilyNormal', 'PhoneFontFamilyLight', 'PhoneFontFamilySemiLight',
     'PhoneFontFamilySemiBold', 'SystemColorControlAccentColor',
+    'TextBoxForegroundThemeBrush', 'TextBoxBackgroundThemeBrush',
 })
 UID_TARGETS = {
     'Text': {'TextBlock', 'TextBox', 'Run'},

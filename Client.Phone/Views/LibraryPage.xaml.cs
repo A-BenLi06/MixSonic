@@ -22,7 +22,10 @@ namespace Mixdrome.Phone.Views
         private bool active;
         private int generation;
         private int selectionGeneration;
+        private int pendingPlaySelection;
+        private string pendingPlayTab;
         private bool recent;
+        private readonly Random random = new Random();
         private readonly HashSet<string> loaded = new HashSet<string>();
         private readonly HashSet<string> loading = new HashSet<string>();
         private readonly HashSet<string> more = new HashSet<string>();
@@ -112,29 +115,127 @@ namespace Mixdrome.Phone.Views
         }
         private async Task OpenItem(PhoneLibraryItem item)
         {
-            var selection = ++selectionGeneration;
-            if (item == null || api == null || !active) return;
+            ++selectionGeneration;
+            UpdateBusy();
+            if (item == null || api == null || !active || !Items(Tab).Contains(item)) return;
             switch (item.Route)
             {
                 case "artist": Frame.Navigate(typeof(ArtistAlbumsPage), new ArtistDisplayItem { Id = item.Id, Name = item.Name }); break;
                 case "album": Frame.Navigate(typeof(AlbumPage), item.Id); break;
                 case "genre": Frame.Navigate(typeof(GenreSongsPage), item.Name); break;
                 case "song": Frame.Navigate(typeof(PlaybackPage), new PlaybackNavigationParameter { Playlist = Songs.Select(row => row.Song).ToList(), StartIndex = Songs.IndexOf(item) }); break;
-                case "playlist":
-                    if (Tab != "playlists") return;
-                    var version = generation;
-                    try
-                    {
-                        var playlist = await api.GetPlaylist(item.Id).ReadAsync();
-                        if (!CurrentSelection(version, selection, "playlists")) return;
-                        if (playlist.Entries == null || playlist.Entries.Count == 0) { StatusText.Text = PhoneText.Get("PlaylistEmpty"); return; }
-                        Frame.Navigate(typeof(PlaybackPage), new PlaybackNavigationParameter { Playlist = playlist.Entries.Select((song, index) => ToSong(song, index + 1)).ToList(), StartIndex = 0 });
-                    }
-                    catch (Exception ex) { if (CurrentSelection(version, selection, "playlists")) StatusText.Text = PhoneText.Format("LoadFailed", ex.Message); }
-                    break;
+                case "playlist": await PlayItem(item); break;
             }
         }
-        private void UpdateBusy() { if (LoadingIndicator == null || MoreButton == null) return; LoadingIndicator.IsActive = loading.Contains(Tab); LoadingIndicator.Visibility = LoadingIndicator.IsActive ? Visibility.Visible : Visibility.Collapsed; MoreButton.Visibility = more.Contains(Tab) ? Visibility.Visible : Visibility.Collapsed; MoreButton.IsEnabled = !loading.Contains(Tab); }
+        private async void OnOpenItemClick(object sender, RoutedEventArgs e) { await OpenItem(((Button)sender).Tag as PhoneLibraryItem); }
+        private async void OnPlayItemClick(object sender, RoutedEventArgs e) { await PlayItem(((Button)sender).Tag as PhoneLibraryItem); }
+        private async Task PlayItem(PhoneLibraryItem item)
+        {
+            var selection = ++selectionGeneration;
+            if (item == null || api == null || !active || !Items(Tab).Contains(item)) { UpdateBusy(); return; }
+            var version = generation;
+            var tab = Tab;
+            var source = api;
+            pendingPlaySelection = selection; pendingPlayTab = tab;
+            StatusText.Text = string.Empty; UpdateBusy();
+            try
+            {
+                var songs = new List<Song>();
+                switch (item.Route)
+                {
+                    case "album":
+                        var album = await source.GetAlbum(item.Id).ReadAsync();
+                        if (!CurrentSelection(version, selection, tab)) return;
+                        AddAlbumSongs(songs, album);
+                        break;
+                    case "artist":
+                        var artist = await source.GetArtist(item.Id).ReadAsync();
+                        if (!CurrentSelection(version, selection, tab)) return;
+                        if (artist != null && artist.Albums != null)
+                        {
+                            foreach (var artistAlbum in artist.Albums)
+                            {
+                                var detail = await source.GetAlbum(artistAlbum.Id).ReadAsync();
+                                if (!CurrentSelection(version, selection, tab)) return;
+                                AddAlbumSongs(songs, detail);
+                            }
+                        }
+                        break;
+                    case "genre":
+                        var offset = 0;
+                        while (true)
+                        {
+                            var page = await source.GetGenreSongs(item.Name, null, offset, PageSize).ReadAsync();
+                            if (!CurrentSelection(version, selection, tab)) return;
+                            songs.AddRange(page);
+                            if (page.Count < PageSize) break;
+                            offset += page.Count;
+                        }
+                        break;
+                    case "playlist":
+                        var playlist = await source.GetPlaylist(item.Id).ReadAsync();
+                        if (!CurrentSelection(version, selection, tab)) return;
+                        if (playlist != null && playlist.Entries != null) songs.AddRange(playlist.Entries);
+                        break;
+                    default: return;
+                }
+                if (!CurrentSelection(version, selection, tab)) return;
+                if (songs.Count == 0) { StatusText.Text = item.Route == "playlist" ? PhoneText.Get("PlaylistEmpty") : PhoneText.Get("NoSongs"); return; }
+                Frame.Navigate(typeof(PlaybackPage), new PlaybackNavigationParameter { Playlist = songs.Select((song, index) => ToSong(song, index + 1)).ToList(), StartIndex = 0 });
+            }
+            catch (Exception ex) { if (CurrentSelection(version, selection, tab)) StatusText.Text = PhoneText.Format("LoadFailed", ex.Message); }
+            finally { if (pendingPlaySelection == selection) { pendingPlaySelection = 0; pendingPlayTab = null; } UpdateBusy(); }
+        }
+        private static void AddAlbumSongs(ICollection<Song> target, Album album)
+        {
+            if (album == null || album.Songs == null) return;
+            foreach (var song in album.Songs)
+            {
+                song.Artist = song.Artist ?? album.Artist;
+                song.Album = song.Album ?? album.Name;
+                song.CoverArt = song.CoverArt ?? album.CoverArt;
+                target.Add(song);
+            }
+        }
+        private async void OnShuffleAllClick(object sender, RoutedEventArgs e) { await ShuffleAll(); }
+        private async Task ShuffleAll()
+        {
+            if (!active || api == null || Tab != "songs" || Songs.Count == 0) return;
+            var version = generation;
+            var selection = ++selectionGeneration;
+            var source = api;
+            pendingPlaySelection = selection; pendingPlayTab = "songs";
+            StatusText.Text = string.Empty; UpdateBusy();
+            try
+            {
+                // Resolve the complete library, including pages not yet browsed. Keep
+                // its server ordering and let the background queue own shuffle order.
+                var songs = new List<SongDisplayItem>();
+                while (true)
+                {
+                    var page = await source.Search(new SearchQuery { Query = string.Empty, ArtistCount = 0, AlbumCount = 0, SongCount = PageSize, SongOffset = songs.Count }).ReadAsync();
+                    if (!CurrentSelection(version, selection, "songs")) return;
+                    foreach (var song in page.Songs) songs.Add(ToSong(song, songs.Count + 1));
+                    if (page.Songs.Count < PageSize) break;
+                }
+                if (songs.Count == 0) { StatusText.Text = PhoneText.Get("NoSongs"); return; }
+                Frame.Navigate(typeof(PlaybackPage), new PlaybackNavigationParameter { Playlist = songs, StartIndex = random.Next(songs.Count), Shuffle = true });
+            }
+            catch (Exception ex) { if (CurrentSelection(version, selection, "songs")) StatusText.Text = PhoneText.Format("LoadFailed", ex.Message); }
+            finally { if (pendingPlaySelection == selection) { pendingPlaySelection = 0; pendingPlayTab = null; } UpdateBusy(); }
+        }
+        private void UpdateBusy()
+        {
+            if (LoadingIndicator == null || MoreButton == null) return;
+            LoadingIndicator.IsActive = loading.Contains(Tab) || pendingPlaySelection == selectionGeneration && pendingPlayTab == Tab;
+            LoadingIndicator.Visibility = LoadingIndicator.IsActive ? Visibility.Visible : Visibility.Collapsed;
+            MoreButton.Visibility = more.Contains(Tab) ? Visibility.Visible : Visibility.Collapsed; MoreButton.IsEnabled = !loading.Contains(Tab);
+            if (ShuffleSongsButton != null)
+            {
+                ShuffleSongsButton.Visibility = Songs.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+                ShuffleSongsButton.IsEnabled = !loading.Contains("songs") && !(pendingPlaySelection == selectionGeneration && pendingPlayTab == "songs");
+            }
+        }
         private async void OnTabChanged(object sender, SelectionChangedEventArgs e) { selectionGeneration++; if (!active) return; UpdateBusy(); StatusText.Text = loaded.Contains(Tab) && Items(Tab).Count == 0 ? PhoneText.Get("LibraryEmpty") : string.Empty; await Load(Tab, false); }
         private async void OnMoreClick(object sender, RoutedEventArgs e) { await Load(Tab, true); }
         private async void OnRefreshClick(object sender, RoutedEventArgs e) { await Initialize(); }
@@ -149,5 +250,7 @@ namespace Mixdrome.Phone.Views
         public string Subtitle { get; set; }
         public string CoverArt { get; set; }
         public SongDisplayItem Song { get; set; }
+        public string PlayLabel { get { return PhoneText.Format("PlayLibraryItem", Name); } }
+        public string OpenLabel { get { return PhoneText.Format("OpenLibraryItem", Name); } }
     }
 }

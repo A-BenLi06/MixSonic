@@ -172,10 +172,25 @@ public static class PhoneListeningTests
             }));
             return new Windows.Foundation.Collections.ValueSet { { BackgroundAudioMessages.QueueFile, name }, { BackgroundAudioMessages.CurrentIndex, 0 } };
         };
+        var shuffleTransfer = await Transfer("shuffle");
+        shuffleTransfer[BackgroundAudioMessages.CurrentIndex] = 1;
+        shuffleTransfer[BackgroundAudioMessages.Shuffle] = true;
+        await (Task)Call(task, "ExecuteAsync", (Func<Task>)(() => (Task)Call(task, "ReplaceQueueAsync", shuffleTransfer)));
+        var queue = (AudioQueueState)typeof(AudioTask).GetField("queue", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(task);
+        Check(queue.Shuffle && queue.CurrentIndex == 1 && player.LastUri.AbsolutePath.EndsWith("shuffle/second"),
+            "Queue replacement applies shuffle and its selected first track before assigning the native media source.");
+        var invalidShuffle = await Transfer("invalid-shuffle");
+        invalidShuffle[BackgroundAudioMessages.Shuffle] = "true";
+        var previousChanges = player.SourceChanges;
+        await (Task)Call(task, "ExecuteAsync", (Func<Task>)(() => (Task)Call(task, "ReplaceQueueAsync", invalidShuffle)));
+        Check(queue.Shuffle && queue.Tracks[0].Id == "shuffle-first" && player.SourceChanges == previousChanges,
+            "An invalid shuffle mode cannot replace the live queue or assign a new media source.");
         var initial = await Transfer("old");
         await (Task)Call(task, "ExecuteAsync", (Func<Task>)(() => (Task)Call(task, "ReplaceQueueAsync", initial)));
+        Check(queue.Shuffle, "Queue replacement without an explicit shuffle request preserves the current mode.");
         player.Play();
         var replacement = await Transfer("new");
+        replacement[BackgroundAudioMessages.Shuffle] = false;
         var delayedName = (string)replacement[BackgroundAudioMessages.QueueFile];
         var body = File.ReadAllText(Path.Combine(ApplicationData.Current.LocalFolder.Path, delayedName));
         var gate = new TaskCompletionSource<string>();
@@ -186,6 +201,7 @@ public static class PhoneListeningTests
         player.End(); player.Fail(); gate.SetResult(body); await replacing;
         await (Task)Call(task, "ExecuteAsync", (Func<Task>)(() => Task.FromResult(true)));
         Check(player.LastUri.AbsolutePath.EndsWith("new/first"), "A stale ended callback queued behind replacement cannot skip the new first track.");
+        Check(!queue.Shuffle, "An explicit false shuffle mode is applied atomically with the replacement queue.");
         Check(Windows.Media.Playback.BackgroundMediaPlayer.Failures == failures, "A stale failed callback cannot mark a replacement source as failed.");
 
         replacement = await Transfer("canceled"); delayedName = (string)replacement[BackgroundAudioMessages.QueueFile];

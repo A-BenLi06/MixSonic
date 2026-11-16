@@ -214,4 +214,7 @@
 <data name="Settings_Title.Text" xml:space="preserve"><value>settings</value></data>
 <data name="Settings_Username.PlaceholderText" xml:space="preserve"><value>username</value></data>
 <data name="Settings_UsernameLabel.Text" xml:space="preserve"><value>username</value></data>
+<data name="Phone_Text_PlayLibraryItem" xml:space="preserve"><value>Play {0}</value></data>
+<data name="Phone_Text_OpenLibraryItem" xml:space="preserve"><value>Open {0}</value></data>
+<data name="PhoneUi_Text_ShuffleAll.Text" xml:space="preserve"><value>shuffle all</value></data>
 </root>

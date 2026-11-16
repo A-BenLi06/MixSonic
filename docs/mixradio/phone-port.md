@@ -193,6 +193,44 @@ An ARM/x86 phone build additionally checks WinRT metadata, native XAML
 compilation and packaging. Neither a desktop build nor a cloud CLR regression
 certifies that the phone renders or that background playback survives suspension.
 
+### Emulator display and input
+
+When desktop window capture times out, the installed Windows Phone 8.1 SDK can
+capture the guest framebuffer directly. These tools use `IXdeAutomation`; they
+do not invoke application navigation handlers or XAML automation peers.
+
+```powershell
+./tools/phone/capture.ps1 -OutputPath "$PWD/.tmp/phone-home.png"
+./tools/phone/emulator-input.ps1 -Action Tap -X 100 -Y 250 `
+  -ScreenshotPath .tmp/phone-home.png
+```
+
+Create the capture directory first and choose a new PNG path for every frame.
+Coordinates are guest-display pixels, checked against the supplied PNG. Inspect
+each result before choosing the next input; a PNG's dimensions alone cannot
+establish that it is current or belongs to the selected VM. If multiple XDE
+instances are running, supply the same explicit `-VirtualMachineName` to both
+tools. Run them serially because each tool compiles its SDK adapter to a shared
+ignored output directory. Convert captures to WebP before presenting them.
+
+`Swipe` accepts start/end coordinates and a duration; `SkinButton -SkinButton
+Back` exercises the guest's hardware Back. `Key` sends a guest key/chord and
+`Text -TextFile <private-utf8-file>` keeps input text out of process arguments.
+Use disposable test credentials and a private fixture for account/playback
+acceptance. The scripts never log text, passwords, or authenticated request URLs.
+An SDK timeout leaves the input result unknown; capture and inspect the guest
+before recovery or retry. Killing a timed-out adapter cannot guarantee that the
+guest received its final key/contact release.
+
+The home composition keeps the recovered tile proportions while resizing tile
+geometry to the Hub viewport. Text remains native-sized. Empty recent slots
+use the original translucent accent placeholder; populated artwork has no
+title strip, and a missing cover falls back to the album name. The library
+separates artist/genre/album play buttons from title navigation. Songs remain
+whole-row actions, and Shuffle all resolves all song pages before atomically
+replacing the background queue with shuffle enabled. A failed or superseded
+request never starts a partial queue.
+
 Before claiming visual/runtime parity, record actual device/emulator evidence:
 
 1. Launch and connect using a configured Navidrome account; observe loading,
@@ -210,9 +248,13 @@ Before claiming visual/runtime parity, record actual device/emulator evidence:
 
 Before the branding integration, the complete phone application built for x86
 with the installed legacy SDK and was installed/launched using `AppDeployCmd /installlaunch` on the Windows
-Phone 8.1 ZH-HANS emulator. Attempts to capture the runtime first timed out on
-`FrameArrived`, then on window capture. Installation/launch does not establish
-what rendered or how input and audio behaved. Matching original/client runtime
-captures, native input checks and background-audio acceptance have **not been
-observed**. Final build/static/test outcomes belong in `walkthrough.md` and its
-PR, with the remaining device checks identified explicitly.
+Phone 8.1 ZH-HANS emulator. Desktop capture timed out on `FrameArrived` and
+window capture. The subsequent SDK guest-display channel produced actual
+480 × 800 runtime frames on 2026-11-16. Home geometry and empty recent slots,
+settings input, native scrolling and hardware Back closing the keyboard have
+been inspected; unfocused input contrast was repaired and recaptured. Evidence
+is retained under ignored `.tmp/ui-acceptance/2026-11-16/phone-refinement`.
+This is a client rendering/input check against recovered source geometry;
+matching original/client runtime frames, real-user server integration and
+lock-screen/background-audio acceptance remain separate gates. Final outcomes
+and any failed attempts belong in `walkthrough.md` and the PR.
