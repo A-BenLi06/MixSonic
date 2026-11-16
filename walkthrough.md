@@ -526,3 +526,9 @@
 - 验证：七组生产源码 CLR 回归全部通过（序列化 33 模型类型；协议/模型 196、音频 54、连接 19、jukebox 28、首页 76、播放 521 项断言）；Python 验收工具 23、质量工具 23、发布资产 14 项自测通过；资源审计通过（291 个桌面字符串查找、469 个资源引用），全部项目 XML 可解析，git diff --check 通过。
 - 使用本机 MSBuild 14 与真实 Windows 8.1 / Phone 8.1 SDK 完成最终 Debug AnyCPU XAML/AppX 构建。修正原 Client.App / Shell 无效入口，桌面音频与搜索扩展显式指向 Mixdrome.App；原生打包要求比可选 XSD 属性更严格，未通过省略入口规避。PRI 检查发现 ApplicationName 与 AppName.Text 必须分离，已正确修复资源键的 scope 冲突。最终无 APPX1621 品牌比例匹配告警。
 - 逐个打开两端实际 AppX 内的 33 个品牌 PNG，核对尺寸、完整性、Name / Publisher / Executable / EntryPoint。已查看压缩 WebP 预览。桌面新开发包注册与启动成功，Mixdrome.exe 进程响应正常，日志确认 Mixdrome.Main.MainView 导航及 Shell 初始化完成；手机完成原生构建但未在真机或模拟器运行，未宣称手机启动、交互或后台音频验收。构建、包检查和预览证据位于独立工作树的忽略目录 .tmp/branding。
+
+
+## 2026-11-16 18:05:29 +08:00
+
+- GitHub 仓库已由 A-BenLi06/SubSonic8 改名为 A-BenLi06/Mixdrome，并更新共享 Git remote 与仓库说明；旧链接由 GitHub 重定向，许可证和提交历史保留。读取确认新仓库名称与 main 默认分支；后续品牌 PR 使用新仓库地址，必需 CI 和保护规则沿用。
+- 验证：已提交源码上的完整 tools/ci/check.py 通过，包括锁定 Navidrome f5b6805 的 38 功能、91 条路由注册审计；本次额外修改仅为仓库元数据与验证记录。
