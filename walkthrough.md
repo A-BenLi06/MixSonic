@@ -509,3 +509,9 @@
 - GitHub 云端 CI 已真实全部成功：PR 运行 https://github.com/A-BenLi06/SubSonic8/actions/runs/43631944835 的 Desktop regressions、Source and tool checks、CI required 均通过，同一提交的 push 检查也通过。hosted Windows 的完整合成 AppX 签名、篡改拒绝、临时机器信任清理和测试私钥清理均通过；Linux 的资源、14 项发布自测、两组工具自测及 38 功能来源审计通过。
 - 已应用并读取确认 GitHub 配置：main 为默认且受保护的分支；main stability 规则集 27276002 要求 PR、线性历史、最新基线、讨论解决及 GitHub Actions 的 CI required（应用 ID 15368），无管理员直接推送绕过；immutable release tags 规则集 27276004 禁止 v* 标签更新和删除；github-releases 环境仅允许 main。仓库启用 squash/rebase、自动删除合并分支，禁止 merge commit。
 - PR #1 的实际保护状态为 CLEAN，所需 CI 全部成功。本条配置与验证记录将作为独立提交经相同检查合入 main。正式发布证书指纹仍由维护者选择后配置；本次不创建或公开任何 Release。
+
+## 2026-11-16 13:33:31 +08:00
+
+- 按用户要求，在项目现有代理说明文件 AGENTS.md 中补充：向用户发送图片前，先压缩为 WebP 格式，再发送压缩后的图片。
+- 思路：沿用已有 AGENTS.md 作为统一开发约定入口，明确该规则适用于代理发送图片的流程。
+- 验证：核对新增条款与用户要求一致，git diff --check 通过；本次仅修改文档，无需产品运行验证。云端必需检查由本次 PR 执行。
