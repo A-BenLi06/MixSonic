@@ -21,6 +21,8 @@ namespace Mixdrome.Phone.Views
         private ISubsonicService _subsonicService;
         private string _albumId;
         private Album _album;
+        private int _generation;
+        private bool _active;
 
         // Control references
         private ProgressRing _loadingIndicator;
@@ -55,12 +57,15 @@ namespace Mixdrome.Phone.Views
             HardwareButtons.BackPressed += OnHardwareBackPressed;
 
             _albumId = e.Parameter as string;
-            await InitializeService();
-            await LoadAlbum();
+            _active = true;
+            var version = ++_generation;
+            try { await InitializeService(); if (_active && version == _generation) await LoadAlbum(); }
+            catch (Exception ex) { if (_active && version == _generation) AlbumStatusText.Text = Mixdrome.Phone.Common.PhoneText.Format("LoadFailed", ex.Message); }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            _active = false; _generation++;
             base.OnNavigatedFrom(e);
             HardwareButtons.BackPressed -= OnHardwareBackPressed;
         }
@@ -76,110 +81,12 @@ namespace Mixdrome.Phone.Views
 
         private async Task InitializeService()
         {
-            var configuration = await LoadConfiguration();
-            _subsonicService = new SubsonicService();
-            _subsonicService.Configuration = configuration;
-        }
-
-        private async Task<SubsonicServiceConfiguration> LoadConfiguration()
-        {
-            var config = new SubsonicServiceConfiguration();
-
-            try
-            {
-                var settings = ApplicationData.Current.LocalSettings;
-                
-                // Load credentials
-                config.Username = settings.Values.ContainsKey("Username") 
-                    ? settings.Values["Username"] as string : string.Empty;
-                config.Password = settings.Values.ContainsKey("Password") 
-                    ? settings.Values["Password"] as string : string.Empty;
-                config.CompatibleMode = settings.Values.ContainsKey("CompatibleMode") 
-                    && (bool)settings.Values["CompatibleMode"];
-
-                // Load dual URLs
-                var primaryUrl = settings.Values.ContainsKey("PrimaryUrl") 
-                    ? settings.Values["PrimaryUrl"] as string : string.Empty;
-                var secondaryUrl = settings.Values.ContainsKey("SecondaryUrl") 
-                    ? settings.Values["SecondaryUrl"] as string : string.Empty;
-                
-                // Backwards compatibility: migrate old BaseUrl
-                if (string.IsNullOrEmpty(primaryUrl) && settings.Values.ContainsKey("BaseUrl"))
-                {
-                    primaryUrl = settings.Values["BaseUrl"] as string;
-                }
-
-                config.PrimaryUrl = primaryUrl;
-                config.SecondaryUrl = secondaryUrl;
-
-                // Perform route selection to find working URL
-                if (!string.IsNullOrEmpty(primaryUrl) || !string.IsNullOrEmpty(secondaryUrl))
-                {
-                    var networkService = new NetworkDetectionService();
-                    var routeService = new RouteSelectionService(networkService);
-
-                    var result = await routeService.SelectBestRouteAsync(
-                        primaryUrl,
-                        secondaryUrl,
-                        config.Username,
-                        config.Password);
-
-                    if (result.Success)
-                    {
-                        config.BaseUrl = result.SelectedUrl;
-                    }
-                    else
-                    {
-                        // Fallback: prefer SecondaryUrl (external/DDNS) over PrimaryUrl (internal)
-                        config.BaseUrl = !string.IsNullOrEmpty(secondaryUrl) ? secondaryUrl : primaryUrl;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log error for debugging
-                System.Diagnostics.Debug.WriteLine("LoadConfiguration error: " + ex.Message);
-                
-                // Ensure BaseUrl is set even if route selection fails
-                try
-                {
-                    var settings = ApplicationData.Current.LocalSettings;
-                    var primaryUrl = settings.Values.ContainsKey("PrimaryUrl") 
-                        ? settings.Values["PrimaryUrl"] as string : string.Empty;
-                    var secondaryUrl = settings.Values.ContainsKey("SecondaryUrl") 
-                        ? settings.Values["SecondaryUrl"] as string : string.Empty;
-                    
-                    // Backwards compatibility
-                    if (string.IsNullOrEmpty(primaryUrl) && settings.Values.ContainsKey("BaseUrl"))
-                    {
-                        primaryUrl = settings.Values["BaseUrl"] as string;
-                    }
-                    
-                    // Prefer SecondaryUrl (DDNS) for external network fallback
-                    config.BaseUrl = !string.IsNullOrEmpty(secondaryUrl) ? secondaryUrl : primaryUrl;
-                    config.PrimaryUrl = primaryUrl;
-                    config.SecondaryUrl = secondaryUrl;
-                    
-                    // Load credentials if not already loaded
-                    if (string.IsNullOrEmpty(config.Username))
-                    {
-                        config.Username = settings.Values.ContainsKey("Username") 
-                            ? settings.Values["Username"] as string : string.Empty;
-                        config.Password = settings.Values.ContainsKey("Password") 
-                            ? settings.Values["Password"] as string : string.Empty;
-                    }
-                }
-                catch
-                {
-                    // Last resort fallback - use defaults
-                }
-            }
-
-            return config;
+            _subsonicService = await Mixdrome.Phone.Services.PhoneSubsonicServiceFactory.CreateAsync();
         }
 
         private async Task LoadAlbum()
         {
+            var version = _generation;
             if (string.IsNullOrEmpty(_albumId))
             {
                 return;
@@ -191,12 +98,14 @@ namespace Mixdrome.Phone.Views
             {
                 var result = _subsonicService.GetAlbum(_albumId);
                 await result.Execute();
+                if (!_active || version != _generation) return;
+                if (result.Error != null) throw result.Error;
 
                 if (result.Error == null && result.Result != null)
                 {
                     _album = result.Result;
-                    if (_albumNameText != null) _albumNameText.Text = _album.Name ?? "Unknown Album";
-                    if (_artistNameText != null) _artistNameText.Text = _album.Artist ?? "Unknown Artist";
+                    if (_albumNameText != null) _albumNameText.Text = _album.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownAlbum");
+                    if (_artistNameText != null) _artistNameText.Text = _album.Artist ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownArtist");
                     var coverArt = _subsonicService.GetCoverArtForId(_album.CoverArt, ImageType.Original);
                     SetImageSource(_albumArtImage, coverArt);
                     SetImageSource(_albumBackgroundImage, coverArt);
@@ -211,8 +120,9 @@ namespace Mixdrome.Phone.Views
                             {
                                 Id = song.Id,
                                 Track = trackNum++,
-                                Title = song.Title ?? song.Name ?? "Unknown",
-                                Artist = song.Artist ?? "Unknown Artist",
+                                Title = song.Title ?? song.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownTrack"),
+                                Artist = song.Artist ?? _album.Artist,
+                                Album = song.Album ?? _album.Name,
                                 Duration = song.Duration,
                                 DurationString = FormatDuration(song.Duration),
                                 CoverArt = song.CoverArt ?? _album.CoverArt
@@ -220,16 +130,16 @@ namespace Mixdrome.Phone.Views
                         }
                     }
 
-                    if (_songCountText != null) _songCountText.Text = string.Format("{0} songs", Songs.Count);
+                    if (_songCountText != null) _songCountText.Text = string.Format(Mixdrome.Phone.Common.PhoneText.Get("SongCount"), Songs.Count);
                 }
             }
             catch (Exception ex)
             {
-                await new MessageDialog("Failed to load album: " + ex.Message).ShowAsync();
+                if (_active && version == _generation) AlbumStatusText.Text = Mixdrome.Phone.Common.PhoneText.Format("LoadFailed", ex.Message);
             }
             finally
             {
-                if (_loadingIndicator != null) _loadingIndicator.IsActive = false;
+                if (_active && version == _generation && _loadingIndicator != null) _loadingIndicator.IsActive = false;
             }
         }
 
@@ -240,10 +150,7 @@ namespace Mixdrome.Phone.Views
                 return;
             }
 
-            var uriKind = source.StartsWith("http", StringComparison.OrdinalIgnoreCase)
-                              ? UriKind.Absolute
-                              : UriKind.Relative;
-            image.Source = new BitmapImage(new Uri(source, uriKind));
+            image.Source = new BitmapImage(new Uri(source.StartsWith("/") ? "ms-appx://" + source : source));
         }
 
         private string FormatDuration(int seconds)
@@ -302,6 +209,7 @@ namespace Mixdrome.Phone.Views
         public int Track { get; set; }
         public string Title { get; set; }
         public string Artist { get; set; }
+        public string Album { get; set; }
         public int Duration { get; set; }
         public string DurationString { get; set; }
         public string CoverArt { get; set; }

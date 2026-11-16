@@ -9,12 +9,12 @@
 
     <Page.BottomAppBar>
         <CommandBar Background="{StaticResource MixRadioCommandBarBrush}" Foreground="White">
-            <AppBarButton Icon="Refresh" Label="refresh" Click="OnRefreshClick" />
+            <AppBarButton Icon="Refresh" x:Uid="PhoneUi_Label_Refresh" Click="OnRefreshClick" />
         </CommandBar>
     </Page.BottomAppBar>
 
     <Grid Background="Black">
-        <Image Source="/Assets/CoverArtPlaceholderLarge.jpg" Stretch="UniformToFill" Opacity="0.48" />
+        <Image Source="ms-appx:///Assets/MixRadio/DefaultArtist300.png" Stretch="UniformToFill" Opacity="0.48" />
         <Rectangle Fill="#66000000" />
         <Rectangle>
             <Rectangle.Fill>
@@ -31,23 +31,23 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Margin="12,10,12,22">
-                <TextBlock Style="{StaticResource MixRadioWordmarkTextStyle}"><Run x:Uid="BrandPrefix" FontWeight="Bold" /><Run x:Uid="BrandSuffix" FontWeight="Light" /></TextBlock>
+                <TextBlock x:Uid="PhoneUi_Text_MixRadio" Style="{StaticResource MixRadioWordmarkTextStyle}" />
                 <StackPanel Orientation="Horizontal" Margin="1,-4,0,14">
                     <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
                         <TextBlock Text="&#xE14C;"
                                    Style="{StaticResource MixRadioSectionIconTextStyle}" />
                     </Border>
-                    <TextBlock Text="remote playlists"
+                    <TextBlock x:Uid="PhoneUi_Text_RemotePlaylists"
                                Style="{StaticResource BodyTextStyle}"
                                Foreground="White"
                                Margin="7,-1,0,0" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="play"
+                    <TextBlock x:Uid="PhoneUi_Text_Play"
                                FontSize="42"
                                FontWeight="Light"
                                Foreground="White" />
-                    <TextBlock Text="lists"
+                    <TextBlock x:Uid="PhoneUi_Text_Lists"
                                FontSize="42"
                                FontWeight="Light"
                                Foreground="#99FFFFFF" />
@@ -117,7 +117,7 @@
 
                 <ProgressRing x:Name="LoadingIndicator" IsActive="False" Width="60" Height="60" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <TextBlock x:Name="EmptyStateText"
-                           Text="No remote playlists yet."
+                           x:Uid="PhoneUi_Text_NoRemotePlaylistsYet"
                            FontSize="30"
                            FontWeight="Light"
                            Foreground="White"

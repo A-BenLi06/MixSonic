@@ -15,6 +15,7 @@ namespace Mixdrome.Phone.Views
 
     public sealed partial class NowPlayingPage : Page
     {
+        private bool _pageActive;
         private WP8SubsonicService _subsonicService;
         private ProgressRing _loadingIndicator;
         private TextBlock _emptyStateText;
@@ -37,19 +38,34 @@ namespace Mixdrome.Phone.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            _pageActive = true;
             HardwareButtons.BackPressed += OnHardwareBackPressed;
-            _subsonicService = await PhoneSubsonicServiceFactory.CreatePlaybackServiceAsync();
-            await LoadNowPlaying();
+            try
+            {
+                _subsonicService = await PhoneSubsonicServiceFactory.CreatePlaybackServiceAsync();
+                if (!_pageActive) return;
+                await LoadNowPlaying();
+            }
+            catch (Exception exception)
+            {
+                if (_pageActive && _emptyStateText != null)
+                {
+                    _emptyStateText.Text = exception.Message;
+                    _emptyStateText.Visibility = Visibility.Visible;
+                }
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+            _pageActive = false;
             HardwareButtons.BackPressed -= OnHardwareBackPressed;
         }
 
         private void OnHardwareBackPressed(object sender, BackPressedEventArgs e)
         {
+            if (e.Handled) return;
             if (Frame.CanGoBack)
             {
                 e.Handled = true;
@@ -65,6 +81,7 @@ namespace Mixdrome.Phone.Views
             try
             {
                 var nowPlaying = await _subsonicService.GetNowPlayingAsync();
+                if (!_pageActive) return;
                 Entries.Clear();
 
                 foreach (var entry in nowPlaying)
@@ -81,8 +98,8 @@ namespace Mixdrome.Phone.Views
                 if (_entryCountText != null)
                 {
                     _entryCountText.Text = Entries.Count == 1
-                                              ? "1 active listener"
-                                              : string.Format("{0} active listeners", Entries.Count);
+                                              ? Mixdrome.Phone.Common.PhoneText.Get("Ui1ActiveListener")
+                                              : string.Format(Mixdrome.Phone.Common.PhoneText.Get("Ui0ActiveListeners"), Entries.Count);
                 }
 
                 if (_emptyStateText != null)
@@ -92,13 +109,14 @@ namespace Mixdrome.Phone.Views
             }
             catch (Exception ex)
             {
+                if (!_pageActive) return;
                 if (_emptyStateText != null)
                 {
-                    _emptyStateText.Text = "Failed to load now playing.";
+                    _emptyStateText.Text = Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadNowPlaying");
                     _emptyStateText.Visibility = Visibility.Visible;
                 }
 
-                await new MessageDialog("Failed to load now playing: " + ex.Message).ShowAsync();
+                await new MessageDialog(Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadNowPlaying") + ex.Message).ShowAsync();
             }
             finally
             {
@@ -116,8 +134,8 @@ namespace Mixdrome.Phone.Views
             return new NowPlayingDisplayItem
             {
                 Id = song.Id,
-                Title = song.Title ?? song.Name ?? "Unknown",
-                Artist = song.Artist ?? "Unknown artist",
+                Title = song.Title ?? song.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownTrack"),
+                Artist = song.Artist ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownArtist"),
                 Album = song.Album,
                 Duration = song.Duration,
                 DurationString = FormatDuration(song.Duration),
@@ -130,8 +148,8 @@ namespace Mixdrome.Phone.Views
         {
             var username = string.IsNullOrEmpty(entry.Username) ? "someone" : entry.Username;
             var player = string.IsNullOrEmpty(entry.PlayerName) ? "Navidrome" : entry.PlayerName;
-            var time = entry.MinutesAgo <= 0 ? "just now" : string.Format("{0} min ago", entry.MinutesAgo);
-            return string.Format("{0} on {1} - {2}", username, player, time);
+            var time = entry.MinutesAgo <= 0 ? Mixdrome.Phone.Common.PhoneText.Get("UiJustNow") : string.Format(Mixdrome.Phone.Common.PhoneText.Get("Ui0MinAgo"), entry.MinutesAgo);
+            return string.Format(Mixdrome.Phone.Common.PhoneText.Get("Ui0On12"), username, player, time);
         }
 
         private static string FormatDuration(int seconds)
@@ -160,7 +178,7 @@ namespace Mixdrome.Phone.Views
             var entry = e.ClickedItem as NowPlayingDisplayItem;
             if (entry == null || string.IsNullOrEmpty(entry.Id))
             {
-                await new MessageDialog("This now playing item cannot be played locally.").ShowAsync();
+                await new MessageDialog(Mixdrome.Phone.Common.PhoneText.Get("UiThisNowPlayingItemCannotBePlayedLocally")).ShowAsync();
                 return;
             }
 
@@ -174,8 +192,7 @@ namespace Mixdrome.Phone.Views
                         {
                             Id = entry.Id,
                             Title = entry.Title,
-                            Artist = entry.Artist,
-                            Duration = entry.Duration,
+                            Artist = entry.Artist, Album = entry.Album, Duration = entry.Duration,
                             DurationString = entry.DurationString,
                             CoverArt = entry.CoverArt
                         }

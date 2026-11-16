@@ -15,6 +15,7 @@ namespace Mixdrome.Phone.Views
 
     public sealed partial class PlaylistsPage : Page
     {
+        private bool _pageActive;
         private ISubsonicService _subsonicService;
         private ProgressRing _loadingIndicator;
         private TextBlock _emptyStateText;
@@ -33,19 +34,36 @@ namespace Mixdrome.Phone.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            _pageActive = true;
             HardwareButtons.BackPressed += OnHardwareBackPressed;
-            _subsonicService = await PhoneSubsonicServiceFactory.CreateAsync();
-            await LoadPlaylists();
+            try
+            {
+                _subsonicService = await PhoneSubsonicServiceFactory.CreateAsync();
+                if (!_subsonicService.HasValidSubsonicUrl)
+                    throw new InvalidOperationException(Mixdrome.Phone.Common.PhoneText.Get("ConfigureServer"));
+                if (!_pageActive) return;
+                await LoadPlaylists();
+            }
+            catch (Exception exception)
+            {
+                if (_pageActive && _emptyStateText != null)
+                {
+                    _emptyStateText.Text = exception.Message;
+                    _emptyStateText.Visibility = Visibility.Visible;
+                }
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+            _pageActive = false;
             HardwareButtons.BackPressed -= OnHardwareBackPressed;
         }
 
         private void OnHardwareBackPressed(object sender, BackPressedEventArgs e)
         {
+            if (e.Handled) return;
             if (Frame.CanGoBack)
             {
                 e.Handled = true;
@@ -62,17 +80,19 @@ namespace Mixdrome.Phone.Views
             {
                 var result = _subsonicService.GetAllPlaylists();
                 await result.Execute();
+                if (!_pageActive) return;
+                if (result.Error != null) throw result.Error;
 
                 Playlists.Clear();
-                if (result.Error == null && result.Result != null && result.Result.Playlists != null)
+                if (result.Result != null && result.Result.Playlists != null)
                 {
                     foreach (var playlist in result.Result.Playlists)
                     {
                         Playlists.Add(new PlaylistDisplayItem
                         {
                             Id = playlist.Id,
-                            Name = playlist.Name ?? "Untitled playlist",
-                            Subtitle = string.Format("{0} songs", playlist.SongCount)
+                            Name = playlist.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UiUntitledPlaylist"),
+                            Subtitle = string.Format(Mixdrome.Phone.Common.PhoneText.Get("SongCount"), playlist.SongCount)
                         });
                     }
                 }
@@ -81,13 +101,14 @@ namespace Mixdrome.Phone.Views
             }
             catch (Exception ex)
             {
+                if (!_pageActive) return;
                 if (_emptyStateText != null)
                 {
-                    _emptyStateText.Text = "Failed to load playlists.";
+                    _emptyStateText.Text = Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadPlaylists");
                     _emptyStateText.Visibility = Visibility.Visible;
                 }
 
-                await new MessageDialog("Failed to load playlists: " + ex.Message).ShowAsync();
+                await new MessageDialog(Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadPlaylists") + ex.Message).ShowAsync();
             }
             finally
             {
@@ -109,10 +130,12 @@ namespace Mixdrome.Phone.Views
             {
                 var result = _subsonicService.GetPlaylist(playlist.Id);
                 await result.Execute();
+                if (!_pageActive) return;
+                if (result.Error != null) throw result.Error;
 
-                if (result.Error != null || result.Result == null || result.Result.Entries == null || result.Result.Entries.Count == 0)
+                if (result.Result == null || result.Result.Entries == null || result.Result.Entries.Count == 0)
                 {
-                    await new MessageDialog("This playlist is empty.").ShowAsync();
+                    await new MessageDialog(Mixdrome.Phone.Common.PhoneText.Get("PlaylistEmpty")).ShowAsync();
                     return;
                 }
 
@@ -121,9 +144,8 @@ namespace Mixdrome.Phone.Views
                 {
                     Id = entry.Id,
                     Track = track++,
-                    Title = entry.Title ?? entry.Name ?? "Unknown",
-                    Artist = entry.Artist ?? "Unknown artist",
-                    Duration = entry.Duration,
+                    Title = entry.Title ?? entry.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownTrack"),
+                    Artist = entry.Artist ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownArtist"), Album = entry.Album, Duration = entry.Duration,
                     DurationString = FormatDuration(entry.Duration),
                     CoverArt = entry.CoverArt
                 }).ToList();
@@ -138,7 +160,8 @@ namespace Mixdrome.Phone.Views
             }
             catch (Exception ex)
             {
-                await new MessageDialog("Failed to load playlist: " + ex.Message).ShowAsync();
+                if (!_pageActive) return;
+                await new MessageDialog(Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadPlaylist") + ex.Message).ShowAsync();
             }
             finally
             {

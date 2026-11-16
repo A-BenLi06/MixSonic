@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+<data name="AppDescription" xml:space="preserve"><value>Navidrome music client</value></data>
+<data name="AppName" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="Phone_Text_AlbumCount" xml:space="preserve"><value>{0} albums</value></data>
+<data name="Phone_Text_ApiKeyHelp" xml:space="preserve"><value>Use an API key for this Navidrome account.</value></data>
+<data name="Phone_Text_AuthenticationApiKey" xml:space="preserve"><value>API key</value></data>
+<data name="Phone_Text_AuthenticationPassword" xml:space="preserve"><value>password</value></data>
+<data name="Phone_Text_ConfigureServer" xml:space="preserve"><value>Set up your Navidrome server in account settings.</value></data>
+<data name="Phone_Text_ConnectionFailed" xml:space="preserve"><value>Connection failed: {0}</value></data>
+<data name="Phone_Text_ConnectionSuccessful" xml:space="preserve"><value>Connected to {0}</value></data>
+<data name="Phone_Text_CredentialsRequired" xml:space="preserve"><value>Enter your username and password or API key.</value></data>
+<data name="Phone_Text_InvalidAuthentication" xml:space="preserve"><value>Choose an authentication method.</value></data>
+<data name="Phone_Text_InvalidBitRate" xml:space="preserve"><value>Enter a non-negative bitrate.</value></data>
+<data name="Phone_Text_InvalidServerAddress" xml:space="preserve"><value>Enter an HTTP or HTTPS address without credentials, a query or fragment.</value></data>
+<data name="Phone_Text_LibraryEmpty" xml:space="preserve"><value>No music in this category.</value></data>
+<data name="Phone_Text_LoadFailed" xml:space="preserve"><value>Could not load music: {0}</value></data>
+<data name="Phone_Text_NoRecentAlbums" xml:space="preserve"><value>Your recently played albums will appear here.</value></data>
+<data name="Phone_Text_NoSongs" xml:space="preserve"><value>No songs are available.</value></data>
+<data name="Phone_Text_OpenAlbum" xml:space="preserve"><value>Open {0} by {1}</value></data>
+<data name="Phone_Text_PasswordHelp" xml:space="preserve"><value>Use your server account password.</value></data>
+<data name="Phone_Text_Pause" xml:space="preserve"><value>pause</value></data>
+<data name="Phone_Text_Play" xml:space="preserve"><value>play</value></data>
+<data name="Phone_Text_PlaybackEmpty" xml:space="preserve"><value>Nothing is playing</value></data>
+<data name="Phone_Text_PlaybackFailed" xml:space="preserve"><value>This track could not be played.</value></data>
+<data name="Phone_Text_PlaybackLoading" xml:space="preserve"><value>loading…</value></data>
+<data name="Phone_Text_PlaybackUnavailable" xml:space="preserve"><value>The audio player could not start. Try again.</value></data>
+<data name="Phone_Text_PlaylistEmpty" xml:space="preserve"><value>This playlist is empty.</value></data>
+<data name="Phone_Text_RepeatAll" xml:space="preserve"><value>repeat all</value></data>
+<data name="Phone_Text_RepeatOff" xml:space="preserve"><value>repeat off</value></data>
+<data name="Phone_Text_RepeatOne" xml:space="preserve"><value>repeat one</value></data>
+<data name="Phone_Text_ServerAddressRequired" xml:space="preserve"><value>Enter at least one server address.</value></data>
+<data name="Phone_Text_SettingsSaved" xml:space="preserve"><value>Settings saved.</value></data>
+<data name="Phone_Text_SettingsSavedUnreachable" xml:space="preserve"><value>Settings saved. Server is currently unreachable: {0}</value></data>
+<data name="Phone_Text_SongCount" xml:space="preserve"><value>{0} songs</value></data>
+<data name="Phone_Text_TestingConnection" xml:space="preserve"><value>Testing connection…</value></data>
+<data name="Phone_Text_Ui0ActiveListeners" xml:space="preserve"><value>{0} active listeners</value></data>
+<data name="Phone_Text_Ui0Albums" xml:space="preserve"><value>0 albums</value></data>
+<data name="Phone_Text_Ui0MinAgo" xml:space="preserve"><value>{0} min ago</value></data>
+<data name="Phone_Text_Ui0On12" xml:space="preserve"><value>{0} on {1} - {2}</value></data>
+<data name="Phone_Text_Ui0Songs" xml:space="preserve"><value>0 songs</value></data>
+<data name="Phone_Text_Ui0Songs1Albums" xml:space="preserve"><value>{0} songs  {1} albums</value></data>
+<data name="Phone_Text_Ui1ActiveListener" xml:space="preserve"><value>1 active listener</value></data>
+<data name="Phone_Text_UiAbout" xml:space="preserve"><value>about</value></data>
+<data name="Phone_Text_UiAccount" xml:space="preserve"><value>account</value></data>
+<data name="Phone_Text_UiActivity" xml:space="preserve"><value>activity</value></data>
+<data name="Phone_Text_UiAlbum" xml:space="preserve"><value>album</value></data>
+<data name="Phone_Text_UiAlbums" xml:space="preserve"><value>albums</value></data>
+<data name="Phone_Text_UiArtist" xml:space="preserve"><value>artist</value></data>
+<data name="Phone_Text_UiArtists" xml:space="preserve"><value>artists</value></data>
+<data name="Phone_Text_UiAuthentication" xml:space="preserve"><value>authentication</value></data>
+<data name="Phone_Text_UiClear" xml:space="preserve"><value>clear</value></data>
+<data name="Phone_Text_UiCompatiblePlayback" xml:space="preserve"><value>compatible playback</value></data>
+<data name="Phone_Text_UiFailedToLoadAlbums" xml:space="preserve"><value>Failed to load albums.</value></data>
+<data name="Phone_Text_UiFailedToLoadArtist" xml:space="preserve"><value>Failed to load artist: </value></data>
+<data name="Phone_Text_UiFailedToLoadArtists" xml:space="preserve"><value>Failed to load artists: </value></data>
+<data name="Phone_Text_UiFailedToLoadFavourites" xml:space="preserve"><value>Failed to load favourites: </value></data>
+<data name="Phone_Text_UiFailedToLoadGenre" xml:space="preserve"><value>Failed to load genre: </value></data>
+<data name="Phone_Text_UiFailedToLoadGenres" xml:space="preserve"><value>Failed to load genres: </value></data>
+<data name="Phone_Text_UiFailedToLoadNowPlaying" xml:space="preserve"><value>Failed to load now playing: </value></data>
+<data name="Phone_Text_UiFailedToLoadPlaylist" xml:space="preserve"><value>Failed to load playlist: </value></data>
+<data name="Phone_Text_UiFailedToLoadPlaylists" xml:space="preserve"><value>Failed to load playlists: </value></data>
+<data name="Phone_Text_UiFailedToLoadRadioStations" xml:space="preserve"><value>Failed to load radio stations: </value></data>
+<data name="Phone_Text_UiFailedToLoadSongs" xml:space="preserve"><value>Failed to load songs.</value></data>
+<data name="Phone_Text_UiFavourites" xml:space="preserve"><value>favourites</value></data>
+<data name="Phone_Text_UiFindArtistsAlbumsOrSongs" xml:space="preserve"><value>Find artists, albums or songs</value></data>
+<data name="Phone_Text_UiGenre" xml:space="preserve"><value>genre</value></data>
+<data name="Phone_Text_UiGenres" xml:space="preserve"><value>genres</value></data>
+<data name="Phone_Text_UiInternetRadio" xml:space="preserve"><value>internet radio</value></data>
+<data name="Phone_Text_UiJustNow" xml:space="preserve"><value>just now</value></data>
+<data name="Phone_Text_UiLeaveBlankForTheServerDefaultOrEnterAFormatSupportedByYourServer" xml:space="preserve"><value>Leave blank for the server default, or enter a format supported by your server.</value></data>
+<data name="Phone_Text_UiMaximumBitrateKbps" xml:space="preserve"><value>maximum bitrate (kbps)</value></data>
+<data name="Phone_Text_UiMixDrome" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="Phone_Text_UiMixes" xml:space="preserve"><value>mixes</value></data>
+<data name="Phone_Text_UiMixRadio" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="Phone_Text_UiMore" xml:space="preserve"><value>more</value></data>
+<data name="Phone_Text_UiMyMusic" xml:space="preserve"><value>my music</value></data>
+<data name="Phone_Text_UiNext" xml:space="preserve"><value>next</value></data>
+<data name="Phone_Text_UiNoAlbumsFoundForThisArtist" xml:space="preserve"><value>No albums found for this artist.</value></data>
+<data name="Phone_Text_UiNoArtistsFound" xml:space="preserve"><value>No artists found.</value></data>
+<data name="Phone_Text_UiNoFavouritesFound" xml:space="preserve"><value>No favourites found.</value></data>
+<data name="Phone_Text_UiNoGenresFound" xml:space="preserve"><value>No genres found.</value></data>
+<data name="Phone_Text_UiNoOneIsPlayingMusicRightNow" xml:space="preserve"><value>No one is playing music right now.</value></data>
+<data name="Phone_Text_UiNoPlaylistsFound" xml:space="preserve"><value>No playlists found.</value></data>
+<data name="Phone_Text_UiNoRadioStationsFound" xml:space="preserve"><value>No radio stations found.</value></data>
+<data name="Phone_Text_UiNoResultsFound" xml:space="preserve"><value>No results found.</value></data>
+<data name="Phone_Text_UiNoSongsFoundForThisGenre" xml:space="preserve"><value>No songs found for this genre.</value></data>
+<data name="Phone_Text_UiNowPlaying" xml:space="preserve"><value>now playing</value></data>
+<data name="Phone_Text_UiOff" xml:space="preserve"><value>off</value></data>
+<data name="Phone_Text_UiOn" xml:space="preserve"><value>on</value></data>
+<data name="Phone_Text_UiPassword" xml:space="preserve"><value>password</value></data>
+<data name="Phone_Text_UiPlayAll" xml:space="preserve"><value>play all</value></data>
+<data name="Phone_Text_UiPlayback" xml:space="preserve"><value>playback</value></data>
+<data name="Phone_Text_UiPlayMe" xml:space="preserve"><value>play me</value></data>
+<data name="Phone_Text_UiPrevious" xml:space="preserve"><value>previous</value></data>
+<data name="Phone_Text_UiPrimaryAddress" xml:space="preserve"><value>primary address</value></data>
+<data name="Phone_Text_UiQueue" xml:space="preserve"><value>queue</value></data>
+<data name="Phone_Text_UiRadio" xml:space="preserve"><value>radio</value></data>
+<data name="Phone_Text_UiRecentlyPlayed" xml:space="preserve"><value>recently played</value></data>
+<data name="Phone_Text_UiRefresh" xml:space="preserve"><value>refresh</value></data>
+<data name="Phone_Text_UiRepeat" xml:space="preserve"><value>repeat</value></data>
+<data name="Phone_Text_UiRequestMP3AudioForOlderDevicesAZeroBitrateUsesTheCompatibilityDefault" xml:space="preserve"><value>Request MP3 audio for older devices. A zero bitrate uses the compatibility default.</value></data>
+<data name="Phone_Text_UiSave" xml:space="preserve"><value>save</value></data>
+<data name="Phone_Text_UiSearch" xml:space="preserve"><value>search</value></data>
+<data name="Phone_Text_UiSearchFailed" xml:space="preserve"><value>Search failed: </value></data>
+<data name="Phone_Text_UiSecondaryAddress" xml:space="preserve"><value>secondary address</value></data>
+<data name="Phone_Text_UiSeek" xml:space="preserve"><value>seek</value></data>
+<data name="Phone_Text_UiServer" xml:space="preserve"><value>server</value></data>
+<data name="Phone_Text_UiServerDefault" xml:space="preserve"><value>server default</value></data>
+<data name="Phone_Text_UiSettings" xml:space="preserve"><value>settings</value></data>
+<data name="Phone_Text_UiSetUpYourNavidromeServerInSettingsFirst" xml:space="preserve"><value>Set up your Navidrome server in settings first.</value></data>
+<data name="Phone_Text_UiShuffle" xml:space="preserve"><value>shuffle</value></data>
+<data name="Phone_Text_UiSong" xml:space="preserve"><value>song</value></data>
+<data name="Phone_Text_UiSongs" xml:space="preserve"><value>songs</value></data>
+<data name="Phone_Text_UiStreamFormat" xml:space="preserve"><value>stream format</value></data>
+<data name="Phone_Text_UiTest" xml:space="preserve"><value>test</value></data>
+<data name="Phone_Text_UiThisNowPlayingItemCannotBePlayedLocally" xml:space="preserve"><value>This now playing item cannot be played locally.</value></data>
+<data name="Phone_Text_UiThisStationDoesNotHaveAStreamURL" xml:space="preserve"><value>This station does not have a stream URL.</value></data>
+<data name="Phone_Text_UiTypeSomethingToSearchYourMusic" xml:space="preserve"><value>Type something to search your music.</value></data>
+<data name="Phone_Text_UiUntitledPlaylist" xml:space="preserve"><value>Untitled playlist</value></data>
+<data name="Phone_Text_UiUntitledStation" xml:space="preserve"><value>Untitled station</value></data>
+<data name="Phone_Text_UiUsername" xml:space="preserve"><value>username</value></data>
+<data name="Phone_Text_UnknownAlbum" xml:space="preserve"><value>Unknown album</value></data>
+<data name="Phone_Text_UnknownArtist" xml:space="preserve"><value>Unknown artist</value></data>
+<data name="Phone_Text_UnknownTrack" xml:space="preserve"><value>Unknown track</value></data>
+<data name="PhoneUi_Header_Albums.Header" xml:space="preserve"><value>albums</value></data>
+<data name="PhoneUi_Header_Artists.Header" xml:space="preserve"><value>artists</value></data>
+<data name="PhoneUi_Header_Genres.Header" xml:space="preserve"><value>genres</value></data>
+<data name="PhoneUi_Header_Playlists.Header" xml:space="preserve"><value>playlists</value></data>
+<data name="PhoneUi_Header_Songs.Header" xml:space="preserve"><value>songs</value></data>
+<data name="PhoneUi_Label_Account.Label" xml:space="preserve"><value>account</value></data>
+<data name="PhoneUi_Label_Clear.Label" xml:space="preserve"><value>clear</value></data>
+<data name="PhoneUi_Label_More.Label" xml:space="preserve"><value>more</value></data>
+<data name="PhoneUi_Label_PlayAll.Label" xml:space="preserve"><value>play all</value></data>
+<data name="PhoneUi_Label_Refresh.Label" xml:space="preserve"><value>refresh</value></data>
+<data name="PhoneUi_Label_Search.Label" xml:space="preserve"><value>search</value></data>
+<data name="PhoneUi_Label_Shuffle.Label" xml:space="preserve"><value>shuffle</value></data>
+<data name="PhoneUi_PlaceholderText_FindArtistsAlbumsOrSongs.PlaceholderText" xml:space="preserve"><value>Find artists, albums or songs</value></data>
+<data name="PhoneUi_Text_000.Text" xml:space="preserve"><value>0:00</value></data>
+<data name="PhoneUi_Text_1.Text" xml:space="preserve"><value>1</value></data>
+<data name="PhoneUi_Text_Activity.Text" xml:space="preserve"><value>activity</value></data>
+<data name="PhoneUi_Text_Albums.Text" xml:space="preserve"><value>albums</value></data>
+<data name="PhoneUi_Text_Artist.Text" xml:space="preserve"><value>artist</value></data>
+<data name="PhoneUi_Text_Artists.Text" xml:space="preserve"><value>artists</value></data>
+<data name="PhoneUi_Text_Categories.Text" xml:space="preserve"><value> categories</value></data>
+<data name="PhoneUi_Text_Favour.Text" xml:space="preserve"><value>favour</value></data>
+<data name="PhoneUi_Text_Favourites.Text" xml:space="preserve"><value>favourites</value></data>
+<data name="PhoneUi_Text_Featured.Text" xml:space="preserve"><value>featured</value></data>
+<data name="PhoneUi_Text_Genre.Text" xml:space="preserve"><value>genre</value></data>
+<data name="PhoneUi_Text_GenreMix.Text" xml:space="preserve"><value>genre mix</value></data>
+<data name="PhoneUi_Text_Genres.Text" xml:space="preserve"><value>genres</value></data>
+<data name="PhoneUi_Text_InternetRadio.Text" xml:space="preserve"><value>internet radio</value></data>
+<data name="PhoneUi_Text_Ites.Text" xml:space="preserve"><value>ites</value></data>
+<data name="PhoneUi_Text_Lists.Text" xml:space="preserve"><value>lists</value></data>
+<data name="PhoneUi_Text_LIVE.Text" xml:space="preserve"><value>LIVE</value></data>
+<data name="PhoneUi_Text_MixDrome.Text" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="PhoneUi_Text_Mixes.Text" xml:space="preserve"><value>mixes</value></data>
+<data name="PhoneUi_Text_MixRadio.Text" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="PhoneUi_Text_MyMusic.Text" xml:space="preserve"><value>my music</value></data>
+<data name="PhoneUi_Text_NoAlbumsFound.Text" xml:space="preserve"><value>No albums found</value></data>
+<data name="PhoneUi_Text_NoArtistsFound.Text" xml:space="preserve"><value>No artists found.</value></data>
+<data name="PhoneUi_Text_NobodyIsPlayingRightNow.Text" xml:space="preserve"><value>Nobody is playing right now</value></data>
+<data name="PhoneUi_Text_NoFavouritesYet.Text" xml:space="preserve"><value>No favourites yet</value></data>
+<data name="PhoneUi_Text_NoGenresFound.Text" xml:space="preserve"><value>No genres found.</value></data>
+<data name="PhoneUi_Text_NoRadioStationsFound.Text" xml:space="preserve"><value>No radio stations found</value></data>
+<data name="PhoneUi_Text_NoRemotePlaylistsYet.Text" xml:space="preserve"><value>No remote playlists yet.</value></data>
+<data name="PhoneUi_Text_NoSongsFound.Text" xml:space="preserve"><value>No songs found</value></data>
+<data name="PhoneUi_Text_Now.Text" xml:space="preserve"><value>now</value></data>
+<data name="PhoneUi_Text_NowPlaying.Text" xml:space="preserve"><value>now playing</value></data>
+<data name="PhoneUi_Text_Play.Text" xml:space="preserve"><value>play</value></data>
+<data name="PhoneUi_Text_Playing.Text" xml:space="preserve"><value> playing</value></data>
+<data name="PhoneUi_Text_PlayMe.Text" xml:space="preserve"><value>play me</value></data>
+<data name="PhoneUi_Text_Radio.Text" xml:space="preserve"><value>radio</value></data>
+<data name="PhoneUi_Text_RecentlyPlayed.Text" xml:space="preserve"><value>recently played</value></data>
+<data name="PhoneUi_Text_RemotePlaylists.Text" xml:space="preserve"><value>remote playlists</value></data>
+<data name="PhoneUi_Text_Search.Text" xml:space="preserve"><value>search</value></data>
+<data name="PhoneUi_Text_ServerActivity.Text" xml:space="preserve"><value>server activity</value></data>
+<data name="PhoneUi_Text_Songs.Text" xml:space="preserve"><value>songs</value></data>
+<data name="PhoneUi_Text_StarredMusic.Text" xml:space="preserve"><value>starred music</value></data>
+<data name="PhoneUi_Text_Stations.Text" xml:space="preserve"><value>stations</value></data>
+<data name="PhoneUi_Text_Tracks.Text" xml:space="preserve"><value>tracks</value></data>
+<data name="PhoneUi_Text_TypeSomethingToSearchYourMusic.Text" xml:space="preserve"><value>Type something to search your music.</value></data>
+<data name="Playback_About.Header" xml:space="preserve"><value>about</value></data>
+<data name="Playback_AlbumLabel.Text" xml:space="preserve"><value>album</value></data>
+<data name="Playback_ArtistLabel.Text" xml:space="preserve"><value>artist</value></data>
+<data name="Playback_Next.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>next</value></data>
+<data name="Playback_NowPlaying.Header" xml:space="preserve"><value>now playing</value></data>
+<data name="Playback_Previous.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>previous</value></data>
+<data name="Playback_Queue.Header" xml:space="preserve"><value>queue</value></data>
+<data name="Playback_Repeat.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>repeat</value></data>
+<data name="Playback_Seek.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>seek</value></data>
+<data name="Playback_Shuffle.[using:Windows.UI.Xaml.Automation]AutomationProperties.Name" xml:space="preserve"><value>shuffle</value></data>
+<data name="Playback_Title.Text" xml:space="preserve"><value>MY MUSIC</value></data>
+<data name="Settings_Account.Text" xml:space="preserve"><value>account</value></data>
+<data name="Settings_Authentication.Header" xml:space="preserve"><value>authentication</value></data>
+<data name="Settings_Brand.Text" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="Settings_Compatibility.Header" xml:space="preserve"><value>compatible playback</value></data>
+<data name="Settings_Compatibility.OffContent" xml:space="preserve"><value>off</value></data>
+<data name="Settings_Compatibility.OnContent" xml:space="preserve"><value>on</value></data>
+<data name="Settings_CompatibilityHelp.Text" xml:space="preserve"><value>Request MP3 audio for older devices. A zero bitrate uses the compatibility default.</value></data>
+<data name="Settings_MaximumBitRate.PlaceholderText" xml:space="preserve"><value>0</value></data>
+<data name="Settings_MaximumBitRateLabel.Text" xml:space="preserve"><value>maximum bitrate (kbps)</value></data>
+<data name="Settings_Playback.Text" xml:space="preserve"><value>playback</value></data>
+<data name="Settings_PrimaryLabel.Text" xml:space="preserve"><value>primary address</value></data>
+<data name="Settings_PrimaryUrl.PlaceholderText" xml:space="preserve"><value>http://music.example.com</value></data>
+<data name="Settings_Save.Label" xml:space="preserve"><value>save</value></data>
+<data name="Settings_SecondaryLabel.Text" xml:space="preserve"><value>secondary address</value></data>
+<data name="Settings_SecondaryUrl.PlaceholderText" xml:space="preserve"><value>https://music.example.com</value></data>
+<data name="Settings_Server.Text" xml:space="preserve"><value>server</value></data>
+<data name="Settings_StreamFormat.PlaceholderText" xml:space="preserve"><value>server default</value></data>
+<data name="Settings_StreamFormatHelp.Text" xml:space="preserve"><value>Leave blank for the server default, or enter a format supported by your server.</value></data>
+<data name="Settings_StreamFormatLabel.Text" xml:space="preserve"><value>stream format</value></data>
+<data name="Settings_Test.Label" xml:space="preserve"><value>test</value></data>
+<data name="Settings_Title.Text" xml:space="preserve"><value>settings</value></data>
+<data name="Settings_Username.PlaceholderText" xml:space="preserve"><value>username</value></data>
+<data name="Settings_UsernameLabel.Text" xml:space="preserve"><value>username</value></data>
+</root>

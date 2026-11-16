@@ -14,6 +14,7 @@ namespace Mixdrome.Phone.Views
 
     public sealed partial class ArtistsPage : Page
     {
+        private bool _pageActive;
         private ISubsonicService _subsonicService;
         private ProgressRing _loadingIndicator;
         private TextBlock _emptyStateText;
@@ -33,19 +34,36 @@ namespace Mixdrome.Phone.Views
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            _pageActive = true;
             HardwareButtons.BackPressed += OnHardwareBackPressed;
-            _subsonicService = await PhoneSubsonicServiceFactory.CreateAsync();
-            await LoadArtists();
+            try
+            {
+                _subsonicService = await PhoneSubsonicServiceFactory.CreateAsync();
+                if (!_subsonicService.HasValidSubsonicUrl)
+                    throw new InvalidOperationException(Mixdrome.Phone.Common.PhoneText.Get("ConfigureServer"));
+                if (!_pageActive) return;
+                await LoadArtists();
+            }
+            catch (Exception exception)
+            {
+                if (_pageActive && _emptyStateText != null)
+                {
+                    _emptyStateText.Text = exception.Message;
+                    _emptyStateText.Visibility = Visibility.Visible;
+                }
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
+            _pageActive = false;
             HardwareButtons.BackPressed -= OnHardwareBackPressed;
         }
 
         private void OnHardwareBackPressed(object sender, BackPressedEventArgs e)
         {
+            if (e.Handled) return;
             if (Frame.CanGoBack)
             {
                 e.Handled = true;
@@ -62,17 +80,19 @@ namespace Mixdrome.Phone.Views
             {
                 var result = _subsonicService.GetArtists();
                 await result.Execute();
+                if (!_pageActive) return;
+                if (result.Error != null) throw result.Error;
 
                 Artists.Clear();
-                if (result.Error == null && result.Result != null)
+                if (result.Result != null)
                 {
                     foreach (var artist in result.Result)
                     {
                         Artists.Add(new ArtistDisplayItem
                         {
                             Id = artist.Id,
-                            Name = artist.Name ?? "Unknown artist",
-                            Subtitle = string.Format("{0} albums", artist.AlbumCount),
+                            Name = artist.Name ?? Mixdrome.Phone.Common.PhoneText.Get("UnknownArtist"),
+                            Subtitle = string.Format(Mixdrome.Phone.Common.PhoneText.Get("AlbumCount"), artist.AlbumCount),
                             Initial = GetInitial(artist.Name)
                         });
                     }
@@ -85,13 +105,14 @@ namespace Mixdrome.Phone.Views
             }
             catch (Exception ex)
             {
+                if (!_pageActive) return;
                 if (_emptyStateText != null)
                 {
-                    _emptyStateText.Text = "Failed to load artists.";
+                    _emptyStateText.Text = Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadArtists");
                     _emptyStateText.Visibility = Visibility.Visible;
                 }
 
-                await new MessageDialog("Failed to load artists: " + ex.Message).ShowAsync();
+                await new MessageDialog(Mixdrome.Phone.Common.PhoneText.Get("UiFailedToLoadArtists") + ex.Message).ShowAsync();
             }
             finally
             {

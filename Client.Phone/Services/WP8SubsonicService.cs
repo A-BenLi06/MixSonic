@@ -2,328 +2,92 @@ namespace Mixdrome.Phone.Services
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using Client.Common.Models;
     using Client.Common.Models.Subsonic;
+    using Client.Common.Services;
+    using Client.Common.Services.DataStructures.SubsonicService;
+    using Client.Common.Services.Navidrome;
+    using Mixdrome.Phone.Common;
 
-    /// <summary>
-    /// WP8.1-specific Subsonic service implementation using WinRT HttpClient.
-    /// </summary>
+    // Phone pages keep their existing adapter API while using the desktop protocol/models.
     public class WP8SubsonicService : IDisposable
     {
-        private readonly WinRTHttpClient _httpClient;
-        private string _baseUrl;
-        private string _username;
-        private string _password;
-        private bool _compatibleMode;
+        private SubsonicServiceConfiguration _configuration = new SubsonicServiceConfiguration();
+        private NavidromeApi Api { get { RequireServer(); return new NavidromeApi(_configuration); } }
 
-        public WP8SubsonicService()
+        private void RequireServer()
         {
-            _httpClient = new WinRTHttpClient();
+            if (string.IsNullOrWhiteSpace(_configuration.BaseUrl))
+                throw new InvalidOperationException(PhoneText.Get("ConfigureServer"));
         }
 
         public void Configure(string baseUrl, string username, string password)
         {
-            _baseUrl = (baseUrl ?? string.Empty).TrimEnd('/');
-            _username = username ?? string.Empty;
-            _password = password ?? string.Empty;
+            Configure(new SubsonicServiceConfiguration { BaseUrl = baseUrl, Username = username, Password = password });
         }
 
-        /// <summary>
-        /// Sets the compatible mode (transcode lossless to MP3 320kbps).
-        /// </summary>
-        public void SetCompatibleMode(bool enabled)
+        public void Configure(SubsonicServiceConfiguration configuration)
         {
-            _compatibleMode = enabled;
+            if (configuration == null) throw new ArgumentNullException("configuration");
+            _configuration = configuration;
         }
 
-        public bool CompatibleMode
+        public void SetCompatibleMode(bool enabled) { CompatibleMode = enabled; }
+        public PhoneReportingProfile CreateReportingProfile()
         {
-            get { return _compatibleMode; }
-            set { _compatibleMode = value; }
-        }
-
-        private string BuildApiUrl(string method, Dictionary<string, string> parameters = null)
-        {
-            var url = $"{_baseUrl}/rest/{method}?u={Uri.EscapeDataString(_username)}&p={Uri.EscapeDataString(_password)}&v=1.16.1&c=MixRadioWP&f=xml";
-            
-            if (parameters != null)
+            RequireServer();
+            return new PhoneReportingProfile
             {
-                foreach (var param in parameters)
-                {
-                    url += $"&{param.Key}={Uri.EscapeDataString(param.Value)}";
-                }
-            }
-            
-            return url;
-        }
-
-        public async Task<bool> PingAsync()
-        {
-            try
-            {
-                var url = BuildApiUrl("ping");
-                var responseXml = await _httpClient.GetStringAsync(url);
-                var doc = XDocument.Parse(responseXml);
-                var root = doc.Root;
-                
-                if (root == null) return false;
-                
-                var ns = root.Name.Namespace;
-                var status = root.Attribute("status")?.Value;
-                return status == "ok";
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public async Task<Song> GetSongAsync(string id)
-        {
-            var url = BuildApiUrl("getSong", new Dictionary<string, string> { { "id", id } });
-            var responseXml = await _httpClient.GetStringAsync(url);
-            var doc = XDocument.Parse(responseXml);
-            var root = doc.Root;
-            
-            if (root == null) return null;
-            
-            var ns = root.Name.Namespace;
-            var songElement = root.Element(ns + "song");
-            
-            if (songElement == null) return null;
-            
-            return new Song
-            {
-                Id = songElement.Attribute("id")?.Value,
-                Title = songElement.Attribute("title")?.Value,
-                Artist = songElement.Attribute("artist")?.Value,
-                Album = songElement.Attribute("album")?.Value,
-                CoverArt = songElement.Attribute("coverArt")?.Value,
-                Duration = ParseInt(songElement.Attribute("duration")?.Value)
+                BaseUrl = _configuration.BaseUrl, Username = _configuration.Username,
+                AuthenticationMode = _configuration.AuthenticationMode.ToString(),
+                CredentialResource = PhoneSettings.CredentialResource
             };
         }
-
-        public Uri GetStreamUri(string songId)
+        public bool CompatibleMode
         {
-            var parameters = new Dictionary<string, string> { { "id", songId } };
-            
-            // When compatible mode is enabled, transcode to MP3 320kbps
-            if (_compatibleMode)
-            {
-                parameters.Add("format", "mp3");
-                parameters.Add("maxBitRate", "320");
-            }
-            
-            var url = BuildApiUrl("stream", parameters);
-            return new Uri(url);
+            get { return _configuration.CompatibleMode; }
+            set { _configuration.CompatibleMode = value; }
         }
+
+        public async Task<bool> PingAsync() { return await Api.Ping().ReadAsync(); }
+        public Task<Song> GetSongAsync(string id) { return Api.GetSong(id).ReadAsync(); }
+        public Uri GetStreamUri(string songId)
+        { RequireServer(); return new SubsonicService { Configuration = _configuration }.GetUriForFileWithId(songId); }
 
         public string GetCoverArtUrl(string coverArtId, int size = 300)
         {
-            return BuildApiUrl("getCoverArt", new Dictionary<string, string>
-            {
-                { "id", coverArtId },
-                { "size", size.ToString() }
-            });
+            if (string.IsNullOrEmpty(coverArtId)) return SubsonicService.CoverArtPlaceholder;
+            RequireServer();
+            return new SubsonicRequest(_configuration, "getCoverArt").Add("id", coverArtId).Add("size", size).Url;
         }
 
         public async Task<List<InternetRadioStation>> GetInternetRadioStationsAsync()
         {
-            var stations = new List<InternetRadioStation>();
-            var url = BuildApiUrl("getInternetRadioStations");
-
-            try
+            return (await Api.GetRadio().ReadAsync()).Select(station => new InternetRadioStation
             {
-                var responseXml = await _httpClient.GetStringAsync(url);
-                var doc = XDocument.Parse(responseXml);
-                var root = doc.Root;
-
-                if (root == null) return stations;
-
-                var ns = root.Name.Namespace;
-                var stationsElement = root.Element(ns + "internetRadioStations");
-
-                if (stationsElement == null) return stations;
-
-                foreach (var stationElement in stationsElement.Elements(ns + "internetRadioStation"))
-                {
-                    stations.Add(new InternetRadioStation
-                    {
-                        Id = stationElement.Attribute("id")?.Value,
-                        Name = stationElement.Attribute("name")?.Value,
-                        StreamUrl = stationElement.Attribute("streamUrl")?.Value,
-                        HomePageUrl = stationElement.Attribute("homePageUrl")?.Value
-                    });
-                }
-            }
-            catch
-            {
-            }
-
-            return stations;
+                Id = station.Id, Name = station.Name, StreamUrl = station.StreamUrl, HomePageUrl = station.HomePageUrl
+            }).ToList();
         }
 
         public async Task<List<Song>> GetStarredSongsAsync()
-        {
-            var songs = new List<Song>();
-            var url = BuildApiUrl("getStarred2");
-
-            try
-            {
-                var responseXml = await _httpClient.GetStringAsync(url);
-                var doc = XDocument.Parse(responseXml);
-                var root = doc.Root;
-
-                if (root == null) return songs;
-
-                var ns = root.Name.Namespace;
-                var starredElement = root.Element(ns + "starred2");
-
-                if (starredElement == null) return songs;
-
-                foreach (var songElement in starredElement.Elements(ns + "song"))
-                {
-                    songs.Add(ParseSong(songElement));
-                }
-            }
-            catch
-            {
-            }
-
-            return songs;
-        }
+        { return (await Api.GetStarred(null).ReadAsync()).Songs.ToList(); }
 
         public async Task<List<NowPlayingEntry>> GetNowPlayingAsync()
         {
-            var entries = new List<NowPlayingEntry>();
-            var url = BuildApiUrl("getNowPlaying");
-
-            try
+            return (await Api.GetNowPlaying().ReadAsync()).Select(entry => new NowPlayingEntry
             {
-                var responseXml = await _httpClient.GetStringAsync(url);
-                var doc = XDocument.Parse(responseXml);
-                var root = doc.Root;
-
-                if (root == null) return entries;
-
-                var ns = root.Name.Namespace;
-                var nowPlayingElement = root.Element(ns + "nowPlaying");
-
-                if (nowPlayingElement == null) return entries;
-
-                foreach (var entryElement in nowPlayingElement.Elements(ns + "entry"))
-                {
-                    entries.Add(new NowPlayingEntry
-                    {
-                        Song = ParseSong(entryElement),
-                        Username = entryElement.Attribute("username")?.Value,
-                        PlayerId = entryElement.Attribute("playerId")?.Value,
-                        PlayerName = entryElement.Attribute("playerName")?.Value,
-                        MinutesAgo = ParseInt(entryElement.Attribute("minutesAgo")?.Value)
-                    });
-                }
-            }
-            catch
-            {
-            }
-
-            return entries;
+                Song = entry, Username = entry.Username, PlayerId = entry.PlayerId,
+                PlayerName = entry.PlayerName, MinutesAgo = entry.MinutesAgo
+            }).ToList();
         }
 
         public async Task<List<Album>> GetAlbumsAsync(string artistId)
-        {
-            var albums = new List<Album>();
-            var url = BuildApiUrl("getArtist", new Dictionary<string, string> { { "id", artistId } });
-            
-            try
-            {
-                var responseXml = await _httpClient.GetStringAsync(url);
-                var doc = XDocument.Parse(responseXml);
-                var root = doc.Root;
-                
-                if (root == null) return albums;
-                
-                var ns = root.Name.Namespace;
-                var artistElement = root.Element(ns + "artist");
-                
-                if (artistElement == null) return albums;
-                
-                foreach (var albumElement in artistElement.Elements(ns + "album"))
-                {
-                    albums.Add(new Album
-                    {
-                        Id = albumElement.Attribute("id")?.Value,
-                        Name = albumElement.Attribute("name")?.Value,
-                        Artist = albumElement.Attribute("artist")?.Value,
-                        CoverArt = albumElement.Attribute("coverArt")?.Value
-                    });
-                }
-            }
-            catch
-            {
-                // Return empty list on error
-            }
-            
-            return albums;
-        }
-
+        { return (await Api.GetArtist(artistId).ReadAsync()).Albums.ToList(); }
         public async Task<List<Song>> GetAlbumSongsAsync(string albumId)
-        {
-            var songs = new List<Song>();
-            var url = BuildApiUrl("getAlbum", new Dictionary<string, string> { { "id", albumId } });
-            
-            try
-            {
-                var responseXml = await _httpClient.GetStringAsync(url);
-                var doc = XDocument.Parse(responseXml);
-                var root = doc.Root;
-                
-                if (root == null) return songs;
-                
-                var ns = root.Name.Namespace;
-                var albumElement = root.Element(ns + "album");
-                
-                if (albumElement == null) return songs;
-                
-                foreach (var songElement in albumElement.Elements(ns + "song"))
-                {
-                    songs.Add(ParseSong(songElement));
-                }
-            }
-            catch
-            {
-                // Return empty list on error
-            }
-            
-            return songs;
-        }
+        { return (await Api.GetAlbum(albumId).ReadAsync()).Songs.ToList(); }
 
-        public void Dispose()
-        {
-            _httpClient?.Dispose();
-        }
-
-        private static int ParseInt(string value)
-        {
-            int result;
-            return int.TryParse(value, out result) ? result : 0;
-        }
-
-        private static Song ParseSong(XElement songElement)
-        {
-            return new Song
-            {
-                Id = songElement.Attribute("id")?.Value,
-                Title = songElement.Attribute("title")?.Value,
-                Artist = songElement.Attribute("artist")?.Value,
-                Album = songElement.Attribute("album")?.Value,
-                CoverArt = songElement.Attribute("coverArt")?.Value,
-                Duration = ParseInt(songElement.Attribute("duration")?.Value)
-            };
-        }
+        public void Dispose() { }
     }
 
     public class InternetRadioStation

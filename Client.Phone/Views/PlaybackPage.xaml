@@ -1,206 +1,136 @@
-<Page
-    x:Class="Mixdrome.Phone.Views.PlaybackPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
-
-    <Page.Resources>
-        <Storyboard x:Name="FadeOutStoryboard">
-            <DoubleAnimation Storyboard.TargetName="SongInfoPanel"
-                             Storyboard.TargetProperty="Opacity"
-                             From="1"
-                             To="0"
-                             Duration="0:0:0.15" />
-            <DoubleAnimation Storyboard.TargetName="AlbumArtBorder"
-                             Storyboard.TargetProperty="Opacity"
-                             From="1"
-                             To="0"
-                             Duration="0:0:0.15" />
-        </Storyboard>
-
-        <Storyboard x:Name="FadeInStoryboard">
-            <DoubleAnimation Storyboard.TargetName="SongInfoPanel"
-                             Storyboard.TargetProperty="Opacity"
-                             From="0"
-                             To="1"
-                             Duration="0:0:0.25" />
-            <DoubleAnimation Storyboard.TargetName="AlbumArtBorder"
-                             Storyboard.TargetProperty="Opacity"
-                             From="0"
-                             To="1"
-                             Duration="0:0:0.25" />
-        </Storyboard>
-
-        <Storyboard x:Name="BackgroundFadeStoryboard">
-            <DoubleAnimation Storyboard.TargetName="BackgroundImage"
-                             Storyboard.TargetProperty="Opacity"
-                             From="0.18"
-                             To="0.48"
-                             Duration="0:0:0.4" />
-        </Storyboard>
-    </Page.Resources>
-
+<Page x:Class="Mixdrome.Phone.Views.PlaybackPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
     <Grid Background="Black">
-        <Image x:Name="BackgroundImage"
-               Source="/Assets/CoverArtPlaceholderLarge.jpg"
-               Stretch="UniformToFill"
-               Opacity="0.52" />
-
-        <Rectangle Fill="#66000000" />
-        <Rectangle>
-            <Rectangle.Fill>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#33000000" Offset="0" />
-                    <GradientStop Color="#22000000" Offset="0.26" />
-                    <GradientStop Color="#AA000000" Offset="0.66" />
-                    <GradientStop Color="#F2000000" Offset="1" />
-                </LinearGradientBrush>
-            </Rectangle.Fill>
-        </Rectangle>
-
-        <Grid Margin="12,10,12,22">
+        <Image x:Name="BackgroundImage" Stretch="UniformToFill" Opacity="0.75" />
+        <Rectangle Fill="#4D303030" />
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-
-            <StackPanel Grid.Row="0">
-                <TextBlock Style="{StaticResource MixRadioWordmarkTextStyle}"><Run x:Uid="BrandPrefix" FontWeight="Bold" /><Run x:Uid="BrandSuffix" FontWeight="Light" /></TextBlock>
-                <StackPanel Orientation="Horizontal" Margin="1,-4,0,0">
-                    <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
-                        <TextBlock Text="&#xE102;"
-                                   Style="{StaticResource MixRadioSectionIconTextStyle}"
-                                   Margin="1,0,0,0" />
-                    </Border>
-                    <TextBlock Text="now playing"
-                               Style="{StaticResource BodyTextStyle}"
-                               Foreground="White"
-                               Margin="7,-1,0,0" />
-                </StackPanel>
-            </StackPanel>
-
-            <Border x:Name="AlbumArtBorder"
-                    Grid.Row="1"
-                    Width="286"
-                    Height="286"
-                    MaxWidth="306"
-                    MaxHeight="306"
-                    Background="{StaticResource MixRadioPanelAltBrush}"
-                    HorizontalAlignment="Center"
-                    Margin="0,24,0,0">
-                <Grid>
-                    <Image x:Name="AlbumArtImage"
-                           Source="/Assets/CoverArtPlaceholder.jpg"
-                           Stretch="UniformToFill" />
-                    <Rectangle Height="4"
-                               Fill="{StaticResource MixRadioAccentBrush}"
-                               VerticalAlignment="Bottom" />
-                </Grid>
+            <Border Background="#4D303030" Padding="20,8">
+                <TextBlock x:Uid="Playback_Title" Style="{StaticResource BodyTextStyle}" Foreground="White" />
             </Border>
-
-            <StackPanel x:Name="SongInfoPanel"
-                        Grid.Row="2"
-                        VerticalAlignment="Bottom"
-                        Margin="0,20,0,16">
-                <TextBlock x:Name="SongTitleText"
-                           Text="Song Title"
-                           FontSize="34"
-                           FontWeight="Light"
-                           Foreground="White"
-                           TextWrapping="Wrap"
-                           TextAlignment="Center"
-                           MaxLines="2" />
-                <TextBlock x:Name="ArtistText"
-                           Text="Artist Name"
-                           FontSize="20"
-                           Foreground="#E6FFFFFF"
-                           TextTrimming="CharacterEllipsis"
-                           TextAlignment="Center"
-                           MaxLines="1"
-                           Margin="0,4,0,0" />
-                <Rectangle Width="64"
-                           Height="4"
-                           Fill="{StaticResource MixRadioAccentBrush}"
-                           HorizontalAlignment="Center"
-                           Margin="0,14,0,0" />
-            </StackPanel>
-
-            <Grid Grid.Row="3" Margin="0,0,0,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <TextBlock x:Name="CurrentTimeText"
-                           Text="0:00"
-                           Style="{StaticResource BodyTextStyle}"
-                           Foreground="White"
-                           VerticalAlignment="Center" />
-
-                <Slider x:Name="ProgressSlider"
-                        Grid.Column="1"
-                        Margin="12,0"
-                        ValueChanged="OnProgressSliderChanged"
-                        Foreground="{StaticResource MixRadioAccentBrush}"
-                        Background="#66FFFFFF" />
-
-                <TextBlock x:Name="TotalTimeText"
-                           Grid.Column="2"
-                           Text="0:00"
-                           Style="{StaticResource BodyTextStyle}"
-                           Foreground="White"
-                           VerticalAlignment="Center" />
-            </Grid>
-
-            <Grid Grid.Row="4" Margin="0,0,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <Button Grid.Column="0"
-                        Style="{StaticResource CircularButtonStyle}"
-                        Width="58"
-                        Height="58"
-                        HorizontalAlignment="Right"
-                        Margin="0,0,24,0"
-                        Click="OnPreviousClick">
-                    <TextBlock Text="&#xE100;"
-                               FontFamily="Segoe UI Symbol"
-                               FontSize="24" />
-                </Button>
-
-                <Button x:Name="PlayPauseButton"
-                        Grid.Column="1"
-                        Style="{StaticResource CircularButtonStyle}"
-                        Width="92"
-                        Height="92"
-                        Background="{StaticResource MixRadioAccentBrush}"
-                        Click="OnPlayPauseClick">
-                    <TextBlock Text="&#xE102;"
-                               FontFamily="Segoe UI Symbol"
-                               FontSize="38"
-                               Margin="5,0,0,0" />
-                </Button>
-
-                <Button Grid.Column="2"
-                        Style="{StaticResource CircularButtonStyle}"
-                        Width="58"
-                        Height="58"
-                        HorizontalAlignment="Left"
-                        Margin="24,0,0,0"
-                        Click="OnNextClick">
-                    <TextBlock Text="&#xE101;"
-                               FontFamily="Segoe UI Symbol"
-                               FontSize="24" />
-                </Button>
+            <Pivot x:Name="PlayerPivot" Grid.Row="1" Margin="0,4,0,0">
+                <PivotItem x:Uid="Playback_NowPlaying">
+                    <Grid Margin="8,0,8,4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <Button x:Name="ShuffleButton" x:Uid="Playback_Shuffle" Width="60" Height="60"
+                                    Style="{StaticResource MixRadioFlatButtonStyle}" Click="OnShuffleClick">
+                                <TextBlock Text="&#xE14B;" FontFamily="Segoe UI Symbol" FontSize="32"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Button>
+                            <Button x:Name="RepeatButton" x:Uid="Playback_Repeat" Width="60" Height="60"
+                                    Style="{StaticResource MixRadioFlatButtonStyle}" Click="OnRepeatClick">
+                                <Grid>
+                                    <TextBlock Text="&#xE149;" FontFamily="Segoe UI Symbol" FontSize="32"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    <TextBlock x:Name="RepeatOneBadge" x:Uid="PhoneUi_Text_1" FontSize="13" FontWeight="Bold"
+                                               Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Grid>
+                            </Button>
+                        </StackPanel>
+                        <Grid Grid.Row="1" Margin="0,10,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.44*" />
+                                <ColumnDefinition Width="0.56*" />
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="AlbumArtBorder" Background="{StaticResource MixRadioPanelAltBrush}"
+                                    SizeChanged="OnArtworkSizeChanged" VerticalAlignment="Bottom">
+                                <Image x:Name="AlbumArtImage" Stretch="UniformToFill"
+                                       Source="ms-appx:///Assets/MixRadio/DefaultArtwork300.png" />
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="16,0,0,0">
+                                <TextBlock x:Name="SongTitleText" FontSize="27" FontWeight="Bold" LineHeight="30"
+                                           Foreground="White" TextWrapping="Wrap" MaxLines="2" />
+                                <TextBlock x:Name="ArtistText" FontSize="17" Foreground="White"
+                                           TextWrapping="Wrap" MaxLines="2" Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock x:Name="PlaybackStatusText" Grid.Row="2" Foreground="White" FontSize="14"
+                                   TextWrapping="Wrap" Margin="0,6,0,0" />
+                    </Grid>
+                </PivotItem>
+                <PivotItem x:Uid="Playback_About">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="8,0,8,0">
+                        <StackPanel>
+                            <TextBlock x:Name="AboutTitleText" Style="{StaticResource HeaderTextStyle}" TextWrapping="Wrap" />
+                            <TextBlock x:Uid="Playback_ArtistLabel" Style="{StaticResource BodyTextStyle}" Margin="0,24,0,4" />
+                            <TextBlock x:Name="AboutArtistText" Style="{StaticResource TitleTextStyle}" TextWrapping="Wrap" />
+                            <TextBlock x:Uid="Playback_AlbumLabel" Style="{StaticResource BodyTextStyle}" Margin="0,24,0,4" />
+                            <TextBlock x:Name="AboutAlbumText" Style="{StaticResource TitleTextStyle}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </PivotItem>
+                <PivotItem x:Uid="Playback_Queue">
+                    <ListView x:Name="QueueListView" ItemsSource="{Binding QueueItems}" SelectionMode="Single"
+                              IsItemClickEnabled="True" ItemClick="OnQueueItemClick" Margin="0,0,-8,0">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="MinHeight" Value="64" />
+                                <Setter Property="Padding" Value="12,6" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="48" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Image Source="{Binding CoverArt}" Width="48" Height="48" Stretch="UniformToFill" />
+                                    <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Title}" FontSize="20" TextTrimming="CharacterEllipsis" MaxLines="1" />
+                                        <TextBlock Text="{Binding Artist}" Style="{StaticResource BodyTextStyle}"
+                                                   TextTrimming="CharacterEllipsis" MaxLines="1" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </PivotItem>
+            </Pivot>
+            <Grid Grid.Row="2" Margin="20,0,20,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Slider x:Name="ProgressSlider" x:Uid="Playback_Seek" Minimum="0" Maximum="1"
+                        IsEnabled="False" ValueChanged="OnProgressSliderChanged"
+                        Foreground="{StaticResource MixRadioAccentBrush}" Background="#66FFFFFF" />
+                <Grid Grid.Row="1" Margin="0,-4,0,6">
+                    <TextBlock x:Name="CurrentTimeText" x:Uid="PhoneUi_Text_000" FontSize="13" Foreground="White" />
+                    <TextBlock x:Name="TotalTimeText" x:Uid="PhoneUi_Text_000" FontSize="13" Foreground="White" HorizontalAlignment="Right" />
+                </Grid>
+                <Grid Grid.Row="2" Height="70">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="PreviousButton" x:Uid="Playback_Previous" Click="OnPreviousClick"
+                            Width="68" Height="68" Style="{StaticResource CircularButtonStyle}" HorizontalAlignment="Center">
+                        <TextBlock Text="&#xE100;" FontFamily="Segoe UI Symbol" FontSize="28" />
+                    </Button>
+                    <Button x:Name="PlayPauseButton" Grid.Column="1" Click="OnPlayPauseClick"
+                            Width="68" Height="68" Style="{StaticResource CircularButtonStyle}" HorizontalAlignment="Center">
+                        <TextBlock x:Name="PlayPauseGlyph" Text="&#xE102;" FontFamily="Segoe UI Symbol" FontSize="30" />
+                    </Button>
+                    <Button x:Name="NextButton" x:Uid="Playback_Next" Grid.Column="2" Click="OnNextClick"
+                            Width="68" Height="68" Style="{StaticResource CircularButtonStyle}" HorizontalAlignment="Center">
+                        <TextBlock Text="&#xE101;" FontFamily="Segoe UI Symbol" FontSize="28" />
+                    </Button>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>

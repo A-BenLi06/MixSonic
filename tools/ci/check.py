@@ -24,7 +24,7 @@ def main():
         run('git', 'clone', '--filter=blob:none', '--no-checkout', lock['repository'], source)
         run('git', '-C', source, 'fetch', '--depth=1', 'origin', lock['commit'])
         run('git', '-C', source, 'checkout', '--detach', lock['commit'])
-    for script in ('tools/navidrome-tests/check-client.py', 'tools/navidrome/build_spec.py',
+    for script in ('tools/navidrome-tests/check-client.py', 'tools/phone/check.py', 'tools/navidrome/build_spec.py',
                    'tools/navidrome/test_acceptance.py', 'tools/mixradio/test_quality_tools.py',
                    'tools/release/test_release.py'):
         run(sys.executable, script)

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "package": "Nokia.Media.MusicClient",
+  "version": "4.5.3.470",
+  "sourcePlatform": "Windows Phone 8.0 Silverlight",
+  "targetPlatform": "Windows Phone 8.1 WinRT",
+  "referencePackages": [
+    {
+      "file": "MixRadio v4.5.3.470 (Mivas).xap",
+      "sha256": "b7045a8fd82847e861721547c3ebda6e7d83323cd2f80f2d4d2b09a73c133388"
+    },
+    {
+      "file": "MixRadio（直接安装）.xap",
+      "sha256": "5f0fa1dbe1e930c9b1e5cc0cf10101c5074a6a95c58e89117b2d1addfb978b95"
+    }
+  ],
+  "contentDifferences": [
+    "WMAppPRHeader.xml"
+  ],
+  "assemblies": [
+    {
+      "source": "Nokia.Media.MusicClient.dll",
+      "sha256": "2381e4899c906b521c0b3a5bfa36321f2670530126f0fbfb0a90c8ca2a9488f2"
+    },
+    {
+      "source": "Nokia.Media.AudioAgent.Core.dll",
+      "sha256": "89ba582a60fb83555b1df7434b75b0ecaa3bce6e2aac20dae5992ccae05dc9d9"
+    },
+    {
+      "source": "Nokia.Media.MusicClient.Translations.dll",
+      "sha256": "9f6ab727fbe0c0f2bdbdf30f1ae98c92ff5c1a0eecf5d4c3b94d101f9fb0f9da"
+    }
+  ],
+  "recoveredMarkup": [
+    {
+      "source": "pages/main/mainpage.xaml",
+      "sha256": "01a416c0a30694130478b7f90e72a5591f8dfc94f4a03ab1718e4273febd7cf8"
+    },
+    {
+      "source": "pages/player/player.xaml",
+      "sha256": "aca181312df126714b4a059a25f184a9a0fd39b653ad6702263e7731867173cb"
+    },
+    {
+      "source": "pages/mymusic/mymusic.xaml",
+      "sha256": "e92c070ec4e66532d4590f96c8d5d4053656cd92a54cbbce6f856dea057358bd"
+    },
+    {
+      "source": "pages/store/searchresults.xaml",
+      "sha256": "c07cff73d612a4740e08aa3f5d12601e9ab40a65d4c4ad4ef27c8c09ae603a86"
+    },
+    {
+      "source": "theme/theme.xaml",
+      "sha256": "aba340d04f302bb387c77c3e00f56a1b5efc664000454ed53e53b9f9c0f17054"
+    },
+    {
+      "source": "theme/datatemplates.xaml",
+      "sha256": "2c163da355f9c61c808c150073a5b1e47f44a949ce6cbc9b4cdfd841f5d03a02"
+    }
+  ],
+  "designTokens": {
+    "background": "#FF000000",
+    "foreground": "#FFFFFFFF",
+    "chrome": "#FF1F1F1F",
+    "subtle": "#99FFFFFF",
+    "playMe": "#FFFF2E80",
+    "tileBackgroundResource": "PhoneAccentBrush",
+    "sourceDesignWidth": 480,
+    "sourceDesignHeight": 800,
+    "sourceTileLarge": 228,
+    "sourceTileMedium": 168,
+    "sourceTileSmall": 96,
+    "sourceTileSpacing": 12,
+    "sourceStaggerOffset": 24,
+    "sourcePlayerArtwork": 194,
+    "sourceTransportTarget": {
+      "width": 120,
+      "height": 82
+    },
+    "sourceTransportIcon": 82,
+    "sourceSidebarTarget": 72,
+    "sourceTypography": {
+      "normal": 20,
+      "large": 32,
+      "panoramaNormal": 21,
+      "panoramaMedium": 24,
+      "playerProgress": 13
+    }
+  },
+  "files": [
+    {
+      "source": "Theme/Resources/Icons/MixesTileIcon.png",
+      "destination": "Client.Phone/Assets/MixRadio/MixesTileIcon.png",
+      "width": 336,
+      "height": 336,
+      "sha256": "0c701a7fc11db36bc4209ee346c782c6033272fcb938afc9461026d934df2115"
+    },
+    {
+      "source": "Theme/Resources/Icons/CreateTileIcon.png",
+      "destination": "Client.Phone/Assets/MixRadio/CreateTileIcon.png",
+      "width": 336,
+      "height": 336,
+      "sha256": "a71cc9370cb271dbaf4850592461a1b8a05e18fcc5a6308fa1c1bc6056aab9b8"
+    },
+    {
+      "source": "Theme/Resources/Icons/MyMusicTileIcon.png",
+      "destination": "Client.Phone/Assets/MixRadio/MyMusicTileIcon.png",
+      "width": 336,
+      "height": 336,
+      "sha256": "e68cf879ca7ddb16dfc51ce43eda37b1b84651f08bd6a5654024c67fd6b48885"
+    },
+    {
+      "source": "Theme/Resources/Icons/FavouritesTileIcon.png",
+      "destination": "Client.Phone/Assets/MixRadio/FavouritesTileIcon.png",
+      "width": 336,
+      "height": 336,
+      "sha256": "ad640d3cf236df3a1b4cad3ab02c4e10f96042636cd4ddb3596c90517c482142"
+    },
+    {
+      "source": "Theme/Resources/Icons/PlayMeTileIcon.png",
+      "destination": "Client.Phone/Assets/MixRadio/PlayMeTileIcon.png",
+      "width": 336,
+      "height": 336,
+      "sha256": "b3086ba8e61e2f0dfb511ce2b714487134e82f50a9121e11c99aa91c256ae231"
+    },
+    {
+      "source": "Theme/Resources/Icons/OfflineTileIcon.png",
+      "destination": "Client.Phone/Assets/MixRadio/OfflineTileIcon.png",
+      "width": 336,
+      "height": 336,
+      "sha256": "2e0b01ebc9d3a19359d82b50726f4c32bcd810df412f8b397a4bdbee5afad4d0"
+    },
+    {
+      "source": "Theme/Resources/Icons/DefaultArtwork300.png",
+      "destination": "Client.Phone/Assets/MixRadio/DefaultArtwork300.png",
+      "width": 300,
+      "height": 300,
+      "sha256": "ce1809de61c3b49864d7301967409936f3f979f5fb5113fa5fac7041c92ad2c7"
+    },
+    {
+      "source": "Theme/Resources/Icons/DefaultArtist300.png",
+      "destination": "Client.Phone/Assets/MixRadio/DefaultArtist300.png",
+      "width": 300,
+      "height": 300,
+      "sha256": "69efa325c8eb4700346765ef96a0e97101ef24deec6e0d0e064e16f21fbcef65"
+    }
+  ]
+}

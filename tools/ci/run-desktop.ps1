@@ -17,13 +17,18 @@ $suites = @(
     'tools/navidrome-tests/run-connection.ps1',
     'tools/navidrome-tests/run-jukebox.ps1',
     'tools/navidrome-tests/run-home.ps1',
-    'tools/playback-tests/run.ps1'
+    'tools/playback-tests/run.ps1',
+    'tools/phone/run-connection.ps1',
+    'tools/phone/run-playback.ps1',
+    'tools/phone/run-search.ps1',
+    'tools/phone/run-library.ps1',
+    'tools/phone/run-listening.ps1'
 )
 foreach ($suite in $suites) {
     Write-Host "Running $suite"
     & (Join-Path $projectRoot $suite) -CompilerPath $CompilerPath
 }
-Write-Host 'PASS: all seven CLR regression suites. Native WinRT checks are separate.'
+Write-Host ('PASS: all {0} CLR regression suites. Native WinRT checks are separate.' -f $suites.Count)
 if ($env:GITHUB_ACTIONS -eq 'true') {
     & (Join-Path $projectRoot 'tools/release/test-signatures.ps1') -CompilerPath $CompilerPath
 }

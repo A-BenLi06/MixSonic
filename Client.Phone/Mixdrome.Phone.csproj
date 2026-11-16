@@ -232,7 +232,8 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Client.Common\Client.Common.csproj">
-      <Project>{a8f49761-4d7a-458f-b1b1-4a66c421b3aa}</Project>
+      <Project>{a8f49761-4d7a-458f-b1b1-4a66c421b3aa}
+</Project>
       <Name>Client.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Client.Phone.BackgroundAudioTask\Mixdrome.Phone.BackgroundAudioTask.csproj">
@@ -260,6 +261,23 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <ItemGroup>
-    <PRIResource Include="..\Client\Strings\en-US\Resources.resw"><Link>Strings\en-US\Resources.resw</Link></PRIResource>
+    <Compile Include="Common\PhoneText.cs" />
+    <Compile Include="Common\PhoneHomePanel.xaml.cs" />
+    <Compile Include="Views\LibraryPage.xaml.cs" />
+    <Compile Include="Services\PhoneSettings.cs" />
+    <Compile Include="Services\AudioQueueState.cs" />
+    <Page Include="Common\PhoneHomePanel.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
+    <Page Include="Views\LibraryPage.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
+    <Content Include="Assets\MixRadio\CreateTileIcon.png" />
+    <Content Include="Assets\MixRadio\DefaultArtist300.png" />
+    <Content Include="Assets\MixRadio\DefaultArtwork300.png" />
+    <Content Include="Assets\MixRadio\FavouritesTileIcon.png" />
+    <Content Include="Assets\MixRadio\MixesTileIcon.png" />
+    <Content Include="Assets\MixRadio\MyMusicTileIcon.png" />
+    <Content Include="Assets\MixRadio\OfflineTileIcon.png" />
+    <Content Include="Assets\MixRadio\PlayMeTileIcon.png" />
+    <PRIResource Include="Strings\en-US\Resources.resw"><Generator>MSBuild:Compile</Generator></PRIResource>
+    <PRIResource Include="Strings\zh-CN\Resources.resw"><Generator>MSBuild:Compile</Generator></PRIResource>
+
   </ItemGroup>
 </Project>

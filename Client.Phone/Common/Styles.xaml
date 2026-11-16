@@ -2,7 +2,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Color x:Key="MixRadioAccentColor">#FFFF2B86</Color>
+    <Color x:Key="MixRadioAccentColor">#FFFF2E80</Color>
     <Color x:Key="MixRadioAccentDarkColor">#FF8A1248</Color>
     <Color x:Key="MixRadioTealColor">#FF00AFAF</Color>
     <Color x:Key="MixRadioYellowColor">#FFD7C900</Color>
@@ -17,7 +17,6 @@
     <SolidColorBrush x:Key="PhoneForegroundBrush" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="PhoneMidBrush" Color="#FFCFCFCF" />
     <SolidColorBrush x:Key="PhoneDisabledBrush" Color="#FF777777" />
-    <SolidColorBrush x:Key="PhoneAccentBrush" Color="{StaticResource MixRadioAccentColor}" />
     <SolidColorBrush x:Key="MixRadioAccentBrush" Color="{StaticResource MixRadioAccentColor}" />
     <SolidColorBrush x:Key="MixRadioAccentDarkBrush" Color="{StaticResource MixRadioAccentDarkColor}" />
     <SolidColorBrush x:Key="MixRadioTealBrush" Color="{StaticResource MixRadioTealColor}" />
@@ -134,8 +133,8 @@
         </Setter>
     </Style>
 
-    <Style x:Key="PhoneHubTileButtonStyle" TargetType="Button" BasedOn="{StaticResource MixRadioFlatButtonStyle}">
-        <Setter Property="Padding" Value="12" />
+    <Style x:Key="PhoneHubTileButtonStyle" TargetType="Button" BasedOn="{StaticResource MixRadioFlatButtonStyle}"><Setter Property="Background" Value="{ThemeResource PhoneAccentBrush}" />
+        <Setter Property="Padding" Value="0" />
     </Style>
 
     <Style x:Key="MixRadioSearchButtonStyle" TargetType="Button" BasedOn="{StaticResource MixRadioFlatButtonStyle}">
@@ -248,4 +247,10 @@
     <Style x:Key="SettingsPasswordBoxStyle" TargetType="PasswordBox" BasedOn="{StaticResource MixRadioPhonePasswordBoxStyle}">
         <Setter Property="Margin" Value="0,0,0,8" />
     </Style>
+<Style x:Key="PhoneTileLabelStyle" TargetType="TextBlock">
+<Setter Property="FontSize" Value="21" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="Foreground" Value="White" /><Setter Property="VerticalAlignment" Value="Bottom" /><Setter Property="Margin" Value="9,0,9,8" /><Setter Property="TextWrapping" Value="Wrap" /><Setter Property="MaxLines" Value="2" />
+</Style>
+<Style x:Key="PhoneRecentTitleStyle" TargetType="TextBlock"><Setter Property="FontSize" Value="14" /><Setter Property="Foreground" Value="White" /><Setter Property="Margin" Value="4" /><Setter Property="TextTrimming" Value="CharacterEllipsis" /><Setter Property="MaxLines" Value="2" /></Style>
+<Style x:Key="PhoneTileGlyphStyle" TargetType="TextBlock"><Setter Property="FontFamily" Value="Segoe UI Symbol" /><Setter Property="FontSize" Value="40" /><Setter Property="Foreground" Value="White" /><Setter Property="HorizontalAlignment" Value="Center" /><Setter Property="VerticalAlignment" Value="Center" /></Style>
+<Style x:Key="PhoneMenuTileStyle" TargetType="Button" BasedOn="{StaticResource PhoneHubTileButtonStyle}"><Setter Property="Background" Value="{ThemeResource PhoneAccentBrush}" /><Setter Property="Height" Value="140" /><Setter Property="Margin" Value="0,0,10,10" /></Style>
 </ResourceDictionary>

@@ -8,7 +8,7 @@ namespace Mixdrome.Phone.Services
 
     /// <summary>
     /// WinRT-based HttpClient wrapper for Windows Phone 8.1.
-    /// Uses Windows.Web.Http.HttpClient which works better on WP8.1 than System.Net.Http.
+    /// Retained for callers that need Windows.Web.Http buffer access.
     /// </summary>
     public class WinRTHttpClient : IDisposable
     {
@@ -25,11 +25,12 @@ namespace Mixdrome.Phone.Services
         public async Task<Stream> GetStreamAsync(string url)
         {
             var uri = new Uri(url);
-            var response = await _client.GetAsync(uri);
-            response.EnsureSuccessStatusCode();
-            
-            var buffer = await response.Content.ReadAsBufferAsync();
-            return buffer.AsStream();
+            using (var response = await _client.GetAsync(uri))
+            {
+                response.EnsureSuccessStatusCode();
+                var buffer = await response.Content.ReadAsBufferAsync();
+                return new MemoryStream(buffer.ToArray(), false);
+            }
         }
 
         /// <summary>
@@ -38,10 +39,11 @@ namespace Mixdrome.Phone.Services
         public async Task<string> GetStringAsync(string url)
         {
             var uri = new Uri(url);
-            var response = await _client.GetAsync(uri);
-            response.EnsureSuccessStatusCode();
-            
-            return await response.Content.ReadAsStringAsync();
+            using (var response = await _client.GetAsync(uri))
+            {
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
+            }
         }
 
         /// <summary>
@@ -50,11 +52,12 @@ namespace Mixdrome.Phone.Services
         public async Task<byte[]> GetBytesAsync(string url)
         {
             var uri = new Uri(url);
-            var response = await _client.GetAsync(uri);
-            response.EnsureSuccessStatusCode();
-            
-            var buffer = await response.Content.ReadAsBufferAsync();
-            return buffer.ToArray();
+            using (var response = await _client.GetAsync(uri))
+            {
+                response.EnsureSuccessStatusCode();
+                var buffer = await response.Content.ReadAsBufferAsync();
+                return buffer.ToArray();
+            }
         }
 
         public void Dispose()

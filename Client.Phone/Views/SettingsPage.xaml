@@ -2,138 +2,63 @@
     x:Class="Mixdrome.Phone.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
     Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
-
     <Page.BottomAppBar>
         <CommandBar Background="{StaticResource MixRadioCommandBarBrush}" Foreground="White">
-            <AppBarButton Icon="Save" Label="save" Click="OnSaveClick" />
-            <AppBarButton Icon="Sync" Label="test" Click="OnTestConnectionClick" />
+            <AppBarButton x:Name="SaveButton" x:Uid="Settings_Save" Icon="Save" Click="OnSaveClick" />
+            <AppBarButton x:Name="TestButton" x:Uid="Settings_Test" Icon="Sync" Click="OnTestConnectionClick" />
         </CommandBar>
     </Page.BottomAppBar>
-
     <Grid Background="Black">
-        <Image Source="/Assets/CoverArtPlaceholderLarge.jpg"
-               Stretch="UniformToFill"
-               Opacity="0.46" />
-        <Rectangle Fill="#66000000" />
-        <Rectangle>
-            <Rectangle.Fill>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#11000000" Offset="0" />
-                    <GradientStop Color="#88000000" Offset="0.45" />
-                    <GradientStop Color="#FF000000" Offset="1" />
-                </LinearGradientBrush>
-            </Rectangle.Fill>
-        </Rectangle>
-
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-
-            <StackPanel Grid.Row="0" Margin="12,10,12,22">
-                <TextBlock Style="{StaticResource MixRadioWordmarkTextStyle}"><Run x:Uid="BrandPrefix" FontWeight="Bold" /><Run x:Uid="BrandSuffix" FontWeight="Light" /></TextBlock>
-                <StackPanel Orientation="Horizontal" Margin="1,-4,0,12">
-                    <Border Style="{StaticResource MixRadioSectionIconBorderStyle}">
-                        <TextBlock Text="&#xE115;"
-                                   Style="{StaticResource MixRadioSectionIconTextStyle}" />
-                    </Border>
-                    <TextBlock Text="navidrome"
-                               Style="{StaticResource BodyTextStyle}"
-                               Foreground="White"
-                               Margin="7,-1,0,0" />
-                </StackPanel>
-                <TextBlock Text="settings"
-                           FontSize="42"
-                           FontWeight="Light"
-                           Foreground="White" />
-                <Border Height="4"
-                        Width="64"
-                        Background="{StaticResource MixRadioAccentBrush}"
-                        HorizontalAlignment="Left"
-                        Margin="0,16,0,0" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <StackPanel Margin="12,10,12,22">
+            <TextBlock x:Uid="Settings_Brand" Style="{StaticResource MixRadioWordmarkTextStyle}" />
+            <TextBlock x:Uid="Settings_Title" FontSize="42" FontWeight="Light" Foreground="White" />
+            <Border Height="4" Width="64" Background="{StaticResource MixRadioAccentBrush}"
+                    HorizontalAlignment="Left" Margin="0,16,0,0" />
+        </StackPanel>
+        <ScrollViewer Grid.Row="1" Margin="12,0,12,0">
+            <StackPanel x:Name="SettingsFields" Margin="0,0,0,32">
+                <TextBlock x:Uid="Settings_Server" FontSize="24" FontWeight="Light"
+                           Foreground="{StaticResource MixRadioTealBrush}" Margin="0,0,0,6" />
+                <TextBlock x:Uid="Settings_PrimaryLabel" Style="{StaticResource SettingsTextStyle}" />
+                <TextBox x:Name="PrimaryUrlTextBox" x:Uid="Settings_PrimaryUrl"
+                         InputScope="Url" Style="{StaticResource SettingsTextBoxStyle}" />
+                <TextBlock x:Uid="Settings_SecondaryLabel" Style="{StaticResource SettingsTextStyle}" />
+                <TextBox x:Name="SecondaryUrlTextBox" x:Uid="Settings_SecondaryUrl"
+                         InputScope="Url" Style="{StaticResource SettingsTextBoxStyle}" />
+                <TextBlock x:Uid="Settings_Account" FontSize="24" FontWeight="Light"
+                           Foreground="{StaticResource MixRadioYellowBrush}" Margin="0,20,0,6" />
+                <TextBlock x:Uid="Settings_UsernameLabel" Style="{StaticResource SettingsTextStyle}" />
+                <TextBox x:Name="UsernameTextBox" x:Uid="Settings_Username"
+                         Style="{StaticResource SettingsTextBoxStyle}" />
+                <ComboBox x:Name="AuthenticationComboBox" x:Uid="Settings_Authentication"
+                          DisplayMemberPath="Name" HorizontalAlignment="Stretch"
+                          SelectionChanged="OnAuthenticationChanged" Margin="0,4,0,8" />
+                <TextBlock x:Name="CredentialLabel" Style="{StaticResource SettingsTextStyle}" />
+                <PasswordBox x:Name="PasswordBox" Style="{StaticResource SettingsPasswordBoxStyle}" />
+                <TextBlock x:Name="CredentialHelp" Style="{StaticResource BodyTextStyle}"
+                           TextWrapping="Wrap" Margin="0,0,0,10" />
+                <TextBlock x:Uid="Settings_Playback" FontSize="24" FontWeight="Light"
+                           Foreground="{StaticResource MixRadioAccentBrush}" Margin="0,20,0,6" />
+                <TextBlock x:Uid="Settings_StreamFormatLabel" Style="{StaticResource SettingsTextStyle}" />
+                <TextBox x:Name="StreamingFormatTextBox" x:Uid="Settings_StreamFormat"
+                         Style="{StaticResource SettingsTextBoxStyle}" />
+                <TextBlock x:Uid="Settings_StreamFormatHelp" Style="{StaticResource BodyTextStyle}"
+                           TextWrapping="Wrap" Margin="0,0,0,8" />
+                <TextBlock x:Uid="Settings_MaximumBitRateLabel" Style="{StaticResource SettingsTextStyle}" />
+                <TextBox x:Name="MaximumBitRateTextBox" x:Uid="Settings_MaximumBitRate"
+                         InputScope="Number" Style="{StaticResource SettingsTextBoxStyle}" />
+                <ToggleSwitch x:Name="CompatibleModeToggle" x:Uid="Settings_Compatibility" Margin="0,8,0,0" />
+                <TextBlock x:Uid="Settings_CompatibilityHelp" Style="{StaticResource BodyTextStyle}"
+                           TextWrapping="Wrap" Margin="0,0,0,18" />
+                <ProgressRing x:Name="ConnectionProgress" HorizontalAlignment="Left" />
+                <TextBlock x:Name="StatusText" Style="{StaticResource BodyTextStyle}"
+                           TextWrapping="Wrap" Margin="0,8,0,24" />
             </StackPanel>
-
-            <ScrollViewer Grid.Row="1" Margin="12,0,12,0">
-                <StackPanel Margin="0,0,0,96">
-                    <TextBlock Text="server"
-                               FontSize="24"
-                               FontWeight="Light"
-                               Foreground="{StaticResource MixRadioTealBrush}"
-                               Margin="0,0,0,6" />
-
-                    <TextBlock Text="Primary URL" Style="{StaticResource SettingsTextStyle}" />
-                    <TextBox x:Name="PrimaryUrlTextBox"
-                             PlaceholderText="http://192.168.1.100:4533"
-                             Style="{StaticResource SettingsTextBoxStyle}" />
-
-                    <TextBlock Text="Secondary URL" Style="{StaticResource SettingsTextStyle}" />
-                    <TextBox x:Name="SecondaryUrlTextBox"
-                             PlaceholderText="https://music.example.com"
-                             Style="{StaticResource SettingsTextBoxStyle}" />
-
-                    <TextBlock x:Name="UrlValidationMessage"
-                               Foreground="{StaticResource MixRadioAccentBrush}"
-                               Visibility="Collapsed"
-                               Text="At least one URL is required."
-                               TextWrapping="Wrap"
-                               Margin="0,0,0,8" />
-
-                    <TextBlock Text="account"
-                               FontSize="24"
-                               FontWeight="Light"
-                               Foreground="{StaticResource MixRadioYellowBrush}"
-                               Margin="0,20,0,6" />
-
-                    <TextBlock Text="Username" Style="{StaticResource SettingsTextStyle}" />
-                    <TextBox x:Name="UsernameTextBox"
-                             PlaceholderText="Username"
-                             Style="{StaticResource SettingsTextBoxStyle}" />
-
-                    <TextBlock Text="Password" Style="{StaticResource SettingsTextStyle}" />
-                    <PasswordBox x:Name="PasswordBox"
-                                 PlaceholderText="Password"
-                                 Style="{StaticResource SettingsPasswordBoxStyle}" />
-
-                    <TextBlock Text="playback"
-                               FontSize="24"
-                               FontWeight="Light"
-                               Foreground="{StaticResource MixRadioAccentBrush}"
-                               Margin="0,20,0,6" />
-
-                    <ToggleSwitch x:Name="CompatibleModeToggle"
-                                  Header="Compatible Mode"
-                                  OffContent="Off"
-                                  OnContent="On"
-                                  Margin="0,8,0,0" />
-                    <TextBlock Text="Transcode lossless audio to MP3 320kbps for better compatibility."
-                               Style="{StaticResource BodyTextStyle}"
-                               TextWrapping="Wrap"
-                               Margin="0,0,0,18" />
-
-                    <Border Background="#33000000"
-                            Margin="0,8,0,24">
-                        <Grid MinHeight="58">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="4" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Rectangle Fill="{StaticResource MixRadioAccentBrush}" />
-                            <TextBlock x:Name="StatusText"
-                                       Grid.Column="1"
-                                       Text="Use the bottom bar to save or test the connection."
-                                       Style="{StaticResource BodyTextStyle}"
-                                       TextWrapping="Wrap"
-                                       VerticalAlignment="Center"
-                                       Margin="14,10,10,10" />
-                        </Grid>
-                    </Border>
-                </StackPanel>
-            </ScrollViewer>
-        </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>
