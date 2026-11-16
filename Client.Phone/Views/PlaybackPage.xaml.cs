@@ -25,6 +25,7 @@ namespace Mixdrome.Phone.Views
     {
         public List<SongDisplayItem> Playlist { get; set; }
         public int StartIndex { get; set; }
+        public bool? Shuffle { get; set; }
     }
 
     public sealed partial class PlaybackPage : Page
@@ -162,12 +163,14 @@ namespace Mixdrome.Phone.Views
             {
                 await FileIO.WriteTextAsync(file, AudioJson.Serialize(tracks));
                 token.ThrowIfCancellationRequested();
-                BackgroundMediaPlayer.SendMessageToBackground(new ValueSet
+                var command = new ValueSet
                 {
                     { BackgroundAudioMessages.ReplaceQueue, true },
                     { BackgroundAudioMessages.QueueFile, file.Name },
                     { BackgroundAudioMessages.CurrentIndex, parameter.StartIndex }
-                });
+                };
+                if (parameter.Shuffle.HasValue) command.Add(BackgroundAudioMessages.Shuffle, parameter.Shuffle.Value);
+                BackgroundMediaPlayer.SendMessageToBackground(command);
                 sent = true;
             }
             finally { if (!sent) await file.DeleteAsync(); }
