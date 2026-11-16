@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Framework
+﻿namespace Mixdrome.Framework
 {
     using System;
     using System.Collections.Generic;

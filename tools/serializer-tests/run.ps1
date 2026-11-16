@@ -1,9 +1,9 @@
-param([string]$CompilerPath = $env:SUBSONIC8_CSC)
+param([string]$CompilerPath = $env:MIXDROME_CSC)
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 if (-not $CompilerPath) { $CompilerPath = Join-Path ${env:ProgramFiles(x86)} 'MSBuild\14.0\Bin\csc.exe' }
-if (-not (Test-Path -LiteralPath $CompilerPath)) { throw 'Supply -CompilerPath or SUBSONIC8_CSC for the desktop C# compiler.' }
+if (-not (Test-Path -LiteralPath $CompilerPath)) { throw 'Supply -CompilerPath or MIXDROME_CSC for the desktop C# compiler.' }
 $outputDirectory = Join-Path $projectRoot '.tmp\serializer-tests'
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
 $caliburn = Get-ChildItem -LiteralPath (Join-Path $projectRoot 'packages\Caliburn.Micro.Core.3.2.0\lib') -Filter 'Caliburn.Micro.dll' -Recurse |

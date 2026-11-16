@@ -1,10 +1,10 @@
-namespace Subsonic8.Playback
+namespace Mixdrome.Playback
 {
     using System;
     using Windows.UI.Xaml;
     using Caliburn.Micro;
     using MugenInjection.Attributes;
-    using Subsonic8.AudioPlayback;
+    using Mixdrome.AudioPlayback;
 
     public class ProgressIndicatorViewModel : Screen, IProgressIndicatorViewModel
     {

@@ -15,8 +15,8 @@ namespace Client.Tests.Playback
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework.AppContainer;
-    using Subsonic8.Playback;
-    using Subsonic8.Playlists;
+    using Mixdrome.Playback;
+    using Mixdrome.Playlists;
 
     [TestClass]
     public class PlaybackViewModelTests : ViewModelBaseTests<PlaybackViewModel>

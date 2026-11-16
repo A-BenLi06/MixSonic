@@ -7,7 +7,7 @@
     using Client.Tests.BottomBar;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.BottomBar;
+    using Mixdrome.BottomBar;
 
     [TestClass]
     public class PlaybackBottomBarViewModelTests : BottomBarViewModelTests<PlaybackBottomBarViewModel>

@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Playlists
+﻿namespace Mixdrome.Playlists
 {
     using System.Linq;
     using System.Threading.Tasks;
@@ -7,8 +7,8 @@
     using Client.Common.Models.Subsonic;
     using Client.Common.Services;
     using MugenInjection.Attributes;
-    using Subsonic8.Framework.Extensions;
-    using Subsonic8.MenuItem;
+    using Mixdrome.Framework.Extensions;
+    using Mixdrome.MenuItem;
     using Windows.UI.Xaml.Controls;
     using Caliburn.Micro;
 

@@ -1,5 +1,5 @@
 <UserControl
-    x:Class="Subsonic8.Common.PageHeader"
+    x:Class="Mixdrome.Common.PageHeader"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -13,7 +13,7 @@
         <Grid.Resources>
             <cal:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <converters:InvertedBooleanToVisibilityConverter
-                xmlns:converters="using:Subsonic8.Converters"
+                xmlns:converters="using:Mixdrome.Converters"
                 x:Key="InvertedBooleanToVisibilityConverter" />
         </Grid.Resources>
 
@@ -36,8 +36,8 @@
                            FontFamily="Segoe UI"
                            FontSize="52"
                            LineHeight="56">
-                    <Run Text="Mix" FontWeight="SemiBold" />
-                    <Run Text="Radio" FontWeight="Light" />
+                    <Run x:Uid="BrandPrefix" FontWeight="Bold" />
+                    <Run x:Uid="BrandSuffix" FontWeight="Light" />
                 </TextBlock>
                 <Border Width="26"
                         Height="26"

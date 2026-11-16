@@ -14,9 +14,9 @@
     using FluentAssertions;
     using global::Common.Mocks;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.BottomBar;
-    using Subsonic8.MenuItem;
-    using Subsonic8.Playback;
+    using Mixdrome.BottomBar;
+    using Mixdrome.MenuItem;
+    using Mixdrome.Playback;
 
     [TestClass]
     public class DefaultBottomBarViewModelTests : BottomBarViewModelTests<DefaultBottomBarViewModel>

@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Playlists
+﻿namespace Mixdrome.Playlists
 {
     public interface ISavePlaylistViewModel : IPlaylistViewModel
     {

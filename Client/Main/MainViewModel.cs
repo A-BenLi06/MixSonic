@@ -1,4 +1,4 @@
-namespace Subsonic8.Main
+namespace Mixdrome.Main
 {
     using System;
     using System.Collections.Generic;
@@ -10,10 +10,10 @@ namespace Subsonic8.Main
     using Client.Common.Models.Subsonic;
     using Client.Common.Services.Navidrome;
     using MugenInjection.Attributes;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Framework.ViewModel;
-    using Subsonic8.Navidrome;
-    using Subsonic8.Settings;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Framework.ViewModel;
+    using Mixdrome.Navidrome;
+    using Mixdrome.Settings;
 
     public sealed class MainViewModel : NavidromePageViewModel, IMainViewModel, IHaveState
     {

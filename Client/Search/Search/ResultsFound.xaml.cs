@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Search.Search
+﻿namespace Mixdrome.Search.Search
 {
     public sealed partial class ResultsFound
     {

@@ -12,7 +12,7 @@ using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
 
-namespace Client.Phone.BackgroundAudioTask
+namespace Mixdrome.Phone.BackgroundAudioTask
 {
     public sealed class AudioTask : IBackgroundTask
     {

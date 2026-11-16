@@ -1,11 +1,11 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("MixRadio.Phone")]
-[assembly: AssemblyDescription("MixRadio music client for Windows Phone 8.1")]
+[assembly: AssemblyTitle("Mixdrome.Phone")]
+[assembly: AssemblyDescription("Mixdrome music client for Windows Phone 8.1")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MixRadio.Phone")]
+[assembly: AssemblyCompany("A-BenLi06")]
+[assembly: AssemblyProduct("Mixdrome.Phone")]
 [assembly: AssemblyCopyright("Copyright © 2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

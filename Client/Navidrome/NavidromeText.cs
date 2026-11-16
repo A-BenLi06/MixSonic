@@ -1,4 +1,4 @@
-namespace Subsonic8.Navidrome
+namespace Mixdrome.Navidrome
 {
     using Windows.ApplicationModel.Resources;
 

@@ -1,6 +1,6 @@
-namespace Subsonic8.Listening
+namespace Mixdrome.Listening
 {
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public class RecentTrackViewModel : ItemViewModelBase
     {

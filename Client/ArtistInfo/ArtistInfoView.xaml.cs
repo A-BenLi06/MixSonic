@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.ArtistInfo
+﻿namespace Mixdrome.ArtistInfo
 {
     public sealed partial class ArtistInfoView
     {

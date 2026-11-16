@@ -2,7 +2,7 @@
 {
     using Client.Tests.Framework.ViewModel;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.MenuItem;
+    using Mixdrome.MenuItem;
 
     [TestClass]
     public class MenuItemViewModelBaseTests : ItemViewModelBaseTests<MenuItemViewModel>

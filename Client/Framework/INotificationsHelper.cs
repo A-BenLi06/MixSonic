@@ -1,8 +1,8 @@
-﻿namespace Subsonic8.Framework
+﻿namespace Mixdrome.Framework
 {
     using Caliburn.Micro;
     using Client.Common.EventAggregatorMessages;
-    using Subsonic8.Framework.Interfaces;
+    using Mixdrome.Framework.Interfaces;
 
     public interface INotificationsHelper : IToastNotificationCapable, 
                                             ITileNotificationCapable, 

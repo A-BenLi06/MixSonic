@@ -1,6 +1,6 @@
-<framework:AppPage x:Class="Subsonic8.Navidrome.NavidromeJukeboxView"
+<framework:AppPage x:Class="Mixdrome.Navidrome.NavidromeJukeboxView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:framework="using:Subsonic8.Framework" xmlns:cal="using:Caliburn.Micro">
+    xmlns:framework="using:Mixdrome.Framework" xmlns:cal="using:Caliburn.Micro">
     <Page.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="NavidromeResources.xaml"/></ResourceDictionary.MergedDictionaries></ResourceDictionary></Page.Resources>
     <Page.BottomAppBar><CommandBar>
         <AppBarButton x:Name="Start" x:Uid="Navidrome_Play" Icon="Play"/>

@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory)][string]$Directory,
     [Parameter(Mandatory)][string]$CertificateSha256,
-    [string]$SignToolPath = $env:SUBSONIC8_SIGNTOOL,
+    [string]$SignToolPath = $env:MIXDROME_SIGNTOOL,
     [switch]$TrustPinnedCertificate
 )
 
@@ -10,13 +10,13 @@ if (-not $SignToolPath) {
     $SignToolPath = Get-ChildItem -LiteralPath (Join-Path ${env:ProgramFiles(x86)} 'Windows Kits/10/bin') -Filter signtool.exe -Recurse |
         Where-Object FullName -Match '[\\/]x64[\\/]signtool.exe$' | Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
 }
-if (-not $SignToolPath -or -not (Test-Path -LiteralPath $SignToolPath)) { throw 'Supply SUBSONIC8_SIGNTOOL or -SignToolPath.' }
+if (-not $SignToolPath -or -not (Test-Path -LiteralPath $SignToolPath)) { throw 'Supply MIXDROME_SIGNTOOL or -SignToolPath.' }
 $certificatePath = Join-Path $Directory 'SigningCertificate.cer'
 Write-Host 'Checking the configured certificate pin and embedded AppX signer.'
 if ((Get-FileHash -LiteralPath $certificatePath -Algorithm SHA256).Hash -ne $CertificateSha256) { throw 'Signing certificate pin differs.' }
 $certificate = [Security.Cryptography.X509Certificates.X509Certificate2]::new($certificatePath)
 Add-Type -AssemblyName System.Security.Cryptography.Pkcs
-$archive = [IO.Compression.ZipFile]::OpenRead((Join-Path $Directory 'SubSonic8.appx'))
+$archive = [IO.Compression.ZipFile]::OpenRead((Join-Path $Directory 'Mixdrome.appx'))
 try {
     $stream = $archive.GetEntry('AppxSignature.p7x').Open()
     $buffer = [IO.MemoryStream]::new()

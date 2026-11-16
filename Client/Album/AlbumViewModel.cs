@@ -1,10 +1,10 @@
-﻿namespace Subsonic8.Album
+﻿namespace Mixdrome.Album
 {
     using System.Collections.Generic;
     using Client.Common.Models;
     using Client.Common.Models.Subsonic;
     using Client.Common.Results;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public class AlbumViewModel : DetailViewModelBase<Album>, IAlbumViewModel
     {

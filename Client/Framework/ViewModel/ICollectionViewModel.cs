@@ -1,12 +1,12 @@
-﻿namespace Subsonic8.Framework.ViewModel
+﻿namespace Mixdrome.Framework.ViewModel
 {
     using System;
     using System.Collections.ObjectModel;
     using System.Threading.Tasks;
     using Caliburn.Micro;
     using Client.Common.Models;
-    using Subsonic8.BottomBar;
-    using Subsonic8.MenuItem;
+    using Mixdrome.BottomBar;
+    using Mixdrome.MenuItem;
 
     public interface ICollectionViewModel<TParameter> : IViewModel
     {

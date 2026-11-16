@@ -1,4 +1,4 @@
-namespace Subsonic8.Navidrome
+namespace Mixdrome.Navidrome
 {
     using System;
     using System.Collections.Generic;
@@ -11,7 +11,7 @@ namespace Subsonic8.Navidrome
     using Caliburn.Micro;
     using Client.Common.Models;
     using Client.Common.Services.Navidrome;
-    using Subsonic8.AudioPlayback;
+    using Mixdrome.AudioPlayback;
     using Windows.Storage;
     using Windows.UI.Xaml;
 

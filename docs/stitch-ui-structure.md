@@ -1,4 +1,4 @@
-﻿# SubSonic8 / Navidrome Windows 8.1 + Windows Phone 8.1 Client UI Structure
+﻿# Mixdrome / Navidrome Windows 8.1 + Windows Phone 8.1 Client UI Structure
 
 这份说明用于发给 Stitch 做 UI 调整。目标是把当前通用 Windows 8.1 Navidrome 客户端，整理成一个参考 MixRadio 的 Metro 音乐应用界面。
 

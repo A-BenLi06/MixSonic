@@ -1,4 +1,4 @@
-namespace Subsonic8.NowPlaying
+namespace Mixdrome.NowPlaying
 {
     public partial class NowPlayingView
     {

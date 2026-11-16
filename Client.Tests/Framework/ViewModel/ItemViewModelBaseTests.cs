@@ -5,7 +5,7 @@ namespace Client.Tests.Framework.ViewModel
     using FluentAssertions;
     using global::Common.Mocks;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     [TestClass]
     public abstract class ItemViewModelBaseTests<TViewModel> : ClientTestBase

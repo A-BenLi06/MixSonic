@@ -5,8 +5,8 @@
     using Client.Common.Models.Subsonic;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Framework.Extensions;
-    using Subsonic8.MenuItem;
+    using Mixdrome.Framework.Extensions;
+    using Mixdrome.MenuItem;
 
     [TestClass]
     public class SearchConvertersTests

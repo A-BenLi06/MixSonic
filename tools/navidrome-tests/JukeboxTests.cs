@@ -19,7 +19,7 @@ using Client.Common.Models.Subsonic;
 using Client.Common.Services;
 using Client.Common.Services.DataStructures.SubsonicService;
 using Client.Common.Services.Navidrome;
-using Subsonic8.Navidrome;
+using Mixdrome.Navidrome;
 using Windows.UI.Xaml;
 
 public static class NavidromeJukeboxTests

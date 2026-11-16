@@ -13,7 +13,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[2]
 METADATA = 'release-manifest.json'
 CERTIFICATE = 'SigningCertificate.cer'
-PACKAGE = 'SubSonic8.appx'
+PACKAGE = 'Mixdrome.appx'
 MAX_SIZE = 2 * 1024**3
 
 
@@ -113,7 +113,7 @@ def prepare(package, certificate, dependencies, output):
             files['Dependencies/' + relative.as_posix()] = path.read_bytes()
     validate_contents(files, expected)
     output.mkdir(parents=True, exist_ok=False)
-    asset = 'SubSonic8-' + tag + '.zip'
+    asset = 'Mixdrome-' + tag + '.zip'
     with zipfile.ZipFile(output / asset, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
         for name, data in files.items():
             archive.writestr(name, data)
@@ -136,7 +136,7 @@ def verify(directory, tag, commit, certificate_hash, extract=None):
     if (tag != version_tag(expected['Version']) or metadata.get('tag') != tag or
             metadata.get('version') != expected['Version'] or metadata.get('commit') != commit):
         raise ValueError('Release tag, version and source commit must match')
-    asset = 'SubSonic8-' + tag + '.zip'
+    asset = 'Mixdrome-' + tag + '.zip'
     if metadata.get('asset') != asset or {p.name for p in directory.iterdir()} != {asset, METADATA}:
         raise ValueError('Unexpected or missing release assets')
     data = (directory / asset).read_bytes()

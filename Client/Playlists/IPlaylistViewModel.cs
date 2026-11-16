@@ -1,6 +1,6 @@
-﻿namespace Subsonic8.Playlists
+﻿namespace Mixdrome.Playlists
 {
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public interface IPlaylistViewModel : ICollectionViewModel<object>
     {

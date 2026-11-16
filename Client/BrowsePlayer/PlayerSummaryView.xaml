@@ -1,9 +1,9 @@
 <UserControl
-    x:Class="Subsonic8.BrowsePlayer.PlayerSummaryView"
+    x:Class="Mixdrome.BrowsePlayer.PlayerSummaryView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:cal="using:Caliburn.Micro"
-    xmlns:converters="using:Subsonic8.Converters">
+    xmlns:converters="using:Mixdrome.Converters">
     <UserControl.Resources>
         <cal:BooleanToVisibilityConverter x:Key="VisibleWhenTrue" />
     </UserControl.Resources>

@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.MusicDirectory
+﻿namespace Mixdrome.MusicDirectory
 {
     using System.Collections.Generic;
     using Client.Common.Models;
@@ -6,7 +6,7 @@
     using Client.Common.Results;
     using Client.Common.Services;
     using MugenInjection.Attributes;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public class MusicDirectoryViewModel : DetailViewModelBase<MusicDirectory>, IMusicDirectoryViewModel
     {

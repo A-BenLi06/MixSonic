@@ -1,10 +1,10 @@
-﻿namespace Subsonic8.Settings
+﻿namespace Mixdrome.Settings
 {
     using System.ComponentModel;
     using Caliburn.Micro;
     using Client.Common.Services.DataStructures.SubsonicService;
 
-    public class Subsonic8Configuration : PropertyChangedBase
+    public class MixdromeConfiguration : PropertyChangedBase
     {
         #region Fields
 
@@ -16,7 +16,7 @@
 
         #region Constructors and Destructors
 
-        public Subsonic8Configuration()
+        public MixdromeConfiguration()
         {
             SubsonicServiceConfiguration = new SubsonicServiceConfiguration();
         }

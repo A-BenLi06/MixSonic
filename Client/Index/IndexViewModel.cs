@@ -1,4 +1,4 @@
-namespace Subsonic8.Index
+namespace Mixdrome.Index
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -7,8 +7,8 @@ namespace Subsonic8.Index
     using Client.Common.Models;
     using Client.Common.Models.Subsonic;
     using Client.Common.Results;
-    using Subsonic8.Framework.ViewModel;
-    using Subsonic8.MenuItem;
+    using Mixdrome.Framework.ViewModel;
+    using Mixdrome.MenuItem;
 
     public class IndexViewModel : CollectionViewModelBase<string, IList<Album>>, IIndexViewModel
     {

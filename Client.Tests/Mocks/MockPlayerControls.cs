@@ -1,7 +1,7 @@
 namespace Client.Tests.Mocks
 {
     using System;
-    using Subsonic8.Framework.Interfaces;
+    using Mixdrome.Framework.Interfaces;
 
     internal class MockPlayerControls : IPlayerControls
     {

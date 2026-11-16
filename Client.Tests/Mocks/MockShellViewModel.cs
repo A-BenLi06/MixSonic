@@ -6,10 +6,10 @@
     using Client.Common.EventAggregatorMessages;
     using Client.Common.Models;
     using Client.Common.Services;
-    using Subsonic8.BottomBar;
-    using Subsonic8.Framework.Interfaces;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Shell;
+    using Mixdrome.BottomBar;
+    using Mixdrome.Framework.Interfaces;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Shell;
     using Windows.ApplicationModel.Activation;
     using Windows.UI.Xaml;
 

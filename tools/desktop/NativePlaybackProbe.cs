@@ -1,4 +1,4 @@
-namespace Subsonic8.Diagnostics
+namespace Mixdrome.Diagnostics
 {
     using System;
     using System.IO;
@@ -9,10 +9,10 @@ namespace Subsonic8.Diagnostics
     using Client.Common.Models;
     using Client.Common.Services;
     using Microsoft.Practices.ServiceLocation;
-    using Subsonic8.AudioPlayback;
-    using Subsonic8.Framework.Interfaces;
-    using Subsonic8.Navidrome;
-    using Subsonic8.Shell;
+    using Mixdrome.AudioPlayback;
+    using Mixdrome.Framework.Interfaces;
+    using Mixdrome.Navidrome;
+    using Mixdrome.Shell;
     using Windows.Data.Json;
     using Windows.Foundation;
     using Windows.Graphics.Imaging;

@@ -3,7 +3,7 @@
     using Client.Common.Models.Subsonic;
     using Client.Tests.Framework.ViewModel;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Artist;
+    using Mixdrome.Artist;
 
     [TestClass]
     public class ArtistViewModelTests : DetailViewModelBaseTests<ExpandedArtist, ArtistViewModel>

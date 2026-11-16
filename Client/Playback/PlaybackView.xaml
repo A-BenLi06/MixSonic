@@ -1,18 +1,18 @@
 <framework:AppPage
-    x:Class="Subsonic8.Playback.PlaybackView"
+    x:Class="Mixdrome.Playback.PlaybackView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:cal="using:Caliburn.Micro"
-    xmlns:common="using:Subsonic8.Common"
-    xmlns:playback="using:Subsonic8.Playback.Playback" xmlns:converters="using:Subsonic8.Converters"
-    xmlns:behaviors="using:Subsonic8.Framework.Behaviors" xmlns:framework="using:Subsonic8.Framework"
-    xmlns:i="using:Windows.UI.Interactivity" xmlns:videoPlayback="using:Subsonic8.VideoPlayback"
+    xmlns:common="using:Mixdrome.Common"
+    xmlns:playback="using:Mixdrome.Playback.Playback" xmlns:converters="using:Mixdrome.Converters"
+    xmlns:behaviors="using:Mixdrome.Framework.Behaviors" xmlns:framework="using:Mixdrome.Framework"
+    xmlns:i="using:Windows.UI.Interactivity" xmlns:videoPlayback="using:Mixdrome.VideoPlayback"
     xmlns:commonBehaviors="using:Common.Behaviors"
-    xmlns:commonConverters="using:Common.Converters" xmlns:subsonic8="using:Subsonic8"
-    xmlns:controls="using:Subsonic8.Controls"
-    xmlns:playlistItem="using:Subsonic8.PlaylistItem"
+    xmlns:commonConverters="using:Common.Converters" xmlns:Mixdrome="using:Mixdrome"
+    xmlns:controls="using:Mixdrome.Controls"
+    xmlns:playlistItem="using:Mixdrome.PlaylistItem"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -20,7 +20,7 @@
         <cal:BooleanToVisibilityConverter x:Name="BooleanToVisibilityConverter"/>
         <commonConverters:InvertedVisibilityConverter x:Name="InvertedVisibilityConverter"/>
         <commonConverters:NullToVisibilityConverter x:Name="NullToVisibilityConverter"/>
-        <subsonic8:StringResources x:Name="StringResources" />
+        <Mixdrome:StringResources x:Name="StringResources" />
         <converters:InvertedBooleanToVisibilityConverter x:Name="InvertedBooleanToVisibilityConverter"/>
     </Page.Resources>
 

@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Settings
+﻿namespace Mixdrome.Settings
 {
     public sealed partial class PrivacyPolicyView
     {

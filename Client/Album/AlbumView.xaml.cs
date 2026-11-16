@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Album
+﻿namespace Mixdrome.Album
 {
     public partial class AlbumView
     {

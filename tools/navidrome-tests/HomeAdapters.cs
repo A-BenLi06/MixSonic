@@ -48,7 +48,7 @@ namespace Caliburn.Micro
         { navigation.Navigate(typeof(T), parameter); }
     }
 }
-namespace Subsonic8.Framework.ViewModel
+namespace Mixdrome.Framework.ViewModel
 {
     public interface IViewModel : IScreen { }
     public abstract class ViewModelBase : Screen, IViewModel
@@ -60,13 +60,13 @@ namespace Subsonic8.Framework.ViewModel
         public sealed class ErrorDialogAdapter { public void Hide() { } }
     }
 }
-namespace Subsonic8.BottomBar { public sealed class ChangeBottomBarMessage { public object BottomBarViewModel { get; set; } } }
-namespace Subsonic8.Framework.Services { public interface IDialogService { void ShowSettings<T>() where T : Screen; } }
-namespace Subsonic8.Settings { public sealed class SettingsViewModel : Screen { } }
-namespace Subsonic8.Navidrome
+namespace Mixdrome.BottomBar { public sealed class ChangeBottomBarMessage { public object BottomBarViewModel { get; set; } } }
+namespace Mixdrome.Framework.Services { public interface IDialogService { void ShowSettings<T>() where T : Screen; } }
+namespace Mixdrome.Settings { public sealed class SettingsViewModel : Screen { } }
+namespace Mixdrome.Navidrome
 {
     public interface INavidromePlayerViewModel : IScreen { }
-    public sealed class NavidromePlayerViewModel : Screen, INavidromePlayerViewModel, Subsonic8.Framework.ViewModel.IHaveState
+    public sealed class NavidromePlayerViewModel : Screen, INavidromePlayerViewModel, Mixdrome.Framework.ViewModel.IHaveState
     {
         public Dictionary<string, object> Saved, Loaded;
         public void SaveState(Dictionary<string, object> state, List<Type> knownTypes) { Saved = state; }

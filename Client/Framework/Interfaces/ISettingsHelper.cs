@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Framework.Interfaces
+﻿namespace Mixdrome.Framework.Interfaces
 {
     using System.Threading.Tasks;
     using Windows.Security.Credentials;

@@ -12,8 +12,8 @@ using Client.Common.Models.Subsonic;
 using Client.Common.Services;
 using Client.Common.Services.DataStructures.SubsonicService;
 using Client.Common.Services.Navidrome;
-using Subsonic8.Main;
-using Subsonic8.Navidrome;
+using Mixdrome.Main;
+using Mixdrome.Navidrome;
 
 public static class NavidromeHomeTests
 {
@@ -219,7 +219,7 @@ public static class NavidromeHomeTests
         public Task<IList<PlaylistItem>> CreateQueueAsync(IEnumerable<OfflineDownloadItem> items)
         { return Task.FromResult<IList<PlaylistItem>>(items.Select(item => new PlaylistItem { SongId = item.Song.Id, AccountKey = item.AccountKey }).ToList()); }
     }
-    private sealed class Dialogs : Subsonic8.Framework.Services.IDialogService
+    private sealed class Dialogs : Mixdrome.Framework.Services.IDialogService
     { public int Opened; public void ShowSettings<T>() where T : Screen { ++Opened; } }
     private sealed class Events : IEventAggregator
     {

@@ -1,6 +1,6 @@
-namespace Subsonic8.Favourites
+namespace Mixdrome.Favourites
 {
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public interface IFavouritesViewModel : ICollectionViewModel<object>
     {

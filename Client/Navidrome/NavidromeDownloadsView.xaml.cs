@@ -1,4 +1,4 @@
-namespace Subsonic8.Navidrome
+namespace Mixdrome.Navidrome
 {
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;

@@ -1,11 +1,11 @@
-namespace Subsonic8.Playback
+namespace Mixdrome.Playback
 {
     using System.Threading.Tasks;
     using Caliburn.Micro;
     using Client.Common.EventAggregatorMessages;
-    using Subsonic8.Framework.Behaviors;
-    using Subsonic8.Framework.Interfaces;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.Behaviors;
+    using Mixdrome.Framework.Interfaces;
+    using Mixdrome.Framework.ViewModel;
 
     public interface IPlaybackViewModel : IHandle<PlaylistStateChangedMessage>,
                                           IHandle<StartPlaybackMessage>,

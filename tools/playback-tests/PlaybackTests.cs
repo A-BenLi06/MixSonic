@@ -7,7 +7,7 @@ using Client.Common.Models;
 using Client.Common.Services;
 using Client.Common.Results;
 using Client.Common.Services.DataStructures.SubsonicService;
-using Subsonic8.Listening;
+using Mixdrome.Listening;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Xml.Linq;

@@ -126,7 +126,7 @@
         "PC-HOME"
       ],
       "steps": [
-        "Build Client.csproj Debug x86 with MSBuild 14.0.",
+        "Build Mixdrome.csproj Debug x86 with MSBuild 14.0.",
         "Inspect the emitted manifest and appx."
       ],
       "expected": [

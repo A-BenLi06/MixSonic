@@ -4,7 +4,7 @@
     using Client.Tests.Framework.ViewModel;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Album;
+    using Mixdrome.Album;
 
     [TestClass]
     public class AlbumViewModelTests : DetailViewModelBaseTests<Album, AlbumViewModel>

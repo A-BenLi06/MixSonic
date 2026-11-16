@@ -1,12 +1,12 @@
-﻿namespace Subsonic8.Playlists
+﻿namespace Mixdrome.Playlists
 {
     using System.Collections.Generic;
     using System.Linq;
     using Client.Common.Models;
     using Client.Common.Models.Subsonic;
     using Client.Common.Results;
-    using Subsonic8.BottomBar;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.BottomBar;
+    using Mixdrome.Framework.ViewModel;
 
     public abstract class PlaylistViewModelBase : CollectionViewModelBase<object, PlaylistCollection>,
                                                   IPlaylistViewModel

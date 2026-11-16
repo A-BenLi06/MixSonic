@@ -9,8 +9,8 @@
     <ProjectGuid>{9391AB22-671A-4842-8328-98442D05F41F}</ProjectGuid>
     <OutputType>winmdobj</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Client.Phone.BackgroundAudioTask</RootNamespace>
-    <AssemblyName>Client.Phone.BackgroundAudioTask</AssemblyName>
+    <RootNamespace>Mixdrome.Phone.BackgroundAudioTask</RootNamespace>
+    <AssemblyName>Mixdrome.Phone.BackgroundAudioTask</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>

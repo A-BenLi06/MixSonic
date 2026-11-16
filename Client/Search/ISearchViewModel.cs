@@ -1,9 +1,9 @@
-namespace Subsonic8.Search
+namespace Mixdrome.Search
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Subsonic8.Framework.ViewModel;
-    using Subsonic8.MenuItem;
+    using Mixdrome.Framework.ViewModel;
+    using Mixdrome.MenuItem;
 
     public interface ISearchViewModel : ICollectionViewModel<string>
     {

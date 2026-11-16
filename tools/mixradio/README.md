@@ -78,8 +78,8 @@ launch; use `-NoBuild` to deploy an already built matching package. It stops onl
 client processes with executable paths inside this workspace. Unchanged files
 are skipped, and same-version development registrations are reused.
 
-Supply `-MSBuildPath`/`SUBSONIC8_MSBUILD` for a different legacy MSBuild location;
-the test runners accept `-CompilerPath`/`SUBSONIC8_CSC`. Both test runners compile
+Supply `-MSBuildPath`/`MIXDROME_MSBUILD` for a different legacy MSBuild location;
+the test runners accept `-CompilerPath`/`MIXDROME_CSC`. Both test runners compile
 current production sources into `.tmp/` before testing; they do not inspect a
 stale prebuilt common DLL. Queue exports use `.spls` XML, while session state
 uses DataContractSerializer.

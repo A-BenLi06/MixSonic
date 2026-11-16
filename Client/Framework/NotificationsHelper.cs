@@ -1,10 +1,10 @@
-﻿namespace Subsonic8.Framework
+﻿namespace Mixdrome.Framework
 {
     using Caliburn.Micro;
     using Client.Common.EventAggregatorMessages;
     using MugenInjection.Attributes;
-    using Subsonic8.Framework.Extensions;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.Framework.Extensions;
+    using Mixdrome.Framework.Services;
 
     public class NotificationsHelper : INotificationsHelper
     {

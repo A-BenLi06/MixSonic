@@ -1,8 +1,8 @@
 param(
     [Parameter(Mandatory)][string]$CertificateThumbprint,
     [ValidateSet('AnyCPU', 'x86', 'x64', 'ARM')][string]$Architecture = 'AnyCPU',
-    [string]$MSBuildPath = $env:SUBSONIC8_MSBUILD,
-    [string]$SignToolPath = $env:SUBSONIC8_SIGNTOOL,
+    [string]$MSBuildPath = $env:MIXDROME_MSBUILD,
+    [string]$SignToolPath = $env:MIXDROME_SIGNTOOL,
     [string]$TimestampUrl
 )
 
@@ -15,7 +15,7 @@ try {
     $commit = & git rev-parse HEAD
     $sourceManifest = [xml](Get-Content -LiteralPath 'Client/Package.appxmanifest' -Raw)
     $version = $sourceManifest.Package.Identity.Version
-    $project = [xml](Get-Content -LiteralPath 'Client/Client.csproj' -Raw)
+    $project = [xml](Get-Content -LiteralPath 'Client/Mixdrome.csproj' -Raw)
     $temporaryThumbprint = $project.SelectSingleNode('//*[local-name()="PackageCertificateThumbprint"]').InnerText
     $CertificateThumbprint = $CertificateThumbprint.Replace(' ', '')
     if ($CertificateThumbprint -eq $temporaryThumbprint) { throw 'Use a dedicated release certificate, not the tracked temporary key.' }
@@ -32,7 +32,7 @@ try {
     $scratch = Join-Path $projectRoot ('.tmp/release-build/' + [Guid]::NewGuid().ToString('N'))
     $packages = Join-Path $scratch 'AppPackages'
     New-Item -ItemType Directory -Path $packages -Force | Out-Null
-    & $MSBuildPath 'Client/Client.csproj' /t:Rebuild /p:Configuration=Release "/p:Platform=$Architecture" "/p:AppxPackageDir=$packages\" /p:AppxBundle=Never /p:AppxPackageSigningEnabled=false /p:AppxAutoIncrementPackageRevision=false /p:GenerateAppxPackageOnBuild=true /p:NativeUiProbe=false /p:NativeUiObserve=false /p:NativePlaybackProbe=false /m /nologo /v:minimal /fl "/flp:logfile=$scratch/build.log;verbosity=normal"
+    & $MSBuildPath 'Client/Mixdrome.csproj' /t:Rebuild /p:Configuration=Release "/p:Platform=$Architecture" "/p:AppxPackageDir=$packages\" /p:AppxBundle=Never /p:AppxPackageSigningEnabled=false /p:AppxAutoIncrementPackageRevision=false /p:GenerateAppxPackageOnBuild=true /p:NativeUiProbe=false /p:NativeUiObserve=false /p:NativePlaybackProbe=false /m /nologo /v:minimal /fl "/flp:logfile=$scratch/build.log;verbosity=normal"
     if ($LASTEXITCODE -ne 0) { throw "Legacy AppX build failed; see $scratch/build.log" }
     $candidates = @(Get-ChildItem -LiteralPath $packages -Filter '*.appx' -Recurse | Where-Object FullName -NotMatch '[\\/]Dependencies[\\/]')
     if ($candidates.Count -ne 1) { throw 'Expected exactly one freshly built application AppX.' }

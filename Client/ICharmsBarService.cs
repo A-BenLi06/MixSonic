@@ -1,5 +1,5 @@
 
-namespace Subsonic8.Services
+namespace Mixdrome.Services
 {
     using System;
     using Windows.ApplicationModel.Search;

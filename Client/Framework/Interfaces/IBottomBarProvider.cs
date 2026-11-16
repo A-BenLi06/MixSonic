@@ -1,6 +1,6 @@
-﻿namespace Subsonic8.Framework.Interfaces
+﻿namespace Mixdrome.Framework.Interfaces
 {
-    using Subsonic8.BottomBar;
+    using Mixdrome.BottomBar;
 
     public interface IBottomBarViewModelProvider
     {

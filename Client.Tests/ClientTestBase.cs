@@ -4,7 +4,7 @@
     using Client.Common.Services;
     using Client.Tests.Mocks;
     using global::Common.Mocks;
-    using Subsonic8.Shell;
+    using Mixdrome.Shell;
 
     public abstract class ClientTestBase
     {

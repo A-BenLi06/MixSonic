@@ -1,4 +1,4 @@
-namespace Subsonic8.Favourites
+namespace Mixdrome.Favourites
 {
     public partial class FavouritesView
     {

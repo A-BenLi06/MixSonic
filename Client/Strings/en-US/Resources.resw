@@ -442,4 +442,9 @@
   <data name="Navidrome_Text_QueueDurationMinutes" xml:space="preserve"><value>{0} min</value></data>
   <data name="Navidrome_Text_QueueDurationHours" xml:space="preserve"><value>{0} h {1} min</value></data>
   <data name="Navidrome_Text_TrackNumber" xml:space="preserve"><value>{0}.</value></data>
+  <data name="ApplicationName" xml:space="preserve"><value>Mixdrome</value></data>
+  <data name="AppName.Text" xml:space="preserve"><value>Mixdrome</value></data>
+  <data name="BrandPrefix.Text" xml:space="preserve"><value>Mix</value></data>
+  <data name="BrandSuffix.Text" xml:space="preserve"><value>drome</value></data>
+  <data name="PlaylistFileType" xml:space="preserve"><value>Mixdrome playlist</value></data>
 </root>

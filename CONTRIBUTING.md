@@ -19,4 +19,4 @@ python tools/ci/check.py
 python tools/ci/check.py --source .tmp/navidrome
 ```
 
-`SUBSONIC8_CSC` 可指定桌面 C# 编译器。云端使用 Windows 2022 上的 Roslyn，本地兼容 MSBuild 14；完整客户端仍需旧版 SDK。发布规则及完整流程见 [releasing.md](docs/releasing.md)。
+`MIXDROME_CSC` 可指定桌面 C# 编译器。云端使用 Windows 2022 上的 Roslyn，本地兼容 MSBuild 14；完整客户端仍需旧版 SDK。发布规则及完整流程见 [releasing.md](docs/releasing.md)。

@@ -1,9 +1,9 @@
-namespace Subsonic8.Framework.Extensions
+namespace Mixdrome.Framework.Extensions
 {
     using System.Threading.Tasks;
     using Client.Common.Models;
     using Client.Common.Services;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public static class ModelLoaderExtensionMethods
     {

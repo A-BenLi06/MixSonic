@@ -1,4 +1,4 @@
-﻿using Subsonic8.Framework.Services;
+﻿using Mixdrome.Framework.Services;
 
 namespace Client.Tests.Mocks
 {

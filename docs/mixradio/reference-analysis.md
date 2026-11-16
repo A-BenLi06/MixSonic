@@ -55,7 +55,7 @@ assembly/file SHA-256 in `index.json`.
 | WP-HISTORY | `wp/decompiled/Nokia.Media.MusicClient/pages/playerhistory/playerhistory.xaml`; `Nokia.Media.MusicClient.Models.PlayHistory/PlayHistoryModel.cs` | Recently played is actual track/mix history, with separate peers and playback actions. |
 | WP-THEME | `wp/decompiled/Nokia.Media.MusicClient/theme/theme.xaml` | Segoe WP weights, explicit typography roles, localized resources, and `PinkColor=#FFFF2E80`. Use Segoe UI for desktop, with the same hierarchy and semantic accent. |
 
-## Baseline gaps in SubSonic8
+## Baseline gaps in Mixdrome
 
 This is a source review of the starting commit `7728e30`; it is not a claim that
 all original online services still run.

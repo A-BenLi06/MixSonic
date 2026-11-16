@@ -1,4 +1,4 @@
-namespace Subsonic8.Genres
+namespace Mixdrome.Genres
 {
     public partial class GenreSongsView
     {

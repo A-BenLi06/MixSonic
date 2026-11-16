@@ -5,7 +5,7 @@
     using FluentAssertions;
     using global::Common.Mocks;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Framework.Extensions;
+    using Mixdrome.Framework.Extensions;
 
     [TestClass]
     public class SongExtensionMethodTests

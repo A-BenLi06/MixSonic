@@ -6,7 +6,7 @@
     using global::Common.Mocks;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Framework;
+    using Mixdrome.Framework;
 
     [TestClass]
     public class NotificationHelperTests

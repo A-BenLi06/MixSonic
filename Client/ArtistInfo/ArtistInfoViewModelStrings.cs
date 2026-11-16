@@ -20,7 +20,7 @@
 // 	Generated: 07/27/2015 20:52:43
 // </auto-generatedInfo>
 // --------------------------------------------------------------------------------------------------
-namespace Subsonic8.ArtistInfo
+namespace Mixdrome.ArtistInfo
 {
     using System;
     using System.Resources;

@@ -1,4 +1,4 @@
-namespace Subsonic8.Navidrome
+namespace Mixdrome.Navidrome
 {
     using System;
     using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace Subsonic8.Navidrome
     using Client.Common.Models.Navidrome;
     using Client.Common.Models.Subsonic;
     using Client.Common.Services.Navidrome;
-    using Subsonic8.Playback;
+    using Mixdrome.Playback;
     using Windows.System;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;

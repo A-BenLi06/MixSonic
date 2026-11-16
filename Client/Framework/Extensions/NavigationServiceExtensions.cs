@@ -1,20 +1,20 @@
-﻿namespace Subsonic8.Framework.Extensions
+﻿namespace Mixdrome.Framework.Extensions
 {
     using Client.Common.Models;
     using Client.Common.Services;
-    using Subsonic8.Album;
-    using Subsonic8.Artist;
-    using Subsonic8.Artists;
-    using Subsonic8.Favourites;
-    using Subsonic8.Genres;
-    using Subsonic8.Index;
-    using Subsonic8.MusicDirectory;
-    using Subsonic8.NowPlaying;
-    using Subsonic8.Playback;
-    using Subsonic8.Playlists;
-    using Subsonic8.Radio;
-    using Subsonic8.RandomSongs;
-    using Subsonic8.Navidrome;
+    using Mixdrome.Album;
+    using Mixdrome.Artist;
+    using Mixdrome.Artists;
+    using Mixdrome.Favourites;
+    using Mixdrome.Genres;
+    using Mixdrome.Index;
+    using Mixdrome.MusicDirectory;
+    using Mixdrome.NowPlaying;
+    using Mixdrome.Playback;
+    using Mixdrome.Playlists;
+    using Mixdrome.Radio;
+    using Mixdrome.RandomSongs;
+    using Mixdrome.Navidrome;
 
     public static class NavigationServiceExtensions
     {

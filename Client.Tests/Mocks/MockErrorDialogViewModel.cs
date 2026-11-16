@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Client.Common.Services;
-    using Subsonic8.ErrorDialog;
+    using Mixdrome.ErrorDialog;
     using Windows.ApplicationModel.DataTransfer;
 
     public class MockErrorDialogViewModel : IErrorDialogViewModel

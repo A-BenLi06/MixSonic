@@ -11,7 +11,7 @@
 
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 
-    using Subsonic8.VideoPlayback;
+    using Mixdrome.VideoPlayback;
 
     [TestClass]
     public class VideoPlaybackViewModelTests : ViewModelBaseTests<VideoPlaybackViewModel>

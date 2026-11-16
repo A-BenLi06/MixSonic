@@ -1,4 +1,4 @@
-namespace Subsonic8.Search
+namespace Mixdrome.Search
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -6,8 +6,8 @@ namespace Subsonic8.Search
     using Client.Common.Models;
     using Client.Common.Models.Subsonic;
     using Client.Common.Results;
-    using Subsonic8.Framework.ViewModel;
-    using Subsonic8.MenuItem;
+    using Mixdrome.Framework.ViewModel;
+    using Mixdrome.MenuItem;
 
     public class SearchViewModel : CollectionViewModelBase<string, SearchResultCollection>, ISearchViewModel
     {

@@ -7,16 +7,15 @@
     <ProjectGuid>{CDB542AF-063B-4DEC-937D-CECB11C561EE}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Subsonic8</RootNamespace>
-    <AssemblyName>Subsonic8</AssemblyName>
+    <RootNamespace>Mixdrome</RootNamespace>
+    <AssemblyName>Mixdrome</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>Client_TemporaryKey.pfx</PackageCertificateKeyFile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <PackageCertificateThumbprint>1B62DFFE5767A9BC8E23DF2D19ABE80ED8D845A5</PackageCertificateThumbprint>
-    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
     <TargetPlatformVersion>8.1</TargetPlatformVersion>
     <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
     <TargetFrameworkVersion />
@@ -342,7 +341,7 @@
       <DependentUpon>PrivacyPolicyView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings\PrivacyPolicyViewModel.cs" />
-    <Compile Include="Settings\Subsonic8Configuration.cs" />
+    <Compile Include="Settings\MixdromeConfiguration.cs" />
     <Compile Include="Framework\Interfaces\IBottomBarProvider.cs" />
     <Compile Include="BottomBar\IBottomBarViewModel.cs" />
     <Compile Include="BottomBar\IDefaultBottomBarViewModel.cs" />
@@ -580,11 +579,7 @@
     <Content Include="Assets\CoverArtPlaceholder.jpg" />
     <Content Include="Assets\ArtistPlaceholder.png" />
     <Content Include="Assets\CoverArtPlaceholderLarge.jpg" />
-    <Content Include="Assets\SmallLogo.png" />
-    <Content Include="Assets\StoreLogo.png" />
-    <Content Include="Assets\Logo.png" />
-    <Content Include="Assets\subsonic.png" />
-    <Content Include="Assets\WideLogo.png" />
+    <Content Include="Assets\*.scale-*.png" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

@@ -1,7 +1,7 @@
-namespace Subsonic8.Phone
+namespace Mixdrome.Phone
 {
     using System;
-    using Subsonic8.Phone.Views;
+    using Mixdrome.Phone.Views;
     using Windows.ApplicationModel;
     using Windows.ApplicationModel.Activation;
     using Windows.UI.Xaml;

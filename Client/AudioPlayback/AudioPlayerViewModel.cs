@@ -1,4 +1,4 @@
-namespace Subsonic8.AudioPlayback
+namespace Mixdrome.AudioPlayback
 {
     using System;
     using System.Globalization;
@@ -16,8 +16,8 @@ namespace Subsonic8.AudioPlayback
 
     using MugenInjection.Attributes;
 
-    using Subsonic8.Framework.Interfaces;
-    using Subsonic8.Navidrome;
+    using Mixdrome.Framework.Interfaces;
+    using Mixdrome.Navidrome;
     using Windows.Storage;
     using Windows.UI.Xaml.Media;
 

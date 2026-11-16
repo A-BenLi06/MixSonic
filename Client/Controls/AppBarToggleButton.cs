@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Controls
+﻿namespace Mixdrome.Controls
 {
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;

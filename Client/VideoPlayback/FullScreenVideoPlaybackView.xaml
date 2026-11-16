@@ -1,10 +1,10 @@
 ﻿<videoPlayback:VideoPlaybackView
-    x:Class="Subsonic8.VideoPlayback.FullScreenVideoPlaybackView"
+    x:Class="Mixdrome.VideoPlayback.FullScreenVideoPlaybackView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mmppf="using:Microsoft.PlayerFramework" xmlns:videoPlayback="using:Subsonic8.VideoPlayback"
+    xmlns:mmppf="using:Microsoft.PlayerFramework" xmlns:videoPlayback="using:Mixdrome.VideoPlayback"
     mc:Ignorable="d">
 
     <Grid Background="Black">

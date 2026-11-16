@@ -1,7 +1,7 @@
-﻿namespace Subsonic8.VideoPlayback
+﻿namespace Mixdrome.VideoPlayback
 {
     using System;
-    using Subsonic8.Framework.Interfaces;
+    using Mixdrome.Framework.Interfaces;
 
     public interface IVideoPlayerView : IPlayerControls
     {

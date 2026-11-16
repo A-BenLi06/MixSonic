@@ -1,4 +1,4 @@
-namespace Subsonic8.Common.BrowseViews
+namespace Mixdrome.Common.BrowseViews
 {
     public sealed partial class FullScreen
     {

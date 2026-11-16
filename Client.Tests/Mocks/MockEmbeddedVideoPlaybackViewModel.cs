@@ -7,10 +7,10 @@
     using Client.Common.Results;
     using Client.Common.Services;
     using Client.Common.Services.DataStructures.PlayerManagementService;
-    using Subsonic8.BottomBar;
-    using Subsonic8.ErrorDialog;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.VideoPlayback;
+    using Mixdrome.BottomBar;
+    using Mixdrome.ErrorDialog;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.VideoPlayback;
     using Windows.ApplicationModel.DataTransfer;
     using Windows.UI.Xaml;
     using global::Common.Interfaces;

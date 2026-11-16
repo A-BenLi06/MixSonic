@@ -1,6 +1,6 @@
-﻿namespace Subsonic8.Framework
+﻿namespace Mixdrome.Framework
 {
-    using Subsonic8.Framework.Services;
+    using Mixdrome.Framework.Services;
 
     public interface ITileNotificationCapable
     {

@@ -2,7 +2,7 @@
 {
     using System;
 
-    using Subsonic8.Framework.Interfaces;
+    using Mixdrome.Framework.Interfaces;
 
     internal class MockExtendedPlayerControls : MockPlayerControls, IExtendedPlayerControls
     {

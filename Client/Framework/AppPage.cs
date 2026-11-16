@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Framework
+﻿namespace Mixdrome.Framework
 {
     using System;
     using System.Collections.Generic;
@@ -6,8 +6,8 @@
     using Caliburn.Micro;
     using Client.Common.Services;
     using Microsoft.Practices.ServiceLocation;
-    using Subsonic8.ErrorDialog;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.ErrorDialog;
+    using Mixdrome.Framework.ViewModel;
     using Windows.ApplicationModel;
     using Windows.Foundation.Metadata;
     using Windows.System;

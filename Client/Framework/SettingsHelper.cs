@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Framework
+﻿namespace Mixdrome.Framework
 {
     using System;
     using System.Linq;
@@ -7,16 +7,16 @@
     using Client.Common;
     using Client.Common.Services;
     using MugenInjection.Attributes;
-    using Subsonic8.Framework.Interfaces;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Settings;
+    using Mixdrome.Framework.Interfaces;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Settings;
     using Windows.Security.Credentials;
 
     public class SettingsHelper : ISettingsHelper
     {
         #region Constants
 
-        public const string PasswordVaultResourceName = "Subsonic8";
+        public const string PasswordVaultResourceName = "Mixdrome";
 
         #endregion
 
@@ -43,8 +43,8 @@
 
         public async Task LoadSettings()
         {
-            var subsonic8Configuration = await GetSubsonic8Configuration();
-            var svcConfig = subsonic8Configuration.SubsonicServiceConfiguration;
+            var MixdromeConfiguration = await GetMixdromeConfiguration();
+            var svcConfig = MixdromeConfiguration.SubsonicServiceConfiguration;
 
             // Perform route selection to find the best working URL
             if (!string.IsNullOrEmpty(svcConfig.PrimaryUrl) || !string.IsNullOrEmpty(svcConfig.SecondaryUrl))
@@ -69,7 +69,7 @@
             }
 
             SubsonicService.Configuration = svcConfig;
-            ToastNotificationService.EnableNotifications = subsonic8Configuration.UseToastNotifications;
+            ToastNotificationService.EnableNotifications = MixdromeConfiguration.UseToastNotifications;
         }
 
         public void UpdateCredentialsInVault(PasswordCredential passwordCredential)
@@ -108,12 +108,12 @@
         private async Task<Tuple<string, string>> GetLegacyCredentials()
         {
             Tuple<string, string> credentials = null;
-            var data = await StorageService.GetData<Subsonic8Configuration>();
+            var data = await StorageService.GetData<MixdromeConfiguration>();
             if (data != null)
             {
                 var xDocument = XDocument.Parse(data);
                 var configurationElement =
-                    xDocument.Element("Subsonic8Configuration").Element("SubsonicServiceConfiguration");
+                    xDocument.Element("MixdromeConfiguration").Element("SubsonicServiceConfiguration");
                 var usernameElement = configurationElement.Element("Username");
                 var passwordElement = configurationElement.Element("Password");
                 if (usernameElement != null && passwordElement != null)
@@ -125,16 +125,16 @@
             return credentials;
         }
 
-        private async Task<Subsonic8Configuration> GetSubsonic8Configuration()
+        private async Task<MixdromeConfiguration> GetMixdromeConfiguration()
         {
-            var subsonic8Configuration = await StorageService.Load<Subsonic8Configuration>()
-                                         ?? new Subsonic8Configuration();
-            await SetPasswordFromVault(subsonic8Configuration);
+            var MixdromeConfiguration = await StorageService.Load<MixdromeConfiguration>()
+                                         ?? new MixdromeConfiguration();
+            await SetPasswordFromVault(MixdromeConfiguration);
 
-            return subsonic8Configuration;
+            return MixdromeConfiguration;
         }
 
-        private async Task SetPasswordFromVault(Subsonic8Configuration appConfiguration)
+        private async Task SetPasswordFromVault(MixdromeConfiguration appConfiguration)
         {
             var configuration = appConfiguration.SubsonicServiceConfiguration;
             var vault = new PasswordVault();

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{CDB542AF-063B-4DEC-937D-CECB11C561EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mixdrome", "Client\Mixdrome.csproj", "{CDB542AF-063B-4DEC-937D-CECB11C561EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client.Phone.BackgroundAudioTask", "Client.Phone.BackgroundAudioTask\Client.Phone.BackgroundAudioTask.csproj", "{9391AB22-671A-4842-8328-98442D05F41F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mixdrome.Phone.BackgroundAudioTask", "Client.Phone.BackgroundAudioTask\Mixdrome.Phone.BackgroundAudioTask.csproj", "{9391AB22-671A-4842-8328-98442D05F41F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client.Common", "Client.Common\Client.Common.csproj", "{A8F49761-4D7A-458F-B1B1-4A66C421B3AA}"
 EndProject
@@ -34,7 +34,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubEchoNest", "SubEchoNest\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubEchoNestTests", "SubEchoNestTests\SubEchoNestTests.csproj", "{CC42252A-2D1C-4887-B8AA-CEF5FC579C6B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client.Phone", "Client.Phone\Client.Phone.csproj", "{76F1466A-8B6D-4E39-A767-685A06062A39}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mixdrome.Phone", "Client.Phone\Mixdrome.Phone.csproj", "{76F1466A-8B6D-4E39-A767-685A06062A39}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

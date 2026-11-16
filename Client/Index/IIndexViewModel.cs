@@ -1,6 +1,6 @@
-﻿namespace Subsonic8.Index
+﻿namespace Mixdrome.Index
 {
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public interface IIndexViewModel : ICollectionViewModel<string>
     {

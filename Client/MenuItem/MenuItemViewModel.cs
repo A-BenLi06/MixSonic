@@ -1,6 +1,6 @@
-namespace Subsonic8.MenuItem
+namespace Mixdrome.MenuItem
 {
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
     using Windows.UI.Xaml.Media;
 
     public class MenuItemViewModel : ItemViewModelBase, IMenuItemViewModel

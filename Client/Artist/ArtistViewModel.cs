@@ -1,12 +1,12 @@
-﻿namespace Subsonic8.Artist
+﻿namespace Mixdrome.Artist
 {
     using System.Collections.Generic;
     using Caliburn.Micro;
     using Client.Common.Models;
     using Client.Common.Models.Subsonic;
     using Client.Common.Results;
-    using Subsonic8.Framework.ViewModel;
-    using Subsonic8.MenuItem;
+    using Mixdrome.Framework.ViewModel;
+    using Mixdrome.MenuItem;
 
     public class ArtistViewModel : DetailViewModelBase<ExpandedArtist>, IArtistViewModel
     {

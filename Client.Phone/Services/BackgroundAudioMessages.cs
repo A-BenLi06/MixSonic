@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace Subsonic8.Phone.Services
+namespace Mixdrome.Phone.Services
 {
     public static class BackgroundAudioMessages
     {

@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Index
+﻿namespace Mixdrome.Index
 {
     public partial class IndexView
     {

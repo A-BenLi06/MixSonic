@@ -1,7 +1,7 @@
 ﻿namespace Client.Tests.Mocks
 {
     using System;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.Framework.Services;
 
     public class MockResourceService : IResourceService
     {

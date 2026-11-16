@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.PlaylistItem
+﻿namespace Mixdrome.PlaylistItem
 {
     public sealed partial class PlaylistItemView
     {

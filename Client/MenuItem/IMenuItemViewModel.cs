@@ -1,4 +1,4 @@
-namespace Subsonic8.MenuItem
+namespace Mixdrome.MenuItem
 {
     using Client.Common.Models;
 

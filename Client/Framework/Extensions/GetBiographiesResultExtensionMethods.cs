@@ -1,8 +1,8 @@
-﻿namespace Subsonic8.Framework.Extensions
+﻿namespace Mixdrome.Framework.Extensions
 {
     using SubEchoNest.Models;
     using SubEchoNest.Results;
-    using Subsonic8.ArtistInfo;
+    using Mixdrome.ArtistInfo;
 
     public static class GetBiographiesResultExtensionMethods
     {

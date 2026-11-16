@@ -16,7 +16,7 @@
 
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 
-    using Subsonic8.AudioPlayback;
+    using Mixdrome.AudioPlayback;
 
     [TestClass]
     public class AudioPlayerViewModelTests

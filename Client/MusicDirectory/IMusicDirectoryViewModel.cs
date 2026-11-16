@@ -1,7 +1,7 @@
-﻿namespace Subsonic8.MusicDirectory
+﻿namespace Mixdrome.MusicDirectory
 {
     using Client.Common.Models.Subsonic;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public interface IMusicDirectoryViewModel : IDetailViewModel<MusicDirectory>
     {

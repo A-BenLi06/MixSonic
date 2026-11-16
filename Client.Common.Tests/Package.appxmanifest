@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="4c8460d9-885f-4abc-a118-a21d7217cf83" Publisher="CN=Cristian" Version="1.1.0.0" />
+  <Identity Name="A-BenLi06.Mixdrome.Client.Common.Tests" Publisher="CN=benli06" Version="1.1.0.0" />
   <Properties>
     <DisplayName>Client.Common.Tests</DisplayName>
-    <PublisherDisplayName>Cristian</PublisherDisplayName>
+    <PublisherDisplayName>A-BenLi06</PublisherDisplayName>
     <Logo>Images\UnitTestStoreLogo.png</Logo>
     <Description>Client.Common.Tests</Description>
   </Properties>

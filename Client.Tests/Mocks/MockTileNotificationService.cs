@@ -1,7 +1,7 @@
 ﻿namespace Client.Tests.Mocks
 {
     using System.Threading.Tasks;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.Framework.Services;
 
     public class MockTileNotificationService : ITileNotificationService
     {

@@ -6,9 +6,9 @@
     using Client.Common.EventAggregatorMessages;
     using Client.Common.Results;
     using Client.Common.Services;
-    using Subsonic8.BottomBar;
-    using Subsonic8.ErrorDialog;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.BottomBar;
+    using Mixdrome.ErrorDialog;
+    using Mixdrome.Framework.Services;
     using global::Common.Interfaces;
 
     public class MockDefaultBottomBarViewModel : IDefaultBottomBarViewModel

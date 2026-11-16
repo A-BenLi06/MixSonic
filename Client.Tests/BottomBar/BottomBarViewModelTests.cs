@@ -5,8 +5,8 @@
     using global::Common.Mocks;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.BottomBar;
-    using Subsonic8.Main;
+    using Mixdrome.BottomBar;
+    using Mixdrome.Main;
 
     [TestClass]
     public abstract class BottomBarViewModelTests<TViewModel>

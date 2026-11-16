@@ -1,9 +1,9 @@
-﻿namespace Subsonic8.Framework.Extensions
+﻿namespace Mixdrome.Framework.Extensions
 {
     using System.Threading.Tasks;
     using Client.Common.Models;
-    using Subsonic8.Framework.Interfaces;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.Framework.Interfaces;
+    using Mixdrome.Framework.Services;
 
     internal static class NotificationExtensions
     {

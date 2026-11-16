@@ -1,6 +1,6 @@
-<framework:AppPage x:Class="Subsonic8.Navidrome.NavidromePlayerView"
+<framework:AppPage x:Class="Mixdrome.Navidrome.NavidromePlayerView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:common="using:Subsonic8.Common" xmlns:nav="using:Subsonic8.Navidrome" xmlns:framework="using:Subsonic8.Framework" xmlns:cal="using:Caliburn.Micro" xmlns:selection="using:Common.Behaviors" KeyDown="OnPageKeyDown">
+    xmlns:common="using:Mixdrome.Common" xmlns:nav="using:Mixdrome.Navidrome" xmlns:framework="using:Mixdrome.Framework" xmlns:cal="using:Caliburn.Micro" xmlns:selection="using:Common.Behaviors" KeyDown="OnPageKeyDown">
     <Page.Resources><ResourceDictionary><ResourceDictionary.MergedDictionaries><ResourceDictionary Source="NavidromeResources.xaml"/><ResourceDictionary Source="MixRadioOverlayResources.xaml"/></ResourceDictionary.MergedDictionaries></ResourceDictionary></Page.Resources>
     <Page.BottomAppBar>
         <CommandBar IsOpen="True">

@@ -1,4 +1,4 @@
-namespace Subsonic8.Phone.Views
+namespace Mixdrome.Phone.Views
 {
     using System;
     using System.Collections.Generic;

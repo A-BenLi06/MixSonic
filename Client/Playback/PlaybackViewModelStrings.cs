@@ -20,7 +20,7 @@
 // 	Generated: 07/27/2015 20:54:52
 // </auto-generatedInfo>
 // --------------------------------------------------------------------------------------------------
-namespace Subsonic8.Playback
+namespace Mixdrome.Playback
 {
     using System;
 

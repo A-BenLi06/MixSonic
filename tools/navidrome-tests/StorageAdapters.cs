@@ -103,7 +103,7 @@ namespace Windows.UI.Xaml
     }
 }
 #if !NATIVE_PLAYER_TESTS
-namespace Subsonic8.AudioPlayback
+namespace Mixdrome.AudioPlayback
 {
     public interface IAudioPlayerViewModel : System.ComponentModel.INotifyPropertyChanged
     {

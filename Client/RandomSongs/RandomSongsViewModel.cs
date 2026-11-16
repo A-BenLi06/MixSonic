@@ -1,10 +1,10 @@
-﻿namespace Subsonic8.RandomSongs
+﻿namespace Mixdrome.RandomSongs
 {
     using System.Collections.Generic;
     using Client.Common.Models;
     using Client.Common.Models.Subsonic;
     using Client.Common.Results;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public class RandomSongsViewModel : CollectionViewModelBase<object, IList<Song>>, IRandomSongsViewModel
     {
@@ -41,14 +41,14 @@
             return SubsonicService.GetRandomSongs(SongsToLoad);
         }
 
-                public override bool IsGroupedView
-        {
-            get
-            {
-                return false;
-            }
-        }
-
+                public override bool IsGroupedView
+        {
+            get
+            {
+                return false;
+            }
+        }
+
 #endregion
     }
 }

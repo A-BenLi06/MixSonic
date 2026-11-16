@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Common
+﻿namespace Mixdrome.Common
 {
     public partial class BrowseView
     {

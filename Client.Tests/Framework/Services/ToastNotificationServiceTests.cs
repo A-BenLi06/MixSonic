@@ -1,7 +1,7 @@
 ﻿namespace Client.Tests.Framework.Services
 {
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.Framework.Services;
 
     [TestClass]
     public class ToastNotificationServiceTests

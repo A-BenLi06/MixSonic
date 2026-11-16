@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.BottomBar
+﻿namespace Mixdrome.BottomBar
 {
     using System;
     using System.Collections.Specialized;
@@ -7,8 +7,8 @@
     using Callisto.Controls;
     using Client.Common.Services;
     using MugenInjection.Attributes;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.MenuItem;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.MenuItem;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Controls.Primitives;

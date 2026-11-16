@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.BottomBar
+﻿namespace Mixdrome.BottomBar
 {
     public interface IPlaybackBottomBarViewModel : IBottomBarViewModel
     {

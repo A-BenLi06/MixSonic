@@ -1,7 +1,7 @@
-namespace Subsonic8.Main
+namespace Mixdrome.Main
 {
     using System.Threading.Tasks;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
     public interface IMainViewModel : IViewModel
     {
         Task Populate();

@@ -1,4 +1,4 @@
-namespace Subsonic8.Framework.ViewModel
+namespace Mixdrome.Framework.ViewModel
 {
     using System;
     using System.Collections.Generic;
@@ -11,12 +11,12 @@ namespace Subsonic8.Framework.ViewModel
     using Client.Common.Models;
     using Client.Common.Results;
     using MugenInjection.Attributes;
-    using Subsonic8.BottomBar;
-    using Subsonic8.Framework.Extensions;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.MenuItem;
+    using Mixdrome.BottomBar;
+    using Mixdrome.Framework.Extensions;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.MenuItem;
     using Windows.UI.Xaml.Controls;
-    using Subsonic8.BrowsePlayer;
+    using Mixdrome.BrowsePlayer;
 
     public abstract class CollectionViewModelBase<TParameter, TResult> : ViewModelBase, ICollectionViewModel<TParameter>
     {

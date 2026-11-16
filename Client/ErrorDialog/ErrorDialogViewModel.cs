@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.ErrorDialog
+namespace Mixdrome.ErrorDialog
 {
     using System;
     using System.Net;
@@ -7,8 +7,8 @@
     using System.Threading.Tasks;
     using Caliburn.Micro;
     using Client.Common.Services;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Settings;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Settings;
     using Windows.ApplicationModel.DataTransfer;
 
     public class ErrorDialogViewModel : Screen, IErrorDialogViewModel
@@ -211,7 +211,7 @@
             {
                 dataRequest.Data.Properties.Title = "Error report";
                 dataRequest.Data.Properties.Description = "Share this with us by email";
-                dataRequest.Data.Properties.ApplicationName = "MixRadio";
+                dataRequest.Data.Properties.ApplicationName = global::Mixdrome.MixRadioText.Get("ApplicationName");
                 var dataBuilder = new StringBuilder();
                 var actionInformation =
                     string.Format(

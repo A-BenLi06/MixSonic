@@ -10,9 +10,9 @@
     using FluentAssertions;
     using global::Common.Mocks.Results;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.BottomBar;
-    using Subsonic8.MenuItem;
-    using Subsonic8.Search;
+    using Mixdrome.BottomBar;
+    using Mixdrome.MenuItem;
+    using Mixdrome.Search;
 
     [TestClass]
     public class SearchViewModelTests : CollectionViewModelBaseTests<SearchViewModel, string>

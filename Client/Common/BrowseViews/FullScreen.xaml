@@ -1,12 +1,12 @@
 <UserControl
-    x:Class="Subsonic8.Common.BrowseViews.FullScreen"
+    x:Class="Mixdrome.Common.BrowseViews.FullScreen"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:cal="using:Caliburn.Micro"
-    xmlns:common="using:Subsonic8.Common"
-    xmlns:player="using:Subsonic8.BrowsePlayer"
+    xmlns:common="using:Mixdrome.Common"
+    xmlns:player="using:Mixdrome.BrowsePlayer"
     xmlns:behaviors="using:Common.Behaviors"
-    xmlns:converters="using:Subsonic8.Converters"
+    xmlns:converters="using:Mixdrome.Converters"
     KeyDown="OnCanvasKeyDown">
     <UserControl.Resources>
         <cal:BooleanToVisibilityConverter x:Key="VisibleWhenTrue" />

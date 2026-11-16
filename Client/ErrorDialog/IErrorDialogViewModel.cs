@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.ErrorDialog
+﻿namespace Mixdrome.ErrorDialog
 {
     using System;
     using System.Threading.Tasks;

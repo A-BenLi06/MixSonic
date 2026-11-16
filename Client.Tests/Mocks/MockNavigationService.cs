@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using Caliburn.Micro;
     using Client.Common.Services;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
     using Windows.UI.Xaml.Navigation;
 
     public class MockNavigationService : ICustomFrameAdapter

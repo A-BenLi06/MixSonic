@@ -1,9 +1,9 @@
-namespace Subsonic8.Common
+namespace Mixdrome.Common
 {
     using Caliburn.Micro;
     using Microsoft.Practices.ServiceLocation;
-    using Subsonic8.Navidrome;
-    using Subsonic8.Search;
+    using Mixdrome.Navidrome;
+    using Mixdrome.Search;
     using Windows.System;
     using Windows.UI.Core;
     using Windows.UI.Xaml;
