@@ -1,9 +1,9 @@
 <UserControl
-    x:Class="Subsonic8.MenuItem.MenuItemView"
+    x:Class="Mixdrome.MenuItem.MenuItemView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:cal="using:Caliburn.Micro"
-    xmlns:converters="using:Subsonic8.Converters">
+    xmlns:converters="using:Mixdrome.Converters">
 
     <UserControl.Resources>
         <converters:StringToVisibilityConverter x:Name="StringToVisibilityConverter"/>

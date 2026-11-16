@@ -1,4 +1,4 @@
-namespace Subsonic8.Phone.Services
+namespace Mixdrome.Phone.Services
 {
     using System;
     using System.Collections.Generic;

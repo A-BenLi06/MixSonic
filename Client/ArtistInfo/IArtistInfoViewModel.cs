@@ -1,7 +1,7 @@
-﻿namespace Subsonic8.ArtistInfo
+﻿namespace Mixdrome.ArtistInfo
 {
     using System.Threading.Tasks;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public interface IArtistInfoViewModel : IViewModel
     {

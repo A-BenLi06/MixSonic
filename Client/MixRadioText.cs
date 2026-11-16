@@ -1,4 +1,4 @@
-namespace Subsonic8
+namespace Mixdrome
 {
     using Windows.ApplicationModel.Resources;
 

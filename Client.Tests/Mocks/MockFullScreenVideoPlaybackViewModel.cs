@@ -7,10 +7,10 @@ namespace Client.Tests.Mocks
     using Client.Common.Results;
     using Client.Common.Services;
     using Client.Common.Services.DataStructures.PlayerManagementService;
-    using Subsonic8.ErrorDialog;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Framework.ViewModel;
-    using Subsonic8.VideoPlayback;
+    using Mixdrome.ErrorDialog;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Framework.ViewModel;
+    using Mixdrome.VideoPlayback;
     using Windows.UI.Xaml;
     using global::Common.Interfaces;
     using Action = System.Action;

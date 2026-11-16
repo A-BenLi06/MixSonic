@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.AudioPlayback
+﻿namespace Mixdrome.AudioPlayback
 {
     using System;
 

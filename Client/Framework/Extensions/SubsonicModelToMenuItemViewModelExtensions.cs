@@ -1,7 +1,7 @@
-namespace Subsonic8.Framework.Extensions
+namespace Mixdrome.Framework.Extensions
 {
     using Client.Common.Models;
-    using Subsonic8.MenuItem;
+    using Mixdrome.MenuItem;
     using Windows.UI;
     using Windows.UI.Xaml.Media;
 

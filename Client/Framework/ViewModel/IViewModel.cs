@@ -1,9 +1,9 @@
-namespace Subsonic8.Framework.ViewModel
+namespace Mixdrome.Framework.ViewModel
 {
     using Caliburn.Micro;
     using Client.Common.Services;
-    using Subsonic8.ErrorDialog;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.ErrorDialog;
+    using Mixdrome.Framework.Services;
     using Action = System.Action;
 
     public interface IViewModel : IScreen, ISongLoader

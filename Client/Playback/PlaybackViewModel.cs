@@ -1,4 +1,4 @@
-namespace Subsonic8.Playback
+namespace Mixdrome.Playback
 {
     using System;
     using System.Collections.Generic;
@@ -13,16 +13,16 @@ namespace Subsonic8.Playback
     using Client.Common.Models;
     using Client.Common.Services;
     using Client.Common.Services.DataStructures.PlayerManagementService;
-    using Subsonic8.ArtistInfo;
+    using Mixdrome.ArtistInfo;
     using global::Common.ExtensionsMethods;
     using global::Common.ListCollectionView;
     using MugenInjection.Attributes;
 
-    using Subsonic8.BottomBar;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Framework.ViewModel;
-    using Subsonic8.Playlists;
-    using Subsonic8.VideoPlayback;
+    using Mixdrome.BottomBar;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Framework.ViewModel;
+    using Mixdrome.Playlists;
+    using Mixdrome.VideoPlayback;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Media.Imaging;
 
@@ -355,7 +355,7 @@ namespace Subsonic8.Playback
         public IProgressIndicatorViewModel ProgressIndicatorViewModel { get; set; }
 
         [Inject]
-        public Subsonic8.BrowsePlayer.IBrowsePlayerViewModel PlayerSummary { get; set; }
+        public Mixdrome.BrowsePlayer.IBrowsePlayerViewModel PlayerSummary { get; set; }
 
         [Inject]
         public ITileNotificationService TileNotificationService { get; set; }
@@ -445,7 +445,7 @@ namespace Subsonic8.Playback
 
         public void LoadRemotePlaylist()
         {
-            NavigationService.NavigateToViewModel<Subsonic8.Navidrome.NavidromeBrowserViewModel>("playlists");
+            NavigationService.NavigateToViewModel<Mixdrome.Navidrome.NavidromeBrowserViewModel>("playlists");
         }
 
         public void LoadState(string parameter, Dictionary<string, object> statePageState)

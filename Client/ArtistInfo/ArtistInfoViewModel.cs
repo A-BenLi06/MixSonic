@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.ArtistInfo
+﻿namespace Mixdrome.ArtistInfo
 {
     using System.Threading.Tasks;
     using Framework.ViewModel;
@@ -6,7 +6,7 @@
     using SubEchoNest;
     using SubEchoNest.Models;
     using SubLastFm;
-    using Subsonic8.Framework.Extensions;
+    using Mixdrome.Framework.Extensions;
 
     public class ArtistInfoViewModel : ViewModelBase, IArtistInfoViewModel
     {

@@ -1,4 +1,4 @@
-namespace Subsonic8.Listening
+namespace Mixdrome.Listening
 {
     using System;
     using System.Collections.Generic;

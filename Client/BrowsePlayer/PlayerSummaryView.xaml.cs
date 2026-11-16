@@ -1,4 +1,4 @@
-namespace Subsonic8.BrowsePlayer
+namespace Mixdrome.BrowsePlayer
 {
     public sealed partial class PlayerSummaryView
     {

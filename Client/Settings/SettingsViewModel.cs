@@ -1,4 +1,4 @@
-namespace Subsonic8.Settings
+namespace Mixdrome.Settings
 {
     using System;
     using System.Collections.Generic;
@@ -9,10 +9,10 @@ namespace Subsonic8.Settings
     using Client.Common.Services;
     using Client.Common.Services.DataStructures.SubsonicService;
     using MugenInjection.Attributes;
-    using Subsonic8.Framework.Interfaces;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Main;
-    using Subsonic8.Navidrome;
+    using Mixdrome.Framework.Interfaces;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Main;
+    using Mixdrome.Navidrome;
     using Windows.Security.Credentials;
     using Windows.UI.Xaml.Controls;
 
@@ -22,7 +22,7 @@ namespace Subsonic8.Settings
         private readonly IToastNotificationService _notificationService;
         private readonly IStorageService _storageService;
         private readonly ISubsonicService _subsonicService;
-        private Subsonic8Configuration _configuration;
+        private MixdromeConfiguration _configuration;
         private NamedOption<string> _selectedFormat;
         private NamedOption<SubsonicAuthenticationMode> _selectedAuthentication;
         private string _bitRateText;
@@ -45,7 +45,7 @@ namespace Subsonic8.Settings
         }
         [Inject] public ISettingsHelper SettingsHelper { get; set; }
         [Inject] public INetworkDetectionService NetworkDetectionService { get; set; }
-        public Subsonic8Configuration Configuration { get { return _configuration; } private set { _configuration = value; NotifyOfPropertyChange(); ValidateChanged(); } }
+        public MixdromeConfiguration Configuration { get { return _configuration; } private set { _configuration = value; NotifyOfPropertyChange(); ValidateChanged(); } }
         public IList<NamedOption<string>> StreamFormats { get; private set; }
         public IList<NamedOption<SubsonicAuthenticationMode>> AuthenticationModes { get; private set; }
         public NamedOption<SubsonicAuthenticationMode> SelectedAuthentication
@@ -100,7 +100,7 @@ namespace Subsonic8.Settings
             IsWorking = true; Error = null;
             try
             {
-                var configuration = await _storageService.Load<Subsonic8Configuration>() ?? new Subsonic8Configuration { UseToastNotifications = false };
+                var configuration = await _storageService.Load<MixdromeConfiguration>() ?? new MixdromeConfiguration { UseToastNotifications = false };
                 if (configuration.SubsonicServiceConfiguration == null) configuration.SubsonicServiceConfiguration = new SubsonicServiceConfiguration();
                 var config = configuration.SubsonicServiceConfiguration;
                 var credentials = SettingsHelper.GetCredentialsFromVault();

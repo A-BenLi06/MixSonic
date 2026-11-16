@@ -18,7 +18,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Synthetic payload compilation failed.' }
 # This package only tests signing/integrity. It is never installed or run.
 @'
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="SubSonic8.SignatureFixture" Publisher="CN=SubSonic8.SignatureFixture" Version="1.0.0.0" ProcessorArchitecture="neutral" />
+  <Identity Name="Mixdrome.SignatureFixture" Publisher="CN=Mixdrome.SignatureFixture" Version="1.0.0.0" ProcessorArchitecture="neutral" />
   <Properties><DisplayName>Fixture</DisplayName><PublisherDisplayName>Fixture</PublisherDisplayName><Logo>Logo.png</Logo></Properties>
   <Prerequisites><OSMinVersion>6.3.0</OSMinVersion><OSMaxVersionTested>6.3.0</OSMaxVersionTested></Prerequisites>
   <Resources><Resource Language="en-US" /></Resources>
@@ -27,11 +27,11 @@ if ($LASTEXITCODE -ne 0) { throw 'Synthetic payload compilation failed.' }
 '@ | Set-Content -LiteralPath (Join-Path $layout 'AppxManifest.xml') -Encoding utf8
 $png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a1ioAAAAASUVORK5CYII='
 [IO.File]::WriteAllBytes((Join-Path $layout 'Logo.png'), [Convert]::FromBase64String($png))
-$package = Join-Path $verified 'SubSonic8.appx'
+$package = Join-Path $verified 'Mixdrome.appx'
 & $makeAppx pack /d $layout /p $package /nv /o
 if ($LASTEXITCODE -ne 0) { throw 'Synthetic AppX packing failed.' }
 $key = [Security.Cryptography.RSA]::Create(2048)
-$request = [Security.Cryptography.X509Certificates.CertificateRequest]::new('CN=SubSonic8.SignatureFixture', $key, [Security.Cryptography.HashAlgorithmName]::SHA256, [Security.Cryptography.RSASignaturePadding]::Pkcs1)
+$request = [Security.Cryptography.X509Certificates.CertificateRequest]::new('CN=Mixdrome.SignatureFixture', $key, [Security.Cryptography.HashAlgorithmName]::SHA256, [Security.Cryptography.RSASignaturePadding]::Pkcs1)
 $usage = [Security.Cryptography.OidCollection]::new()
 $usage.Add([Security.Cryptography.Oid]::new('1.3.6.1.5.5.7.3.3')) | Out-Null
 $request.CertificateExtensions.Add([Security.Cryptography.X509Certificates.X509EnhancedKeyUsageExtension]::new($usage, $false))

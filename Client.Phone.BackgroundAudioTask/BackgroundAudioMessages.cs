@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace Client.Phone.BackgroundAudioTask
+namespace Mixdrome.Phone.BackgroundAudioTask
 {
     internal static class BackgroundAudioMessages
     {

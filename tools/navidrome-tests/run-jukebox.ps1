@@ -1,4 +1,4 @@
-param([string]$CompilerPath = $env:SUBSONIC8_CSC)
+param([string]$CompilerPath = $env:MIXDROME_CSC)
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 if (-not $CompilerPath) { $CompilerPath = Join-Path ${env:ProgramFiles(x86)} 'MSBuild\14.0\Bin\csc.exe' }

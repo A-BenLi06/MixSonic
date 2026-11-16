@@ -1,7 +1,7 @@
-﻿namespace Subsonic8.Converters
+﻿namespace Mixdrome.Converters
 {
     using System;
-    using Subsonic8.Playback;
+    using Mixdrome.Playback;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Data;
 

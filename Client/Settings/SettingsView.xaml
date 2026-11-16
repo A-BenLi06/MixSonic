@@ -1,4 +1,4 @@
-<UserControl x:Class="Subsonic8.Settings.SettingsView"
+<UserControl x:Class="Mixdrome.Settings.SettingsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:cal="using:Caliburn.Micro" IsEnabled="{Binding CanEdit}">
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Disabled" HorizontalScrollBarVisibility="Disabled">

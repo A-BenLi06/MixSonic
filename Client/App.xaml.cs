@@ -1,4 +1,4 @@
-﻿namespace Subsonic8
+﻿namespace Mixdrome
 {
     using System;
     using System.Collections.Generic;
@@ -10,8 +10,8 @@
     using MugenInjection;
     using SubEchoNest;
     using SubLastFm;
-    using Subsonic8.Framework;
-    using Subsonic8.Shell;
+    using Mixdrome.Framework;
+    using Mixdrome.Shell;
     using Windows.ApplicationModel;
     using Windows.ApplicationModel.Activation;
     using Windows.Storage;
@@ -99,7 +99,7 @@
             var deferral = e.SuspendingOperation.GetDeferral();
             try
             {
-                await Kernel.Get<Subsonic8.Navidrome.IPlaybackActivityService>().SuspendAsync();
+                await Kernel.Get<Mixdrome.Navidrome.IPlaybackActivityService>().SuspendAsync();
                 await SuspensionManager.SaveAsync();
             }
             finally { deferral.Complete(); }
@@ -200,7 +200,7 @@
         {
 #if NATIVE_UI_PROBE
             e.Handled = true;
-            Subsonic8.Diagnostics.NativeUiProbe.RecordFatalAndExit(e.Message, e.Exception);
+            Mixdrome.Diagnostics.NativeUiProbe.RecordFatalAndExit(e.Message, e.Exception);
 #else
             LogStartupException("UnhandledException", e.Exception);
 #endif

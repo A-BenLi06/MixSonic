@@ -32,7 +32,7 @@
         {
             _eventAggregator.Subscribe(this);
             _mediaTransportControls = SystemMediaTransportControls.GetForCurrentView();
-            _mediaTransportControls.DisplayUpdater.AppMediaId = "MixRadio";
+            _mediaTransportControls.DisplayUpdater.AppMediaId = global::Client.Common.Services.Navidrome.SubsonicRequest.ClientName;
             _mediaTransportControls.IsPlayEnabled = true;
             _mediaTransportControls.IsPauseEnabled = true;
             _mediaTransportControls.IsStopEnabled = true;

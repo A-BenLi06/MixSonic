@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Subsonic8.Framework.Interfaces;
+    using Mixdrome.Framework.Interfaces;
     using Windows.Security.Credentials;
 
     public class MockSettingsHelper : ISettingsHelper

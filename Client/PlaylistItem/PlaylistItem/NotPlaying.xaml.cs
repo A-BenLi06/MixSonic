@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.PlaylistItem.PlaylistItem
+﻿namespace Mixdrome.PlaylistItem.PlaylistItem
 {
     public sealed partial class NotPlaying
     {

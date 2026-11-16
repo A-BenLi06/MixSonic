@@ -1,6 +1,6 @@
-﻿namespace Subsonic8
+﻿namespace Mixdrome
 {
-    using Subsonic8.Playback;
+    using Mixdrome.Playback;
 
     public class StringResources
     {

@@ -2,7 +2,7 @@
 {
     using System;
     using Caliburn.Micro;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.Framework.Services;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls.Primitives;
     using Windows.UI.Xaml.Media;

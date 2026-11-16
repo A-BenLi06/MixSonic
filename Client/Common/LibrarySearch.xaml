@@ -1,4 +1,4 @@
-<UserControl x:Class="Subsonic8.Common.LibrarySearch"
+<UserControl x:Class="Mixdrome.Common.LibrarySearch"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Background="White">
     <SearchBox x:Name="SearchInput" x:Uid="Navidrome_Search" Style="{StaticResource SearchBoxStyle}"

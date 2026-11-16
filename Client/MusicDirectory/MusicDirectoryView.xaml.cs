@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.MusicDirectory
+﻿namespace Mixdrome.MusicDirectory
 {
     public partial class MusicDirectoryView
     {

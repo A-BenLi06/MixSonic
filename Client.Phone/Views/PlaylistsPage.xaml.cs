@@ -1,4 +1,4 @@
-namespace Subsonic8.Phone.Views
+namespace Mixdrome.Phone.Views
 {
     using System;
     using System.Collections.ObjectModel;
@@ -6,7 +6,7 @@ namespace Subsonic8.Phone.Views
     using System.Threading.Tasks;
     using Client.Common.Models.Subsonic;
     using Client.Common.Services;
-    using Subsonic8.Phone.Services;
+    using Mixdrome.Phone.Services;
     using Windows.Phone.UI.Input;
     using Windows.UI.Popups;
     using Windows.UI.Xaml;

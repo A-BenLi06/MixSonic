@@ -1,4 +1,4 @@
-namespace Subsonic8.BrowsePlayer
+namespace Mixdrome.BrowsePlayer
 {
     using System;
     using System.Collections.Generic;
@@ -9,11 +9,11 @@ namespace Subsonic8.BrowsePlayer
     using Client.Common.EventAggregatorMessages;
     using Client.Common.Models;
     using Client.Common.Services;
-    using Subsonic8.Framework.Extensions;
-    using Subsonic8.Framework.ViewModel;
-    using Subsonic8.Listening;
-    using Subsonic8.Playback;
-    using Subsonic8.Navidrome;
+    using Mixdrome.Framework.Extensions;
+    using Mixdrome.Framework.ViewModel;
+    using Mixdrome.Listening;
+    using Mixdrome.Playback;
+    using Mixdrome.Navidrome;
     using MugenInjection.Attributes;
     using Windows.UI.Xaml.Controls;
 

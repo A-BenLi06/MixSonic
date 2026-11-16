@@ -1,10 +1,10 @@
-h1. Welcome to Subsonic8
+h1. Mixdrome
 
-A simple client app for the popular "Subsonic":http://www.subsonic.org media server. Written for Windows8 and upwards.
+A Metro-style Navidrome music client for Windows 8.1 and Windows Phone 8.1, maintained by A-BenLi06. Compatible Subsonic servers are also supported.
 
 h1. Requirements
 
-# Windows 8, 8.1 or 10
+# Windows 8.1 or Windows 10; Windows Phone 8.1 for the phone client
 # Subsonic-compatible music server; Navidrome does not require a Subsonic premium license
 
 To be able to build the source code you need to install the Player Framework addin for Visual Studio which can be found in the libs folder and also you need to have nuget installed in Visual Studio to fetch all the other dependencies.
@@ -13,7 +13,9 @@ h1. Navidrome desktop development and verification
 
 Navidrome source defines complete client functionality. MixRadio is the component, layout, UI and design reference. See the "locked Navidrome baseline":docs/navidrome/implementation.md, "functional acceptance guide":docs/navidrome/acceptance.md and "reference/verification commands":tools/navidrome/README.md for the 38-function, 115-case checklist. Functional verification does not require the original MixRadio packages.
 
-The current MixRadio/Navidrome work targets the Windows 8.1 Store client running on Windows 10. See the "PC and WP reference analysis":docs/mixradio/reference-analysis.md, "acceptance workflow":docs/mixradio/acceptance-workflow.md, and "reference and quality tools":tools/mixradio/README.md for reproducible decompilation, desktop build/deployment, regression checks, visual comparison and evidence reports.
+The desktop client targets Windows 8.1 Store and runs on Windows 10; the phone client targets Windows Phone 8.1 WinRT. Open @Mixdrome.sln@. See the "PC and WP reference analysis":docs/mixradio/reference-analysis.md, "acceptance workflow":docs/mixradio/acceptance-workflow.md, and "reference and quality tools":tools/mixradio/README.md for reproducible decompilation, desktop build/deployment, regression checks, visual comparison and evidence reports.
+
+The Mixdrome name, package identities and generated icon/tile resources are documented in "branding":docs/branding.md. The new package identity has independent app data; accounts must be configured again.
 
 Build and source checks have passed. Native task completion and original/client visual parity remain pending runtime evidence; the acceptance report preserves those gaps.
 
@@ -39,5 +41,6 @@ Cloud CI runs desktop CLR regressions and source/tool checks. Windows 8.1 AppX p
 
 h1. Contact
 
-You can contact us at office@agilefreaks.com or by phone at +40745857479
-Have no fear: We are accepting donations via GitTip! https://www.gittip.com/balauru
+Maintainer: "A-BenLi06":https://github.com/A-BenLi06 — "ben_li06@outlook.com":mailto:ben_li06@outlook.com.
+
+Mixdrome builds on the original Subsonic8 project. Original authorship and license notices remain in the repository; MixRadio is a historical design reference.

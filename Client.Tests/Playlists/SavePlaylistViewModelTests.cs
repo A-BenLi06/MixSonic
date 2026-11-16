@@ -8,8 +8,8 @@
     using Client.Tests.Mocks;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.MenuItem;
-    using Subsonic8.Playlists;
+    using Mixdrome.MenuItem;
+    using Mixdrome.Playlists;
 
     [TestClass]
     public class SavePlaylistViewModelTests : ViewModelBaseTests<SavePlaylistViewModel>

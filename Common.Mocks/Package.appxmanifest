@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="08170427-d3e4-4b33-9c5c-87d18a6576a7" Publisher="CN=AgileFreaks" Version="1.0.0.0" />
+  <Identity Name="A-BenLi06.Mixdrome.Common.Mocks" Publisher="CN=benli06" Version="1.0.0.0" />
   <Properties>
     <DisplayName>Common.Mocks</DisplayName>
-    <PublisherDisplayName>Cristian</PublisherDisplayName>
+    <PublisherDisplayName>A-BenLi06</PublisherDisplayName>
     <Logo>Images\UnitTestStoreLogoM.png</Logo>
     <Description>Common.Mocks</Description>
   </Properties>

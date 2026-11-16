@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Playlists
+﻿namespace Mixdrome.Playlists
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -8,8 +8,8 @@
     using Client.Common.Services;
     using global::Common.ExtensionsMethods;
     using MugenInjection.Attributes;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.MenuItem;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.MenuItem;
     using Windows.UI.Xaml.Controls;
 
     public class SavePlaylistViewModel : PlaylistViewModelBase, ISavePlaylistViewModel

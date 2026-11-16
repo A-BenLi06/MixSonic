@@ -1,6 +1,6 @@
-namespace Subsonic8.RandomSongs
+namespace Mixdrome.RandomSongs
 {
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public interface IRandomSongsViewModel : ICollectionViewModel<object>
     {

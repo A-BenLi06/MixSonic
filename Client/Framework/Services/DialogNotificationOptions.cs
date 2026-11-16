@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Framework.Services
+﻿namespace Mixdrome.Framework.Services
 {
     using System.Collections.Generic;
     using System.Linq;

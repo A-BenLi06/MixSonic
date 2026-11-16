@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Playback
+﻿namespace Mixdrome.Playback
 {
     public enum PlaybackViewModelStateEnum
     {

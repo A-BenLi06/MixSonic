@@ -1,4 +1,4 @@
-namespace Subsonic8.Phone.Views
+namespace Mixdrome.Phone.Views
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +7,7 @@ namespace Subsonic8.Phone.Views
     using System.Runtime.Serialization.Json;
     using System.Text;
     using System.Threading.Tasks;
-    using Subsonic8.Phone.Services;
+    using Mixdrome.Phone.Services;
     using Windows.Foundation.Collections;
     using Windows.Media.Playback;
     using Windows.Phone.UI.Input;

@@ -1,9 +1,9 @@
-﻿namespace Subsonic8.BottomBar
+﻿namespace Mixdrome.BottomBar
 {
     using System;
     using System.Threading.Tasks;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Framework.ViewModel;
 
     public interface IDefaultBottomBarViewModel : IBottomBarViewModel, ISongLoader
     {

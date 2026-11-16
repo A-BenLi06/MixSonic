@@ -1,4 +1,4 @@
-namespace Subsonic8.Diagnostics
+namespace Mixdrome.Diagnostics
 {
     using System;
     using System.Collections.Generic;
@@ -6,9 +6,9 @@ namespace Subsonic8.Diagnostics
     using System.Runtime.InteropServices.WindowsRuntime;
     using System.Threading.Tasks;
     using Caliburn.Micro;
-    using Subsonic8.Main;
-    using Subsonic8.Navidrome;
-    using Subsonic8.Shell;
+    using Mixdrome.Main;
+    using Mixdrome.Navidrome;
+    using Mixdrome.Shell;
     using Windows.Data.Json;
     using Windows.Foundation;
     using Windows.Graphics.Imaging;
@@ -59,7 +59,7 @@ namespace Subsonic8.Diagnostics
                 var pages = new JsonArray();
                 report["pages"] = pages;
                 pages.Add(await Capture(shell, folder, "home-startup"));
-                var errorView = Descendants(shell).OfType<Subsonic8.ErrorDialog.ErrorDialogView>().Single();
+                var errorView = Descendants(shell).OfType<Mixdrome.ErrorDialog.ErrorDialogView>().Single();
                 var errorModel = ((ShellViewModel)shell.DataContext).ErrorDialogViewModel;
                 var errorChecks = new JsonObject();
                 report["errorOverlayChecks"] = errorChecks;
@@ -105,10 +105,10 @@ namespace Subsonic8.Diagnostics
                                     VisualStateManager.GoToState(first, "PointerOver", false);
                                     pages.Add(await Capture(shell, folder, "albums-hover-preview"));
                                     VisualStateManager.GoToState(first, "Normal", false);
-                                    var artwork = Descendants(first).OfType<Subsonic8.Common.MixRadioArtwork>().FirstOrDefault();
+                                    var artwork = Descendants(first).OfType<Mixdrome.Common.MixRadioArtwork>().FirstOrDefault();
                                     if (artwork != null)
                                     {
-                                        var binding = artwork.GetBindingExpression(Subsonic8.Common.MixRadioArtwork.SourceProperty);
+                                        var binding = artwork.GetBindingExpression(Mixdrome.Common.MixRadioArtwork.SourceProperty);
                                         var source = artwork.Source;
                                         try
                                         {
@@ -117,7 +117,7 @@ namespace Subsonic8.Diagnostics
                                         }
                                         finally
                                         {
-                                            if (binding != null) artwork.SetBinding(Subsonic8.Common.MixRadioArtwork.SourceProperty, binding.ParentBinding);
+                                            if (binding != null) artwork.SetBinding(Mixdrome.Common.MixRadioArtwork.SourceProperty, binding.ParentBinding);
                                             else artwork.Source = source;
                                         }
                                     }

@@ -12,7 +12,7 @@ using Client.Common.Models.Navidrome;
 using Client.Common.Services;
 using Client.Common.Services.DataStructures.SubsonicService;
 using Client.Common.Services.Navidrome;
-using Subsonic8.Navidrome;
+using Mixdrome.Navidrome;
 using Windows.Storage;
 
 public static class NavidromeServiceTests
@@ -154,7 +154,7 @@ public static class NavidromeServiceTests
             await unsupported.DeleteAsync(new[] { result });
         }
     }
-    private sealed class Audio : Subsonic8.AudioPlayback.IAudioPlayerViewModel
+    private sealed class Audio : Mixdrome.AudioPlayback.IAudioPlayerViewModel
     {
         public PlaylistItem Item;
         public PlaylistItem CurrentItem { get { return Item; } }

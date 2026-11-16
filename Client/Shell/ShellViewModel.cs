@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Shell
+namespace Mixdrome.Shell
 {
     using System;
     using System.Threading.Tasks;
@@ -22,7 +22,7 @@
     using Settings;
     using Services;
 
-    using Subsonic8.AudioPlayback;
+    using Mixdrome.AudioPlayback;
 
     using VideoPlayback;
     using Windows.UI.Xaml;
@@ -43,7 +43,7 @@
 
         public ShellViewModel()
         {
-            DisplayName = "MixRadio";
+            DisplayName = global::Mixdrome.MixRadioText.Get("ApplicationName");
         }
 
         #endregion
@@ -155,7 +155,7 @@
 
         public void SendSearchQueryMessage(string query)
         {
-            NavigationService.NavigateToViewModel<Subsonic8.Navidrome.NavidromeBrowserViewModel>(Subsonic8.Navidrome.NavidromeRoute.For("search", query));
+            NavigationService.NavigateToViewModel<Mixdrome.Navidrome.NavidromeBrowserViewModel>(Mixdrome.Navidrome.NavidromeRoute.For("search", query));
         }
 
         #endregion
@@ -178,7 +178,7 @@
             }
             finally { IsInitializing = false; }
 #if NATIVE_UI_PROBE
-            await Subsonic8.Diagnostics.NativeUiProbe.RunAsync((ShellView)view, NavigationService);
+            await Mixdrome.Diagnostics.NativeUiProbe.RunAsync((ShellView)view, NavigationService);
 #endif
         }
 
@@ -218,7 +218,7 @@
         {
             IoCService.Get<IPlaybackViewModel>();
             IoCService.Get<INotificationsHelper>();
-            IoCService.Get<Subsonic8.Navidrome.IPlaybackActivityService>();
+            IoCService.Get<Mixdrome.Navidrome.IPlaybackActivityService>();
         }
 
         private async Task LoadSettings()
@@ -244,7 +244,7 @@
                 shellView.ShellFrame.SourcePageType == typeof(ErrorDialogView))
             {
                 var navigated = NavigationExtensions.NavigateToViewModel<MainViewModel>(NavigationService);
-                if (!navigated) throw new InvalidOperationException(Subsonic8.Navidrome.NavidromeText.Get("HomeNavigationFailed"));
+                if (!navigated) throw new InvalidOperationException(Mixdrome.Navidrome.NavidromeText.Get("HomeNavigationFailed"));
                 App.LogStartupEvent("Home navigation complete: " + shellView.ShellFrame.SourcePageType);
             }
         }

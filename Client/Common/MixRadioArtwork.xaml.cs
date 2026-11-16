@@ -1,4 +1,4 @@
-namespace Subsonic8.Common
+namespace Mixdrome.Common
 {
     using System;
     using Windows.UI.Xaml;

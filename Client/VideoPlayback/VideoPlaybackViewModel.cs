@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.VideoPlayback
+﻿namespace Mixdrome.VideoPlayback
 {
     using System;
     using System.Collections.Generic;
@@ -6,8 +6,8 @@
     using Client.Common.EventAggregatorMessages;
     using Client.Common.Services.DataStructures.PlayerManagementService;
     using MugenInjection.Attributes;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Framework.ViewModel;
     using Windows.UI.Xaml;
     using PlaylistItem = Client.Common.Models.PlaylistItem;
     using Caliburn.Micro;

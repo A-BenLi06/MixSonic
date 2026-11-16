@@ -1,6 +1,6 @@
-namespace Subsonic8.Genres
+namespace Mixdrome.Genres
 {
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public interface IGenresViewModel : ICollectionViewModel<object>
     {

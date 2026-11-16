@@ -1,4 +1,4 @@
-﻿namespace Subsonic8
+﻿namespace Mixdrome
 {
     using Caliburn.Micro;
     using global::Common.MugenExtensions;
@@ -11,7 +11,7 @@
     using Playlists;
     using Shell;
     using VideoPlayback;
-    using Subsonic8.Services;
+    using Mixdrome.Services;
     using SubLastFm;
 
     public class ClientModule : MugenModuleWithAutoDiscoveryBase

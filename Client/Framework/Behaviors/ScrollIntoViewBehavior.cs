@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Framework.Behaviors
+﻿namespace Mixdrome.Framework.Behaviors
 {
     using System.ComponentModel;
     using Windows.UI.Interactivity;

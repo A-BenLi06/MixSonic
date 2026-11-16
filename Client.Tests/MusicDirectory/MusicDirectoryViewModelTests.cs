@@ -4,7 +4,7 @@
     using Client.Tests.Framework.ViewModel;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.MusicDirectory;
+    using Mixdrome.MusicDirectory;
 
     [TestClass]
     public class MusicDirectoryViewModelTests : DetailViewModelBaseTests<MusicDirectory, MusicDirectoryViewModel>

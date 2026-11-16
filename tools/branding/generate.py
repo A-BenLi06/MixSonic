@@ -1,0 +1,189 @@
+"""Render Mixdrome's Windows 8.1 / Phone 8.1 branding from scalable geometry.
+
+Requires Pillow and the Segoe UI fonts supplied by Windows. Run from any folder:
+    python tools/branding/generate.py
+    python tools/branding/generate.py --font-directory C:/Windows/Fonts
+
+The palette, wordmark and supported platform asset sizes live in brand.json.
+Generated package resources stay PNG; the optional review sheet is WebP.
+"""
+
+import argparse
+import json
+import math
+import os
+from pathlib import Path
+
+from PIL import Image, ImageDraw, ImageFont
+
+ROOT = Path(__file__).resolve().parents[2]
+CONFIG = json.loads(Path(__file__).with_name('brand.json').read_text(encoding='utf-8'))
+PALETTE = CONFIG['palette']
+SUPERSAMPLE = 4
+
+
+class Canvas:
+    def __init__(self, width, height, background):
+        self.width, self.height = width, height
+        self.image = Image.new('RGBA', (width * SUPERSAMPLE, height * SUPERSAMPLE), background)
+        self.draw = ImageDraw.Draw(self.image)
+
+    @staticmethod
+    def box(values):
+        return tuple(round(value * SUPERSAMPLE) for value in values)
+
+    def ellipse(self, values, fill):
+        self.draw.ellipse(self.box(values), fill=fill)
+
+    def rectangle(self, values, fill):
+        self.draw.rectangle(self.box(values), fill=fill)
+
+    def polygon(self, points, fill):
+        self.draw.polygon([self.box(point) for point in points], fill=fill)
+
+    def round_rectangle(self, values, radius, fill):
+        self.draw.rounded_rectangle(self.box(values), radius=round(radius * SUPERSAMPLE), fill=fill)
+
+    def result(self):
+        return self.image.resize((self.width, self.height), Image.Resampling.LANCZOS)
+
+
+def mark(canvas, left, top, diameter):
+    """Headphones, two note eyes and a smile, in a 1000-unit white disc."""
+    factor = diameter / 1000
+
+    def bounds(values):
+        return tuple((left if index % 2 == 0 else top) + value * factor
+                     for index, value in enumerate(values))
+
+    canvas.ellipse(bounds((0, 0, 1000, 1000)), PALETTE['white'])
+    canvas.draw.arc(canvas.box(bounds((170, 160, 830, 820))), start=180, end=360,
+                    fill=PALETTE['accent'], width=max(1, round(62 * factor * SUPERSAMPLE)))
+    for values in ((120, 430, 275, 705), (725, 430, 880, 705)):
+        canvas.round_rectangle(bounds(values), 72 * factor, PALETTE['accent'])
+    canvas.ellipse(bounds((335, 510, 487, 625)), PALETTE['accent'])
+    canvas.polygon([bounds(point) for point in ((435, 550), (487, 550), (487, 330), (435, 348))],
+                   PALETTE['accent'])
+    canvas.ellipse(bounds((550, 510, 695, 625)), PALETTE['accent'])
+    canvas.polygon([bounds(point) for point in ((645, 550), (695, 550), (695, 385),
+                                               (737, 370), (737, 320), (645, 350))],
+                   PALETTE['accent'])
+    canvas.draw.chord(canvas.box(bounds((335, 505, 665, 835))), start=0, end=180,
+                      fill=PALETTE['accent'])
+
+
+def wordmark(canvas, center_x, baseline, font_size, font_directory):
+    fonts = [ImageFont.truetype(str(font_directory / part['font']),
+                               round(font_size * SUPERSAMPLE)) for part in CONFIG['wordmark']]
+    widths = [font.getlength(part['text']) for font, part in zip(fonts, CONFIG['wordmark'])]
+    left = center_x * SUPERSAMPLE - sum(widths) / 2
+    for part, font, width in zip(CONFIG['wordmark'], fonts, widths):
+        canvas.draw.text((round(left), round(baseline * SUPERSAMPLE)), part['text'],
+                         font=font, fill=PALETTE['white'], anchor='ls')
+        left += width
+
+
+def corner_ribbons(canvas, width, height):
+    # Three flat bands echo the supplied Metro design board without gradients.
+    start = width * .66
+    for color, rise in ((PALETTE['yellow'], .26), (PALETTE['orange'], .19),
+                        (PALETTE['pink'], .12)):
+        canvas.polygon([(start, height), (width, height * (1 - rise)), (width, height)], color)
+
+
+def splash_accents(canvas, width, height):
+    unit = min(width, height) * .15
+    canvas.rectangle((0, unit * .65, unit * .75, unit * 1.75), PALETTE['yellow'])
+    canvas.rectangle((unit * .65, unit * .45, unit * 1.85, unit * 1.4), PALETTE['orange'])
+    canvas.rectangle((0, 0, unit * 1.05, unit * 1.05), PALETTE['pink'])
+    canvas.rectangle((width - unit * .9, height - unit * 1.85, width, height), PALETTE['yellow'])
+    canvas.rectangle((width - unit * 1.6, height - unit * 1.15, width, height), PALETTE['orange'])
+    canvas.rectangle((width - unit * 2.3, height - unit * .5, width, height), PALETTE['pink'])
+
+
+def render(width, height, kind, font_directory):
+    background = (0, 0, 0, 0) if kind == 'mark' else PALETTE['black'] if kind == 'splash' else PALETTE['accent']
+    canvas = Canvas(width, height, background)
+    if kind == 'mark':
+        diameter = width * .94
+        mark(canvas, (width - diameter) / 2, (height - diameter) / 2, diameter)
+    elif kind == 'small-tile':
+        diameter = width * .80
+        mark(canvas, (width - diameter) / 2, (height - diameter) / 2, diameter)
+    elif kind == 'square':
+        corner_ribbons(canvas, width, height)
+        diameter = width * .62
+        mark(canvas, (width - diameter) / 2, height * .105, diameter)
+        wordmark(canvas, width * .47, height * .875, width * .174, font_directory)
+    elif kind == 'wide':
+        corner_ribbons(canvas, width, height)
+        diameter = height * .66
+        mark(canvas, height * .17, (height - diameter) / 2, diameter)
+        wordmark(canvas, width * .69, height * .575, height * .212, font_directory)
+    elif kind == 'splash':
+        splash_accents(canvas, width, height)
+        if width > height:
+            diameter = height * .64
+            mark(canvas, width * .115, (height - diameter) / 2, diameter)
+            wordmark(canvas, width * .70, height * .58, height * .205, font_directory)
+        else:
+            diameter = width * .65
+            mark(canvas, (width - diameter) / 2, height * .245, diameter)
+            wordmark(canvas, width * .5, height * .745, width * .19, font_directory)
+    else:
+        raise ValueError(f'Unsupported asset kind: {kind}')
+    return canvas.result()
+
+
+def scaled_size(base_size, scale):
+    # Windows resource dimensions round the fractional physical pixel count.
+    return tuple(math.floor(value * scale / 100 + .5) for value in base_size)
+
+
+def review_sheet(output, font_directory):
+    output.parent.mkdir(parents=True, exist_ok=True)
+    sheet = Image.new('RGB', (1280, 860), '#141414')
+    draw = ImageDraw.Draw(sheet)
+    title = ImageFont.truetype(str(font_directory / 'segoeuil.ttf'), 36)
+    label = ImageFont.truetype(str(font_directory / 'segoeui.ttf'), 18)
+    draw.text((34, 20), ''.join(part['text'] for part in CONFIG['wordmark']), font=title, fill='white')
+    panels = [(34, 92, 280, 280, 'square', 'Square tile'),
+              (338, 92, 578, 280, 'wide', 'Wide tile'),
+              (958, 92, 92, 92, 'mark', 'Store / app icon'),
+              (1092, 92, 92, 92, 'small-tile', 'Small tile'),
+              (34, 416, 620, 300, 'splash', 'Desktop splash'),
+              (800, 416, 240, 400, 'splash', 'Phone splash')]
+    for x, y, width, height, kind, text in panels:
+        art = render(width, height, kind, font_directory)
+        sheet.paste(art, (x, y), art)
+        draw.text((x, y + height + 9), text, font=label, fill='#BBBBBB')
+    for index, key in enumerate(('accent', 'pink', 'orange', 'yellow', 'black')):
+        x = 1060 + index * 36
+        draw.rectangle((x, 738, x + 26, 764), fill=PALETTE[key])
+    sheet.save(output, 'WEBP', quality=86, method=6)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--font-directory', type=Path,
+                        default=Path(os.environ.get('WINDIR', 'C:/Windows')) / 'Fonts')
+    parser.add_argument('--preview', type=Path, default=ROOT / '.tmp/branding/mixdrome-preview.webp')
+    args = parser.parse_args()
+    for part in CONFIG['wordmark']:
+        if not (args.font_directory / part['font']).is_file():
+            parser.error(f"Missing Segoe UI font: {args.font_directory / part['font']}")
+    count = 0
+    for platform, data in CONFIG['platforms'].items():
+        folder = ROOT / platform / 'Assets'
+        for name, asset in data['assets'].items():
+            for scale in data['scales']:
+                size = scaled_size(asset['size'], scale)
+                result = render(*size, asset['kind'], args.font_directory)
+                result.save(folder / f'{name}.scale-{scale}.png', optimize=True)
+                count += 1
+    review_sheet(args.preview.resolve(), args.font_directory)
+    print(f'Rendered {count} PNG resources; WebP review sheet: {args.preview.resolve()}')
+
+
+if __name__ == '__main__':
+    main()

@@ -1,4 +1,4 @@
-namespace Subsonic8.Navidrome
+namespace Mixdrome.Navidrome
 {
     using System;
     using System.Collections.Generic;
@@ -9,8 +9,8 @@ namespace Subsonic8.Navidrome
     using Caliburn.Micro;
     using Client.Common.Models.Navidrome;
     using MugenInjection.Attributes;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Settings;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Settings;
     using Windows.UI.Xaml;
 
     public interface INavidromeAccountViewModel : IScreen { }

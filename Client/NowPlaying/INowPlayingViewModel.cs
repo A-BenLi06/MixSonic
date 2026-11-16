@@ -1,6 +1,6 @@
-namespace Subsonic8.NowPlaying
+namespace Mixdrome.NowPlaying
 {
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public interface INowPlayingViewModel : ICollectionViewModel<object>
     {

@@ -14,7 +14,7 @@ report buttons to keyboard focus. These findings remain open.
 
 - Product source: `e4859ccd0671cfb05c35b3298ae06840424a5246`.
 - Windows 8.1 Store client, Debug x86, running on Windows 10 22H2. Target app:
-  `11722CristiBadila-AgileFr.Subsonic8_nd4kycddfv9rg!App`; the separately running
+  `11722CristiBadila-AgileFr.MIXDROME_nd4kycddfv9rg!App`; the separately running
   original Nokia MixRadio was not the input target.
 - All navigation, selection and activation below used OS keyboard input through
   the computer-use `sky.press_key` API. Each action was followed by observation

@@ -6,7 +6,7 @@
 
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 
-    using Subsonic8.Converters;
+    using Mixdrome.Converters;
 
     [TestClass]
     public class StringToVisibilityConverterTests

@@ -20,7 +20,7 @@
 // 	Generated: 12/11/2013 23:04:33
 // </auto-generatedInfo>
 // --------------------------------------------------------------------------------------------------
-namespace Subsonic8.ErrorDialog
+namespace Mixdrome.ErrorDialog
 {
     using System;
 
@@ -99,7 +99,7 @@ namespace Subsonic8.ErrorDialog
         }
         
         /// <summary>
-        /// Localized resource similar to "subsonic8@agilefreaks.com"
+        /// Localized resource similar to "ben_li06@outlook.com"
         /// </summary>
         public static string ErrorReportDeliveryEmail
         {
@@ -132,7 +132,7 @@ namespace Subsonic8.ErrorDialog
         }
         
         /// <summary>
-        /// Localized resource similar to "If you think this is an issue with this app please feel free to contact us by email at subsonic8@agilefreaks.com or using the buttons at the bottom of the screen and we'll gladly help you out. "
+        /// Localized resource similar to "If you think this is an issue with this app please feel free to contact us by email at ben_li06@outlook.com or using the buttons at the bottom of the screen and we'll gladly help you out. "
         /// </summary>
         public static string KnownErrorMessage
         {

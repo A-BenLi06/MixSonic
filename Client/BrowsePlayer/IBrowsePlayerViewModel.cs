@@ -1,4 +1,4 @@
-namespace Subsonic8.BrowsePlayer
+namespace Mixdrome.BrowsePlayer
 {
     using System.Threading.Tasks;
     using Caliburn.Micro;

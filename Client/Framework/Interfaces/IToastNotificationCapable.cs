@@ -1,6 +1,6 @@
-﻿namespace Subsonic8.Framework.Interfaces
+﻿namespace Mixdrome.Framework.Interfaces
 {
-    using Subsonic8.Framework.Services;
+    using Mixdrome.Framework.Services;
 
     public interface IToastNotificationCapable
     {

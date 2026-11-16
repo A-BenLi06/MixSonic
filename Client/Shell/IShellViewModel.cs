@@ -1,10 +1,10 @@
-﻿namespace Subsonic8.Shell
+﻿namespace Mixdrome.Shell
 {
     using Caliburn.Micro;
     using Client.Common.Services;
-    using Subsonic8.BottomBar;
-    using Subsonic8.Framework.Interfaces;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.BottomBar;
+    using Mixdrome.Framework.Interfaces;
+    using Mixdrome.Framework.Services;
     using global::Common.Interfaces;
 
     public interface IShellViewModel : IViewAware,

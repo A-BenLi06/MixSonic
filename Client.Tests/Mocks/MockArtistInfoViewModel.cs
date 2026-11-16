@@ -6,9 +6,9 @@ namespace Client.Tests.Mocks
     using Caliburn.Micro;
     using Client.Common.Services;
     using global::Common.Interfaces;
-    using Subsonic8.ArtistInfo;
-    using Subsonic8.ErrorDialog;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.ArtistInfo;
+    using Mixdrome.ErrorDialog;
+    using Mixdrome.Framework.Services;
     using Action = System.Action;
 
     public class MockArtistInfoViewModel : IArtistInfoViewModel

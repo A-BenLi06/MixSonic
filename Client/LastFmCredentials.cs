@@ -20,7 +20,7 @@
 // 	Generated: 07/27/2015 20:50:36
 // </auto-generatedInfo>
 // --------------------------------------------------------------------------------------------------
-namespace Subsonic8
+namespace Mixdrome
 {
     using System;
 

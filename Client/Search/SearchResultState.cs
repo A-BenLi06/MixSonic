@@ -1,4 +1,4 @@
-namespace Subsonic8.Search
+namespace Mixdrome.Search
 {
     public enum SearchResultState
     {

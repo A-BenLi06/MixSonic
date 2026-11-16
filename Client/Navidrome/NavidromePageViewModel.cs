@@ -1,12 +1,12 @@
-namespace Subsonic8.Navidrome
+namespace Mixdrome.Navidrome
 {
     using System;
     using System.Threading.Tasks;
     using Caliburn.Micro;
     using Client.Common.Services.Navidrome;
     using MugenInjection.Attributes;
-    using Subsonic8.BottomBar;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.BottomBar;
+    using Mixdrome.Framework.ViewModel;
 
     public abstract class NavidromePageViewModel : ViewModelBase
     {

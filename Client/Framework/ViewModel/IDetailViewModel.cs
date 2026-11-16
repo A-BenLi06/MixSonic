@@ -1,4 +1,4 @@
-namespace Subsonic8.Framework.ViewModel
+namespace Mixdrome.Framework.ViewModel
 {
     using Client.Common.Models;
 

@@ -1,11 +1,11 @@
-﻿namespace Subsonic8.AudioPlayback
+﻿namespace Mixdrome.AudioPlayback
 {
     using System;
     using System.Threading.Tasks;
 
     using Windows.UI.Core;
 
-    using Subsonic8.Framework.Interfaces;
+    using Mixdrome.Framework.Interfaces;
 
     public sealed partial class AudioPlayerView : IExtendedPlayerControls
     {

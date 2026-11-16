@@ -1,9 +1,9 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="f10d4368-82f3-4b15-aaa4-f30794b70cc1" Publisher="CN=AgileFreaks" Version="1.0.0.0" />
+  <Identity Name="A-BenLi06.Mixdrome.SubEchoNestTests" Publisher="CN=benli06" Version="1.0.0.0" />
   <Properties>
     <DisplayName>SubLastFmTests</DisplayName>
-    <PublisherDisplayName>Cristian</PublisherDisplayName>
+    <PublisherDisplayName>A-BenLi06</PublisherDisplayName>
     <Logo>Images\UnitTestStoreLogo.png</Logo>
     <Description>SubLastFmTests</Description>
   </Properties>

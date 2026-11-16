@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.BottomBar
+﻿namespace Mixdrome.BottomBar
 {
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
@@ -8,8 +8,8 @@
     using Client.Common.Services;
     using global::Common.ExtensionsMethods;
     using MugenInjection.Attributes;
-    using Subsonic8.ErrorDialog;
-    using Subsonic8.Main;
+    using Mixdrome.ErrorDialog;
+    using Mixdrome.Main;
 
     public abstract class BottomBarViewModelBase : Screen, IBottomBarViewModel
     {

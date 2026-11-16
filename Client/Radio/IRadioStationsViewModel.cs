@@ -1,6 +1,6 @@
-namespace Subsonic8.Radio
+namespace Mixdrome.Radio
 {
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public interface IRadioStationsViewModel : ICollectionViewModel<object>
     {

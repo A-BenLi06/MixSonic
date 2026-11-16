@@ -27,7 +27,7 @@ class ReleaseTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.directory = Path(self.temporary.name)
-        self.asset = 'SubSonic8-v1.2.3.4.zip'
+        self.asset = 'Mixdrome-v1.2.3.4.zip'
         dependency = b'<Package><Identity Name="Test.Dependency" Publisher="CN=Vendor" Version="1.0.0.0" ProcessorArchitecture="x86"/></Package>'
         self.files = {release.PACKAGE: appx(XML), release.CERTIFICATE: CERTIFICATE,
                       'Dependencies/x86/Test.Dependency.appx': appx(dependency)}

@@ -21,7 +21,7 @@ gh variable set RELEASE_CERTIFICATE_SHA256 --body $pin
 
 ```powershell
 ./tools/release/build.ps1 -CertificateThumbprint '<CurrentUser/My 中的正式证书指纹>' -Architecture AnyCPU
-# 可指定 -MSBuildPath、-SignToolPath，或对应 SUBSONIC8_MSBUILD/SUBSONIC8_SIGNTOOL。
+# 可指定 -MSBuildPath、-SignToolPath，或对应 MIXDROME_MSBUILD/MIXDROME_SIGNTOOL。
 # 有可用 RFC 3161 服务时可通过 -TimestampUrl 指定时间戳地址。
 ```
 

@@ -8,7 +8,7 @@
     using Client.Tests.Mocks;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Main;
+    using Mixdrome.Main;
     using global::Common.Exceptions;
 
     [TestClass]

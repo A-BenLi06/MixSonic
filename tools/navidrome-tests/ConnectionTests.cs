@@ -11,7 +11,7 @@ using Client.Common.Models.Navidrome;
 using Client.Common.Services;
 using Client.Common.Services.DataStructures.SubsonicService;
 using Client.Common.Services.Navidrome;
-using Subsonic8.Navidrome;
+using Mixdrome.Navidrome;
 
 public static class NavidromeConnectionTests
 {

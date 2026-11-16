@@ -12,7 +12,7 @@ namespace Windows.UI.Xaml.Controls
 {
     public sealed class ItemClickEventArgs : System.EventArgs { public object ClickedItem { get; set; } }
 }
-namespace Subsonic8.Framework.ViewModel
+namespace Mixdrome.Framework.ViewModel
 {
     public abstract class ViewModelBase : Caliburn.Micro.Screen
     {
@@ -22,11 +22,11 @@ namespace Subsonic8.Framework.ViewModel
         public sealed class ErrorDialogAdapter { public void Hide() { } }
     }
 }
-namespace Subsonic8.BottomBar
+namespace Mixdrome.BottomBar
 {
     public sealed class ChangeBottomBarMessage { public object BottomBarViewModel { get; set; } }
 }
-namespace Subsonic8.Navidrome
+namespace Mixdrome.Navidrome
 {
     public interface IMediaQueueService { }
     public interface IOfflineLibraryService { }

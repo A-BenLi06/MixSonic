@@ -1,0 +1,37 @@
+{
+  "wordmark": [
+    { "text": "Mix", "font": "segoeuib.ttf" },
+    { "text": "drome", "font": "segoeuil.ttf" }
+  ],
+  "palette": {
+    "accent": "#E60067",
+    "pink": "#FF168A",
+    "orange": "#FF8200",
+    "yellow": "#FFD800",
+    "white": "#FFFFFF",
+    "black": "#000000"
+  },
+  "platforms": {
+    "Client": {
+      "scales": [100, 140, 180],
+      "assets": {
+        "Logo": { "size": [150, 150], "kind": "square" },
+        "SmallLogo": { "size": [30, 30], "kind": "mark" },
+        "StoreLogo": { "size": [50, 50], "kind": "mark" },
+        "WideLogo": { "size": [310, 150], "kind": "wide" },
+        "SplashScreen": { "size": [620, 300], "kind": "splash" }
+      }
+    },
+    "Client.Phone": {
+      "scales": [100, 140, 240],
+      "assets": {
+        "Square150x150Logo": { "size": [150, 150], "kind": "square" },
+        "Square44x44Logo": { "size": [44, 44], "kind": "mark" },
+        "Square71x71Logo": { "size": [71, 71], "kind": "small-tile" },
+        "StoreLogo": { "size": [50, 50], "kind": "mark" },
+        "Wide310x150Logo": { "size": [310, 150], "kind": "wide" },
+        "SplashScreen": { "size": [480, 800], "kind": "splash" }
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 ﻿using SubLastFm;
 
-namespace Subsonic8.Framework.Services
+namespace Mixdrome.Framework.Services
 {
     public class LastFmConfigurationProvider : IConfigurationProvider
     {

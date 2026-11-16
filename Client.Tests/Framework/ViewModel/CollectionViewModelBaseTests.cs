@@ -8,8 +8,8 @@
     using Client.Tests.Mocks;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Framework.ViewModel;
-    using Subsonic8.Playback;
+    using Mixdrome.Framework.ViewModel;
+    using Mixdrome.Playback;
 
     [TestClass]
     public abstract class CollectionViewModelBaseTests<TViewModel, TParameter> : ViewModelBaseTests<TViewModel>

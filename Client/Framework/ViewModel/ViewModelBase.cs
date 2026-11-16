@@ -1,10 +1,10 @@
-﻿namespace Subsonic8.Framework.ViewModel
+namespace Mixdrome.Framework.ViewModel
 {
     using Caliburn.Micro;
     using Client.Common.Services;
     using MugenInjection.Attributes;
-    using Subsonic8.ErrorDialog;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.ErrorDialog;
+    using Mixdrome.Framework.Services;
     using global::Common.Interfaces;
     using Action = System.Action;
 
@@ -24,7 +24,7 @@
 
         protected ViewModelBase()
         {
-            UpdateDisplayName = () => DisplayName = "MixRadio";
+            UpdateDisplayName = () => DisplayName = global::Mixdrome.MixRadioText.Get("ApplicationName");
         }
 
         #endregion

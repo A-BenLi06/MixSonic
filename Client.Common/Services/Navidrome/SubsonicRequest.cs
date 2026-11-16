@@ -8,7 +8,7 @@ namespace Client.Common.Services.Navidrome
 
     public sealed class SubsonicRequest
     {
-        public const string ClientName = "Subsonic8";
+        public const string ClientName = "Mixdrome";
         public const string ProtocolVersion = "1.16.1";
         private readonly List<KeyValuePair<string, string>> _parameters = new List<KeyValuePair<string, string>>();
 

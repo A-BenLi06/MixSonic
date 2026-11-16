@@ -1,4 +1,4 @@
-param([string]$CompilerPath = $env:SUBSONIC8_CSC)
+param([string]$CompilerPath = $env:MIXDROME_CSC)
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
@@ -9,7 +9,7 @@ if (-not $CompilerPath) {
     }
     if (-not $CompilerPath) { $CompilerPath = Join-Path ${env:ProgramFiles(x86)} 'MSBuild/14.0/Bin/csc.exe' }
 }
-if (-not (Test-Path -LiteralPath $CompilerPath)) { throw 'Supply -CompilerPath or SUBSONIC8_CSC.' }
+if (-not (Test-Path -LiteralPath $CompilerPath)) { throw 'Supply -CompilerPath or MIXDROME_CSC.' }
 $suites = @(
     'tools/serializer-tests/run.ps1',
     'tools/navidrome-tests/run.ps1',

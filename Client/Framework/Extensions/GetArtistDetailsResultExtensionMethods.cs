@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Framework.Extensions
+﻿namespace Mixdrome.Framework.Extensions
 {
     using SubLastFm.Results;
 

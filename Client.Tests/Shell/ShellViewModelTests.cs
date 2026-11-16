@@ -6,8 +6,8 @@
     using global::Common.Mocks;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Search;
-    using Subsonic8.Shell;
+    using Mixdrome.Search;
+    using Mixdrome.Shell;
 
     [TestClass]
     public class ShellViewModelTests

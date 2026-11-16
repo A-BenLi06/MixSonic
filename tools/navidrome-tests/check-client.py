@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 root = Path(__file__).resolve().parents[2]
 client = root / 'Client'
 resources = {data.get('name') for data in ET.parse(client / 'Strings/en-US/Resources.resw').findall('data')}
-project = ET.parse(client / 'Client.csproj')
+project = ET.parse(client / 'Mixdrome.csproj')
 included = {node.get('Include', '').replace('\\', '/') for node in project.iter()}
 issues = []
 lookups = 0

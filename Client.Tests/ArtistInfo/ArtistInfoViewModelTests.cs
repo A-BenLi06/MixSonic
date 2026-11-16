@@ -8,8 +8,8 @@
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
     using SubEchoNest.Models;
     using SubLastFm.Models;
-    using Subsonic8.ArtistInfo;
-    using Subsonic8.Framework.Extensions;
+    using Mixdrome.ArtistInfo;
+    using Mixdrome.Framework.Extensions;
     using Biography = SubEchoNest.Models.Biography;
     
     [TestClass]

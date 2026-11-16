@@ -1,9 +1,9 @@
-namespace Subsonic8.BottomBar
+namespace Mixdrome.BottomBar
 {
     using System.Collections.ObjectModel;
     using Caliburn.Micro;
     using Client.Common.EventAggregatorMessages;
-    using Subsonic8.ErrorDialog;
+    using Mixdrome.ErrorDialog;
 
     public interface IBottomBarViewModel : IHandle<PlaylistStateChangedMessage>
     {

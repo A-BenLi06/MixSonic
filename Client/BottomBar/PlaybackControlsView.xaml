@@ -1,10 +1,10 @@
 ﻿<UserControl
-    x:Class="Subsonic8.BottomBar.PlaybackControlsView"
+    x:Class="Mixdrome.BottomBar.PlaybackControlsView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:cal="using:Caliburn.Micro"
-    xmlns:ic="using:Subsonic8.Controls"
+    xmlns:ic="using:Mixdrome.Controls"
     mc:Ignorable="d">
 
     <UserControl.Resources>

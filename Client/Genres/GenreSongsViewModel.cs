@@ -1,11 +1,11 @@
-﻿namespace Subsonic8.Genres
+﻿namespace Mixdrome.Genres
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Client.Common.Models;
     using Client.Common.Models.Subsonic;
     using Client.Common.Results;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public class GenreSongsViewModel : CollectionViewModelBase<string, IList<Song>>, IGenreSongsViewModel
     {
@@ -36,14 +36,14 @@
             return SubsonicService.GetSongsByGenre(parameter);
         }
 
-                public override bool IsGroupedView
-        {
-            get
-            {
-                return false;
-            }
-        }
-
+                public override bool IsGroupedView
+        {
+            get
+            {
+                return false;
+            }
+        }
+
 #endregion
     }
 }

@@ -1,8 +1,8 @@
-namespace Subsonic8.Framework.Extensions
+namespace Mixdrome.Framework.Extensions
 {
     using System;
     using Caliburn.Micro;
-    using Subsonic8.Framework.Services;
+    using Mixdrome.Framework.Services;
     using Windows.UI.ApplicationSettings;
     using Windows.UI.Xaml;
 

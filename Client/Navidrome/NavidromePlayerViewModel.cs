@@ -1,4 +1,4 @@
-namespace Subsonic8.Navidrome
+namespace Mixdrome.Navidrome
 {
     using System;
     using System.Collections.Generic;
@@ -16,9 +16,9 @@ namespace Subsonic8.Navidrome
     using Client.Common.Services;
     using Client.Common.Services.Navidrome;
     using MugenInjection.Attributes;
-    using Subsonic8.AudioPlayback;
-    using Subsonic8.Playback;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.AudioPlayback;
+    using Mixdrome.Playback;
+    using Mixdrome.Framework.ViewModel;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
 

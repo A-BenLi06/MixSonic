@@ -1,4 +1,4 @@
-namespace Subsonic8.Radio
+namespace Mixdrome.Radio
 {
     public partial class RadioStationsView
     {

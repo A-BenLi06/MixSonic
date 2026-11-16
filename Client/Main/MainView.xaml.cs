@@ -1,8 +1,8 @@
-namespace Subsonic8.Main
+namespace Mixdrome.Main
 {
     using System;
     using System.Collections.Generic;
-    using Subsonic8.Navidrome;
+    using Mixdrome.Navidrome;
     using Windows.System;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;

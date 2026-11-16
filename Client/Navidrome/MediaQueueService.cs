@@ -1,4 +1,4 @@
-namespace Subsonic8.Navidrome
+namespace Mixdrome.Navidrome
 {
     using System;
     using System.Collections.Generic;
@@ -10,7 +10,7 @@ namespace Subsonic8.Navidrome
     using Client.Common.Models.Subsonic;
     using Client.Common.Services;
     using Client.Common.Services.Navidrome;
-    using Subsonic8.AudioPlayback;
+    using Mixdrome.AudioPlayback;
 
     public interface IMediaQueueService
     {

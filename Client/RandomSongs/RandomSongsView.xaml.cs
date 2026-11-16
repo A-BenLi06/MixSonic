@@ -1,4 +1,4 @@
-namespace Subsonic8.RandomSongs
+namespace Mixdrome.RandomSongs
 {
     public partial class RandomSongsView
     {

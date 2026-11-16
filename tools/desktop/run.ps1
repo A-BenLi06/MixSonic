@@ -1,7 +1,7 @@
 param(
     [ValidateSet('Debug', 'Release')][string]$Configuration = 'Debug',
     [ValidateSet('AnyCPU', 'x86', 'x64', 'ARM')][string]$Architecture = 'x86',
-    [string]$MSBuildPath = $env:SUBSONIC8_MSBUILD,
+    [string]$MSBuildPath = $env:MIXDROME_MSBUILD,
     [switch]$NoBuild,
     [switch]$NoLaunch,
     [switch]$NativeUiProbe,
@@ -16,7 +16,7 @@ if ($NativePlaybackProbe) { $NativeUiProbe = $true }
 if (($NativeUiProbe -or $NativeUiObserve) -and ($Configuration -ne 'Debug' -or $NoBuild)) { throw 'Native UI diagnostics require a fresh Debug build.' }
 if ($NativeUiProbe -and $NativeUiObserve) { throw 'Choose either the scripted probe or the passive observer.' }
 function Stop-WorkspaceClient {
-    $clientProject = [xml](Get-Content -LiteralPath (Join-Path $clientRoot 'Client.csproj') -Raw)
+    $clientProject = [xml](Get-Content -LiteralPath (Join-Path $clientRoot 'Mixdrome.csproj') -Raw)
     $processName = $clientProject.SelectSingleNode('//*[local-name()="AssemblyName"]').InnerText
     Get-Process -Name $processName -ErrorAction SilentlyContinue |
         Where-Object { $_.Path -and $_.Path.StartsWith($projectRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) } |
@@ -38,7 +38,7 @@ if (-not $NoBuild) {
     # MSBuild 14 can reuse CoreCompile outputs when a conditional Compile item
     # disappears. Changing the probe define must invalidate that cached binary.
     $buildTarget = if ($previousMode -ne $buildMode) { 'Rebuild' } else { 'Build' }
-    & $MSBuildPath (Join-Path $clientRoot 'Client.csproj') "/t:$buildTarget" "/p:Configuration=$Configuration" "/p:Platform=$Architecture" "/p:NativeUiProbe=$(($NativeUiProbe -or $NativeUiObserve).ToString().ToLowerInvariant())" "/p:NativeUiObserve=$($NativeUiObserve.IsPresent.ToString().ToLowerInvariant())" "/p:NativePlaybackProbe=$($NativePlaybackProbe.IsPresent.ToString().ToLowerInvariant())" /m /v:quiet /nologo /fl "/flp:logfile=$buildLog;verbosity=normal"
+    & $MSBuildPath (Join-Path $clientRoot 'Mixdrome.csproj') "/t:$buildTarget" "/p:Configuration=$Configuration" "/p:Platform=$Architecture" "/p:NativeUiProbe=$(($NativeUiProbe -or $NativeUiObserve).ToString().ToLowerInvariant())" "/p:NativeUiObserve=$($NativeUiObserve.IsPresent.ToString().ToLowerInvariant())" "/p:NativePlaybackProbe=$($NativePlaybackProbe.IsPresent.ToString().ToLowerInvariant())" /m /v:quiet /nologo /fl "/flp:logfile=$buildLog;verbosity=normal"
     if ($LASTEXITCODE -ne 0) { throw "Desktop build failed. See $buildLog" }
     Set-Content -LiteralPath $modeFile -Value $buildMode -Encoding utf8NoBOM
 }

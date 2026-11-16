@@ -1,8 +1,8 @@
 ﻿<framework:CaliburnServiceLocatorApplication
-    x:Class="Subsonic8.App"
+    x:Class="Mixdrome.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:framework="using:Subsonic8.Framework">
+    xmlns:framework="using:Mixdrome.Framework">
 
     <Application.Resources>
         <ResourceDictionary>

@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Converters
+﻿namespace Mixdrome.Converters
 {
     using System;
     using Windows.UI.Xaml;

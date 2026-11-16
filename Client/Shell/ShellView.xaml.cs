@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Shell
+﻿namespace Mixdrome.Shell
 {
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Navigation;

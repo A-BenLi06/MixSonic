@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Settings
+namespace Mixdrome.Settings
 {
     using Caliburn.Micro;
 
@@ -23,7 +23,7 @@
 We store on your computer the given username, password and server url required to connect to the subsonic streaming server and also send the credentials along to it in order to authenticate. We do not collect any information about you.
 
 Privacy questions:
-If you have any questions or concerns about our privacy policies, please contact us at: 'office@agilefreaks.com'.
+If you have any questions or concerns about our privacy policies, please contact us at: 'ben_li06@outlook.com'.
 
 Personal information protection:
 We take reasonable steps to secure your personally identifiable information against unauthorized access or disclosure. However, no security or encryption method can be guaranteed to protect information from hackers or human error.

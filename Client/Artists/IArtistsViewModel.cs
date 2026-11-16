@@ -1,6 +1,6 @@
-namespace Subsonic8.Artists
+namespace Mixdrome.Artists
 {
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.ViewModel;
 
     public interface IArtistsViewModel : ICollectionViewModel<object>
     {

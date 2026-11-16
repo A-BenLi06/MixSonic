@@ -6,9 +6,9 @@
     using FluentAssertions;
     using global::Common.Mocks;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Framework;
-    using Subsonic8.Main;
-    using Subsonic8.Settings;
+    using Mixdrome.Framework;
+    using Mixdrome.Main;
+    using Mixdrome.Settings;
     using Windows.Security.Credentials;
 
     [TestClass]
@@ -93,7 +93,7 @@
         [TestMethod]
         public async Task Populate_StorageServiceReturnsANotNullObject_SetsTheObtainedObjectAsTheCurrentConfiguration()
         {
-            var configuration = new Subsonic8Configuration();
+            var configuration = new MixdromeConfiguration();
             _mockStorageService.LoadFunc = t => configuration;
 
             await _subject.Populate();
@@ -153,7 +153,7 @@
         [TestMethod]
         public async Task SaveSettings_Always_SetsNotificationServiceToTheCurrentOption()
         {
-            var configuration = new Subsonic8Configuration { UseToastNotifications = true };
+            var configuration = new MixdromeConfiguration { UseToastNotifications = true };
             _mockStorageService.LoadFunc = t => configuration;
             await _subject.Populate();
             _subject.Configuration.SubsonicServiceConfiguration.Username = "test";
@@ -167,7 +167,7 @@
         [TestMethod]
         public async Task SaveSettings_Always_SetsSubsonicServiceToTheCurrentConfiguration()
         {
-            var configuration = new Subsonic8Configuration();
+            var configuration = new MixdromeConfiguration();
             _mockStorageService.LoadFunc = t => configuration;
             await _subject.Populate();
             _subject.Configuration.SubsonicServiceConfiguration.Username = "test";

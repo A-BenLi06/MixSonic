@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.Playback.Playback
+﻿namespace Mixdrome.Playback.Playback
 {
     public sealed partial class Audio
     {

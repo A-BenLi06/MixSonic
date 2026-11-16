@@ -1,5 +1,5 @@
 param(
-    [string]$CompilerPath = $env:SUBSONIC8_CSC
+    [string]$CompilerPath = $env:MIXDROME_CSC
 )
 
 $ErrorActionPreference = 'Stop'
@@ -8,7 +8,7 @@ if (-not $CompilerPath) {
     $CompilerPath = Join-Path ${env:ProgramFiles(x86)} 'MSBuild\14.0\Bin\csc.exe'
 }
 if (-not (Test-Path -LiteralPath $CompilerPath)) {
-    throw 'C# compiler unavailable. Supply -CompilerPath or SUBSONIC8_CSC.'
+    throw 'C# compiler unavailable. Supply -CompilerPath or MIXDROME_CSC.'
 }
 $outputDirectory = Join-Path $projectRoot '.tmp\playback-tests'
 New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null

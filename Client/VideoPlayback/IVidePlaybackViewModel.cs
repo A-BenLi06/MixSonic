@@ -1,9 +1,9 @@
-﻿namespace Subsonic8.VideoPlayback
+﻿namespace Mixdrome.VideoPlayback
 {
     using System;
     using Client.Common.Services.DataStructures.PlayerManagementService;
-    using Subsonic8.Framework.Interfaces;
-    using Subsonic8.Framework.ViewModel;
+    using Mixdrome.Framework.Interfaces;
+    using Mixdrome.Framework.ViewModel;
     using Windows.UI.Xaml;
 
     // ReSharper disable PossibleInterfaceMemberAmbiguity

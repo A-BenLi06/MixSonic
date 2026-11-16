@@ -1,4 +1,4 @@
-namespace Subsonic8.Artists
+namespace Mixdrome.Artists
 {
     public partial class ArtistsView
     {

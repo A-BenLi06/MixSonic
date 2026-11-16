@@ -235,14 +235,14 @@ public static class NavidromeIntegrationTests
         if (ping.Server.Supports("playbackReport"))
         {
             var count = (await api.GetSong(song.Id).ReadAsync()).PlayCount;
-            await api.ReportPlayback(song.Id, 0, "starting", 1, "Subsonic8-fixture", true).ReadAsync();
-            await api.ReportPlayback(song.Id, 1000, "playing", 1, "Subsonic8-fixture", true).ReadAsync();
+            await api.ReportPlayback(song.Id, 0, "starting", 1, "Mixdrome-fixture", true).ReadAsync();
+            await api.ReportPlayback(song.Id, 1000, "playing", 1, "Mixdrome-fixture", true).ReadAsync();
             var activity = await api.GetNowPlaying().ReadAsync();
             Check(activity.Any(entry => entry.Id == song.Id && entry.Username == user.Username && entry.PlaybackState == "playing" && entry.PositionMilliseconds >= 1000 && entry.PlaybackRate == 1),
                 "Server activity retains the reported current song, account, state, position and rate.");
             Evidence("activity");
-            await api.ReportPlayback(song.Id, 1000, "paused", 1, "Subsonic8-fixture", true).ReadAsync();
-            await api.ReportPlayback(song.Id, details.Duration * 1000L, "stopped", 1, "Subsonic8-fixture", true).ReadAsync();
+            await api.ReportPlayback(song.Id, 1000, "paused", 1, "Mixdrome-fixture", true).ReadAsync();
+            await api.ReportPlayback(song.Id, details.Duration * 1000L, "stopped", 1, "Mixdrome-fixture", true).ReadAsync();
             Check(true, "Negotiated playback states are accepted by the server.");
             Check((await api.GetSong(song.Id).ReadAsync()).PlayCount == count, "A seek to the end with ignoreScrobble cannot increment the real server's play count.");
             await api.Scrobble(song.Id, true, DateTimeOffset.UtcNow, 0).ReadAsync();

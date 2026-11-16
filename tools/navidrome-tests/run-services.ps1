@@ -1,4 +1,4 @@
-param([string]$FixtureState, [string]$CompilerPath = $env:SUBSONIC8_CSC)
+param([string]$FixtureState, [string]$CompilerPath = $env:MIXDROME_CSC)
 $ErrorActionPreference = 'Stop'
 $projectRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..\..'))
 if (-not $FixtureState) { $FixtureState = Join-Path $projectRoot '.tmp\navidrome-fixture\current.json' }

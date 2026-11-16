@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.BottomBar
+﻿namespace Mixdrome.BottomBar
 {
     using System;
     using System.Collections.Generic;
@@ -11,12 +11,12 @@
     using Client.Common.Models.Subsonic;
     using Client.Common.Services;
     using MugenInjection.Attributes;
-    using Subsonic8.Framework.Extensions;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Framework.ViewModel;
-    using Subsonic8.MenuItem;
-    using Subsonic8.Playback;
-    using Subsonic8.Navidrome;
+    using Mixdrome.Framework.Extensions;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Framework.ViewModel;
+    using Mixdrome.MenuItem;
+    using Mixdrome.Playback;
+    using Mixdrome.Navidrome;
     using global::Common.Interfaces;
     using Action = System.Action;
 

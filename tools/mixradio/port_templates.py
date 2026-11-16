@@ -29,11 +29,15 @@ def template(filename, key, output_key, bindings=None, reference=REFERENCE):
 
 
 def wordmark(reference):
-    metadata = json.loads((reference / 'Views/MainPage.json').read_text(encoding='utf-8-sig'))
-    canvas = next(o for o in objects(metadata['objects'][0]) if o['type'] == 'Canvas')
-    return ('    <!-- Views/MainPage.json: original vector wordmark. -->\n'
-            '    <ControlTemplate x:Key="MixRadioWordmarkTemplate">\n' + render(canvas, metadata, 2) +
-            '    </ControlTemplate>\n')
+    return '''    <!-- Mixdrome wordmark: the product name resolves through PRI resources. -->
+    <ControlTemplate x:Key="MixdromeWordmarkTemplate">
+        <Viewbox Stretch="Uniform" HorizontalAlignment="Left">
+            <TextBlock FontFamily="Segoe UI" FontSize="52" Foreground="White" FlowDirection="LeftToRight">
+                <Run x:Uid="BrandPrefix" FontWeight="Bold" /><Run x:Uid="BrandSuffix" FontWeight="Light" />
+            </TextBlock>
+        </Viewbox>
+    </ControlTemplate>
+'''
 
 
 def offline_template(reference):
@@ -137,8 +141,8 @@ def export(reference):
     ]
     preamble = '''<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:cal="using:Caliburn.Micro"
-    xmlns:common="using:Subsonic8.Common" xmlns:nav="using:Subsonic8.Navidrome"
-    xmlns:converters="using:Subsonic8.Converters">
+    xmlns:common="using:Mixdrome.Common" xmlns:nav="using:Mixdrome.Navidrome"
+    xmlns:converters="using:Mixdrome.Converters">
     <cal:BooleanToVisibilityConverter x:Key="NavidromeVisibility" />
     <cal:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     <converters:InvertedBooleanToVisibilityConverter x:Key="NavidromeHidden" />

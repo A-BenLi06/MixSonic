@@ -1,4 +1,4 @@
-﻿namespace Client.Common.Services
+namespace Client.Common.Services
 {
     using System;
     using System.Collections.Generic;
@@ -25,7 +25,7 @@
         public async Task<IStorageFile> GetNewStorageFile()
         {
             var fileSavePicker = new FileSavePicker();
-            fileSavePicker.FileTypeChoices.Add("MixRadio playlist", new List<string> { ".spls" });
+            fileSavePicker.FileTypeChoices.Add(Windows.ApplicationModel.Resources.ResourceLoader.GetForCurrentView().GetString("PlaylistFileType"), new List<string> { ".spls" });
             fileSavePicker.DefaultFileExtension = ".spls";
             fileSavePicker.SuggestedFileName = "playlist.spls";
             fileSavePicker.SettingsIdentifier = "PlaylistPicker";

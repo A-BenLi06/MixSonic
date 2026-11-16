@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.VideoPlayback
+﻿namespace Mixdrome.VideoPlayback
 {
     using System;
 

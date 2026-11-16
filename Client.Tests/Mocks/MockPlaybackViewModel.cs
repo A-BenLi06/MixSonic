@@ -10,10 +10,10 @@
     using Client.Common.Models;
     using Client.Common.Results;
     using Client.Common.Services;
-    using Subsonic8.BottomBar;
-    using Subsonic8.ErrorDialog;
-    using Subsonic8.Framework.Services;
-    using Subsonic8.Playback;
+    using Mixdrome.BottomBar;
+    using Mixdrome.ErrorDialog;
+    using Mixdrome.Framework.Services;
+    using Mixdrome.Playback;
     using Windows.ApplicationModel.DataTransfer;
     using global::Common.Interfaces;
     using Action = System.Action;

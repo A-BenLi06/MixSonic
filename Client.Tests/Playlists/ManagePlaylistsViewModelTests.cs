@@ -10,7 +10,7 @@
     using Client.Tests.Mocks;
     using FluentAssertions;
     using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-    using Subsonic8.Playlists;
+    using Mixdrome.Playlists;
 
     [TestClass]
     public class ManagePlaylistsViewModelTests : ViewModelBaseTests<ManagePlaylistsViewModel>

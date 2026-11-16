@@ -1,4 +1,4 @@
-﻿namespace Subsonic8.ErrorDialog
+﻿namespace Mixdrome.ErrorDialog
 {
     public sealed partial class ErrorDialogView
     {
