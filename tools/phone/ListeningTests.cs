@@ -179,6 +179,23 @@ public static class PhoneListeningTests
         var queue = (AudioQueueState)typeof(AudioTask).GetField("queue", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetValue(task);
         Check(queue.Shuffle && queue.CurrentIndex == 1 && player.LastUri.AbsolutePath.EndsWith("shuffle/second"),
             "Queue replacement applies shuffle and its selected first track before assigning the native media source.");
+        var previousSequence = -1;
+        Windows.Foundation.Collections.ValueSet failureState = null;
+        await (Task)Call(task, "ExecuteAsync", (Func<Task>)(() =>
+        {
+            previousSequence = (int)Windows.Media.Playback.BackgroundMediaPlayer.LastMessage[BackgroundAudioMessages.Sequence];
+            Call(task, "SendFailure", "PlaybackFailed");
+            failureState = Windows.Media.Playback.BackgroundMediaPlayer.LastMessage;
+            return Task.FromResult(true);
+        }));
+        Check((string)failureState[BackgroundAudioMessages.Failure] == "PlaybackFailed"
+            && !string.IsNullOrEmpty((string)failureState[BackgroundAudioMessages.QueueVersion])
+            && (int)failureState[BackgroundAudioMessages.CurrentIndex] == 1 && (bool)failureState[BackgroundAudioMessages.Shuffle],
+            "Failure messages carry their actual queue version, selected track and transport modes with the error code.");
+        Check((int)failureState[BackgroundAudioMessages.Sequence] > previousSequence
+            && failureState.ContainsKey(BackgroundAudioMessages.Session) && failureState.ContainsKey(BackgroundAudioMessages.CanNext)
+            && failureState.ContainsKey(BackgroundAudioMessages.PlayerState) && failureState.ContainsKey(BackgroundAudioMessages.Repeat),
+            "Failure messages use the same complete, sequenced state envelope as ordinary snapshots.");
         var invalidShuffle = await Transfer("invalid-shuffle");
         invalidShuffle[BackgroundAudioMessages.Shuffle] = "true";
         var previousChanges = player.SourceChanges;
@@ -269,9 +286,10 @@ namespace Windows.Media.Playback
     {
         public static readonly MediaPlayer Current = new MediaPlayer();
         public static int Failures;
+        public static Windows.Foundation.Collections.ValueSet LastMessage;
         public static event EventHandler<MediaPlayerDataReceivedEventArgs> MessageReceivedFromForeground { add { } remove { } }
         public static void SendMessageToForeground(Windows.Foundation.Collections.ValueSet values)
-        { if (values.ContainsKey(BackgroundAudioMessages.Failure)) Interlocked.Increment(ref Failures); }
+        { LastMessage = values; if (values.ContainsKey(BackgroundAudioMessages.Failure)) Interlocked.Increment(ref Failures); }
     }
 }
 namespace Windows.Foundation.Collections { public sealed class ValueSet : Dictionary<string, object> { } }

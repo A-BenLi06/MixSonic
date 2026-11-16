@@ -258,3 +258,6 @@ This is a client rendering/input check against recovered source geometry;
 matching original/client runtime frames, real-user server integration and
 lock-screen/background-audio acceptance remain separate gates. Final outcomes
 and any failed attempts belong in `walkthrough.md` and the PR.
+
+The refinement run, excluded frames, player-state investigation and remaining
+scope are recorded in [phone-runtime-acceptance.md](phone-runtime-acceptance.md).
