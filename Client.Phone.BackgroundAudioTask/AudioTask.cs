@@ -288,20 +288,17 @@ namespace Mixdrome.Phone.BackgroundAudioTask
 
         private void SendFailure(string code)
         {
-            Send(new ValueSet
-            {
-                { BackgroundAudioMessages.Failure, code },
-                { BackgroundAudioMessages.Session, session },
-                { BackgroundAudioMessages.Sequence, ++sequence }
-            });
+            SendState(BackgroundAudioMessages.Failure, code);
         }
 
-        private void SendState(string kind)
+        private void SendState(string kind) { SendState(kind, true); }
+
+        private void SendState(string kind, object value)
         {
             if (player == null || closed != 0) return;
             var data = new ValueSet
             {
-                { kind, true },
+                { kind, value },
                 { BackgroundAudioMessages.PlayerState, player.CurrentState.ToString() },
                 { BackgroundAudioMessages.QueueVersion, version },
                 { BackgroundAudioMessages.Session, session },

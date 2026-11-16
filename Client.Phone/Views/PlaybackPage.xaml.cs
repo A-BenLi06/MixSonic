@@ -4,6 +4,7 @@ namespace Mixdrome.Phone.Views
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Diagnostics;
+    using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Mixdrome.Phone.Common;
@@ -30,6 +31,7 @@ namespace Mixdrome.Phone.Views
 
     public sealed partial class PlaybackPage : Page
     {
+        private const string DefaultArtworkUri = "ms-appx:///Assets/MixRadio/DefaultArtwork300.png";
         private readonly DispatcherTimer progressTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         private TaskCompletionSource<bool> ready;
         private CancellationTokenSource activation;
@@ -47,6 +49,9 @@ namespace Mixdrome.Phone.Views
         private bool canNext;
         private bool playbackFailed;
         private TrackInfo displayedTrack;
+        private BitmapImage artworkImage;
+        private ItemCollection observedQueueItems;
+        private bool queueListLoaded;
         public ObservableCollection<TrackInfo> QueueItems { get; private set; } = new ObservableCollection<TrackInfo>();
 
         public PlaybackPage()
@@ -83,6 +88,9 @@ namespace Mixdrome.Phone.Views
                     return;
                 }
                 token.ThrowIfCancellationRequested();
+                // A failed initial source/state update must not prevent later
+                // native progress observations from recovering this activation.
+                progressTimer.Start();
                 // Returning from another page reconnects; it never replays the navigation queue.
                 if (args.NavigationMode != NavigationMode.Back)
                 {
@@ -100,7 +108,6 @@ namespace Mixdrome.Phone.Views
                 }
                 token.ThrowIfCancellationRequested();
                 UpdatePlaybackState();
-                progressTimer.Start();
             }
             catch (OperationCanceledException) { }
             catch (Exception exception)
@@ -119,6 +126,8 @@ namespace Mixdrome.Phone.Views
             BackgroundMediaPlayer.MessageReceivedFromBackground -= OnMessage;
             if (player != null) player.CurrentStateChanged -= OnMediaStateChanged;
             progressTimer.Stop();
+            DetachQueueItems();
+            DetachArtwork();
             base.OnNavigatedFrom(args);
         }
 
@@ -180,7 +189,12 @@ namespace Mixdrome.Phone.Views
         {
             Uri uri;
             if (string.IsNullOrEmpty(artwork)) return "ms-appx:///Assets/MixRadio/DefaultArtwork300.png";
-            return Uri.TryCreate(artwork, UriKind.Absolute, out uri) ? uri.ToString() : service.GetCoverArtUrl(artwork);
+            // Cover IDs are opaque and can contain a colon. Parsing alone also
+            // accepts them as custom URI schemes, which BitmapImage cannot load.
+            if (Uri.TryCreate(artwork, UriKind.Absolute, out uri)
+                && (uri.Scheme == "http" || uri.Scheme == "https"
+                    || uri.Scheme == "ms-appx" || uri.Scheme == "ms-appdata")) return uri.ToString();
+            return service.GetCoverArtUrl(artwork);
         }
 
         private async void OnMessage(object sender, MediaPlayerDataReceivedEventArgs args)
@@ -209,12 +223,7 @@ namespace Mixdrome.Phone.Views
             if (!stateGate.Accept(stateSession, stateSequence)) return;
             if (data.ContainsKey(BackgroundAudioMessages.Ready) || data.ContainsKey(BackgroundAudioMessages.Snapshot))
                 ready.TrySetResult(true);
-            if (data.ContainsKey(BackgroundAudioMessages.Failure))
-            {
-                playbackFailed = true;
-                PlaybackStatusText.Text = PhoneText.Get("PlaybackFailed");
-                return;
-            }
+            var failed = data.ContainsKey(BackgroundAudioMessages.Failure);
             var stateVersion = data.ContainsKey(BackgroundAudioMessages.QueueVersion)
                 ? data[BackgroundAudioMessages.QueueVersion] as string ?? string.Empty : string.Empty;
             var replaced = stateVersion != queueVersion;
@@ -233,7 +242,8 @@ namespace Mixdrome.Phone.Views
             }
             if (!active || activation != currentActivation || latestVersion != stateVersion || !stateGate.IsCurrent(stateSession, stateSequence)) return;
             if (string.IsNullOrEmpty(stateVersion)) { QueueItems.Clear(); queueVersion = string.Empty; }
-            if (data.ContainsKey(BackgroundAudioMessages.TrackChanged) || replaced) playbackFailed = false;
+            if (failed) playbackFailed = true;
+            else if (data.ContainsKey(BackgroundAudioMessages.TrackChanged) || replaced) playbackFailed = false;
             canNext = data.ContainsKey(BackgroundAudioMessages.CanNext) && data[BackgroundAudioMessages.CanNext] is bool
                 && (bool)data[BackgroundAudioMessages.CanNext];
             currentIndex = data.ContainsKey(BackgroundAudioMessages.CurrentIndex) && data[BackgroundAudioMessages.CurrentIndex] is int
@@ -244,11 +254,49 @@ namespace Mixdrome.Phone.Views
                 ? (int)data[BackgroundAudioMessages.Repeat] : 0;
             if (currentIndex >= 0 && currentIndex < QueueItems.Count)
             {
-                QueueListView.SelectedIndex = currentIndex;
                 ShowTrack(QueueItems[currentIndex]);
             }
             else ResetDisplay();
             UpdatePlaybackState();
+            SynchronizeQueueSelection();
+        }
+
+        private void OnQueueListLoaded(object sender, RoutedEventArgs args)
+        {
+            DetachQueueItems();
+            if (!active) return;
+            queueListLoaded = true;
+            observedQueueItems = QueueListView.Items;
+            if (observedQueueItems != null) observedQueueItems.VectorChanged += OnQueueItemsChanged;
+            SynchronizeQueueSelection();
+        }
+
+        private void OnQueueListUnloaded(object sender, RoutedEventArgs args)
+        {
+            DetachQueueItems();
+        }
+
+        private void DetachQueueItems()
+        {
+            queueListLoaded = false;
+            if (observedQueueItems != null) observedQueueItems.VectorChanged -= OnQueueItemsChanged;
+            observedQueueItems = null;
+        }
+
+        private void OnQueueItemsChanged(IObservableVector<object> sender, IVectorChangedEventArgs args)
+        {
+            SynchronizeQueueSelection();
+        }
+
+        private void SynchronizeQueueSelection()
+        {
+            // Pivot content can receive queue state before its ItemsSource binding
+            // has populated Items. Select only the matching displayed occurrence;
+            // duplicate media IDs do not identify a position in the queue.
+            if (!active || !queueListLoaded || currentIndex < 0 || currentIndex >= QueueItems.Count) return;
+            var items = QueueListView.Items;
+            if (items == null || currentIndex >= items.Count || !ReferenceEquals(items[currentIndex], QueueItems[currentIndex])) return;
+            if (QueueListView.SelectedIndex != currentIndex) QueueListView.SelectedIndex = currentIndex;
         }
 
         private void ShowTrack(TrackInfo track)
@@ -258,14 +306,41 @@ namespace Mixdrome.Phone.Views
             SongTitleText.Text = AboutTitleText.Text = track.Title ?? PhoneText.Get("UnknownTrack");
             ArtistText.Text = AboutArtistText.Text = track.Artist ?? PhoneText.Get("UnknownArtist");
             AboutAlbumText.Text = string.IsNullOrEmpty(track.Album) ? PhoneText.Get("UnknownAlbum") : track.Album;
-            var image = new BitmapImage(new Uri(string.IsNullOrEmpty(track.CoverArt)
-                ? "ms-appx:///Assets/MixRadio/DefaultArtwork300.png" : track.CoverArt, UriKind.Absolute));
+            DetachArtwork();
+            var source = string.IsNullOrEmpty(track.CoverArt) ? DefaultArtworkUri : track.CoverArt;
+            var image = new BitmapImage();
+            if (!string.Equals(source, DefaultArtworkUri, StringComparison.Ordinal))
+            {
+                artworkImage = image;
+                image.ImageFailed += OnArtworkImageFailed;
+            }
             AlbumArtImage.Source = image;
             BackgroundImage.Source = image;
+            image.UriSource = new Uri(source, UriKind.Absolute);
+        }
+
+        private void OnArtworkImageFailed(object sender, ExceptionRoutedEventArgs args)
+        {
+            var failed = sender as BitmapImage;
+            if (!active || failed == null || !ReferenceEquals(failed, artworkImage)) return;
+            var replaceAlbum = ReferenceEquals(AlbumArtImage.Source, failed);
+            var replaceBackground = ReferenceEquals(BackgroundImage.Source, failed);
+            if (!replaceAlbum && !replaceBackground) return;
+            DetachArtwork();
+            var fallback = new BitmapImage(new Uri(DefaultArtworkUri, UriKind.Absolute));
+            if (replaceAlbum) AlbumArtImage.Source = fallback;
+            if (replaceBackground) BackgroundImage.Source = fallback;
+        }
+
+        private void DetachArtwork()
+        {
+            if (artworkImage != null) artworkImage.ImageFailed -= OnArtworkImageFailed;
+            artworkImage = null;
         }
 
         private void ResetDisplay()
         {
+            DetachArtwork();
             displayedTrack = null;
             SongTitleText.Text = PhoneText.Get("PlaybackEmpty");
             ArtistText.Text = AboutTitleText.Text = AboutArtistText.Text = AboutAlbumText.Text = string.Empty;
@@ -302,17 +377,50 @@ namespace Mixdrome.Phone.Views
             UpdateProgress();
         }
 
-        private void OnProgressTimerTick(object sender, object args) { if (active) UpdateProgress(); }
+        private void OnProgressTimerTick(object sender, object args)
+        {
+            if (active) UpdateProgress();
+        }
 
         private void UpdateProgress()
         {
             if (player == null) return;
-            var duration = player.NaturalDuration.TotalSeconds;
-            var position = player.Position.TotalSeconds;
+            if (IsMediaNotReady(player.CurrentState)) { ResetProgress(); return; }
+            double duration, position;
+            bool canSeek;
+            try
+            {
+                duration = player.NaturalDuration.TotalSeconds;
+                position = player.Position.TotalSeconds;
+                canSeek = player.CanSeek;
+            }
+            catch (COMException exception) when (exception.HResult == unchecked((int)0x80004005) && IsMediaNotReady(player.CurrentState))
+            {
+                // The background source can switch after CurrentState was read.
+                // E_FAIL is transient only when the native player is now unready.
+                ResetProgress();
+                return;
+            }
+            ApplyProgress(duration, position, canSeek);
+        }
+
+        private static bool IsMediaNotReady(MediaPlayerState state)
+        {
+            return state != MediaPlayerState.Playing && state != MediaPlayerState.Paused && state != MediaPlayerState.Stopped;
+        }
+
+        private void ResetProgress()
+        {
+            seeking = false;
+            ApplyProgress(0, 0, false);
+        }
+
+        private void ApplyProgress(double duration, double position, bool canSeek)
+        {
             updatingProgress = true;
             try
             {
-                ProgressSlider.IsEnabled = player.CanSeek && duration > 0;
+                ProgressSlider.IsEnabled = canSeek && duration > 0;
                 if (!seeking)
                 {
                     ProgressSlider.Maximum = duration > 0 ? duration : 1;

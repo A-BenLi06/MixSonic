@@ -23,3 +23,18 @@ $executable = Join-Path $outputDirectory 'phone-connection.exe'
 if ($LASTEXITCODE -ne 0) { throw 'Production phone connection compilation failed.' }
 & $executable
 if ($LASTEXITCODE -ne 0) { throw 'Production phone connection assertions failed.' }
+
+$artworkPageSource = [IO.File]::ReadAllText((Join-Path $projectRoot 'Client.Phone\Views\PlaybackPage.xaml.cs'))
+$artworkMethodPattern = '(?ms)^        private static string ResolveArtwork\([^\r\n]*\)\r?\n        \{.*?^        \}'
+$artworkMethods = [regex]::Matches($artworkPageSource, $artworkMethodPattern)
+if ($artworkMethods.Count -ne 1) { throw 'Expected one production PlaybackPage.ResolveArtwork method.' }
+$artworkFixture = [IO.File]::ReadAllText((Join-Path $projectRoot 'tools\phone\ArtworkTests.cs'))
+$artworkMarker = '/* PRODUCTION_ARTWORK_METHOD */'
+if ($artworkFixture.Split(@($artworkMarker), [StringSplitOptions]::None).Length -ne 2) { throw 'Artwork fixture must contain exactly one method insertion marker.' }
+$artworkHarness = Join-Path $outputDirectory 'PhoneArtworkHarness.cs'
+[IO.File]::WriteAllText($artworkHarness, $artworkFixture.Replace($artworkMarker, $artworkMethods[0].Value), [Text.UTF8Encoding]::new($false))
+$artworkExecutable = Join-Path $outputDirectory 'phone-artwork.exe'
+& $CompilerPath /nologo /main:PhoneArtworkTests "/out:$artworkExecutable" @sources $artworkHarness "/r:$($caliburn.FullName)" /r:System.Net.Http.dll /r:System.ServiceModel.dll /r:System.Runtime.Serialization.dll /r:System.Xml.dll /r:System.Xml.Linq.dll /r:Microsoft.CSharp.dll
+if ($LASTEXITCODE -ne 0) { throw 'Production phone artwork compilation failed.' }
+& $artworkExecutable
+if ($LASTEXITCODE -ne 0) { throw 'Production phone artwork assertions failed.' }
