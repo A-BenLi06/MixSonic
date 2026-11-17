@@ -8,6 +8,8 @@ namespace Mixdrome.Phone.Views
     using System.Threading;
     using System.Threading.Tasks;
     using Client.Common.Models.Subsonic;
+    using Client.Common.Services;
+    using Client.Common.Services.DataStructures.SubsonicService;
     using Windows.ApplicationModel.DataTransfer;
     using Windows.UI.ViewManagement;
     using Mixdrome.Phone.Common;
@@ -456,10 +458,18 @@ namespace Mixdrome.Phone.Views
 
         private static bool MatchesPlaybackAccount(PhoneReportingProfile playback, PhoneReportingProfile current)
         {
-            return playback != null && current != null
-                && !string.IsNullOrEmpty(playback.BaseUrl) && !string.IsNullOrEmpty(current.BaseUrl)
-                && string.Equals(playback.BaseUrl.TrimEnd('/'), current.BaseUrl.TrimEnd('/'), StringComparison.OrdinalIgnoreCase)
-                && string.Equals(playback.Username, current.Username, StringComparison.Ordinal)
+            Uri playbackUri, currentUri;
+            if (playback == null || current == null
+                || !Uri.TryCreate(playback.BaseUrl, UriKind.Absolute, out playbackUri)
+                || !Uri.TryCreate(current.BaseUrl, UriKind.Absolute, out currentUri)
+                || (playbackUri.Scheme != "http" && playbackUri.Scheme != "https")
+                || (currentUri.Scheme != "http" && currentUri.Scheme != "https")) return false;
+            var playbackIdentity = AccountIdentity.For(new SubsonicServiceConfiguration
+            { BaseUrl = playbackUri.AbsoluteUri, Username = playback.Username });
+            var currentIdentity = AccountIdentity.For(new SubsonicServiceConfiguration
+            { BaseUrl = currentUri.AbsoluteUri, Username = current.Username });
+            return !string.IsNullOrEmpty(playbackIdentity) && !string.IsNullOrEmpty(currentIdentity)
+                && string.Equals(playbackIdentity, currentIdentity, StringComparison.Ordinal)
                 && string.Equals(playback.AuthenticationMode, current.AuthenticationMode, StringComparison.Ordinal);
         }
 

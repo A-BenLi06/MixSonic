@@ -36,6 +36,7 @@ $pageExecutable = Join-Path $outputDirectory 'phone-player-state.exe'
 $pageSources = @(
     (Join-Path $projectRoot 'Client.Phone\Services\BackgroundAudioMessages.cs'),
     (Join-Path $projectRoot 'Client.Phone\Services\AudioQueueState.cs'),
+    (Join-Path $projectRoot 'Client.Common\Services\AccountIdentity.cs'),
     $pageHarness
 )
 & $CompilerPath /nologo /main:PhonePlayerStateTests "/out:$pageExecutable" @pageSources /r:System.Runtime.Serialization.dll

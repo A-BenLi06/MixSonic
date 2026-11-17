@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Mixdrome.Phone.Common;
 using Client.Common.Models.Subsonic;
+using Client.Common.Services;
+using Client.Common.Services.DataStructures.SubsonicService;
 using Mixdrome.Phone.Services;
 using Mixdrome.Phone.Views;
 using Windows.Foundation.Collections;
@@ -203,6 +205,7 @@ public static class PhonePlayerStateTests
         Check(!page.TimerRunning, "Leaving the page stops polling even after activation recovery.");
         await FeedbackChecks();
         await OfflineEntryChecks();
+        await AccountPathChecks();
         PhoneOfflineMixes.Resolve = songs => Task.FromResult(new TestPlaybackConfiguration { BaseUrl = "https://secondary.invalid/", Username = "listener", AuthenticationMode = "Password" });
         var offlineProfile = await PlaybackPage.PrepareLocalQueue();
         Check(offlineProfile.BaseUrl == "https://secondary.invalid/" && offlineProfile.Username == "listener", "The production local-queue branch preserves the validated cache source route for listening reports.");
@@ -211,6 +214,36 @@ public static class PhonePlayerStateTests
         try { await PlaybackPage.PrepareLocalQueue(); } catch (InvalidOperationException) { offlineRejected = true; }
         Check(offlineRejected, "A failed local manifest/route validation cannot construct a playback service or guess the preferred route.");
     }
+    private static PhoneReportingProfile AccountProfile(string url, string user = "listener", string authentication = "Password")
+    { return new PhoneReportingProfile { BaseUrl = url, Username = user, AuthenticationMode = authentication }; }
+    private static async Task AccountPathChecks()
+    {
+        var lower = AccountProfile("https://music.invalid/music/");
+        Check(PlaybackPage.SameAccount(lower, AccountProfile("HTTPS://MUSIC.INVALID:443/music")), "Account identity canonicalizes scheme, host, default port and trailing slash while preserving the path.");
+        Check(!PlaybackPage.SameAccount(lower, AccountProfile("https://music.invalid/Music/")), "Case-sensitive server path differences identify separate accounts.");
+        Check(!PlaybackPage.SameAccount(lower, AccountProfile("https://music.invalid/music/", "Listener"))
+            && !PlaybackPage.SameAccount(lower, AccountProfile("https://music.invalid/music/", "listener", "ApiKey")), "User identity and authentication mode retain ordinal matching.");
+        Check(!PlaybackPage.SameAccount(lower, AccountProfile(null)) && !PlaybackPage.SameAccount(lower, AccountProfile("invalid")), "Empty and invalid server identities cannot authorize feedback.");
+        var previousProfile = WP8SubsonicService.Profile;
+        try
+        {
+            WP8SubsonicService.Profile = lower;
+            WP8SubsonicService.ReadSong = id => Task.FromResult(new TestSong { UserRating = 3 });
+            var track = OfflineTrack("case-sensitive"); track.Reporting = lower;
+            var page = Page(); page.OfflineQueue(track);
+            Check(page.FeedbackEnabled && page.OfflineEnabled, "The path-isolation test starts with a valid confirmed server context.");
+            var writes = 0;
+            WP8SubsonicService.Profile = AccountProfile("https://music.invalid/Music/");
+            WP8SubsonicService.WriteRating = (id, value) => { ++writes; return Task.FromResult(true); };
+            await page.Rate(5);
+            Check(writes == 0 && page.Rating == 3 && BackgroundMediaPlayer.Messages.Count == 0, "Changing only server path case blocks feedback before any rating write or playback command.");
+            PhoneSubsonicServiceFactory.Load = () => Task.FromResult(new TestPlaybackConfiguration { BaseUrl = "https://music.invalid/Music/", Username = "listener", AuthenticationMode = "Password" });
+            await page.SaveOffline();
+            Check(page.Frame.Navigations == 0 && page.Status == "OfflineAccountChanged", "Changing only server path case also blocks the real Play Me offline navigation workflow.");
+        }
+        finally { WP8SubsonicService.Profile = previousProfile; }
+    }
+
     private static TrackInfo OfflineTrack(string id)
     {
         var track = FeedbackTrack(id); track.StreamUrl = "https://music.invalid/stream/" + id; return track;
@@ -412,6 +445,7 @@ namespace Mixdrome.Phone.Views
         public bool MixMode { get { return isMix; } }
         public Task Rate(int rating) { return SaveFeedbackAsync(false, rating); }
         public Task Star() { return SaveFeedbackAsync(true, 0); }
+        public static bool SameAccount(PhoneReportingProfile left, PhoneReportingProfile right) { return MatchesPlaybackAccount(left, right); }
         public bool OfflineEnabled { get { return SaveOfflineMixMenu.IsEnabled; } }
         public Task SaveOffline() { return StartOfflineMixAsync(); }
         public void OfflineQueue(params TrackInfo[] tracks) { QueueItems.Clear(); foreach (var track in tracks) QueueItems.Add(track); queueVersion = "offline-queue"; currentIndex = 0; ShowTrack(tracks[0]); UpdateFeedbackControls(); }
@@ -627,4 +661,13 @@ namespace Windows.UI.ViewManagement
 namespace Client.Common.Models.Subsonic
 {
     public sealed class Song { public string Id, Title, Artist, Album, CoverArt; public int Duration; }
+}
+
+namespace Client.Common.Services.DataStructures.SubsonicService
+{
+    // AccountIdentity is compiled from production source; the CLR shell only
+    // supplies the two configuration properties that identity reads.
+    public interface ISubsonicServiceConfiguration { string BaseUrl { get; set; } string Username { get; set; } }
+    public sealed class SubsonicServiceConfiguration : ISubsonicServiceConfiguration
+    { public string BaseUrl { get; set; } public string Username { get; set; } }
 }
