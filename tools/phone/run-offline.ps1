@@ -23,3 +23,24 @@ $executable = Join-Path $outputDirectory 'phone-offline.exe'
 if ($LASTEXITCODE -ne 0) { throw 'Production phone offline service compilation failed.' }
 & $executable $storageDirectory
 if ($LASTEXITCODE -ne 0) { throw 'Production phone offline service assertions failed.' }
+
+# Exercise the actual page's asynchronous selection and refresh methods with
+# controlled validation completions; the fixture supplies only managed controls.
+$pageSource = [IO.File]::ReadAllText((Join-Path $projectRoot 'Client.Phone\Views\OfflineMixesPage.xaml.cs'))
+$pageMethods = @('OpenMixAsync', 'CurrentSelection', 'Refresh', 'OnNavigatedFrom', 'SetStatus')
+$extractedMethods = foreach ($method in $pageMethods) {
+    $pattern = '(?ms)^        (?:private|protected) [^\r\n]*\b' + [regex]::Escape($method) + '\([^\r\n]*\)\r?\n        \{.*?^        \}'
+    $pageMethodMatches = [regex]::Matches($pageSource, $pattern)
+    if ($pageMethodMatches.Count -ne 1) { throw "Expected one production OfflineMixesPage.$method method." }
+    $pageMethodMatches[0].Value
+}
+$fixture = [IO.File]::ReadAllText((Join-Path $projectRoot 'tools\phone\OfflinePageSelectionTests.cs'))
+$marker = '/* PRODUCTION_PAGE_METHODS */'
+if ($fixture.Split(@($marker), [StringSplitOptions]::None).Length -ne 2) { throw 'Offline page fixture must contain one method insertion marker.' }
+$pageHarness = Join-Path $outputDirectory 'OfflinePageHarness.cs'
+[IO.File]::WriteAllText($pageHarness, $fixture.Replace($marker, ($extractedMethods -join [Environment]::NewLine)), [Text.UTF8Encoding]::new($false))
+$pageExecutable = Join-Path $outputDirectory 'phone-offline-page.exe'
+& $CompilerPath /nologo /main:PhoneOfflinePageSelectionTests "/out:$pageExecutable" $pageHarness
+if ($LASTEXITCODE -ne 0) { throw 'Production phone offline page compilation failed.' }
+& $pageExecutable
+if ($LASTEXITCODE -ne 0) { throw 'Production phone offline page selection assertions failed.' }

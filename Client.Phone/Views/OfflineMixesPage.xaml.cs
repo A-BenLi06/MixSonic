@@ -32,6 +32,7 @@ namespace Mixdrome.Phone.Views
         private CancellationTokenSource download;
         private PhoneOfflineCard pending;
         private int generation;
+        private int selectionGeneration;
         private ItemsWrapGrid mixPanel;
         public ObservableCollection<PhoneOfflineCard> Cards { get; private set; } = new ObservableCollection<PhoneOfflineCard>();
         public OfflineMixesPage()
@@ -50,12 +51,12 @@ namespace Mixdrome.Phone.Views
         }
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            active = false; generation++; if (download != null) download.Cancel();
+            active = false; generation++; selectionGeneration++; if (download != null) download.Cancel();
             HardwareButtons.BackPressed -= OnBackPressed; base.OnNavigatedFrom(e);
         }
         private async Task Refresh()
         {
-            var version = ++generation;
+            var version = ++generation; selectionGeneration++;
             try
             {
                 var saved = await PhoneOfflineMixes.GetSavedMixesAsync();
@@ -100,21 +101,38 @@ namespace Mixdrome.Phone.Views
         }
         private async void OnMixClick(object sender, ItemClickEventArgs e)
         {
-            var card = e.ClickedItem as PhoneOfflineCard;
-            if (card == null || card.Saved == null || card.IsDownloading) return;
+            await OpenMixAsync(e.ClickedItem as PhoneOfflineCard);
+        }
+        private bool CurrentSelection(int version, int selection)
+        {
+            return active && generation == version && selectionGeneration == selection;
+        }
+        private async Task OpenMixAsync(PhoneOfflineCard card)
+        {
+            var selection = ++selectionGeneration;
+            var version = generation;
+            if (!active || card == null || card.Saved == null || card.IsDownloading || !Cards.Contains(card)) return;
             try
             {
                 var queue = card.Saved.CreateQueue();
-                if (!await PhoneOfflineMixes.ValidateLocalQueueAsync(queue))
+                var valid = await PhoneOfflineMixes.ValidateLocalQueueAsync(queue);
+                if (!CurrentSelection(version, selection)) return;
+                if (!valid)
                 {
-                    await Refresh();
-                    if (active) SetStatus(PhoneText.Get("OfflineFileMissing"));
+                    // Refresh invalidates pending selections before its first await.
+                    // Retain those new versions so a later click can supersede the
+                    // missing-file message while the refreshed list is being read.
+                    var refresh = Refresh();
+                    var refreshVersion = generation;
+                    var refreshSelection = selectionGeneration;
+                    await refresh;
+                    if (CurrentSelection(refreshVersion, refreshSelection)) SetStatus(PhoneText.Get("OfflineFileMissing"));
                     return;
                 }
-                if (active) Frame.Navigate(typeof(PlaybackPage), new PlaybackNavigationParameter { Playlist = queue, StartIndex = 0,
+                Frame.Navigate(typeof(PlaybackPage), new PlaybackNavigationParameter { Playlist = queue, StartIndex = 0,
                     IsMix = true, MixTitle = card.Saved.IsPlayMe ? null : card.Name });
             }
-            catch (Exception exception) { if (active) SetStatus(PhoneText.Format("LoadFailed", exception.Message)); }
+            catch (Exception exception) { if (CurrentSelection(version, selection)) SetStatus(PhoneText.Format("LoadFailed", exception.Message)); }
         }
         private async void OnMixHolding(object sender, HoldingRoutedEventArgs e)
         {
