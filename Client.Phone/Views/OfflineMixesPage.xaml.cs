@@ -1,0 +1,187 @@
+namespace Mixdrome.Phone.Views
+{
+    using System;
+    using System.Collections.ObjectModel;
+    using System.ComponentModel;
+    using System.Globalization;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Client.Common.Services.DataStructures.SubsonicService;
+    using Client.Common.Services.Navidrome;
+    using Mixdrome.Phone.Common;
+    using Mixdrome.Phone.Services;
+    using Windows.Phone.UI.Input;
+    using Windows.UI.Input;
+    using Windows.UI.Popups;
+    using Windows.UI.Xaml;
+    using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Input;
+    using Windows.UI.Xaml.Media.Imaging;
+    using Windows.UI.Xaml.Navigation;
+
+    public sealed class PhoneOfflineRequest
+    {
+        public SubsonicServiceConfiguration Configuration { get; set; }
+        public PhoneMixDefinition Mix { get; set; }
+    }
+
+    public sealed partial class OfflineMixesPage : Page
+    {
+        private bool active;
+        private CancellationTokenSource download;
+        private PhoneOfflineCard pending;
+        private int generation;
+        public ObservableCollection<PhoneOfflineCard> Cards { get; private set; } = new ObservableCollection<PhoneOfflineCard>();
+        public OfflineMixesPage()
+        {
+            InitializeComponent(); DataContext = this;
+            PageTitleBar.Title = CultureInfo.CurrentCulture.TextInfo.ToUpper(PhoneText.Get("UiMixDrome"));
+            PageTitle.Text = PhoneText.Get("OfflineMixesTitle"); HintText.Text = PhoneText.Get("OfflineMixesHint");
+            CancelButton.Label = PhoneText.Get("CancelDownload");
+        }
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e); active = true; HardwareButtons.BackPressed += OnBackPressed;
+            await Refresh();
+            var request = e.Parameter as PhoneOfflineRequest;
+            if (active && request != null && e.NavigationMode != NavigationMode.Back) await Download(request);
+        }
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            active = false; generation++; if (download != null) download.Cancel();
+            HardwareButtons.BackPressed -= OnBackPressed; base.OnNavigatedFrom(e);
+        }
+        private async Task Refresh()
+        {
+            var version = ++generation;
+            try
+            {
+                var saved = await PhoneOfflineMixes.GetSavedMixesAsync();
+                if (!active || version != generation) return;
+                Cards.Clear(); if (pending != null) Cards.Add(pending);
+                foreach (var mix in saved) Cards.Add(new PhoneOfflineCard { Saved = mix, Name = mix.Name, Artwork = mix.Artwork, IsPlayMe = mix.IsPlayMe });
+                ResizeCards(); StatusText.Text = saved.Count == 0 && pending == null ? PhoneText.Get("NoOfflineMixes") : string.Empty;
+            }
+            catch (OperationCanceledException) { if (active && version == generation) StatusText.Text = PhoneText.Get("OfflineAccountChanged"); }
+            catch (Exception exception) { if (active && version == generation) StatusText.Text = PhoneText.Format("LoadFailed", exception.Message); }
+        }
+        private async Task Download(PhoneOfflineRequest request)
+        {
+            if (download != null || request.Mix == null) return;
+            var cancellation = new CancellationTokenSource(); download = cancellation;
+            var api = new NavidromeApi(request.Configuration);
+            var artwork = request.Mix.Songs == null || request.Mix.Songs.Count == 0 ? PhoneCollectionPresentation.DefaultArtwork :
+                PhoneCollectionPresentation.Artwork(api, request.Mix.Songs[0].CoverArt);
+            pending = new PhoneOfflineCard { Name = request.Mix.Name, Artwork = artwork, IsPlayMe = request.Mix.IsPlayMe, IsDownloading = true };
+            Cards.Insert(0, pending); ResizeCards(); StatusText.Text = string.Empty; CancelButton.Visibility = Visibility.Visible;
+            var card = pending;
+            try
+            {
+                await PhoneOfflineMixes.SaveMixAsync(request.Configuration, request.Mix,
+                    new Progress<PhoneOfflineProgress>(value => { if (active && pending == card) card.Report(value); }), cancellation.Token);
+                if (active) StatusText.Text = PhoneText.Get("OfflineDownloadComplete");
+            }
+            catch (OperationCanceledException) { if (active) StatusText.Text = PhoneText.Get("OfflineDownloadCancelled"); }
+            catch (Exception exception) { if (active) StatusText.Text = PhoneText.Format("OfflineDownloadFailed", exception.Message); }
+            finally
+            {
+                pending = null; download = null; cancellation.Dispose();
+                if (active)
+                {
+                    var result = StatusText.Text; CancelButton.Visibility = Visibility.Collapsed;
+                    await Refresh(); StatusText.Text = result;
+                }
+            }
+        }
+        private async void OnMixClick(object sender, ItemClickEventArgs e)
+        {
+            var card = e.ClickedItem as PhoneOfflineCard;
+            if (card == null || card.Saved == null || card.IsDownloading) return;
+            try
+            {
+                var queue = card.Saved.CreateQueue();
+                if (!await PhoneOfflineMixes.ValidateLocalQueueAsync(queue)) { StatusText.Text = PhoneText.Get("OfflineFileMissing"); await Refresh(); return; }
+                if (active) Frame.Navigate(typeof(PlaybackPage), new PlaybackNavigationParameter { Playlist = queue, StartIndex = 0,
+                    IsMix = true, MixTitle = card.Saved.IsPlayMe ? null : card.Name });
+            }
+            catch (Exception exception) { if (active) StatusText.Text = PhoneText.Format("LoadFailed", exception.Message); }
+        }
+        private async void OnMixHolding(object sender, HoldingRoutedEventArgs e)
+        {
+            if (e.HoldingState != HoldingState.Started) return;
+            var element = e.OriginalSource as FrameworkElement;
+            var card = element == null ? null : element.DataContext as PhoneOfflineCard;
+            if (card == null || card.Saved == null) return;
+            e.Handled = true;
+            var menu = new PopupMenu();
+            menu.Commands.Add(new UICommand(PhoneText.Get("RemoveOfflineMix"), async command =>
+            {
+                try { await PhoneOfflineMixes.DeleteMixAsync(card.Saved); if (active) await Refresh(); }
+                catch (Exception exception) { if (active) StatusText.Text = PhoneText.Format("LoadFailed", exception.Message); }
+            }));
+            await menu.ShowAsync(e.GetPosition(null));
+        }
+        private void OnGridSizeChanged(object sender, SizeChangedEventArgs e) { ResizeCards(); }
+        private void OnRootSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            var scale = e.NewSize.Width / 480;
+            if (scale <= 0) return;
+            HeadingPanel.Margin = new Thickness(24 * scale, 12 * scale, 24 * scale, 12 * scale);
+            PageTitle.FontSize = 72 * scale; PageTitle.Margin = new Thickness(0, 0, 0, 28 * scale);
+            HintText.FontSize = 21 * scale;
+            MixGrid.Margin = new Thickness(24 * scale, 0, 6 * scale, 0);
+            ResizeCards();
+        }
+        private void ResizeCards()
+        {
+            var scale = LayoutRoot.ActualWidth / 480;
+            if (scale <= 0) scale = 1;
+            var size = Math.Max(80, (MixGrid.ActualWidth - 36 * scale) / 2);
+            foreach (var card in Cards) card.Resize(size, scale);
+        }
+        private void OnArtworkFailed(object sender, ExceptionRoutedEventArgs e)
+        {
+            var image = sender as Image;
+            if (image != null) image.Source = new BitmapImage(new Uri(PhoneCollectionPresentation.DefaultArtwork));
+        }
+        private void OnCancelClick(object sender, RoutedEventArgs e) { if (download != null) download.Cancel(); }
+        private async void OnRefreshClick(object sender, RoutedEventArgs e) { await Refresh(); }
+        private void OnBackPressed(object sender, BackPressedEventArgs e)
+        { if (!e.Handled && Frame.CanGoBack) { e.Handled = true; Frame.GoBack(); } }
+    }
+
+    public sealed class PhoneOfflineCard : INotifyPropertyChanged
+    {
+        private double size;
+        public PhoneSavedMix Saved { get; set; }
+        public string Name { get; set; }
+        public string Artwork { get; set; }
+        public bool IsPlayMe { get; set; }
+        public bool IsDownloading { get; set; }
+        public double Size { get { return size; } set { size = value; Changed("Size"); } }
+        public double Progress { get; private set; }
+        public double CaptionHeight { get; private set; }
+        public double CaptionSize { get; private set; }
+        public Thickness Spacing { get; private set; }
+        public bool IsIndeterminate { get; private set; }
+        public string Status { get; private set; }
+        public Visibility PlayMeVisibility { get { return IsPlayMe ? Visibility.Visible : Visibility.Collapsed; } }
+        public Visibility LabelVisibility { get { return IsPlayMe ? Visibility.Collapsed : Visibility.Visible; } }
+        public Visibility ProgressVisibility { get { return IsDownloading ? Visibility.Visible : Visibility.Collapsed; } }
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void Resize(double width, double scale)
+        {
+            Size = width; CaptionHeight = 60 * scale; CaptionSize = 21 * scale; Spacing = new Thickness(0, 0, 18 * scale, 18 * scale);
+            Changed("CaptionHeight"); Changed("CaptionSize"); Changed("Spacing");
+        }
+        public void Report(PhoneOfflineProgress value)
+        {
+            var fraction = value.BytesTotal.HasValue && value.BytesTotal.Value > 0 ? Math.Min(1, (double)value.Received / value.BytesTotal.Value) : 0;
+            Progress = value.Total <= 0 ? 0 : 100 * (value.Completed + fraction) / value.Total;
+            IsIndeterminate = value.Received > 0 && !value.BytesTotal.HasValue;
+            Status = PhoneText.Format("OfflineDownloadProgress", value.Completed, value.Total);
+            Changed("Progress"); Changed("IsIndeterminate"); Changed("Status");
+        }
+        private void Changed(string property) { var handler = PropertyChanged; if (handler != null) handler(this, new PropertyChangedEventArgs(property)); }
+    }
+}

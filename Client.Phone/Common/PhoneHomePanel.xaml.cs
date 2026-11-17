@@ -3,84 +3,106 @@ namespace Mixdrome.Phone.Common
     using System;
     using System.Collections.Generic;
     using Client.Common.Models.Subsonic;
+    using Mixdrome.Phone.Services;
+    using Windows.Foundation;
     using Windows.UI.Xaml;
+    using Windows.UI.Xaml.Automation;
     using Windows.UI.Xaml.Controls;
+    using Windows.UI.Xaml.Media;
     using Windows.UI.Xaml.Media.Imaging;
     public sealed class PhoneTileEventArgs : EventArgs
     {
         public string Route { get; set; }
         public Album Album { get; set; }
+        public Playlist Playlist { get; set; }
     }
     public sealed partial class PhoneHomePanel : UserControl
     {
+        private bool played;
+        private bool busy;
+        private string artwork;
         public event EventHandler<PhoneTileEventArgs> TileClicked;
         public PhoneHomePanel()
         {
-            InitializeComponent();
-            SizeChanged += OnPanelSizeChanged;
+            InitializeComponent(); SizeChanged += OnPanelSizeChanged;
+            CreateMixLabel.Text = PhoneText.Get("UiCreateMix");
+            MixOneLabel.Text = PhoneText.Get("UiMixes"); MixTwoLabel.Text = PhoneText.Get("UiOfflineMixes");
         }
-
         private void OnPanelSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            var width = e.NewSize.Width;
-            if (width <= 0 || double.IsInfinity(width) || double.IsNaN(width)) return;
-            var resources = Application.Current.Resources;
-            var large = (double)resources["PhoneHomeLargeTileSize"];
-            var standard = (double)resources["PhoneHomeStandardTileSize"];
-            var recent = (double)resources["PhoneHomeRecentTileSize"];
-            var gap = (double)resources["PhoneHomeTileGap"];
-            var offset = (double)resources["PhoneHomeSecondColumnOffset"];
-            // Geometry adapts to the HubSection viewport; labels remain native
-            // TextBlocks rather than becoming scaled content in a fixed canvas.
-            var scale = Math.Min(1, width / (large + standard + gap * 2));
-            gap *= scale;
-            LargeTileColumn.Width = new GridLength((large * scale) + gap);
-            SmallTileColumn.Width = new GridLength((standard * scale) + gap);
-            OffsetColumn.Margin = new Thickness(0, offset * scale, 0, 0);
-            SizeTile(PlayMeButton, large * scale, gap);
-            SizeTile(MixesButton, standard * scale, gap);
-            SizeTile(MyMusicButton, standard * scale, gap);
-            SizeTile(FavouritesButton, standard * scale, gap);
-            SizeTile(RecentTileOne, recent * scale, gap);
-            SizeTile(RecentTileTwo, recent * scale, gap);
-            SizeTile(RecentTileThree, recent * scale, gap);
+            var scale = e.NewSize.Width / 420;
+            if (scale <= 0 || double.IsInfinity(scale) || double.IsNaN(scale)) return;
+            var gap = 12 * scale;
+            LargeTileColumn.Width = new GridLength(240 * scale); SmallTileColumn.Width = new GridLength(180 * scale);
+            OffsetColumn.Margin = new Thickness(0, 24 * scale, 0, 0);
+            SizeTile(PlayMeButton, 228 * scale, gap); SizeTile(CreateMixButton, 168 * scale, gap);
+            SizeTile(MixOneButton, 168 * scale, gap); SizeTile(MixTwoButton, 168 * scale, gap);
+            SizeTile(RecentAlbumOne, 96 * scale, gap); SizeTile(RecentAlbumTwo, 96 * scale, gap); SizeTile(RecentAlbumThree, 96 * scale, gap);
+            foreach (var label in new[] { PlayMeLabel, CreateMixLabel, MixOneLabel, MixTwoLabel })
+            { label.FontSize = 21 * scale; label.Margin = new Thickness(12 * scale, 0, 8 * scale, 10 * scale); }
+            RecentLabel.FontSize = 24 * scale; RecentLink.Margin = new Thickness(0, 48 * scale, 0, 24 * scale);
+            MixOneBand.Height = MixTwoBand.Height = 50 * scale;
+            CurrentElapsed.FontSize = 124 * scale;
+            CurrentElapsed.Margin = new Thickness(-100 * scale, 0, 0, -34 * scale);
+            CurrentClip.Clip = new RectangleGeometry { Rect = new Rect(0, 0, 228 * scale, 228 * scale) };
         }
-
-        private static void SizeTile(FrameworkElement tile, double size, double gap)
-        {
-            tile.Width = tile.Height = size;
-            tile.Margin = new Thickness(0, 0, gap, gap);
-        }
-        public bool IsBusy { set { PlayMeButton.IsEnabled = !value; } }
+        private static void SizeTile(FrameworkElement tile, double size, double gap) { tile.Width = tile.Height = size; tile.Margin = new Thickness(0, 0, gap, gap); }
+        public bool IsBusy { set { busy = value; UpdateEnabled(); } }
+        private void UpdateEnabled() { PlayMeButton.IsEnabled = played || !busy; CreateMixButton.IsEnabled = !played || !busy; }
         public void SetHistory(IList<Album> albums)
         {
-            SetRecent(RecentAlbumOne, RecentImageOne, RecentTitleOne, RecentPlaceholderOne, albums, 0);
-            SetRecent(RecentAlbumTwo, RecentImageTwo, RecentTitleTwo, RecentPlaceholderTwo, albums, 1);
-            SetRecent(RecentAlbumThree, RecentImageThree, RecentTitleThree, RecentPlaceholderThree, albums, 2);
+            SetRecent(RecentAlbumOne, RecentImageOne, albums, 0); SetRecent(RecentAlbumTwo, RecentImageTwo, albums, 1); SetRecent(RecentAlbumThree, RecentImageThree, albums, 2);
         }
-        private void SetRecent(Button button, Image image, TextBlock title, FrameworkElement placeholder, IList<Album> albums, int index)
+        public void SetMixes(IList<Playlist> mixes)
+        {
+            SetMix(MixOneButton, MixOneImage, MixOneLabel, MixOneBand, mixes, 0, "mixes", "UiMixes", "MixesTileIcon.png");
+            SetMix(MixTwoButton, MixTwoImage, MixTwoLabel, MixTwoBand, mixes, 1, "offline", "UiOfflineMixes", "OfflineTileIcon.png");
+        }
+        private static void SetMix(Button button, Image image, TextBlock label, FrameworkElement band, IList<Playlist> mixes, int index, string route, string resource, string icon)
+        {
+            var mix = index < mixes.Count ? mixes[index] : null;
+            button.Tag = (object)mix ?? route;
+            label.Text = mix == null ? PhoneText.Get(resource) : mix.Name;
+            band.Visibility = mix == null ? Visibility.Collapsed : Visibility.Visible;
+            SetImage(image, mix == null ? "/Assets/MixRadio/" + icon : mix.CoverArt);
+        }
+        public void SetCurrent(TrackInfo track, string elapsed)
+        {
+            var modeChanged = played != (track != null);
+            played = track != null;
+            UpdateEnabled();
+            PlayMeButton.Tag = played ? "player" : "playme";
+            PlayMeImage.Visibility = PlayMeLabel.Visibility = played ? Visibility.Collapsed : Visibility.Visible;
+            CurrentImage.Visibility = CurrentShade.Visibility = CurrentClip.Visibility = played ? Visibility.Visible : Visibility.Collapsed;
+            CurrentElapsed.Text = elapsed ?? string.Empty;
+            CurrentTitle.Text = track == null ? string.Empty : track.Title;
+            if (track != null && artwork != track.CoverArt) { artwork = track.CoverArt; CurrentTitle.Visibility = Visibility.Collapsed; SetImage(CurrentImage, artwork); }
+            if (!played) CurrentTitle.Visibility = Visibility.Collapsed;
+            CreateMixButton.Tag = played ? "playme" : "create";
+            CreateMixButton.Background = (Brush)Application.Current.Resources[played ? "MixRadioPlayMeBrush" : "MixRadioAccentBrush"];
+            CreateMixLabel.Text = PhoneText.Get(played ? "UiPlayMe" : "UiCreateMix");
+            if (modeChanged) SetImage(CreateMixImage, "/Assets/MixRadio/" + (played ? "PlayMeTileIcon.png" : "CreateTileIcon.png"));
+            AutomationProperties.SetName(PlayMeButton, played ? PhoneText.Get("UiNowPlaying") : PhoneText.Get("UiPlayMe"));
+        }
+        private void OnCurrentImageFailed(object sender, ExceptionRoutedEventArgs args) { if (played) CurrentTitle.Visibility = Visibility.Visible; }
+        private static void SetRecent(Button button, Image image, IList<Album> albums, int index)
         {
             var album = index < albums.Count ? albums[index] : null;
-            button.Tag = album;
-            button.IsEnabled = album != null;
-            button.Visibility = album == null ? Visibility.Collapsed : Visibility.Visible;
-            placeholder.Visibility = album == null ? Visibility.Visible : Visibility.Collapsed;
-            title.Text = album == null ? string.Empty : album.Name;
-            image.Source = null;
-            title.Visibility = Visibility.Collapsed;
-            if (album == null)
-            {
-                Windows.UI.Xaml.Automation.AutomationProperties.SetName(button, string.Empty);
-                return;
-            }
-            var source = album.CoverArt;
-            if (!string.IsNullOrEmpty(source))
-                image.Source = new BitmapImage(new Uri(source.StartsWith("/") ? "ms-appx://" + source : source));
-            else title.Visibility = Visibility.Visible;
-            Windows.UI.Xaml.Automation.AutomationProperties.SetName(button, PhoneText.Format("OpenAlbum", album.Name, album.Artist));
+            button.Tag = album; button.IsEnabled = album != null;
+            SetImage(image, album == null ? null : album.CoverArt);
+            AutomationProperties.SetName(button, album == null ? string.Empty : PhoneText.Format("OpenAlbum", album.Name, album.Artist));
         }
-        private void OnTileClick(object sender, RoutedEventArgs e) { Raise(new PhoneTileEventArgs { Route = ((Button)sender).Tag as string }); }
-        private void OnRecentClick(object sender, RoutedEventArgs e) { Raise(new PhoneTileEventArgs { Route = "album", Album = ((Button)sender).Tag as Album }); }
+        private static void SetImage(Image image, string source)
+        {
+            image.Source = null;
+            if (!string.IsNullOrEmpty(source)) image.Source = new BitmapImage(new Uri(source.StartsWith("/") ? "ms-appx://" + source : source));
+        }
+        private void OnTileClick(object sender, RoutedEventArgs args)
+        {
+            var tag = ((Button)sender).Tag;
+            Raise(new PhoneTileEventArgs { Route = tag is Playlist ? "playlist" : tag as string, Playlist = tag as Playlist });
+        }
+        private void OnRecentClick(object sender, RoutedEventArgs args) { Raise(new PhoneTileEventArgs { Route = "album", Album = ((Button)sender).Tag as Album }); }
         private void Raise(PhoneTileEventArgs args) { var handler = TileClicked; if (handler != null) handler(this, args); }
     }
 }

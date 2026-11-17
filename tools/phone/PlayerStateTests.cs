@@ -9,6 +9,7 @@ using Mixdrome.Phone.Common;
 using Mixdrome.Phone.Services;
 using Mixdrome.Phone.Views;
 using Windows.Foundation.Collections;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Playback;
 using Windows.Phone.UI.Input;
 using Windows.Storage;
@@ -122,7 +123,7 @@ public static class PhonePlayerStateTests
         Check(unsupportedImage.FailureSubscribers == 1, "A non-default cover subscribes to the public BitmapImage.ImageFailed event.");
         unsupportedImage.Fail();
         var defaultImage = page.Artwork;
-        Check(defaultImage.UriSource.AbsoluteUri == "ms-appx:///Assets/MixRadio/DefaultArtwork300.png" && ReferenceEquals(defaultImage, page.BackgroundArtwork), "An unsupported image falls back to the existing packaged PNG in the current cover and background.");
+        Check(defaultImage.UriSource.AbsoluteUri == "ms-appx:///Assets/MixRadio/DefaultArtwork300.png" && page.BackgroundArtwork == null, "An unsupported cover falls back to the packaged PNG while the artist background stays empty.");
         Check(page.Title == "Actual failed track" && page.QueueItems.Count == 2 && page.Failed && page.Status == "PlaybackFailed", "Image fallback preserves queue metadata and the existing audio failure state.");
         Check(unsupportedImage.FailureSubscribers == 0 && defaultImage.FailureSubscribers == 0, "The failed bitmap is detached and the default PNG has no failure subscription or retry loop.");
         defaultImage.Fail();
@@ -131,7 +132,7 @@ public static class PhonePlayerStateTests
         FileIO.Read = () => Task.FromResult(Snapshot("real", "Real cover", "https://example.invalid/real-cover.png"));
         await page.Accept(State("real", 2));
         var realImage = page.Artwork;
-        Check(realImage.UriSource.AbsoluteUri == "https://example.invalid/real-cover.png" && ReferenceEquals(realImage, page.BackgroundArtwork), "A real cover remains the displayed source without an image failure.");
+        Check(realImage.UriSource.AbsoluteUri == "https://example.invalid/real-cover.png" && page.BackgroundArtwork == null, "A real cover remains the artwork without masquerading as an artist photo.");
         FileIO.Read = () => Task.FromResult(Snapshot("newest", "Newest cover", "https://example.invalid/newest-cover.png"));
         await page.Accept(State("newest", 3));
         var newestImage = page.Artwork;
@@ -198,6 +199,82 @@ public static class PhonePlayerStateTests
         Check(page.TimerRunning && page.Progress == 41 && page.Duration == "1:30", "Later timer ticks recover real progress after an initial activation read error.");
         page.Leave();
         Check(!page.TimerRunning, "Leaving the page stops polling even after activation recovery.");
+        await FeedbackChecks();
+        PhoneOfflineMixes.Resolve = songs => Task.FromResult(new TestPlaybackConfiguration { BaseUrl = "https://secondary.invalid/", Username = "listener", AuthenticationMode = "Password" });
+        var offlineProfile = await PlaybackPage.PrepareLocalQueue();
+        Check(offlineProfile.BaseUrl == "https://secondary.invalid/" && offlineProfile.Username == "listener", "The production local-queue branch preserves the validated cache source route for listening reports.");
+        PhoneOfflineMixes.Resolve = songs => Task.FromResult<TestPlaybackConfiguration>(null);
+        var offlineRejected = false;
+        try { await PlaybackPage.PrepareLocalQueue(); } catch (InvalidOperationException) { offlineRejected = true; }
+        Check(offlineRejected, "A failed local manifest/route validation cannot construct a playback service or guess the preferred route.");
+    }
+    private static TrackInfo FeedbackTrack(string id, string user = "listener")
+    {
+        return new TrackInfo { Id = id, Title = id, Artist = "Artist", CoverArt = "https://music.invalid/cover.png", IsMix = true,
+            Reporting = new PhoneReportingProfile { BaseUrl = "https://music.invalid", Username = user, AuthenticationMode = "Password" } };
+    }
+    private static async Task FeedbackChecks()
+    {
+        var reads = 0;
+        WP8SubsonicService.ReadSong = id => { ++reads; return Task.FromResult(new TestSong { ArtistId = "artist", Starred = "2026-11-17", UserRating = 5 }); };
+        WP8SubsonicService.ReadArtist = id => Task.FromResult(new TestArtist { ImageUrl = "https://music.invalid/artist.jpg" });
+        var page = Page(); page.AllowNext(); page.SetTrack(FeedbackTrack("song"));
+        Check(page.MixMode && page.FeedbackEnabled && page.Starred && page.Rating == 5, "Mix mode reads existing server star/rating values before enabling feedback.");
+        Check(page.BackgroundArtwork != null && page.BackgroundArtwork.UriSource.AbsoluteUri == "https://music.invalid/artist.jpg", "The player uses getArtistInfo's real artist image for its background.");
+        var artistImage = page.BackgroundArtwork; artistImage.Fail();
+        Check(page.BackgroundArtwork == null && page.Artwork.UriSource.AbsoluteUri == "https://music.invalid/cover.png", "An artist-image failure clears the backdrop without replacing album art or affecting playback.");
+        string writtenId = null; bool writtenStar = true; var ratingWrites = new List<int>();
+        WP8SubsonicService.WriteStar = (id, value) => { writtenId = id; writtenStar = value; return Task.FromResult(true); };
+        WP8SubsonicService.WriteRating = (id, value) => { writtenId = id; ratingWrites.Add(value); return Task.FromResult(true); };
+        await page.Star();
+        Check(writtenId == "song" && !writtenStar && !page.Starred, "The star command toggles the selected song through the server API and changes UI only on success.");
+        await page.Rate(5);
+        Check(ratingWrites.Count == 1 && ratingWrites[0] == 5 && page.Rating == 5 && page.FeedbackVisible, "Like saves a real five-star server rating and shows the feedback panel.");
+        Check(BackgroundMediaPlayer.Messages.Count == 0, "A successful like does not replace or skip the queue.");
+        await page.Rate(1);
+        Check(ratingWrites.Count == 2 && ratingWrites[1] == 1 && BackgroundMediaPlayer.Messages.Count == 1
+            && BackgroundMediaPlayer.Messages[0].ContainsKey(BackgroundAudioMessages.Next), "Dislike saves a real one-star rating before issuing one Next command.");
+        var failed = new TaskCompletionSource<bool>(); failed.SetException(new InvalidOperationException("server unavailable"));
+        WP8SubsonicService.WriteRating = (id, value) => failed.Task;
+        await page.Rate(5);
+        Check(page.Rating == 1 && page.Status == "FeedbackFailed" && BackgroundMediaPlayer.Messages.Count == 1, "Failed feedback preserves the last confirmed rating and cannot skip audio.");
+
+        page = Page(); page.AllowNext(); page.SetTrack(FeedbackTrack("old"));
+        var pendingWrite = new TaskCompletionSource<bool>(); WP8SubsonicService.WriteRating = (id, value) => pendingWrite.Task;
+        var lateRating = page.Rate(1);
+        page.SetTrack(FeedbackTrack("new")); pendingWrite.SetResult(true); await lateRating;
+        Check(page.Title == "new" && page.Rating == 5 && BackgroundMediaPlayer.Messages.Count == 0, "A rating completed after a track change cannot overwrite or skip the new track.");
+
+        var pendingSong = new TaskCompletionSource<TestSong>();
+        WP8SubsonicService.ReadSong = id => id == "delayed" ? pendingSong.Task : Task.FromResult(new TestSong { ArtistId = "current", UserRating = 4 });
+        WP8SubsonicService.ReadArtist = id => Task.FromResult(new TestArtist { ImageUrl = "https://music.invalid/" + id + ".jpg" });
+        page.SetTrack(FeedbackTrack("delayed")); page.SetTrack(FeedbackTrack("current"));
+        pendingSong.SetResult(new TestSong { ArtistId = "obsolete", UserRating = 1 });
+        await Task.Yield();
+        Check(page.Title == "current" && page.Rating == 4 && page.BackgroundArtwork.UriSource.AbsoluteUri == "https://music.invalid/current.jpg", "Late enrichment for an older track cannot replace current rating or artist imagery.");
+        reads = 0; WP8SubsonicService.ReadSong = id => { ++reads; return Task.FromResult(new TestSong()); };
+        page.SetTrack(FeedbackTrack("another-account", "other-user"));
+        Check(!page.FeedbackEnabled && reads == 0 && page.BackgroundArtwork == null, "A queue from another account cannot read or mutate the current account's feedback.");
+
+        page = Page(); WP8SubsonicService.ReadSong = id => Task.FromResult(new TestSong { UserRating = 3 });
+        page.SetTrack(FeedbackTrack("leaving")); pendingWrite = new TaskCompletionSource<bool>();
+        WP8SubsonicService.WriteRating = (id, value) => pendingWrite.Task;
+        var leavingWrite = page.Rate(1); page.Leave(); pendingWrite.SetResult(true); await leavingWrite;
+        Check(page.Rating == 3 && BackgroundMediaPlayer.Messages.Count == 0, "A departed page ignores feedback completion and never sends Next after leaving.");
+        page = Page(); var sharedTrack = FeedbackTrack("public title"); sharedTrack.StreamUrl = "https://music.invalid/stream?apiKey=private";
+        page.SetTrack(sharedTrack);
+        Check(page.ShareText() == "public title" + Environment.NewLine + "Artist", "Native sharing contains only track metadata and never authenticated stream URLs.");
+        WP8SubsonicService.ReadLyrics = id => Task.FromResult(new List<TestLyric> { new TestLyric { Lines = new List<TestLine> { new TestLine { Text = "First line" }, new TestLine { Text = "Second line" } } } });
+        await page.ReadLyrics();
+        Check(page.Lyrics.Contains("First line") && page.Lyrics.Contains("Second line"), "The lyrics panel renders lines returned by the server.");
+        var pendingLyrics = new TaskCompletionSource<List<TestLyric>>(); WP8SubsonicService.ReadLyrics = id => pendingLyrics.Task;
+        var lateLyrics = page.ReadLyrics(); page.SetTrack(FeedbackTrack("following track"));
+        pendingLyrics.SetResult(new List<TestLyric> { new TestLyric { Lines = new List<TestLine> { new TestLine { Text = "Obsolete lyrics" } } } });
+        await lateLyrics;
+        Check(page.Lyrics == string.Empty, "Lyrics arriving after a track change cannot appear over the following track.");
+        WP8SubsonicService.ReadLyrics = id => Task.FromResult(new List<TestLyric>());
+        await page.ReadLyrics();
+        Check(page.Lyrics == "NoLyrics", "An empty server lyric response shows the localized empty state.");
     }
 }
 
@@ -205,6 +282,7 @@ namespace Mixdrome.Phone.Views
 {
     public sealed class PlaybackPage : Page
     {
+        private readonly Dictionary<string, object> Resources = new Dictionary<string, object> { { "PlayerFeedbackNeutralBrush", new Windows.UI.Xaml.Media.Brush() } };
         private const string DefaultArtworkUri = "ms-appx:///Assets/MixRadio/DefaultArtwork300.png";
         private readonly DispatcherTimer progressTimer = new DispatcherTimer();
         private readonly AudioStateVersionGate stateGate = new AudioStateVersionGate();
@@ -218,12 +296,20 @@ namespace Mixdrome.Phone.Views
         private BitmapImage artworkImage;
         private ItemCollection observedQueueItems;
         private bool queueListLoaded;
+        private bool isMix, showingMixDetails, feedbackBusy, feedbackAvailable, songStarred;
+        private int songRating;
+        private BitmapImage artistImage;
+        private DataTransferManager shareManager;
+        private readonly TextBlock MixSongTitleText = new TextBlock(), MixArtistText = new TextBlock(), FeedbackTitleText = new TextBlock(), FeedbackMessageText = new TextBlock(), LyricsText = new TextBlock();
+        private readonly Control LikeButton = new Control(), DislikeButton = new Control(), FavouriteButton = new Control(), FeedbackOverlay = new Control(), FeedbackIcon = new Control(), ShareButton = new Control(), LyricsButton = new Control(), LyricsOverlay = new Control();
+        private readonly CommandBar PlayerCommandBar = new CommandBar();
+        private readonly PhoneTitleBar PlayerTitleBar = new PhoneTitleBar();
         public ObservableCollection<TrackInfo> QueueItems { get; private set; } = new ObservableCollection<TrackInfo>();
         private readonly TextBlock SongTitleText = new TextBlock(), AboutTitleText = new TextBlock(), ArtistText = new TextBlock(), AboutArtistText = new TextBlock(), AboutAlbumText = new TextBlock(), PlaybackStatusText = new TextBlock(), PlayPauseGlyph = new TextBlock(), CurrentTimeText = new TextBlock(), TotalTimeText = new TextBlock();
         private readonly Control PreviousButton = new Control(), PlayPauseButton = new Control(), NextButton = new Control(), ShuffleButton = new Control(), RepeatButton = new Control(), RepeatOneBadge = new Control();
         private readonly Slider ProgressSlider = new Slider();
         private readonly ListView QueueListView = new ListView();
-        private readonly Image AlbumArtImage = new Image(), BackgroundImage = new Image();
+        private readonly Image AlbumArtImage = new Image(), MixAlbumArtImage = new Image(), BackgroundImage = new Image();
         public PlaybackPage() { ResetDisplay(); }
         public Task Accept(ValueSet data) { return ApplyStateAsync(data); }
         public void Leave() { OnNavigatedFrom(new NavigationEventArgs()); }
@@ -252,6 +338,20 @@ namespace Mixdrome.Phone.Views
         public bool TimerRunning { get { return progressTimer.IsEnabled; } }
         public BitmapImage Artwork { get { return AlbumArtImage.Source; } }
         public BitmapImage BackgroundArtwork { get { return BackgroundImage.Source; } }
+        public bool FeedbackEnabled { get { return LikeButton.IsEnabled; } }
+        public bool FeedbackVisible { get { return FeedbackOverlay.Visibility == Visibility.Visible; } }
+        public bool Starred { get { return songStarred; } }
+        public int Rating { get { return songRating; } }
+        public bool MixMode { get { return isMix; } }
+        public Task Rate(int rating) { return SaveFeedbackAsync(false, rating); }
+        public Task Star() { return SaveFeedbackAsync(true, 0); }
+        public void SetTrack(TrackInfo track) { ShowTrack(track); }
+        public void AllowNext() { canNext = true; }
+        public static async Task<PhoneReportingProfile> PrepareLocalQueue() { using (var service = await CreateLocalQueueServiceAsync(new List<SongDisplayItem> { new SongDisplayItem { Id = "saved" } })) return service.CreateReportingProfile(); }
+        public string Lyrics { get { return LyricsText.Text; } }
+        public Task ReadLyrics() { return LoadLyricsAsync(); }
+        public string ShareText() { var args = new DataRequestedEventArgs(); OnShareDataRequested(null, args); return args.Request.Data.Text; }
+        private void UpdatePlayerLayout() { }
         public int QueueStartCalls;
         private Task StartQueueAsync(PlaybackNavigationParameter parameter, CancellationToken token) { ++QueueStartCalls; return Task.FromResult(true); }
         private void OnBackPressed(object sender, BackPressedEventArgs args) { }
@@ -262,7 +362,7 @@ namespace Mixdrome.Phone.Views
     public sealed class PlaybackNavigationParameter { public List<SongDisplayItem> Playlist; public int StartIndex; }
     public sealed class SongDisplayItem { public string Id; }
 }
-namespace Mixdrome.Phone.Common { public static class PhoneText { public static string Get(string key) { return key; } } }
+namespace Mixdrome.Phone.Common { public static class PhoneText { public static string Get(string key) { return key; } } public class PhoneTitleBar { public string Title; } }
 namespace Windows.Foundation.Collections
 {
     public sealed class ValueSet : Dictionary<string, object> { }
@@ -325,12 +425,13 @@ namespace Windows.UI.Xaml
     public sealed class Application
     {
         public static readonly Application Current = new Application();
-        public readonly Dictionary<string, object> Resources = new Dictionary<string, object> { { "MixRadioAccentBrush", new Media.Brush() }, { "ApplicationForegroundThemeBrush", new Media.Brush() } };
+        public readonly Dictionary<string, object> Resources = new Dictionary<string, object> { { "MixRadioAccentBrush", new Media.Brush() }, { "ApplicationForegroundThemeBrush", new Media.Brush() }, { "MixRadioPanelBrush", new Media.Brush() } };
     }
 }
 namespace Windows.UI.Xaml.Controls
 {
-    public class Control { public bool IsEnabled; public Visibility Visibility; public Media.Brush Foreground; }
+    public class Control { public bool IsEnabled; public Visibility Visibility = Visibility.Collapsed; public Media.Brush Foreground, Background; public object RenderTransform; }
+    public class CommandBar : Control { public bool IsOpen; }
     public class Page { protected virtual void OnNavigatedTo(NavigationEventArgs args) { } protected virtual void OnNavigatedFrom(NavigationEventArgs args) { } }
     public sealed class TextBlock : Control { public string Text = string.Empty; }
     public sealed class Slider : Control { public double Maximum, Value; }
@@ -362,7 +463,7 @@ namespace Windows.UI.Xaml.Controls
     }
     public sealed class Image { public BitmapImage Source; }
 }
-namespace Windows.UI.Xaml.Media { public class Brush { } }
+namespace Windows.UI.Xaml.Media { public class Brush { } public class RotateTransform { public double Angle, CenterX, CenterY; } }
 namespace Windows.UI.Xaml.Media.Imaging
 {
     public sealed class BitmapImage
@@ -381,4 +482,49 @@ namespace Windows.UI.Xaml.Navigation
 {
     public enum NavigationMode { New, Back }
     public sealed class NavigationEventArgs : EventArgs { public NavigationMode NavigationMode; public object Parameter; }
+}
+
+namespace Mixdrome.Phone.Services
+{
+    public sealed class TestPlaybackConfiguration { public string BaseUrl, Username, AuthenticationMode; }
+    public static class PhoneOfflineMixes
+    {
+        public static Func<IEnumerable<SongDisplayItem>, Task<TestPlaybackConfiguration>> Resolve;
+        public static Task<TestPlaybackConfiguration> ResolveLocalQueueConfigurationAsync(IEnumerable<SongDisplayItem> songs) { return Resolve(songs); }
+    }
+    public sealed class TestSong { public string ArtistId, Starred; public int UserRating; }
+    public sealed class TestArtist { public string ImageUrl; }
+    public sealed class WP8SubsonicService : IDisposable
+    {
+        public static PhoneReportingProfile Profile = new PhoneReportingProfile { BaseUrl = "https://music.invalid", Username = "listener", AuthenticationMode = "Password" };
+        public static Func<string, Task<TestSong>> ReadSong = id => Task.FromResult(new TestSong());
+        public static Func<string, Task<TestArtist>> ReadArtist = id => Task.FromResult(new TestArtist());
+        public static Func<string, bool, Task<bool>> WriteStar = (id, value) => Task.FromResult(true);
+        public static Func<string, int, Task<bool>> WriteRating = (id, value) => Task.FromResult(true);
+        private TestPlaybackConfiguration configuration;
+        public void Configure(TestPlaybackConfiguration value) { configuration = value; }
+        public PhoneReportingProfile CreateReportingProfile() { return configuration == null ? Profile : new PhoneReportingProfile { BaseUrl = configuration.BaseUrl, Username = configuration.Username, AuthenticationMode = configuration.AuthenticationMode }; }
+        public Task<TestSong> GetSongAsync(string id) { return ReadSong(id); }
+        public Task<TestArtist> GetArtistInfoAsync(string id) { return ReadArtist(id); }
+        public Task<bool> SetSongStarredAsync(string id, bool value) { return WriteStar(id, value); }
+        public Task<bool> SetSongRatingAsync(string id, int value) { return WriteRating(id, value); }
+        public static Func<string, Task<List<TestLyric>>> ReadLyrics = id => Task.FromResult(new List<TestLyric>());
+        public Task<List<TestLyric>> GetSongLyricsAsync(string id, string artist, string title) { return ReadLyrics(id); }
+        public void Dispose() { }
+    }
+    public sealed class TestLyric { public List<TestLine> Lines = new List<TestLine>(); }
+    public sealed class TestLine { public string Text; }
+    public static class PhoneSubsonicServiceFactory
+    {
+        public static Task<WP8SubsonicService> CreatePlaybackServiceAsync() { return Task.FromResult(new WP8SubsonicService()); }
+    }
+}
+
+namespace Windows.ApplicationModel.DataTransfer
+{
+    public sealed class DataTransferManager { public event Action<DataTransferManager, DataRequestedEventArgs> DataRequested { add { } remove { } } }
+    public sealed class DataRequestedEventArgs { public readonly DataRequest Request = new DataRequest(); }
+    public sealed class DataRequest { public readonly DataPackage Data = new DataPackage(); public void FailWithDisplayText(string message) { } }
+    public sealed class DataPackage { public string Text; public readonly DataProperties Properties = new DataProperties(); public void SetText(string text) { Text = text; } }
+    public sealed class DataProperties { public string Title; }
 }

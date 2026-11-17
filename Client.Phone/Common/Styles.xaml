@@ -23,7 +23,9 @@
     <SolidColorBrush x:Key="PhoneForegroundBrush" Color="#FFFFFFFF" />
     <SolidColorBrush x:Key="PhoneMidBrush" Color="#FFCFCFCF" />
     <SolidColorBrush x:Key="PhoneDisabledBrush" Color="#FF777777" />
-    <SolidColorBrush x:Key="MixRadioAccentBrush" Color="{StaticResource MixRadioAccentColor}" />
+    <SolidColorBrush x:Key="MixRadioAccentBrush" Color="{ThemeResource SystemColorControlAccentColor}" />
+    <SolidColorBrush x:Key="MixRadioFeedbackBrush" Color="#FFFF2280" />
+    <SolidColorBrush x:Key="MixRadioPlayMeBrush" Color="{StaticResource MixRadioAccentColor}" />
     <SolidColorBrush x:Key="MixRadioAccentDarkBrush" Color="{StaticResource MixRadioAccentDarkColor}" />
     <SolidColorBrush x:Key="MixRadioTealBrush" Color="{StaticResource MixRadioTealColor}" />
     <SolidColorBrush x:Key="MixRadioYellowBrush" Color="{StaticResource MixRadioYellowColor}" />
