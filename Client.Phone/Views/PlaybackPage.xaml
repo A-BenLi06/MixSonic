@@ -14,14 +14,15 @@
         </CommandBar>
     </Page.BottomAppBar>
     <Grid x:Name="PlayerRoot" Background="Black" SizeChanged="OnPlayerSizeChanged">
-        <Image x:Name="BackgroundImage" Stretch="UniformToFill" Opacity="0.75" />
-        <Grid>
+        <Image x:Name="BackgroundImage" Stretch="UniformToFill" Opacity="1" />
+        <Image x:Name="BackgroundPreloadImage" Stretch="UniformToFill" Opacity="0" IsHitTestVisible="False" />
+        <Grid x:Name="PlayerContent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <common:PhoneTitleBar x:Name="PlayerTitleBar" />
+            <common:PhoneTitleBar x:Name="PlayerTitleBar" Background="#4D303030" />
             <Pivot x:Name="PlayerPivot" Grid.Row="1" Margin="0,4,0,0">
                 <PivotItem x:Uid="Playback_NowPlaying">
                     <Grid Margin="8,0,8,4">
@@ -212,19 +213,17 @@
             </Button>
         </Grid>
         <Grid x:Name="FeedbackOverlay" Visibility="Collapsed" Background="#99000000">
-            <Border x:Name="FeedbackPanel" Background="{StaticResource MixRadioFeedbackBrush}" VerticalAlignment="Top" Padding="24,0,24,24" MinHeight="296">
-                <Grid>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="120" /></Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions><RowDefinition Height="52" /><RowDefinition Height="*" /><RowDefinition Height="64" /></Grid.RowDefinitions>
-                    <TextBlock x:Name="FeedbackTitleText" Grid.ColumnSpan="2" Foreground="White" FontSize="31" FontWeight="SemiBold" TextWrapping="Wrap" />
-                    <TextBlock x:Name="FeedbackMessageText" Grid.Row="1" Foreground="White" FontSize="22" TextWrapping="Wrap" Margin="0,22,0,0" />
-                    <Viewbox x:Name="FeedbackIcon" Grid.Row="1" Grid.Column="1" Width="80" Height="80" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,16,0,0">
-                        <Grid Width="44" Height="44"><Ellipse Fill="#33000000" Stroke="White" StrokeThickness="2" /><Path Data=" M 21.171,9.701 C 21.417,9.538 21.787,9.538 22.281,9.701 C 22.689,9.949 23.020,10.484 23.266,11.305 C 23.513,12.126 23.596,13.068 23.513,14.137 C 23.347,15.371 22.979,16.439 22.403,17.344 C 24.375,17.344 26.306,17.508 28.195,17.835 C 29.019,17.999 29.551,18.329 29.798,18.821 C 30.126,19.727 30.126,20.590 29.798,21.409 C 29.798,21.494 29.758,21.575 29.676,21.659 C 29.510,21.985 29.387,22.274 29.306,22.520 C 30.126,24.328 29.922,25.766 28.688,26.834 C 28.935,27.327 29.019,28.026 28.935,28.929 C 28.853,29.094 28.811,29.259 28.811,29.422 C 28.566,30.736 27.786,31.434 26.469,31.519 C 25.895,31.519 25.279,31.519 24.620,31.519 C 22.897,31.600 21.212,31.600 19.567,31.519 C 19.322,31.434 19.074,31.393 18.829,31.393 C 18.172,31.148 17.596,30.861 17.104,30.531 C 16.201,30.037 15.625,29.340 15.377,28.438 C 15.377,28.271 15.336,28.107 15.254,27.943 C 15.091,26.629 14.967,25.314 14.885,23.997 C 14.801,23.260 14.761,22.438 14.761,21.533 C 14.761,20.548 15.091,19.727 15.747,19.069 C 16.734,17.917 17.926,16.727 19.322,15.496 C 19.979,14.754 20.432,13.685 20.678,12.290 C 20.841,11.800 20.841,11.139 20.678,10.318 C 20.678,10.073 20.841,9.868 21.171,9.701 Z" Fill="White" /></Grid>
-                    </Viewbox>
-                    <Button x:Name="FeedbackOkButton" Grid.Row="2" Width="204" Height="48" Padding="0" BorderThickness="3" BorderBrush="White"
-                            Background="Transparent" Foreground="White" FontSize="24" FontWeight="SemiBold" Click="OnFeedbackOkClick" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
-                </Grid>
-            </Border>
+            <Grid x:Name="FeedbackPanel" Background="{StaticResource MixRadioFeedbackBrush}" VerticalAlignment="Top" Height="328">
+                <TextBlock x:Name="FeedbackTitleText" Foreground="White" FontSize="31" FontWeight="SemiBold" TextWrapping="Wrap" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24,16,24,0" />
+                <TextBlock x:Name="FeedbackMessageText" Foreground="White" FontSize="22" TextWrapping="Wrap" Width="320" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="24,88,0,0" />
+                <Viewbox x:Name="FeedbackIcon" RenderTransformOrigin="0.5,0.5" Width="80" Height="80" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,68,24,0">
+                    <Grid Width="44" Height="44"><Ellipse Fill="#33000000" Stroke="White" StrokeThickness="2" /><Path Data=" M 21.171,9.701 C 21.417,9.538 21.787,9.538 22.281,9.701 C 22.689,9.949 23.020,10.484 23.266,11.305 C 23.513,12.126 23.596,13.068 23.513,14.137 C 23.347,15.371 22.979,16.439 22.403,17.344 C 24.375,17.344 26.306,17.508 28.195,17.835 C 29.019,17.999 29.551,18.329 29.798,18.821 C 30.126,19.727 30.126,20.590 29.798,21.409 C 29.798,21.494 29.758,21.575 29.676,21.659 C 29.510,21.985 29.387,22.274 29.306,22.520 C 30.126,24.328 29.922,25.766 28.688,26.834 C 28.935,27.327 29.019,28.026 28.935,28.929 C 28.853,29.094 28.811,29.259 28.811,29.422 C 28.566,30.736 27.786,31.434 26.469,31.519 C 25.895,31.519 25.279,31.519 24.620,31.519 C 22.897,31.600 21.212,31.600 19.567,31.519 C 19.322,31.434 19.074,31.393 18.829,31.393 C 18.172,31.148 17.596,30.861 17.104,30.531 C 16.201,30.037 15.625,29.340 15.377,28.438 C 15.377,28.271 15.336,28.107 15.254,27.943 C 15.091,26.629 14.967,25.314 14.885,23.997 C 14.801,23.260 14.761,22.438 14.761,21.533 C 14.761,20.548 15.091,19.727 15.747,19.069 C 16.734,17.917 17.926,16.727 19.322,15.496 C 19.979,14.754 20.432,13.685 20.678,12.290 C 20.841,11.800 20.841,11.139 20.678,10.318 C 20.678,10.073 20.841,9.868 21.171,9.701 Z" Fill="White" /></Grid>
+                </Viewbox>
+                <Button x:Name="FeedbackOkButton" Width="204" Height="48" MinWidth="0" MinHeight="0" Padding="0" BorderThickness="3" BorderBrush="White"
+                        Background="Transparent" Foreground="White" FontSize="24" FontWeight="SemiBold" Click="OnFeedbackOkClick" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="26,256,0,0">
+                    <Button.Template><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"><ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Border></ControlTemplate></Button.Template>
+                </Button>
+            </Grid>
         </Grid>
     </Grid>
 </Page>

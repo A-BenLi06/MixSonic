@@ -8,6 +8,7 @@ namespace Mixdrome.Phone.Views
     using System.Threading;
     using System.Threading.Tasks;
     using Windows.ApplicationModel.DataTransfer;
+    using Windows.UI.ViewManagement;
     using Mixdrome.Phone.Common;
     using Mixdrome.Phone.Services;
     using Windows.Foundation.Collections;
@@ -62,6 +63,12 @@ namespace Mixdrome.Phone.Views
         private bool songStarred;
         private int songRating;
         private BitmapImage artistImage;
+        private BitmapImage pendingArtistImage;
+        private TrackInfo pendingArtistTrack;
+        private CancellationTokenSource pendingArtistActivation;
+        private string pendingArtistId;
+        private string loadedArtistId;
+        private PhoneReportingProfile loadedArtistAccount;
         private DataTransferManager shareManager;
         public ObservableCollection<TrackInfo> QueueItems { get; private set; } = new ObservableCollection<TrackInfo>();
 
@@ -96,6 +103,7 @@ namespace Mixdrome.Phone.Views
             var token = activation.Token;
             ready = new TaskCompletionSource<bool>();
             HardwareButtons.BackPressed += OnBackPressed;
+            ApplicationView.GetForCurrentView().VisibleBoundsChanged += OnVisibleBoundsChanged;
             // Subscribe before creating the player, which may start a cold audio task.
             BackgroundMediaPlayer.MessageReceivedFromBackground += OnMessage;
             try
@@ -146,6 +154,7 @@ namespace Mixdrome.Phone.Views
             seeking = false;
             if (activation != null) { activation.Cancel(); activation.Dispose(); activation = null; }
             HardwareButtons.BackPressed -= OnBackPressed;
+            ApplicationView.GetForCurrentView().VisibleBoundsChanged -= OnVisibleBoundsChanged;
             BackgroundMediaPlayer.MessageReceivedFromBackground -= OnMessage;
             if (player != null) player.CurrentStateChanged -= OnMediaStateChanged;
             progressTimer.Stop();
@@ -396,8 +405,8 @@ namespace Mixdrome.Phone.Views
             songRating = 0;
             songStarred = false;
             UpdateFeedbackControls();
-            DetachArtistImage();
-            BackgroundImage.Source = null;
+            DetachPendingArtistImage();
+            if (!MatchesPlaybackAccount(track.Reporting, loadedArtistAccount)) ClearArtistBackground();
             var currentActivation = activation;
             if (track.Reporting == null || string.IsNullOrEmpty(track.Id)) return;
             try
@@ -411,16 +420,20 @@ namespace Mixdrome.Phone.Views
                     songStarred = !string.IsNullOrEmpty(song.Starred);
                     feedbackAvailable = true;
                     UpdateFeedbackControls();
-                    if (string.IsNullOrEmpty(song.ArtistId)) return;
+                    if (string.IsNullOrEmpty(song.ArtistId)) { ClearArtistBackground(); return; }
+                    if (song.ArtistId == loadedArtistId && BackgroundImage.Source != null
+                        && MatchesPlaybackAccount(track.Reporting, loadedArtistAccount)) return;
                     var artist = await service.GetArtistInfoAsync(song.ArtistId);
                     if (!IsCurrentPresentation(track, currentActivation)) return;
                     Uri imageUri;
                     if (artist == null || !Uri.TryCreate(artist.ImageUrl, UriKind.Absolute, out imageUri)
-                        || (imageUri.Scheme != "http" && imageUri.Scheme != "https")) return;
+                        || (imageUri.Scheme != "http" && imageUri.Scheme != "https")) { ClearArtistBackground(); return; }
                     var image = new BitmapImage();
-                    artistImage = image;
-                    image.ImageFailed += OnArtistImageFailed;
-                    BackgroundImage.Source = image;
+                    pendingArtistImage = image; pendingArtistTrack = track;
+                    pendingArtistActivation = currentActivation; pendingArtistId = song.ArtistId;
+                    image.ImageOpened += OnArtistImageOpened;
+                    image.ImageFailed += OnPendingArtistImageFailed;
+                    BackgroundPreloadImage.Source = image;
                     image.UriSource = imageUri;
                 }
             }
@@ -448,12 +461,50 @@ namespace Mixdrome.Phone.Views
         private void OnArtistImageFailed(object sender, ExceptionRoutedEventArgs args)
         {
             if (!active || !ReferenceEquals(sender, artistImage)) return;
+            ClearArtistBackground();
+        }
+
+        private void OnArtistImageOpened(object sender, RoutedEventArgs args)
+        {
+            var image = sender as BitmapImage;
+            if (image == null || !ReferenceEquals(image, pendingArtistImage)) return;
+            var track = pendingArtistTrack; var id = pendingArtistId; var currentActivation = pendingArtistActivation;
+            if (!IsCurrentPresentation(track, currentActivation)) { DetachPendingArtistImage(); return; }
             DetachArtistImage();
-            BackgroundImage.Source = null;
+            artistImage = image; artistImage.ImageFailed += OnArtistImageFailed;
+            loadedArtistId = id; loadedArtistAccount = track.Reporting;
+            BackgroundImage.Source = image;
+        }
+
+        private void OnPendingArtistImageFailed(object sender, ExceptionRoutedEventArgs args)
+        {
+            if (!ReferenceEquals(sender, pendingArtistImage)) return;
+            var current = IsCurrentPresentation(pendingArtistTrack, pendingArtistActivation);
+            DetachPendingArtistImage();
+            if (current) ClearArtistBackground();
+        }
+
+        private void DetachPendingArtistImage()
+        {
+            if (pendingArtistImage != null)
+            {
+                pendingArtistImage.ImageOpened -= OnArtistImageOpened;
+                pendingArtistImage.ImageFailed -= OnPendingArtistImageFailed;
+            }
+            pendingArtistImage = null; pendingArtistTrack = null;
+            pendingArtistActivation = null; pendingArtistId = null;
+            BackgroundPreloadImage.Source = null;
+        }
+
+        private void ClearArtistBackground()
+        {
+            DetachArtistImage(); BackgroundImage.Source = null;
+            loadedArtistId = null; loadedArtistAccount = null;
         }
 
         private void DetachArtistImage()
         {
+            DetachPendingArtistImage();
             if (artistImage != null) artistImage.ImageFailed -= OnArtistImageFailed;
             artistImage = null;
         }
@@ -493,7 +544,7 @@ namespace Mixdrome.Phone.Views
                         songRating = rating;
                         FeedbackTitleText.Text = PhoneText.Get(rating == 5 ? "LikedSongTitle" : "DislikedSongTitle");
                         FeedbackMessageText.Text = PhoneText.Get(rating == 5 ? "LikedSongMessage" : "DislikedSongMessage");
-                        FeedbackIcon.RenderTransform = new Windows.UI.Xaml.Media.RotateTransform { Angle = rating == 5 ? 0 : 180, CenterX = 40, CenterY = 40 };
+                        FeedbackIcon.RenderTransform = new Windows.UI.Xaml.Media.RotateTransform { Angle = rating == 5 ? 0 : 180 };
                         FeedbackOverlay.Visibility = Visibility.Visible;
                         PlayerCommandBar.IsOpen = false;
                         PlayerCommandBar.IsEnabled = false;
@@ -577,11 +628,15 @@ namespace Mixdrome.Phone.Views
             UpdatePlayerLayout();
         }
 
+        private void OnVisibleBoundsChanged(ApplicationView sender, object args) { if (active) UpdatePlayerLayout(); }
         private void OnPlayerSizeChanged(object sender, SizeChangedEventArgs args) { UpdatePlayerLayout(); }
         private void UpdatePlayerLayout()
         {
             if (PlayerRoot == null || PlayerRoot.ActualWidth <= 0) return;
             var scale = PlayerRoot.ActualWidth / 480;
+            var top = Math.Max(0, StatusBar.GetForCurrentView().OccludedRect.Bottom - Window.Current.Bounds.Top);
+            PlayerContent.Margin = new Thickness(0, top, 0, 0);
+            BackgroundImage.Opacity = showingMixDetails ? 0.75 : 1;
             MixNowPlayingPanel.Margin = new Thickness(24 * scale, 0, 24 * scale, 3 * scale);
             MixAlbumArtBorder.Width = MixAlbumArtBorder.Height = 194 * scale;
             MixSongTitleText.FontSize = 32 * scale;
@@ -592,7 +647,7 @@ namespace Mixdrome.Phone.Views
             PlayerSidebar.Margin = new Thickness(0, 10 * scale, 12 * scale, 0);
             ShareButton.Width = ShareButton.Height = LyricsButton.Width = LyricsButton.Height = 48 * scale;
             ShareIcon.Width = ShareIcon.Height = 45 * scale;
-            LyricsOverlay.Margin = new Thickness(0, 60 * scale, 0, 0);
+            LyricsOverlay.Margin = new Thickness(0, top + 60 * scale, 0, 0);
             PlayerPivot.Visibility = !isMix || showingMixDetails ? Visibility.Visible : Visibility.Collapsed;
             MixNowPlayingPanel.Visibility = isMix && !showingMixDetails ? Visibility.Visible : Visibility.Collapsed;
             PreviousButton.Visibility = isMix ? Visibility.Collapsed : Visibility.Visible;
@@ -605,7 +660,17 @@ namespace Mixdrome.Phone.Views
             FavouriteIcon.Width = FavouriteIcon.Height = 25 * scale;
             MixDetailsGrid.Margin = new Thickness(12 * scale, 0, 0, 0);
             TransportPanel.Margin = new Thickness(24 * scale, 0, 24 * scale, 8 * scale);
-            FeedbackPanel.MinHeight = 296 * scale;
+            FeedbackPanel.Height = 328 * scale;
+            FeedbackTitleText.FontSize = 31 * scale;
+            FeedbackTitleText.Margin = new Thickness(24 * scale, 16 * scale, 24 * scale, 0);
+            FeedbackMessageText.FontSize = 22 * scale;
+            FeedbackMessageText.Width = 320 * scale;
+            FeedbackMessageText.Margin = new Thickness(24 * scale, 88 * scale, 0, 0);
+            FeedbackIcon.Width = FeedbackIcon.Height = 80 * scale;
+            FeedbackIcon.Margin = new Thickness(0, 68 * scale, 24 * scale, 0);
+            FeedbackOkButton.Width = 204 * scale; FeedbackOkButton.Height = 48 * scale;
+            FeedbackOkButton.FontSize = 24 * scale;
+            FeedbackOkButton.Margin = new Thickness(26 * scale, 256 * scale, 0, 0);
         }
 
         private void OnArtworkImageFailed(object sender, ExceptionRoutedEventArgs args)
@@ -636,8 +701,7 @@ namespace Mixdrome.Phone.Views
             MixSongTitleText.Text = MixArtistText.Text = string.Empty;
             PlayerTitleBar.Title = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToUpper(PhoneText.Get("UiNowPlaying"));
             UpdatePlayerLayout();
-            DetachArtistImage();
-            BackgroundImage.Source = null;
+            ClearArtistBackground();
             UpdateFeedbackControls();
             SongTitleText.Text = PhoneText.Get("PlaybackEmpty");
             ArtistText.Text = AboutTitleText.Text = AboutArtistText.Text = AboutAlbumText.Text = string.Empty;

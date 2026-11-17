@@ -18,6 +18,7 @@ using Windows.UI.Xaml.Automation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.ViewManagement;
 
 // run-playback.ps1 inserts the production page's exact state/rendering/lifecycle
 // methods into this managed shell. These controls observe visible values and
@@ -275,6 +276,29 @@ public static class PhonePlayerStateTests
         WP8SubsonicService.ReadLyrics = id => Task.FromResult(new List<TestLyric>());
         await page.ReadLyrics();
         Check(page.Lyrics == "NoLyrics", "An empty server lyric response shows the localized empty state.");
+
+        var artistReads = 0;
+        WP8SubsonicService.ReadSong = id => Task.FromResult(new TestSong { ArtistId = "shared-artist" });
+        WP8SubsonicService.ReadArtist = id => { ++artistReads; return Task.FromResult(new TestArtist { ImageUrl = "https://music.invalid/" + id + ".jpg" }); };
+        page = Page(); page.SetTrack(FeedbackTrack("first")); var retainedPhoto = page.BackgroundArtwork;
+        var nextSong = new TaskCompletionSource<TestSong>(); WP8SubsonicService.ReadSong = id => nextSong.Task;
+        page.SetTrack(FeedbackTrack("next"));
+        Check(ReferenceEquals(page.BackgroundArtwork, retainedPhoto), "The loaded artist photo remains visible while the next track's metadata is pending.");
+        nextSong.SetResult(new TestSong { ArtistId = "shared-artist" }); await Task.Yield();
+        Check(artistReads == 1 && ReferenceEquals(page.BackgroundArtwork, retainedPhoto), "The same stable artist ID reuses its decoded photo without an extra artwork request or black flash.");
+        WP8SubsonicService.ReadSong = id => Task.FromResult(new TestSong { ArtistId = id });
+        BitmapImage.AutomaticallyOpen = false;
+        page.SetTrack(FeedbackTrack("another-artist")); var pendingPhoto = page.PendingArtistArtwork;
+        Check(pendingPhoto != null && ReferenceEquals(page.BackgroundArtwork, retainedPhoto), "A new artist image keeps the previous photo visible until ImageOpened confirms decoding.");
+        pendingPhoto.Open();
+        Check(ReferenceEquals(page.BackgroundArtwork, pendingPhoto), "Successful decoding publishes the current artist's photo.");
+        page.SetTrack(FeedbackTrack("stale-artist")); var stalePhoto = page.PendingArtistArtwork;
+        page.SetTrack(FeedbackTrack("latest-artist")); var latestPhoto = page.PendingArtistArtwork;
+        page.DeliverArtistOpened(stalePhoto);
+        Check(ReferenceEquals(page.BackgroundArtwork, pendingPhoto), "A queued ImageOpened from an obsolete track cannot publish the obsolete image.");
+        latestPhoto.Open(); page.SetTrack(FeedbackTrack("another-user", "other-user"));
+        Check(page.BackgroundArtwork == null, "A different playback account clears the previous artist photo immediately.");
+        BitmapImage.AutomaticallyOpen = true;
     }
 }
 
@@ -299,6 +323,11 @@ namespace Mixdrome.Phone.Views
         private bool isMix, showingMixDetails, feedbackBusy, feedbackAvailable, songStarred;
         private int songRating;
         private BitmapImage artistImage;
+        private BitmapImage pendingArtistImage;
+        private TrackInfo pendingArtistTrack;
+        private CancellationTokenSource pendingArtistActivation;
+        private string pendingArtistId, loadedArtistId;
+        private PhoneReportingProfile loadedArtistAccount;
         private DataTransferManager shareManager;
         private readonly TextBlock MixSongTitleText = new TextBlock(), MixArtistText = new TextBlock(), FeedbackTitleText = new TextBlock(), FeedbackMessageText = new TextBlock(), LyricsText = new TextBlock();
         private readonly Control LikeButton = new Control(), DislikeButton = new Control(), FavouriteButton = new Control(), FeedbackOverlay = new Control(), FeedbackIcon = new Control(), ShareButton = new Control(), LyricsButton = new Control(), LyricsOverlay = new Control();
@@ -309,7 +338,7 @@ namespace Mixdrome.Phone.Views
         private readonly Control PreviousButton = new Control(), PlayPauseButton = new Control(), NextButton = new Control(), ShuffleButton = new Control(), RepeatButton = new Control(), RepeatOneBadge = new Control();
         private readonly Slider ProgressSlider = new Slider();
         private readonly ListView QueueListView = new ListView();
-        private readonly Image AlbumArtImage = new Image(), MixAlbumArtImage = new Image(), BackgroundImage = new Image();
+        private readonly Image AlbumArtImage = new Image(), MixAlbumArtImage = new Image(), BackgroundImage = new Image(), BackgroundPreloadImage = new Image();
         public PlaybackPage() { ResetDisplay(); }
         public Task Accept(ValueSet data) { return ApplyStateAsync(data); }
         public void Leave() { OnNavigatedFrom(new NavigationEventArgs()); }
@@ -352,6 +381,9 @@ namespace Mixdrome.Phone.Views
         public Task ReadLyrics() { return LoadLyricsAsync(); }
         public string ShareText() { var args = new DataRequestedEventArgs(); OnShareDataRequested(null, args); return args.Request.Data.Text; }
         private void UpdatePlayerLayout() { }
+        private void OnVisibleBoundsChanged(ApplicationView sender, object args) { }
+        public BitmapImage PendingArtistArtwork { get { return pendingArtistImage; } }
+        public void DeliverArtistOpened(BitmapImage image) { OnArtistImageOpened(image, new RoutedEventArgs()); }
         public int QueueStartCalls;
         private Task StartQueueAsync(PlaybackNavigationParameter parameter, CancellationToken token) { ++QueueStartCalls; return Task.FromResult(true); }
         private void OnBackPressed(object sender, BackPressedEventArgs args) { }
@@ -468,11 +500,16 @@ namespace Windows.UI.Xaml.Media.Imaging
 {
     public sealed class BitmapImage
     {
-        public Uri UriSource;
+        public static bool AutomaticallyOpen = true;
+        private Uri uri;
+        public Uri UriSource { get { return uri; } set { uri = value; if (AutomaticallyOpen) Open(); } }
         private ExceptionRoutedEventHandler failed;
+        private EventHandler<RoutedEventArgs> opened;
         public BitmapImage() { }
         public BitmapImage(Uri uri) { UriSource = uri; }
         public event ExceptionRoutedEventHandler ImageFailed { add { failed += value; } remove { failed -= value; } }
+        public event EventHandler<RoutedEventArgs> ImageOpened { add { opened += value; } remove { opened -= value; } }
+        public void Open() { if (opened != null) opened(this, new RoutedEventArgs()); }
         public int FailureSubscribers { get { return failed == null ? 0 : failed.GetInvocationList().Length; } }
         public void Fail() { if (failed != null) failed(this, new ExceptionRoutedEventArgs()); }
     }
@@ -527,4 +564,14 @@ namespace Windows.ApplicationModel.DataTransfer
     public sealed class DataRequest { public readonly DataPackage Data = new DataPackage(); public void FailWithDisplayText(string message) { } }
     public sealed class DataPackage { public string Text; public readonly DataProperties Properties = new DataProperties(); public void SetText(string text) { Text = text; } }
     public sealed class DataProperties { public string Title; }
+}
+
+namespace Windows.UI.ViewManagement
+{
+    public sealed class ApplicationView
+    {
+        private static readonly ApplicationView current = new ApplicationView();
+        public static ApplicationView GetForCurrentView() { return current; }
+        public event Action<ApplicationView, object> VisibleBoundsChanged { add { } remove { } }
+    }
 }

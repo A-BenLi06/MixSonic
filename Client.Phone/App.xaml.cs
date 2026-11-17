@@ -65,7 +65,13 @@ namespace Mixdrome.Phone
                     if (frame == null || frame.Content == null) return;
                     var version = statusBarNavigationVersion;
                     var hide = frame.Content is MainPage;
+                    var player = frame.Content is PlaybackPage;
+                    ApplicationView.GetForCurrentView().SetDesiredBoundsMode(player
+                        ? ApplicationViewBoundsMode.UseCoreWindow : ApplicationViewBoundsMode.UseVisible);
                     var bar = StatusBar.GetForCurrentView();
+                    bar.BackgroundColor = Windows.UI.Color.FromArgb(255, 48, 48, 48);
+                    bar.ForegroundColor = Windows.UI.Colors.White;
+                    bar.BackgroundOpacity = player ? 0 : 1;
                     if (hide) await bar.HideAsync(); else await bar.ShowAsync();
                     if (version == statusBarNavigationVersion && ReferenceEquals(frame, Window.Current.Content)
                         && hide == (frame.Content is MainPage)) return;

@@ -16,7 +16,8 @@ namespace Mixdrome.Phone.Services
     {
         private double size = 48;
         public string Name { get; set; }
-        public double Size { get { return size; } set { size = value; var handler = PropertyChanged; if (handler != null) handler(this, new PropertyChangedEventArgs("Size")); } }
+        public double Size { get { return size; } set { size = value; var handler = PropertyChanged; if (handler != null) { handler(this, new PropertyChangedEventArgs("Size")); handler(this, new PropertyChangedEventArgs("Margin")); } } }
+        public Thickness Margin { get { return new Thickness(0, -8 * Size / 72, 0, 22 * Size / 72); } }
         public event PropertyChangedEventHandler PropertyChanged;
         public override string ToString() { return Name; }
     }
@@ -52,7 +53,7 @@ namespace Mixdrome.Phone.Services
         public string Key { get; private set; }
         private double size = 45;
         public double Size { get { return size; } set { size = value; OnPropertyChanged(new PropertyChangedEventArgs("Size")); OnPropertyChanged(new PropertyChangedEventArgs("Margin")); OnPropertyChanged(new PropertyChangedEventArgs("FontSize")); } }
-        public Thickness Margin { get { return new Thickness(Size * 24 / 68, Size * 24 / 68, 0, Size * 18 / 68); } }
+        public Thickness Margin { get { return new Thickness(Size * 24 / 68, Size * 14 / 68, 0, Size * 18 / 68); } }
         public double FontSize { get { return Size * 40 / 68; } }
     }
 

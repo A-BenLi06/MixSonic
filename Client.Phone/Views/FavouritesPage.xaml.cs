@@ -111,6 +111,7 @@ namespace Mixdrome.Phone.Views
         {
             if (ActualWidth <= 0 || FavouritesPivot == null) return;
             var scale = ActualWidth / 480;
+            UpdatesList.Margin = new Thickness(0, 5 * scale, 0, 0);
             foreach (var tab in FavouritesPivot.Items.OfType<PivotItem>()) { var heading = tab.Header as PhoneCollectionHeading; if (heading != null) heading.Size = 72 * scale; }
             foreach (var group in ArtistGroups) { group.Size = 68 * scale; foreach (var item in group) item.Size = 90 * scale; }
             foreach (var item in Albums.Concat(Updates)) item.Size = 120 * scale;

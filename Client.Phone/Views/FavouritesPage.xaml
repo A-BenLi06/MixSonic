@@ -5,7 +5,7 @@
       Background="Black" SizeChanged="OnPageSizeChanged">
     <Page.Resources>
         <CollectionViewSource x:Name="ArtistGroupsSource" IsSourceGrouped="True" />
-        <DataTemplate x:Key="FavouriteHeadingTemplate"><TextBlock Text="{Binding Name}" FontSize="{Binding Size}" FontWeight="Light" Margin="0,2,0,22" /></DataTemplate>
+        <DataTemplate x:Key="FavouriteHeadingTemplate"><TextBlock Text="{Binding Name}" FontSize="{Binding Size}" FontWeight="Light" Margin="{Binding Margin}" /></DataTemplate>
         <Style x:Key="FavouriteRowContainerStyle" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0" /><Setter Property="MinHeight" Value="0" />
         </Style>
@@ -33,7 +33,9 @@
     <Page.BottomAppBar>
         <CommandBar Background="{StaticResource MixRadioCommandBarBrush}">
             <AppBarButton x:Name="AddArtistButton" Icon="Add" x:Uid="PhoneUi_Label_AddArtist" Click="OnAddArtistClick" />
-            <AppBarButton x:Name="SelectArtistsButton" Icon="SelectAll" x:Uid="PhoneUi_Label_SelectArtists" Click="OnSelectArtistsClick" />
+            <AppBarButton x:Name="SelectArtistsButton" x:Uid="PhoneUi_Label_SelectArtists" Click="OnSelectArtistsClick">
+                <AppBarButton.Icon><PathIcon Data="M0,3 L2,5 L6,0 L8,2 L2,8 L0,6 Z M12,3 L36,3 L36,6 L12,6 Z M0,15 L2,17 L6,12 L8,14 L2,20 L0,18 Z M12,15 L36,15 L36,18 L12,18 Z M0,27 L2,29 L6,24 L8,26 L2,32 L0,30 Z M12,27 L36,27 L36,30 L12,30 Z" /></AppBarButton.Icon>
+            </AppBarButton>
             <AppBarButton x:Name="RemoveArtistsButton" Icon="Delete" x:Uid="PhoneUi_Label_RemoveFavourites" Click="OnRemoveArtistsClick" Visibility="Collapsed" />
             <AppBarButton x:Name="DoneButton" Icon="Accept" x:Uid="PhoneUi_Label_Done" Click="OnDoneClick" Visibility="Collapsed" />
             <CommandBar.SecondaryCommands>
@@ -55,7 +57,7 @@
                     </DataTemplate></GroupStyle.HeaderTemplate></GroupStyle></ListView.GroupStyle>
                 </ListView>
             </PivotItem>
-            <PivotItem x:Name="UpdatesTab" Tag="updates" Margin="0"><ListView ItemsSource="{Binding Updates}" ItemTemplate="{StaticResource FavouriteAlbumTemplate}" ItemContainerStyle="{StaticResource FavouriteRowContainerStyle}" IsItemClickEnabled="True" SelectionMode="None" ItemClick="OnItemClick" /></PivotItem>
+            <PivotItem x:Name="UpdatesTab" Tag="updates" Margin="0"><ListView x:Name="UpdatesList" ItemsSource="{Binding Updates}" ItemTemplate="{StaticResource FavouriteAlbumTemplate}" ItemContainerStyle="{StaticResource FavouriteRowContainerStyle}" IsItemClickEnabled="True" SelectionMode="None" ItemClick="OnItemClick" /></PivotItem>
             <PivotItem x:Name="AlbumsTab" Tag="albums" Margin="0"><ListView ItemsSource="{Binding Albums}" ItemTemplate="{StaticResource FavouriteAlbumTemplate}" ItemContainerStyle="{StaticResource FavouriteRowContainerStyle}" IsItemClickEnabled="True" SelectionMode="None" ItemClick="OnItemClick" /></PivotItem>
             <PivotItem x:Name="SongsTab" Tag="songs" Margin="0"><ListView ItemsSource="{Binding Songs}" ItemTemplate="{StaticResource FavouriteSongTemplate}" ItemContainerStyle="{StaticResource FavouriteRowContainerStyle}" IsItemClickEnabled="True" SelectionMode="None" ItemClick="OnItemClick" /></PivotItem>
         </Pivot>

@@ -76,12 +76,10 @@ namespace Mixdrome.Phone.Common
         {
             var frame = Window.Current.Content as Frame;
             if (frame == null || frame.Content is MainPage) return;
-            // Pop to the existing home entry when possible, preserving its
-            // panorama position and avoiding a growing stack of home pages.
-            while (frame.BackStack.Count > 0 && frame.BackStack[frame.BackStack.Count - 1].SourcePageType != typeof(MainPage))
-                frame.BackStack.RemoveAt(frame.BackStack.Count - 1);
-            if (frame.CanGoBack) frame.GoBack();
-            else frame.Navigate(typeof(MainPage));
+            // Home is a root navigation. Let Frame select the cached home page
+            // before clearing its journal, rather than pruning a live back
+            // journal and then asking the legacy Frame to resolve GoBack.
+            if (frame.Navigate(typeof(MainPage))) frame.BackStack.Clear();
         }
         private void OnElapsedClick(object sender, RoutedEventArgs args)
         {

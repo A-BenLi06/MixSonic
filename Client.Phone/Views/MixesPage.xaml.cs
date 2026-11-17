@@ -106,6 +106,7 @@ namespace Mixdrome.Phone.Views
         private async void OnTabChanged(object sender, SelectionChangedEventArgs e) { if (StatusText == null) return; selectionGeneration++; StatusText.Text = string.Empty; UpdateBusy(); if (active) await Load(Tab); }
         private async void OnRefreshClick(object sender, RoutedEventArgs e) { await Initialize(); }
         private void OnGridSizeChanged(object sender, SizeChangedEventArgs e) { Resize(ReferenceEquals(sender, CategoriesGrid) ? "categories" : "featured"); }
+        private void OnGridLoaded(object sender, RoutedEventArgs e) { Resize(ReferenceEquals(sender, CategoriesGrid) ? "categories" : "featured"); }
         private void OnPageSizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (MixesPivot == null) return;
@@ -117,7 +118,13 @@ namespace Mixdrome.Phone.Views
             var grid = tab == "featured" ? FeaturedGrid : CategoriesGrid; if (grid == null || ActualWidth <= 0) return;
             var scale = ActualWidth / 480;
             grid.Margin = new Thickness(24 * scale, 0, 6 * scale, 0);
-            foreach (var item in tab == "featured" ? Featured : Categories) item.Size = 207 * scale;
+            var panel = grid.ItemsPanelRoot as ItemsWrapGrid;
+            // Size the native virtualizing panel's cells from its actual viewport.
+            // Measuring a fractional-width card plus margin independently can
+            // round a cell up and prevent the second column from fitting.
+            var cellWidth = grid.ActualWidth > 0 ? grid.ActualWidth / 2 : 225 * scale;
+            if (panel != null) { panel.ItemWidth = cellWidth; panel.ItemHeight = 225 * scale; }
+            foreach (var item in tab == "featured" ? Featured : Categories) item.Size = cellWidth * 207 / 225;
         }
         private async void OnItemClick(object sender, ItemClickEventArgs e)
         {
