@@ -17,6 +17,7 @@ namespace Mixdrome.Phone.Views
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Input;
+    using Windows.UI.Xaml.Media;
     using Windows.UI.Xaml.Navigation;
 
     public sealed partial class MixesPage : Page
@@ -27,6 +28,9 @@ namespace Mixdrome.Phone.Views
         private bool active;
         private int generation;
         private int selectionGeneration;
+        private int pendingPlaySelection;
+        private ItemsWrapGrid featuredPanel;
+        private ItemsWrapGrid categoriesPanel;
         private readonly HashSet<string> loaded = new HashSet<string>();
         private readonly HashSet<string> loading = new HashSet<string>();
         public ObservableCollection<PhoneCollectionItem> Featured { get; private set; } = new ObservableCollection<PhoneCollectionItem>();
@@ -52,7 +56,7 @@ namespace Mixdrome.Phone.Views
         private bool Current(int version) { return active && generation == version; }
         private async Task Initialize()
         {
-            var version = ++generation; selectionGeneration++; if (saveCancellation != null) saveCancellation.Cancel(); api = null; loaded.Clear(); loading.Clear(); Featured.Clear(); Categories.Clear();
+            var version = ++generation; selectionGeneration++; pendingPlaySelection = 0; if (saveCancellation != null) saveCancellation.Cancel(); api = null; loaded.Clear(); loading.Clear(); Featured.Clear(); Categories.Clear();
             StatusText.Text = string.Empty; UpdateBusy();
             try
             {
@@ -62,6 +66,7 @@ namespace Mixdrome.Phone.Views
                 configuration = (SubsonicServiceConfiguration)service.Configuration; api = new NavidromeApi(configuration); await Load(Tab);
             }
             catch (Exception exception) { if (Current(version)) StatusText.Text = PhoneText.Format("LoadFailed", exception.Message); }
+            finally { if (Current(version)) UpdateBusy(); }
         }
         private async Task Load(string tab)
         {
@@ -102,11 +107,26 @@ namespace Mixdrome.Phone.Views
             catch (Exception exception) { if (Current(version) && Tab == tab) StatusText.Text = PhoneText.Format("LoadFailed", exception.Message); }
             finally { if (Current(version)) { loading.Remove(tab); UpdateBusy(); } }
         }
-        private void UpdateBusy() { LoadingIndicator.IsActive = loading.Contains(Tab) || saveCancellation != null; LoadingIndicator.Visibility = LoadingIndicator.IsActive ? Visibility.Visible : Visibility.Collapsed; }
+        private void UpdateBusy()
+        {
+            LoadingIndicator.IsActive = loading.Contains(Tab) || saveCancellation != null || pendingPlaySelection != 0 && pendingPlaySelection == selectionGeneration;
+            LoadingIndicator.Visibility = LoadingIndicator.IsActive ? Visibility.Visible : Visibility.Collapsed;
+            StatusPanel.Visibility = LoadingIndicator.IsActive || !string.IsNullOrWhiteSpace(StatusText.Text) ? Visibility.Visible : Visibility.Collapsed;
+        }
         private async void OnTabChanged(object sender, SelectionChangedEventArgs e) { if (StatusText == null) return; selectionGeneration++; StatusText.Text = string.Empty; UpdateBusy(); if (active) await Load(Tab); }
-        private async void OnRefreshClick(object sender, RoutedEventArgs e) { await Initialize(); }
         private void OnGridSizeChanged(object sender, SizeChangedEventArgs e) { Resize(ReferenceEquals(sender, CategoriesGrid) ? "categories" : "featured"); }
         private void OnGridLoaded(object sender, RoutedEventArgs e) { Resize(ReferenceEquals(sender, CategoriesGrid) ? "categories" : "featured"); }
+        private void OnPanelLoaded(object sender, RoutedEventArgs e) { RegisterPanel(sender as ItemsWrapGrid); }
+        private void OnPanelSizeChanged(object sender, SizeChangedEventArgs e) { RegisterPanel(sender as ItemsWrapGrid); }
+        private void RegisterPanel(ItemsWrapGrid panel)
+        {
+            if (panel == null) return;
+            for (DependencyObject parent = panel; parent != null; parent = VisualTreeHelper.GetParent(parent))
+            {
+                if (ReferenceEquals(parent, FeaturedGrid)) { featuredPanel = panel; Resize("featured"); return; }
+                if (ReferenceEquals(parent, CategoriesGrid)) { categoriesPanel = panel; Resize("categories"); return; }
+            }
+        }
         private void OnPageSizeChanged(object sender, SizeChangedEventArgs e)
         {
             if (MixesPivot == null) return;
@@ -118,20 +138,27 @@ namespace Mixdrome.Phone.Views
             var grid = tab == "featured" ? FeaturedGrid : CategoriesGrid; if (grid == null || ActualWidth <= 0) return;
             var scale = ActualWidth / 480;
             grid.Margin = new Thickness(24 * scale, 0, 6 * scale, 0);
-            var panel = grid.ItemsPanelRoot as ItemsWrapGrid;
-            // Size the native virtualizing panel's cells from its actual viewport.
-            // Measuring a fractional-width card plus margin independently can
-            // round a cell up and prevent the second column from fitting.
-            var cellWidth = grid.ActualWidth > 0 ? grid.ActualWidth / 2 : 225 * scale;
-            if (panel != null) { panel.ItemWidth = cellWidth; panel.ItemHeight = 225 * scale; }
+            var panel = tab == "featured" ? featuredPanel : categoriesPanel;
+            var viewport = grid.ActualWidth;
+            for (DependencyObject parent = panel; parent != null && !ReferenceEquals(parent, grid); parent = VisualTreeHelper.GetParent(parent))
+            {
+                var scroll = parent as ScrollViewer;
+                if (scroll != null && scroll.ViewportWidth > 0) { viewport = scroll.ViewportWidth; break; }
+            }
+            // Native WP layout rounds fractional DIPs when it measures cells.
+            // Whole-DIP cells fit twice within the measured viewport, including
+            // the card's proportional right-hand spacing, without overflow.
+            var cellWidth = Math.Floor((viewport > 0 ? viewport : 450 * scale) / 2);
+            if (cellWidth <= 0) return;
+            if (panel != null) { panel.ItemWidth = cellWidth; panel.ItemHeight = cellWidth; }
             foreach (var item in tab == "featured" ? Featured : Categories) item.Size = cellWidth * 207 / 225;
         }
         private async void OnItemClick(object sender, ItemClickEventArgs e)
         {
             var selection = ++selectionGeneration; var item = e.ClickedItem as PhoneCollectionItem;
-            if (item == null || api == null || !active) return;
+            if (item == null || api == null || !active) { UpdateBusy(); return; }
             if (item.Route == "album") { Frame.Navigate(typeof(AlbumPage), item.Id); return; }
-            var version = generation; var source = api; var tab = Tab; LoadingIndicator.IsActive = true; LoadingIndicator.Visibility = Visibility.Visible;
+            var version = generation; var source = api; var tab = Tab; pendingPlaySelection = selection; UpdateBusy();
             try
             {
                 var entries = await PhoneCollectionPresentation.LoadSongsAsync(source, item, () => Current(version) && selection == selectionGeneration && Tab == tab);
@@ -142,12 +169,12 @@ namespace Mixdrome.Phone.Views
             }
             catch (OperationCanceledException) { }
             catch (Exception exception) { if (Current(version) && selection == selectionGeneration) StatusText.Text = PhoneText.Format("LoadFailed", exception.Message); }
-            finally { if (Current(version) && selection == selectionGeneration) UpdateBusy(); }
+            finally { if (Current(version) && selection == selectionGeneration) { pendingPlaySelection = 0; UpdateBusy(); } }
         }
         private async Task OpenPlaylist(string id)
         {
             var version = generation; var selection = ++selectionGeneration; var source = api;
-            LoadingIndicator.IsActive = true; LoadingIndicator.Visibility = Visibility.Visible;
+            pendingPlaySelection = selection; UpdateBusy();
             try
             {
                 var playlist = await source.GetPlaylist(id).ReadAsync();
@@ -157,7 +184,7 @@ namespace Mixdrome.Phone.Views
                 Frame.Navigate(typeof(PlaybackPage), new PlaybackNavigationParameter { Playlist = songs, StartIndex = 0, IsMix = true, MixTitle = playlist.Name });
             }
             catch (Exception exception) { if (Current(version) && selection == selectionGeneration) StatusText.Text = PhoneText.Format("LoadFailed", exception.Message); }
-            finally { if (Current(version) && selection == selectionGeneration) UpdateBusy(); }
+            finally { if (Current(version) && selection == selectionGeneration) { pendingPlaySelection = 0; UpdateBusy(); } }
         }
         private void OnArtworkFailed(object sender, ExceptionRoutedEventArgs e)
         {

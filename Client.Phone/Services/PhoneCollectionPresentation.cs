@@ -42,7 +42,7 @@ namespace Mixdrome.Phone.Services
         public Thickness CardMargin { get { return new Thickness(0, 0, Size * 18 / 207, Size * 18 / 207); } }
         public Thickness LabelMargin { get { return new Thickness(Size * 12 / 207, 0, Size * 12 / 207, Size * 10 / 207); } }
         public Thickness RowMargin { get { return new Thickness(RowScale * 24, 0, RowScale * 24, RowScale * 12); } }
-        public Thickness NameMargin { get { return new Thickness(RowScale * 12, RowScale * 7, 0, RowScale * 5); } }
+        public Thickness NameMargin { get { return new Thickness(RowScale * 12, 0, 0, RowScale * 5); } }
         public event PropertyChangedEventHandler PropertyChanged;
         private void Changed(string property) { var handler = PropertyChanged; if (handler != null) handler(this, new PropertyChangedEventArgs(property)); }
     }

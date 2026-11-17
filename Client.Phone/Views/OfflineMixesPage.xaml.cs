@@ -16,6 +16,7 @@ namespace Mixdrome.Phone.Views
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Controls;
     using Windows.UI.Xaml.Input;
+    using Windows.UI.Xaml.Media;
     using Windows.UI.Xaml.Media.Imaging;
     using Windows.UI.Xaml.Navigation;
 
@@ -31,6 +32,7 @@ namespace Mixdrome.Phone.Views
         private CancellationTokenSource download;
         private PhoneOfflineCard pending;
         private int generation;
+        private ItemsWrapGrid mixPanel;
         public ObservableCollection<PhoneOfflineCard> Cards { get; private set; } = new ObservableCollection<PhoneOfflineCard>();
         public OfflineMixesPage()
         {
@@ -60,10 +62,11 @@ namespace Mixdrome.Phone.Views
                 if (!active || version != generation) return;
                 Cards.Clear(); if (pending != null) Cards.Add(pending);
                 foreach (var mix in saved) Cards.Add(new PhoneOfflineCard { Saved = mix, Name = mix.Name, Artwork = mix.Artwork, IsPlayMe = mix.IsPlayMe });
-                ResizeCards(); StatusText.Text = saved.Count == 0 && pending == null ? PhoneText.Get("NoOfflineMixes") : string.Empty;
+                ResizeCards(); HintText.Text = PhoneText.Get(pending != null ? "OfflineDownloadingHint" : "OfflineMixesHint");
+                SetStatus(saved.Count == 0 && pending == null ? PhoneText.Get("NoOfflineMixes") : string.Empty);
             }
-            catch (OperationCanceledException) { if (active && version == generation) StatusText.Text = PhoneText.Get("OfflineAccountChanged"); }
-            catch (Exception exception) { if (active && version == generation) StatusText.Text = PhoneText.Format("LoadFailed", exception.Message); }
+            catch (OperationCanceledException) { if (active && version == generation) SetStatus(PhoneText.Get("OfflineAccountChanged")); }
+            catch (Exception exception) { if (active && version == generation) SetStatus(PhoneText.Format("LoadFailed", exception.Message)); }
         }
         private async Task Download(PhoneOfflineRequest request)
         {
@@ -73,23 +76,25 @@ namespace Mixdrome.Phone.Views
             var artwork = request.Mix.Songs == null || request.Mix.Songs.Count == 0 ? PhoneCollectionPresentation.DefaultArtwork :
                 PhoneCollectionPresentation.Artwork(api, request.Mix.Songs[0].CoverArt);
             pending = new PhoneOfflineCard { Name = request.Mix.Name, Artwork = artwork, IsPlayMe = request.Mix.IsPlayMe, IsDownloading = true };
-            Cards.Insert(0, pending); ResizeCards(); StatusText.Text = string.Empty; CancelButton.Visibility = Visibility.Visible;
+            Cards.Insert(0, pending); ResizeCards(); HintText.Text = PhoneText.Get("OfflineDownloadingHint");
+            SetStatus(string.Empty); CancelButton.Visibility = Visibility.Visible;
             var card = pending;
             try
             {
                 await PhoneOfflineMixes.SaveMixAsync(request.Configuration, request.Mix,
                     new Progress<PhoneOfflineProgress>(value => { if (active && pending == card) card.Report(value); }), cancellation.Token);
-                if (active) StatusText.Text = PhoneText.Get("OfflineDownloadComplete");
+                if (active) SetStatus(PhoneText.Get("OfflineDownloadComplete"));
             }
-            catch (OperationCanceledException) { if (active) StatusText.Text = PhoneText.Get("OfflineDownloadCancelled"); }
-            catch (Exception exception) { if (active) StatusText.Text = PhoneText.Format("OfflineDownloadFailed", exception.Message); }
+            catch (OperationCanceledException) { if (active) SetStatus(PhoneText.Get("OfflineDownloadCancelled")); }
+            catch (Exception exception) { if (active) SetStatus(PhoneText.Format("OfflineDownloadFailed", exception.Message)); }
             finally
             {
                 pending = null; download = null; cancellation.Dispose();
                 if (active)
                 {
                     var result = StatusText.Text; CancelButton.Visibility = Visibility.Collapsed;
-                    await Refresh(); StatusText.Text = result;
+                    HintText.Text = PhoneText.Get("OfflineMixesHint");
+                    await Refresh(); SetStatus(result);
                 }
             }
         }
@@ -100,11 +105,16 @@ namespace Mixdrome.Phone.Views
             try
             {
                 var queue = card.Saved.CreateQueue();
-                if (!await PhoneOfflineMixes.ValidateLocalQueueAsync(queue)) { StatusText.Text = PhoneText.Get("OfflineFileMissing"); await Refresh(); return; }
+                if (!await PhoneOfflineMixes.ValidateLocalQueueAsync(queue))
+                {
+                    await Refresh();
+                    if (active) SetStatus(PhoneText.Get("OfflineFileMissing"));
+                    return;
+                }
                 if (active) Frame.Navigate(typeof(PlaybackPage), new PlaybackNavigationParameter { Playlist = queue, StartIndex = 0,
                     IsMix = true, MixTitle = card.Saved.IsPlayMe ? null : card.Name });
             }
-            catch (Exception exception) { if (active) StatusText.Text = PhoneText.Format("LoadFailed", exception.Message); }
+            catch (Exception exception) { if (active) SetStatus(PhoneText.Format("LoadFailed", exception.Message)); }
         }
         private async void OnMixHolding(object sender, HoldingRoutedEventArgs e)
         {
@@ -117,18 +127,20 @@ namespace Mixdrome.Phone.Views
             menu.Commands.Add(new UICommand(PhoneText.Get("RemoveOfflineMix"), async command =>
             {
                 try { await PhoneOfflineMixes.DeleteMixAsync(card.Saved); if (active) await Refresh(); }
-                catch (Exception exception) { if (active) StatusText.Text = PhoneText.Format("LoadFailed", exception.Message); }
+                catch (Exception exception) { if (active) SetStatus(PhoneText.Format("LoadFailed", exception.Message)); }
             }));
             await menu.ShowAsync(e.GetPosition(null));
         }
         private void OnGridSizeChanged(object sender, SizeChangedEventArgs e) { ResizeCards(); }
+        private void OnPanelLoaded(object sender, RoutedEventArgs e) { mixPanel = sender as ItemsWrapGrid; ResizeCards(); }
+        private void OnPanelSizeChanged(object sender, SizeChangedEventArgs e) { mixPanel = sender as ItemsWrapGrid; ResizeCards(); }
         private void OnRootSizeChanged(object sender, SizeChangedEventArgs e)
         {
             var scale = e.NewSize.Width / 480;
             if (scale <= 0) return;
             HeadingPanel.Margin = new Thickness(24 * scale, 12 * scale, 24 * scale, 12 * scale);
             PageTitle.FontSize = 72 * scale; PageTitle.Margin = new Thickness(0, 0, 0, 28 * scale);
-            HintText.FontSize = 21 * scale;
+            HintText.FontSize = 21 * scale; HintText.LineHeight = 26 * scale; HintText.MinHeight = 52 * scale;
             MixGrid.Margin = new Thickness(24 * scale, 0, 6 * scale, 0);
             ResizeCards();
         }
@@ -136,8 +148,17 @@ namespace Mixdrome.Phone.Views
         {
             var scale = LayoutRoot.ActualWidth / 480;
             if (scale <= 0) scale = 1;
-            var size = Math.Max(80, (MixGrid.ActualWidth - 36 * scale) / 2);
-            foreach (var card in Cards) card.Resize(size, scale);
+            var viewport = MixGrid.ActualWidth;
+            for (DependencyObject parent = mixPanel; parent != null && !ReferenceEquals(parent, MixGrid); parent = VisualTreeHelper.GetParent(parent))
+            {
+                var scroll = parent as ScrollViewer;
+                if (scroll != null && scroll.ViewportWidth > 0) { viewport = scroll.ViewportWidth; break; }
+            }
+            var cellWidth = Math.Floor((viewport > 0 ? viewport : 450 * scale) / 2);
+            if (cellWidth <= 0) return;
+            if (mixPanel != null) mixPanel.ItemWidth = cellWidth;
+            var cardScale = cellWidth / 225;
+            foreach (var card in Cards) card.Resize(207 * cardScale, cardScale);
         }
         private void OnArtworkFailed(object sender, ExceptionRoutedEventArgs e)
         {
@@ -145,6 +166,11 @@ namespace Mixdrome.Phone.Views
             if (image != null) image.Source = new BitmapImage(new Uri(PhoneCollectionPresentation.DefaultArtwork));
         }
         private void OnCancelClick(object sender, RoutedEventArgs e) { if (download != null) download.Cancel(); }
+        private void SetStatus(string message)
+        {
+            StatusText.Text = message ?? string.Empty;
+            StatusText.Visibility = string.IsNullOrWhiteSpace(message) ? Visibility.Collapsed : Visibility.Visible;
+        }
         private async void OnRefreshClick(object sender, RoutedEventArgs e) { await Refresh(); }
         private void OnBackPressed(object sender, BackPressedEventArgs e)
         { if (!e.Handled && Frame.CanGoBack) { e.Handled = true; Frame.GoBack(); } }
@@ -162,6 +188,9 @@ namespace Mixdrome.Phone.Views
         public double Progress { get; private set; }
         public double CaptionHeight { get; private set; }
         public double CaptionSize { get; private set; }
+        public double StatusFontSize { get; private set; }
+        public double ProgressBarHeight { get; private set; }
+        public Thickness LabelMargin { get; private set; }
         public Thickness Spacing { get; private set; }
         public bool IsIndeterminate { get; private set; }
         public string Status { get; private set; }
@@ -172,7 +201,9 @@ namespace Mixdrome.Phone.Views
         public void Resize(double width, double scale)
         {
             Size = width; CaptionHeight = 60 * scale; CaptionSize = 21 * scale; Spacing = new Thickness(0, 0, 18 * scale, 18 * scale);
+            StatusFontSize = 20 * scale; ProgressBarHeight = 4 * scale; LabelMargin = new Thickness(12 * scale, 0, 8 * scale, 8 * scale);
             Changed("CaptionHeight"); Changed("CaptionSize"); Changed("Spacing");
+            Changed("StatusFontSize"); Changed("ProgressBarHeight"); Changed("LabelMargin");
         }
         public void Report(PhoneOfflineProgress value)
         {

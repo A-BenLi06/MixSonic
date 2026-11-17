@@ -23,6 +23,8 @@ namespace Mixdrome.Phone.Common
             InitializeComponent();
             AutomationProperties.SetName(HomeButton, PhoneText.Get("UiHome"));
             AutomationProperties.SetName(ElapsedButton, PhoneText.Get("UiNowPlaying"));
+            ElapsedButton.IsEnabled = false;
+            ElapsedButton.Visibility = Visibility.Collapsed;
             Loaded += OnLoaded;
             Unloaded += OnUnloaded;
         }
@@ -32,6 +34,8 @@ namespace Mixdrome.Phone.Common
             if (bar.TitleText == null) return;
             bar.TitleText.Text = bar.Title ?? string.Empty;
             bar.ElapsedText.Text = bar.Elapsed ?? string.Empty;
+            bar.ElapsedButton.IsEnabled = !string.IsNullOrEmpty(bar.Elapsed);
+            bar.ElapsedButton.Visibility = bar.ElapsedButton.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
         }
         private async void OnLoaded(object sender, RoutedEventArgs args)
         {

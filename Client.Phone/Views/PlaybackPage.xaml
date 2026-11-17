@@ -5,11 +5,12 @@
       Background="{StaticResource ApplicationPageBackgroundThemeBrush}">
     <Page.Resources><SolidColorBrush x:Key="PlayerFeedbackNeutralBrush" Color="#33000000" /></Page.Resources>
     <Page.BottomAppBar>
-        <CommandBar x:Name="PlayerCommandBar" ClosedDisplayMode="Minimal" Background="#CC202020" Foreground="White">
+        <CommandBar x:Name="PlayerCommandBar" SizeChanged="OnPlayerCommandBarSizeChanged" ClosedDisplayMode="Minimal" Background="#CC202020" Foreground="White">
             <CommandBar.SecondaryCommands>
                 <AppBarButton x:Name="NowPlayingMenu" Click="OnNowPlayingMenuClick" />
                 <AppBarButton x:Name="AboutMenu" Click="OnAboutMenuClick" />
                 <AppBarButton x:Name="QueueMenu" Click="OnQueueMenuClick" />
+                <AppBarButton x:Name="SaveOfflineMixMenu" Click="OnSaveOfflineMixClick" Visibility="Collapsed" />
             </CommandBar.SecondaryCommands>
         </CommandBar>
     </Page.BottomAppBar>
@@ -119,7 +120,7 @@
             </StackPanel>
             <TextBlock Grid.Row="1" Text="{Binding Text, ElementName=PlaybackStatusText}" Visibility="{Binding Visibility, ElementName=MixNowPlayingPanel}"
                        Foreground="White" FontSize="14" Margin="24,8,24,0" VerticalAlignment="Top" TextWrapping="Wrap" />
-            <Grid x:Name="MixNowPlayingPanel" Grid.Row="1" Visibility="Collapsed" Margin="24,0,24,3" VerticalAlignment="Bottom">
+            <Grid x:Name="MixNowPlayingPanel" Grid.Row="1" Visibility="Collapsed" Margin="24,0,24,-3" VerticalAlignment="Bottom">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -134,7 +135,7 @@
                                    LineHeight="36" MaxLines="2" TextWrapping="Wrap" />
                         <TextBlock x:Name="MixArtistText" Foreground="White" FontSize="22" MaxLines="2" TextWrapping="Wrap" />
                     </StackPanel>
-                    <Grid Grid.Row="1" Margin="0,0,0,8">
+                    <Grid x:Name="MixFeedbackRow" Grid.Row="1" Margin="0,0,0,5">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                         <Button x:Name="LikeButton" Width="44" Height="44" MinWidth="0" MinHeight="0"
                                 Style="{StaticResource CircularButtonStyle}" Click="OnLikeClick" HorizontalAlignment="Left">
@@ -182,7 +183,7 @@
                     <TextBlock x:Name="CurrentTimeText" x:Uid="PhoneUi_Text_000" FontSize="13" Foreground="White" />
                     <TextBlock x:Name="TotalTimeText" x:Uid="PhoneUi_Text_000" FontSize="13" Foreground="White" HorizontalAlignment="Right" />
                 </Grid>
-                <Grid x:Name="TransportButtons" Grid.Row="2" Height="82" HorizontalAlignment="Center">
+                <Grid x:Name="TransportButtons" Grid.Row="2" Height="74" HorizontalAlignment="Center">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition x:Name="PreviousColumn" Width="120" />
                         <ColumnDefinition x:Name="PlayPauseColumn" Width="120" />

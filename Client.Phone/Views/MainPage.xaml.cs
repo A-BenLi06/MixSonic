@@ -136,7 +136,7 @@ namespace Mixdrome.Phone.Views
             var scale = ActualWidth / 480;
             Sections.Margin = new Thickness(24 * scale, 168 * scale, 96 * scale, 0);
             PlaySection.Width = 432 * scale; HomeTiles.Width = 420 * scale; MenuSection.Width = 360 * scale;
-            Wordmark.FontSize = 64 * scale; Wordmark.Margin = new Thickness(20 * scale, 13 * scale, 0, 0);
+            Wordmark.FontSize = 64 * scale; Wordmark.Margin = new Thickness(20 * scale, 7 * scale, 0, 0);
             HomeHeader.Height = 168 * scale;
             MenuRowOne.Height = MenuRowTwo.Height = MenuRowThree.Height = new GridLength(180 * scale);
             foreach (var tile in new[] { MixesTile, CreateTile, FavouritesTile, MusicTile, OfflineTile })

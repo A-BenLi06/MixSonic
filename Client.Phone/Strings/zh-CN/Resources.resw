@@ -261,7 +261,8 @@
 <data name="Phone_Text_MixNameRequired" xml:space="preserve"><value>请输入此混音的名称。</value></data>
 <data name="Phone_Text_MixCreated" xml:space="preserve"><value>已保存“{0}”，共 {1} 首歌曲。</value></data>
 <data name="Phone_Text_OfflineMixesTitle" xml:space="preserve"><value>离线混音</value></data>
-<data name="Phone_Text_OfflineMixesHint" xml:space="preserve"><value>在混音页面长按混音，即可保存供离线收听。下载期间请保持此页面打开。</value></data>
+<data name="Phone_Text_OfflineMixesHint" xml:space="preserve"><value>在混音页面长按混音，即可离线保存。</value></data>
+<data name="Phone_Text_OfflineDownloadingHint" xml:space="preserve"><value>下载期间请保持此页面打开。</value></data>
 <data name="Phone_Text_CancelDownload" xml:space="preserve"><value>取消下载</value></data>
 <data name="Phone_Text_NoOfflineMixes" xml:space="preserve"><value>尚未保存可供离线收听的混音。</value></data>
 <data name="Phone_Text_OfflineDownloadComplete" xml:space="preserve"><value>已可离线收听。</value></data>
@@ -274,4 +275,5 @@
 <data name="Phone_Text_OfflineAudioOnly" xml:space="preserve"><value>离线混音只能包含音频歌曲。</value></data>
 <data name="Phone_Text_OfflineAccountChanged" xml:space="preserve"><value>账户或服务器已更改，请重新打开此页面后继续。</value></data>
 <data name="Phone_Text_RemoveOfflineMix" xml:space="preserve"><value>删除离线混音</value></data>
+<data name="Phone_Text_SaveOfflineMix" xml:space="preserve"><value>保存供离线收听</value></data>
 </root>

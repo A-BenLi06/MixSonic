@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Mixdrome.Phone.Common;
+using Client.Common.Models.Subsonic;
 using Mixdrome.Phone.Services;
 using Mixdrome.Phone.Views;
 using Windows.Foundation.Collections;
@@ -201,6 +202,7 @@ public static class PhonePlayerStateTests
         page.Leave();
         Check(!page.TimerRunning, "Leaving the page stops polling even after activation recovery.");
         await FeedbackChecks();
+        await OfflineEntryChecks();
         PhoneOfflineMixes.Resolve = songs => Task.FromResult(new TestPlaybackConfiguration { BaseUrl = "https://secondary.invalid/", Username = "listener", AuthenticationMode = "Password" });
         var offlineProfile = await PlaybackPage.PrepareLocalQueue();
         Check(offlineProfile.BaseUrl == "https://secondary.invalid/" && offlineProfile.Username == "listener", "The production local-queue branch preserves the validated cache source route for listening reports.");
@@ -209,6 +211,41 @@ public static class PhonePlayerStateTests
         try { await PlaybackPage.PrepareLocalQueue(); } catch (InvalidOperationException) { offlineRejected = true; }
         Check(offlineRejected, "A failed local manifest/route validation cannot construct a playback service or guess the preferred route.");
     }
+    private static TrackInfo OfflineTrack(string id)
+    {
+        var track = FeedbackTrack(id); track.StreamUrl = "https://music.invalid/stream/" + id; return track;
+    }
+    private static async Task OfflineEntryChecks()
+    {
+        WP8SubsonicService.ReadSong = id => Task.FromResult(new TestSong());
+        var page = Page(); page.OfflineQueue(OfflineTrack("one"), OfflineTrack("one"), OfflineTrack("two"));
+        Check(page.OfflineEnabled, "A complete online Play Me queue exposes the real make-available-offline command.");
+        var pending = new TaskCompletionSource<TestPlaybackConfiguration>(); var calls = 0;
+        PhoneSubsonicServiceFactory.Load = () => { ++calls; return pending.Task; };
+        var save = page.SaveOffline(); var duplicate = page.SaveOffline();
+        Check(!page.OfflineEnabled && calls == 1, "Preparing offline navigation disables the command and ignores repeated clicks.");
+        pending.SetResult(new TestPlaybackConfiguration { BaseUrl = "https://music.invalid", Username = "listener", AuthenticationMode = "Password" }); await save; await duplicate;
+        var request = page.Frame.Parameter as PhoneOfflineRequest;
+        Check(page.Frame.Navigations == 1 && page.Frame.Destination == typeof(OfflineMixesPage) && request != null && request.Mix.IsPlayMe && request.Mix.Id == "playme", "The command navigates to the real download workflow with a Play Me definition.");
+        Check(request.Mix.Songs.Count == 3 && request.Mix.Songs[0].Id == "one" && request.Mix.Songs[1].Id == "one" && request.Mix.Songs[2].Id == "two", "Offline navigation preserves every queue occurrence and its original server ID.");
+        page = Page(); var named = OfflineTrack("named"); named.MixTitle = "Named mix"; page.OfflineQueue(named);
+        Check(!page.OfflineEnabled, "Named mixes keep their existing collection download entry instead of exposing the Play Me command.");
+        page = Page(); var local = OfflineTrack("local"); local.StreamUrl = "ms-appdata:///local/phone-offline-mixes/cache.mp3"; page.OfflineQueue(local);
+        Check(!page.OfflineEnabled, "An already-local Play Me queue cannot create a misleading download request.");
+        page = Page(); var radio = OfflineTrack("radio"); radio.Reporting = null; page.OfflineQueue(radio);
+        Check(!page.OfflineEnabled, "External radio streams without a server reporting identity are not downloadable catalog Play Me.");
+        page = Page(); var foreign = OfflineTrack("foreign"); foreign.Reporting.Username = "other-user"; page.OfflineQueue(OfflineTrack("one"), foreign);
+        Check(!page.OfflineEnabled, "A mixed-account queue cannot be offered as a single downloadable mix.");
+        page = Page(); page.OfflineQueue(OfflineTrack("one")); pending = new TaskCompletionSource<TestPlaybackConfiguration>(); PhoneSubsonicServiceFactory.Load = () => pending.Task;
+        save = page.SaveOffline(); page.ChangeQueueVersion(); pending.SetResult(new TestPlaybackConfiguration { BaseUrl = "https://music.invalid", Username = "listener", AuthenticationMode = "Password" }); await save;
+        Check(page.Frame.Navigations == 0, "A replaced queue invalidates an in-flight offline command before navigation.");
+        page = Page(); page.OfflineQueue(OfflineTrack("one")); PhoneSubsonicServiceFactory.Load = () => Task.FromResult(new TestPlaybackConfiguration { BaseUrl = "https://music.invalid", Username = "other-user", AuthenticationMode = "Password" }); await page.SaveOffline();
+        Check(page.Frame.Navigations == 0 && page.Status == "OfflineAccountChanged", "The selected connection must still match the queue's actual account before downloading.");
+        page = Page(); page.OfflineQueue(OfflineTrack("one")); pending = new TaskCompletionSource<TestPlaybackConfiguration>(); PhoneSubsonicServiceFactory.Load = () => pending.Task;
+        save = page.SaveOffline(); page.Leave(); pending.SetResult(new TestPlaybackConfiguration { BaseUrl = "https://music.invalid", Username = "listener", AuthenticationMode = "Password" }); await save;
+        Check(page.Frame.Navigations == 0, "Leaving the player cancels stale offline navigation even when routing completes later.");
+    }
+
     private static TrackInfo FeedbackTrack(string id, string user = "listener")
     {
         return new TrackInfo { Id = id, Title = id, Artist = "Artist", CoverArt = "https://music.invalid/cover.png", IsMix = true,
@@ -320,7 +357,7 @@ namespace Mixdrome.Phone.Views
         private BitmapImage artworkImage;
         private ItemCollection observedQueueItems;
         private bool queueListLoaded;
-        private bool isMix, showingMixDetails, feedbackBusy, feedbackAvailable, songStarred;
+        private bool isMix, showingMixDetails, feedbackBusy, feedbackAvailable, songStarred, offlineRequestBusy;
         private int songRating;
         private BitmapImage artistImage;
         private BitmapImage pendingArtistImage;
@@ -331,6 +368,7 @@ namespace Mixdrome.Phone.Views
         private DataTransferManager shareManager;
         private readonly TextBlock MixSongTitleText = new TextBlock(), MixArtistText = new TextBlock(), FeedbackTitleText = new TextBlock(), FeedbackMessageText = new TextBlock(), LyricsText = new TextBlock();
         private readonly Control LikeButton = new Control(), DislikeButton = new Control(), FavouriteButton = new Control(), FeedbackOverlay = new Control(), FeedbackIcon = new Control(), ShareButton = new Control(), LyricsButton = new Control(), LyricsOverlay = new Control();
+        private readonly Control SaveOfflineMixMenu = new Control();
         private readonly CommandBar PlayerCommandBar = new CommandBar();
         private readonly PhoneTitleBar PlayerTitleBar = new PhoneTitleBar();
         public ObservableCollection<TrackInfo> QueueItems { get; private set; } = new ObservableCollection<TrackInfo>();
@@ -374,6 +412,10 @@ namespace Mixdrome.Phone.Views
         public bool MixMode { get { return isMix; } }
         public Task Rate(int rating) { return SaveFeedbackAsync(false, rating); }
         public Task Star() { return SaveFeedbackAsync(true, 0); }
+        public bool OfflineEnabled { get { return SaveOfflineMixMenu.IsEnabled; } }
+        public Task SaveOffline() { return StartOfflineMixAsync(); }
+        public void OfflineQueue(params TrackInfo[] tracks) { QueueItems.Clear(); foreach (var track in tracks) QueueItems.Add(track); queueVersion = "offline-queue"; currentIndex = 0; ShowTrack(tracks[0]); UpdateFeedbackControls(); }
+        public void ChangeQueueVersion() { queueVersion = "replacement"; }
         public void SetTrack(TrackInfo track) { ShowTrack(track); }
         public void AllowNext() { canNext = true; }
         public static async Task<PhoneReportingProfile> PrepareLocalQueue() { using (var service = await CreateLocalQueueServiceAsync(new List<SongDisplayItem> { new SongDisplayItem { Id = "saved" } })) return service.CreateReportingProfile(); }
@@ -392,9 +434,11 @@ namespace Mixdrome.Phone.Views
 /* PRODUCTION_PAGE_METHODS */
     }
     public sealed class PlaybackNavigationParameter { public List<SongDisplayItem> Playlist; public int StartIndex; }
+    public sealed class PhoneOfflineRequest { public TestPlaybackConfiguration Configuration; public PhoneMixDefinition Mix; }
+    public sealed class OfflineMixesPage { }
     public sealed class SongDisplayItem { public string Id; }
 }
-namespace Mixdrome.Phone.Common { public static class PhoneText { public static string Get(string key) { return key; } } public class PhoneTitleBar { public string Title; } }
+namespace Mixdrome.Phone.Common { public static class PhoneText { public static string Get(string key) { return key; } public static string Format(string key, params object[] values) { return key; } } public class PhoneTitleBar { public string Title; } }
 namespace Windows.Foundation.Collections
 {
     public sealed class ValueSet : Dictionary<string, object> { }
@@ -464,7 +508,8 @@ namespace Windows.UI.Xaml.Controls
 {
     public class Control { public bool IsEnabled; public Visibility Visibility = Visibility.Collapsed; public Media.Brush Foreground, Background; public object RenderTransform; }
     public class CommandBar : Control { public bool IsOpen; }
-    public class Page { protected virtual void OnNavigatedTo(NavigationEventArgs args) { } protected virtual void OnNavigatedFrom(NavigationEventArgs args) { } }
+    public sealed class Frame { public int Navigations; public object Parameter; public Type Destination; public bool Navigate(Type type, object parameter) { ++Navigations; Destination = type; Parameter = parameter; return true; } }
+    public class Page { public readonly Frame Frame = new Frame(); protected virtual void OnNavigatedTo(NavigationEventArgs args) { } protected virtual void OnNavigatedFrom(NavigationEventArgs args) { } }
     public sealed class TextBlock : Control { public string Text = string.Empty; }
     public sealed class Slider : Control { public double Maximum, Value; }
     public sealed class ItemCollection : List<object>, IObservableVector<object>
@@ -529,6 +574,7 @@ namespace Mixdrome.Phone.Services
         public static Func<IEnumerable<SongDisplayItem>, Task<TestPlaybackConfiguration>> Resolve;
         public static Task<TestPlaybackConfiguration> ResolveLocalQueueConfigurationAsync(IEnumerable<SongDisplayItem> songs) { return Resolve(songs); }
     }
+    public sealed class PhoneMixDefinition { public string Id, Name; public bool IsPlayMe; public IList<Song> Songs; }
     public sealed class TestSong { public string ArtistId, Starred; public int UserRating; }
     public sealed class TestArtist { public string ImageUrl; }
     public sealed class WP8SubsonicService : IDisposable
@@ -553,6 +599,8 @@ namespace Mixdrome.Phone.Services
     public sealed class TestLine { public string Text; }
     public static class PhoneSubsonicServiceFactory
     {
+        public static Func<Task<TestPlaybackConfiguration>> Load = () => Task.FromResult(new TestPlaybackConfiguration { BaseUrl = "https://music.invalid", Username = "listener", AuthenticationMode = "Password" });
+        public static Task<TestPlaybackConfiguration> LoadConfigurationAsync() { return Load(); }
         public static Task<WP8SubsonicService> CreatePlaybackServiceAsync() { return Task.FromResult(new WP8SubsonicService()); }
     }
 }
@@ -574,4 +622,9 @@ namespace Windows.UI.ViewManagement
         public static ApplicationView GetForCurrentView() { return current; }
         public event Action<ApplicationView, object> VisibleBoundsChanged { add { } remove { } }
     }
+}
+
+namespace Client.Common.Models.Subsonic
+{
+    public sealed class Song { public string Id, Title, Artist, Album, CoverArt; public int Duration; }
 }

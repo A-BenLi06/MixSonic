@@ -47,6 +47,13 @@ namespace Mixdrome.Phone.Common
             CurrentClip.Clip = new RectangleGeometry { Rect = new Rect(0, 0, 228 * scale, 228 * scale) };
         }
         private static void SizeTile(FrameworkElement tile, double size, double gap) { tile.Width = tile.Height = size; tile.Margin = new Thickness(0, 0, gap, gap); }
+        private void OnMixLabelSizeChanged(object sender, SizeChangedEventArgs args)
+        {
+            var label = (TextBlock)sender;
+            var band = ReferenceEquals(label, MixOneLabel) ? MixOneBand : MixTwoBand;
+            var scale = ActualWidth / 420;
+            if (scale > 0) band.Height = Math.Max(50 * scale, label.ActualHeight + label.Margin.Bottom);
+        }
         public bool IsBusy { set { busy = value; UpdateEnabled(); } }
         private void UpdateEnabled() { PlayMeButton.IsEnabled = played || !busy; CreateMixButton.IsEnabled = !played || !busy; }
         public void SetHistory(IList<Album> albums)

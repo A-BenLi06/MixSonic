@@ -261,7 +261,8 @@
 <data name="Phone_Text_MixNameRequired" xml:space="preserve"><value>Enter a name for this mix.</value></data>
 <data name="Phone_Text_MixCreated" xml:space="preserve"><value>Saved {0} with {1} songs.</value></data>
 <data name="Phone_Text_OfflineMixesTitle" xml:space="preserve"><value>offline mixes</value></data>
-<data name="Phone_Text_OfflineMixesHint" xml:space="preserve"><value>Press and hold a mix in mixes to save it for offline listening. Downloads continue while this page is open.</value></data>
+<data name="Phone_Text_OfflineMixesHint" xml:space="preserve"><value>Press and hold a mix in mixes to save it offline.</value></data>
+<data name="Phone_Text_OfflineDownloadingHint" xml:space="preserve"><value>Keep this page open while your mix is downloading.</value></data>
 <data name="Phone_Text_CancelDownload" xml:space="preserve"><value>cancel download</value></data>
 <data name="Phone_Text_NoOfflineMixes" xml:space="preserve"><value>No mixes saved for offline listening yet.</value></data>
 <data name="Phone_Text_OfflineDownloadComplete" xml:space="preserve"><value>Available offline.</value></data>
@@ -274,4 +275,5 @@
 <data name="Phone_Text_OfflineAudioOnly" xml:space="preserve"><value>Only audio tracks can be saved in an offline mix.</value></data>
 <data name="Phone_Text_OfflineAccountChanged" xml:space="preserve"><value>The account or server changed. Open the page again to continue.</value></data>
 <data name="Phone_Text_RemoveOfflineMix" xml:space="preserve"><value>remove offline mix</value></data>
+<data name="Phone_Text_SaveOfflineMix" xml:space="preserve"><value>make available offline</value></data>
 </root>

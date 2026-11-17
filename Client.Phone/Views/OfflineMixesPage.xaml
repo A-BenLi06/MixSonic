@@ -8,16 +8,17 @@
                 <Grid Height="{Binding Size}" Background="{ThemeResource PhoneAccentBrush}">
                     <Image Source="{Binding Artwork}" Stretch="UniformToFill" ImageFailed="OnArtworkFailed" />
                     <Rectangle Fill="{StaticResource MixRadioPlayMeBrush}" Visibility="{Binding PlayMeVisibility}" />
-                    <Viewbox Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding PlayMeVisibility}"><Polygon Points="0,0 0,100 87,50" Fill="White" /></Viewbox>
+                    <Image Source="/Assets/MixRadio/PlayMeTileIcon.png" Stretch="Uniform" Visibility="{Binding PlayMeVisibility}" />
                     <Border Height="{Binding CaptionHeight}" Background="{ThemeResource PhoneAccentBrush}" Opacity="0.6" VerticalAlignment="Bottom" Visibility="{Binding LabelVisibility}" />
-                    <TextBlock Text="{Binding Name}" FontSize="{Binding CaptionSize}" FontWeight="SemiBold" Foreground="White" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" VerticalAlignment="Bottom" Margin="12,0,8,8" />
+                    <TextBlock Text="{Binding Name}" FontSize="{Binding CaptionSize}" FontWeight="SemiBold" Foreground="White" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" VerticalAlignment="Bottom" Margin="{Binding LabelMargin}" />
                 </Grid>
-                <ProgressBar Value="{Binding Progress}" Maximum="100" Height="4" IsIndeterminate="{Binding IsIndeterminate}" Foreground="{ThemeResource PhoneAccentBrush}" Background="#FF222222" Visibility="{Binding ProgressVisibility}" Margin="0,4,0,0" />
-                <TextBlock Text="{Binding Status}" FontSize="20" Foreground="#FF888888" TextWrapping="Wrap" Visibility="{Binding ProgressVisibility}" />
+                <ProgressBar Value="{Binding Progress}" Maximum="100" Height="{Binding ProgressBarHeight}" IsIndeterminate="{Binding IsIndeterminate}" Foreground="{ThemeResource PhoneAccentBrush}" Background="#FF222222" Visibility="{Binding ProgressVisibility}" Margin="0,4,0,0" />
+                <TextBlock Text="{Binding Status}" FontSize="{Binding StatusFontSize}" Foreground="#FF888888" TextWrapping="Wrap" Visibility="{Binding ProgressVisibility}" />
             </StackPanel>
         </DataTemplate>
-        <ItemsPanelTemplate x:Key="OfflineItemsPanel"><ItemsWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="2" /></ItemsPanelTemplate>
+        <ItemsPanelTemplate x:Key="OfflineItemsPanel"><ItemsWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="2" Loaded="OnPanelLoaded" SizeChanged="OnPanelSizeChanged" /></ItemsPanelTemplate>
         <Style x:Key="OfflineContainerStyle" TargetType="GridViewItem">
+            <Setter Property="VerticalContentAlignment" Value="Top" /><Setter Property="VerticalAlignment" Value="Top" />
             <Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0" /><Setter Property="MinWidth" Value="0" /><Setter Property="MinHeight" Value="0" /><Setter Property="HorizontalContentAlignment" Value="Stretch" />
         </Style>
     </Page.Resources>
@@ -34,9 +35,9 @@
         <common:PhoneTitleBar x:Name="PageTitleBar" />
         <StackPanel x:Name="HeadingPanel" Grid.Row="1" Margin="24,12,24,12">
             <TextBlock x:Name="PageTitle" FontSize="56" FontWeight="Light" Foreground="White" Margin="0,0,0,28" />
-            <TextBlock x:Name="HintText" FontSize="20" Foreground="White" TextWrapping="Wrap" />
+            <TextBlock x:Name="HintText" FontSize="20" Foreground="White" TextWrapping="Wrap" LineStackingStrategy="BlockLineHeight" LineHeight="26" MinHeight="52" />
         </StackPanel>
-        <GridView x:Name="MixGrid" Grid.Row="2" ItemsSource="{Binding Cards}" Margin="24,0,6,0" ItemsPanel="{StaticResource OfflineItemsPanel}" ItemTemplate="{StaticResource OfflineCardTemplate}" ItemContainerStyle="{StaticResource OfflineContainerStyle}" SelectionMode="None" IsItemClickEnabled="True" ItemClick="OnMixClick" Holding="OnMixHolding" SizeChanged="OnGridSizeChanged" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.VerticalScrollMode="Enabled" />
-        <TextBlock x:Name="StatusText" Grid.Row="3" FontSize="20" Foreground="White" TextWrapping="Wrap" Margin="24,0,24,8" />
+        <GridView x:Name="MixGrid" Grid.Row="2" ItemsSource="{Binding Cards}" Margin="24,0,6,0" Padding="0" BorderThickness="0" ItemsPanel="{StaticResource OfflineItemsPanel}" ItemTemplate="{StaticResource OfflineCardTemplate}" ItemContainerStyle="{StaticResource OfflineContainerStyle}" SelectionMode="None" IsItemClickEnabled="True" ItemClick="OnMixClick" Holding="OnMixHolding" SizeChanged="OnGridSizeChanged" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.VerticalScrollMode="Enabled" />
+        <TextBlock x:Name="StatusText" Grid.Row="3" FontSize="20" Foreground="White" TextWrapping="Wrap" Margin="24,0,24,8" Visibility="Collapsed" />
     </Grid>
 </Page>

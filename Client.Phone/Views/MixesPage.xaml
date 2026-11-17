@@ -12,17 +12,12 @@
                 <TextBlock Text="{Binding Name}" VerticalAlignment="Bottom" Margin="{Binding LabelMargin}" FontSize="{Binding LabelSize}" FontWeight="SemiBold" Foreground="White" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
             </Grid>
         </DataTemplate>
-        <ItemsPanelTemplate x:Key="MixItemsPanel"><ItemsWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="2" /></ItemsPanelTemplate>
+        <ItemsPanelTemplate x:Key="MixItemsPanel"><ItemsWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="2" Loaded="OnPanelLoaded" SizeChanged="OnPanelSizeChanged" /></ItemsPanelTemplate>
         <Style x:Key="MixCardContainerStyle" TargetType="GridViewItem">
             <Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0" /><Setter Property="MinWidth" Value="0" /><Setter Property="MinHeight" Value="0" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="VerticalContentAlignment" Value="Stretch" />
         </Style>
     </Page.Resources>
-    <Page.BottomAppBar>
-        <CommandBar Background="{StaticResource MixRadioCommandBarBrush}" ClosedDisplayMode="Minimal">
-            <CommandBar.SecondaryCommands><AppBarButton x:Uid="PhoneUi_Label_Refresh" Click="OnRefreshClick" /></CommandBar.SecondaryCommands>
-        </CommandBar>
-    </Page.BottomAppBar>
     <Grid>
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
         <common:PhoneTitleBar x:Name="SectionBar" />
@@ -34,6 +29,6 @@
                 <GridView x:Name="CategoriesGrid" ItemsSource="{Binding Categories}" Margin="12,0,0,0" Padding="0" BorderThickness="0" SelectionMode="None" IsItemClickEnabled="True" ItemClick="OnItemClick" Loaded="OnGridLoaded" SizeChanged="OnGridSizeChanged" ItemsPanel="{StaticResource MixItemsPanel}" ItemTemplate="{StaticResource MixCardTemplate}" ItemContainerStyle="{StaticResource MixCardContainerStyle}" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.VerticalScrollMode="Enabled" />
             </PivotItem>
         </Pivot>
-        <StackPanel Grid.Row="2" Margin="24,0,24,8"><TextBlock x:Name="StatusText" Style="{StaticResource BodyTextStyle}" TextWrapping="Wrap" /><ProgressRing x:Name="LoadingIndicator" Width="32" Height="32" /></StackPanel>
+        <StackPanel x:Name="StatusPanel" Grid.Row="2" Margin="24,0,24,8" Visibility="Collapsed"><TextBlock x:Name="StatusText" Style="{StaticResource BodyTextStyle}" TextWrapping="Wrap" /><ProgressRing x:Name="LoadingIndicator" Width="32" Height="32" /></StackPanel>
     </Grid>
 </Page>

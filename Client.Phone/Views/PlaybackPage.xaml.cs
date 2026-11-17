@@ -7,6 +7,7 @@ namespace Mixdrome.Phone.Views
     using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
+    using Client.Common.Models.Subsonic;
     using Windows.ApplicationModel.DataTransfer;
     using Windows.UI.ViewManagement;
     using Mixdrome.Phone.Common;
@@ -59,6 +60,8 @@ namespace Mixdrome.Phone.Views
         private bool isMix;
         private bool showingMixDetails;
         private bool feedbackBusy;
+        private bool offlineRequestBusy;
+        private double closedCommandBarHeight;
         private bool feedbackAvailable;
         private bool songStarred;
         private int songRating;
@@ -83,6 +86,7 @@ namespace Mixdrome.Phone.Views
             NowPlayingMenu.Label = PhoneText.Get("UiNowPlaying");
             AboutMenu.Label = PhoneText.Get("UiAbout");
             QueueMenu.Label = PhoneText.Get("UiQueue");
+            SaveOfflineMixMenu.Label = PhoneText.Get("SaveOfflineMix");
             FeedbackOkButton.Content = PhoneText.Get("UiOk");
             AutomationProperties.SetName(ShareButton, PhoneText.Get("ShareSong"));
             AutomationProperties.SetName(LyricsButton, PhoneText.Get("Lyrics"));
@@ -99,6 +103,7 @@ namespace Mixdrome.Phone.Views
             active = true;
             displayedTrack = null;
             feedbackBusy = false;
+            offlineRequestBusy = false;
             activation = new CancellationTokenSource();
             var token = activation.Token;
             ready = new TaskCompletionSource<bool>();
@@ -521,6 +526,79 @@ namespace Mixdrome.Phone.Views
             LikeButton.Background = songRating == 5 ? accent : neutral;
             DislikeButton.Background = songRating == 1 ? accent : neutral;
             FavouriteButton.Background = songStarred ? accent : neutral;
+            UpdateOfflineMixCommand();
+        }
+
+        private bool CanSaveOfflineMix()
+        {
+            if (!active || !isMix || displayedTrack == null || !string.IsNullOrEmpty(displayedTrack.MixTitle)
+                || string.IsNullOrEmpty(queueVersion) || QueueItems.Count == 0) return false;
+            var account = displayedTrack.Reporting;
+            foreach (var track in QueueItems)
+            {
+                Uri stream;
+                if (track == null || string.IsNullOrWhiteSpace(track.Id) || !track.IsMix || !string.IsNullOrEmpty(track.MixTitle)
+                    || !MatchesPlaybackAccount(account, track.Reporting)
+                    || !Uri.TryCreate(track.StreamUrl, UriKind.Absolute, out stream)
+                    || (stream.Scheme != "http" && stream.Scheme != "https")) return false;
+            }
+            return true;
+        }
+
+        private void UpdateOfflineMixCommand()
+        {
+            var eligible = CanSaveOfflineMix();
+            SaveOfflineMixMenu.Visibility = eligible ? Visibility.Visible : Visibility.Collapsed;
+            SaveOfflineMixMenu.IsEnabled = eligible && !offlineRequestBusy;
+        }
+
+        private async void OnSaveOfflineMixClick(object sender, RoutedEventArgs args) { await StartOfflineMixAsync(); }
+        private async Task StartOfflineMixAsync()
+        {
+            if (offlineRequestBusy || !CanSaveOfflineMix()) return;
+            var currentActivation = activation;
+            var version = queueVersion;
+            var account = displayedTrack.Reporting;
+            var tracks = new List<TrackInfo>(QueueItems);
+            offlineRequestBusy = true; UpdateOfflineMixCommand();
+            try
+            {
+                var configuration = await PhoneSubsonicServiceFactory.LoadConfigurationAsync();
+                if (!active || activation != currentActivation || queueVersion != version || !CanSaveOfflineMix()) return;
+                using (var service = new WP8SubsonicService())
+                {
+                    service.Configure(configuration);
+                    if (!MatchesPlaybackAccount(account, service.CreateReportingProfile()))
+                    { PlaybackStatusText.Text = PhoneText.Get("OfflineAccountChanged"); return; }
+                }
+                // Preserve the full queue's occurrences; download deduplication
+                // belongs to the cache, whose manifest keeps playback order.
+                if (QueueItems.Count != tracks.Count) return;
+                var songs = new List<Song>();
+                for (var index = 0; index < tracks.Count; index++)
+                {
+                    if (!ReferenceEquals(QueueItems[index], tracks[index])) return;
+                    var track = tracks[index];
+                    songs.Add(new Song { Id = track.Id, Title = track.Title, Artist = track.Artist, Album = track.Album,
+                        CoverArt = track.CoverArt, Duration = track.Duration });
+                }
+                PlayerCommandBar.IsOpen = false;
+                Frame.Navigate(typeof(OfflineMixesPage), new PhoneOfflineRequest
+                {
+                    Configuration = configuration,
+                    Mix = new PhoneMixDefinition { Id = "playme", Name = PhoneText.Get("UiPlayMe"), IsPlayMe = true, Songs = songs }
+                });
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine("Phone player offline request failed: " + exception.GetType().Name);
+                if (active && activation == currentActivation && queueVersion == version)
+                    PlaybackStatusText.Text = PhoneText.Format("OfflineDownloadFailed", exception.Message);
+            }
+            finally
+            {
+                if (active && activation == currentActivation) { offlineRequestBusy = false; UpdateOfflineMixCommand(); }
+            }
         }
 
         private async Task SaveFeedbackAsync(bool favourite, int rating)
@@ -629,15 +707,23 @@ namespace Mixdrome.Phone.Views
         }
 
         private void OnVisibleBoundsChanged(ApplicationView sender, object args) { if (active) UpdatePlayerLayout(); }
+        private void OnPlayerCommandBarSizeChanged(object sender, SizeChangedEventArgs args)
+        {
+            if (!PlayerCommandBar.IsOpen) closedCommandBarHeight = args.NewSize.Height;
+            UpdatePlayerLayout();
+        }
         private void OnPlayerSizeChanged(object sender, SizeChangedEventArgs args) { UpdatePlayerLayout(); }
         private void UpdatePlayerLayout()
         {
             if (PlayerRoot == null || PlayerRoot.ActualWidth <= 0) return;
             var scale = PlayerRoot.ActualWidth / 480;
-            var top = Math.Max(0, StatusBar.GetForCurrentView().OccludedRect.Bottom - Window.Current.Bounds.Top);
-            PlayerContent.Margin = new Thickness(0, top, 0, 0);
+            var window = Window.Current.Bounds;
+            var top = Math.Max(0, StatusBar.GetForCurrentView().OccludedRect.Bottom - window.Top);
+            var systemBottom = Math.Max(0, window.Bottom - ApplicationView.GetForCurrentView().VisibleBounds.Bottom);
+            var appBarBottom = PlayerCommandBar.IsOpen ? closedCommandBarHeight : PlayerCommandBar.ActualHeight;
+            PlayerContent.Margin = new Thickness(0, top, 0, Math.Max(systemBottom, appBarBottom));
             BackgroundImage.Opacity = showingMixDetails ? 0.75 : 1;
-            MixNowPlayingPanel.Margin = new Thickness(24 * scale, 0, 24 * scale, 3 * scale);
+            MixNowPlayingPanel.Margin = new Thickness(24 * scale, 0, 24 * scale, -3 * scale);
             MixAlbumArtBorder.Width = MixAlbumArtBorder.Height = 194 * scale;
             MixSongTitleText.FontSize = 32 * scale;
             MixSongTitleText.LineHeight = 36 * scale;
@@ -654,11 +740,12 @@ namespace Mixdrome.Phone.Views
             PreviousColumn.Width = new GridLength(isMix ? 0 : 120 * scale);
             PlayPauseColumn.Width = NextColumn.Width = new GridLength(120 * scale);
             PreviousButton.Width = PreviousButton.Height = PlayPauseButton.Width = PlayPauseButton.Height = NextButton.Width = NextButton.Height = 58 * scale;
-            TransportButtons.Height = 82 * scale;
+            TransportButtons.Height = 74 * scale;
             LikeButton.Width = LikeButton.Height = DislikeButton.Width = DislikeButton.Height = FavouriteButton.Width = FavouriteButton.Height = 44 * scale;
             LikeIcon.Width = LikeIcon.Height = DislikeIcon.Width = DislikeIcon.Height = 44 * scale;
             FavouriteIcon.Width = FavouriteIcon.Height = 25 * scale;
             MixDetailsGrid.Margin = new Thickness(12 * scale, 0, 0, 0);
+            MixFeedbackRow.Margin = new Thickness(0, 0, 0, 5 * scale);
             TransportPanel.Margin = new Thickness(24 * scale, 0, 24 * scale, 8 * scale);
             FeedbackPanel.Height = 328 * scale;
             FeedbackTitleText.FontSize = 31 * scale;

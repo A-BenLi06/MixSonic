@@ -126,6 +126,8 @@ namespace Mixdrome.Phone.Views
         {
             if (LoadingIndicator == null) return;
             LoadingIndicator.IsActive = busy; LoadingIndicator.Visibility = busy ? Visibility.Visible : Visibility.Collapsed;
+            StatusPanel.Visibility = busy || !string.IsNullOrWhiteSpace(StatusText.Text) ? Visibility.Visible : Visibility.Collapsed;
+            FavouritesCommandBar.ClosedDisplayMode = Tab == "artists" ? AppBarClosedDisplayMode.Compact : AppBarClosedDisplayMode.Minimal;
             AddArtistButton.Visibility = SelectArtistsButton.Visibility = Tab == "artists" && !selecting ? Visibility.Visible : Visibility.Collapsed;
             RemoveArtistsButton.Visibility = DoneButton.Visibility = selecting && Tab == "artists" ? Visibility.Visible : Visibility.Collapsed;
             AddArtistButton.IsEnabled = SelectArtistsButton.IsEnabled = RemoveArtistsButton.IsEnabled = !busy;
@@ -173,7 +175,7 @@ namespace Mixdrome.Phone.Views
                 foreach (var item in selected) { await source.SetStarred(item.Artist, false).ReadAsync(); if (!Current(version)) return; }
             }
             catch (Exception exception) { failure = exception; }
-            finally { if (Current(version)) { await Initialize(); if (failure != null) StatusText.Text = PhoneText.Format("LoadFailed", failure.Message); } }
+            finally { if (Current(version)) { await Initialize(); if (failure != null) { StatusText.Text = PhoneText.Format("LoadFailed", failure.Message); UpdateCommands(); } } }
         }
         private void OnPlayAllClick(object sender, RoutedEventArgs e) { PlaySongs(false); }
         private void OnShuffleClick(object sender, RoutedEventArgs e) { PlaySongs(true); }
