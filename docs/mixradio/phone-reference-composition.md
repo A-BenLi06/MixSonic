@@ -12,6 +12,44 @@ The supplied Store reference is [Microsoft Store product 9wzdncrfhwt4](https://a
 Measurements below come from the supplied screenshots and recovered original
 XAML. The Store link alone does not establish runtime behavior.
 
+## Progress and typography correction after manual feedback
+
+The large `2:56` on home and the subdued `1:18` in the title bar are the
+**current song's playback position**. Both now receive the same raw native
+`TimeSpan` from the read-only playback observer. Artwork remains an independent
+image; elapsed time is rendered as two live text blocks: minutes / hours-and-
+minutes on the left and `:ss` on the right. This supersedes the earlier single
+text-block approximation and its typography acceptance.
+
+The shared counter reproduces the recovered `uicontrols/miniplayer.xaml` and
+`themes/generic.xaml` three-way selection. All values below scale with design
+width; `200×60` is a clip rectangle, never a forced counter layout size.
+
+| Position | Home: size / seconds column / margin | Title bar: size / seconds column / margin |
+| --- | --- | --- |
+| Under 10 minutes | 124 / 174 / `-100,0,0,-34` | 91 / 174 / `0,-42,-50,-34` |
+| 10 minutes or more, under an hour | 94 / 132 / `-60,0,0,-26` | 91 / 132 / `0,-42,-8,-34` |
+| An hour or more | 68 / 96 / `-20,0,0,-18` | 78 / 108 / `0,-42,0,-34` |
+
+Both use the actual **Segoe WP Black** family with normal font weight and zero
+character spacing. Home text opacity is 0.7 and clips to the full tile; title-bar
+opacity is 0.1, the counter is vertically centered, and its clip is
+`0,-7,200,60`. The title uses Segoe WP SemiLight 20 with a left inset of 9.
+Mixes headers use SemiLight 72 with normal weight and zero character spacing;
+caption text uses Semibold 21, block line height 22, maximum height 44 and
+horizontal inset 12, vertically centered inside the 60-high band. Caption type
+scales with the page rather than being shrunk by whole-DIP card-width rounding.
+
+The disposable fixture's former home-screenshot crop had accidentally included
+the reference `2:56` in three JPEG covers. Those private covers have been
+replaced with an existing clean artwork file, and the private preparation script
+no longer crops artwork from that screenshot. They were never product assets.
+Earlier screenshots using those covers cannot establish elapsed-text fidelity.
+
+Per the user's request, this correction is limited to source/resource checks and
+an x86 SDK build. It is **not deployed or newly screenshot-certified**; visual
+comparison and native interaction are left for the user's manual verification.
+
 ## Measurement method
 
 All eight reference images are **768 × 1280**. Divide their pixel coordinates by

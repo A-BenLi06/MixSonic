@@ -17,7 +17,7 @@ namespace Mixdrome.Phone.Services
         private double size = 48;
         public string Name { get; set; }
         public double Size { get { return size; } set { size = value; var handler = PropertyChanged; if (handler != null) { handler(this, new PropertyChangedEventArgs("Size")); handler(this, new PropertyChangedEventArgs("Margin")); } } }
-        public Thickness Margin { get { return new Thickness(0, -8 * Size / 72, 0, 22 * Size / 72); } }
+        public Thickness Margin { get { return new Thickness(21 * Size / 72, -8 * Size / 72, Size / 72, 22 * Size / 72); } }
         public event PropertyChangedEventHandler PropertyChanged;
         public override string ToString() { return Name; }
     }
@@ -26,6 +26,7 @@ namespace Mixdrome.Phone.Services
     {
         private double size;
         private string artwork;
+        private double typographyScale = 1;
         public string Id { get; set; }
         public string Name { get; set; }
         public string Subtitle { get; set; }
@@ -34,13 +35,16 @@ namespace Mixdrome.Phone.Services
         public SongDisplayItem Song { get; set; }
         public string Artwork { get { return artwork; } set { artwork = value; Changed("Artwork"); } }
         public double Size { get { return size; } set { size = value; Changed("Size"); Changed("LabelHeight"); Changed("LabelSize"); Changed("NameSize"); Changed("CardMargin"); Changed("RowMargin"); Changed("NameMargin"); Changed("LabelMargin"); Changed("SubtitleSize"); } }
-        public double LabelHeight { get { return Size * 60 / 207; } }
-        public double LabelSize { get { return Size * 20 / 207; } }
+        public double TypographyScale { get { return typographyScale; } set { typographyScale = value; Changed("LabelHeight"); Changed("LabelSize"); Changed("LabelMargin"); Changed("LabelLineHeight"); Changed("LabelMaxHeight"); } }
+        public double LabelHeight { get { return TypographyScale * 60; } }
+        public double LabelSize { get { return TypographyScale * 21; } }
+        public double LabelLineHeight { get { return TypographyScale * 22; } }
+        public double LabelMaxHeight { get { return TypographyScale * 44; } }
         private double RowScale { get { return Size / (Route == "artist" ? 90 : 120); } }
         public double NameSize { get { return RowScale * 32; } }
         public double SubtitleSize { get { return RowScale * 20; } }
         public Thickness CardMargin { get { return new Thickness(0, 0, Size * 18 / 207, Size * 18 / 207); } }
-        public Thickness LabelMargin { get { return new Thickness(Size * 12 / 207, 0, Size * 12 / 207, Size * 10 / 207); } }
+        public Thickness LabelMargin { get { return new Thickness(TypographyScale * 12, 0, TypographyScale * 12, 0); } }
         public Thickness RowMargin { get { return new Thickness(RowScale * 24, 0, RowScale * 24, RowScale * 12); } }
         public Thickness NameMargin { get { return new Thickness(RowScale * 12, 0, 0, RowScale * 5); } }
         public event PropertyChangedEventHandler PropertyChanged;

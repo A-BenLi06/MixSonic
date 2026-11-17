@@ -39,21 +39,25 @@ namespace Mixdrome.Phone.Common
             SizeTile(MixOneButton, 168 * scale, gap); SizeTile(MixTwoButton, 168 * scale, gap);
             SizeTile(RecentAlbumOne, 96 * scale, gap); SizeTile(RecentAlbumTwo, 96 * scale, gap); SizeTile(RecentAlbumThree, 96 * scale, gap);
             foreach (var label in new[] { PlayMeLabel, CreateMixLabel, MixOneLabel, MixTwoLabel })
-            { label.FontSize = 21 * scale; label.Margin = new Thickness(12 * scale, 0, 8 * scale, 10 * scale); }
-            RecentLabel.FontSize = 24 * scale; RecentLink.Margin = new Thickness(0, 48 * scale, 0, 24 * scale);
+            {
+                var large = ReferenceEquals(label, PlayMeLabel);
+                label.FontSize = (large ? 24 : 21) * scale;
+                label.LineHeight = (large ? 25 : 22) * scale;
+                label.MaxHeight = (large ? 132 : 44) * scale;
+                label.Margin = new Thickness(12 * scale, 12 * scale, 12 * scale, 12 * scale);
+            }
+            RecentLabel.FontSize = 24 * scale; RecentLabel.FontFamily = (FontFamily)Application.Current.Resources["PhoneReferenceNormalFontFamily"];
+            RecentLink.Margin = new Thickness(0, 48 * scale, 0, 24 * scale);
             MixOneBand.Height = MixTwoBand.Height = 50 * scale;
-            CurrentElapsed.FontSize = 124 * scale;
-            CurrentElapsed.Margin = new Thickness(-100 * scale, 0, 0, -34 * scale);
+            MixOneLabel.Margin = MixTwoLabel.Margin = new Thickness(12 * scale, 0, 12 * scale, 0);
+            CurrentProgress.Scale = scale;
+            CurrentTitlePanel.Margin = new Thickness(0, -6 * scale, -12 * scale, 0);
+            CurrentTitle.FontSize = 24 * scale;
+            CurrentTitle.Margin = new Thickness(12 * scale, 12 * scale, 12 * scale, 0);
+            CurrentTitle.MaxHeight = 68 * scale;
             CurrentClip.Clip = new RectangleGeometry { Rect = new Rect(0, 0, 228 * scale, 228 * scale) };
         }
         private static void SizeTile(FrameworkElement tile, double size, double gap) { tile.Width = tile.Height = size; tile.Margin = new Thickness(0, 0, gap, gap); }
-        private void OnMixLabelSizeChanged(object sender, SizeChangedEventArgs args)
-        {
-            var label = (TextBlock)sender;
-            var band = ReferenceEquals(label, MixOneLabel) ? MixOneBand : MixTwoBand;
-            var scale = ActualWidth / 420;
-            if (scale > 0) band.Height = Math.Max(50 * scale, label.ActualHeight + label.Margin.Bottom);
-        }
         public bool IsBusy { set { busy = value; UpdateEnabled(); } }
         private void UpdateEnabled() { PlayMeButton.IsEnabled = played || !busy; CreateMixButton.IsEnabled = !played || !busy; }
         public void SetHistory(IList<Album> albums)
@@ -73,25 +77,37 @@ namespace Mixdrome.Phone.Common
             band.Visibility = mix == null ? Visibility.Collapsed : Visibility.Visible;
             SetImage(image, mix == null ? "/Assets/MixRadio/" + icon : mix.CoverArt);
         }
-        public void SetCurrent(TrackInfo track, string elapsed)
+        public void SetCurrent(TrackInfo track, TimeSpan? position)
         {
             var modeChanged = played != (track != null);
             played = track != null;
             UpdateEnabled();
             PlayMeButton.Tag = played ? "player" : "playme";
             PlayMeImage.Visibility = PlayMeLabel.Visibility = played ? Visibility.Collapsed : Visibility.Visible;
-            CurrentImage.Visibility = CurrentShade.Visibility = CurrentClip.Visibility = played ? Visibility.Visible : Visibility.Collapsed;
-            CurrentElapsed.Text = elapsed ?? string.Empty;
+            CurrentClip.Visibility = played ? Visibility.Visible : Visibility.Collapsed;
+            CurrentProgress.Visibility = position.HasValue ? Visibility.Visible : Visibility.Collapsed;
+            if (position.HasValue) CurrentProgress.Position = position.Value;
             CurrentTitle.Text = track == null ? string.Empty : track.Title;
-            if (track != null && artwork != track.CoverArt) { artwork = track.CoverArt; CurrentTitle.Visibility = Visibility.Collapsed; SetImage(CurrentImage, artwork); }
-            if (!played) CurrentTitle.Visibility = Visibility.Collapsed;
+            if (track != null && (modeChanged || artwork != track.CoverArt))
+            {
+                artwork = track.CoverArt;
+                var hasArtwork = !string.IsNullOrEmpty(artwork);
+                CurrentImage.Visibility = CurrentShade.Visibility = hasArtwork ? Visibility.Visible : Visibility.Collapsed;
+                CurrentTitlePanel.Visibility = hasArtwork ? Visibility.Collapsed : Visibility.Visible;
+                SetImage(CurrentImage, artwork);
+            }
             CreateMixButton.Tag = played ? "playme" : "create";
             CreateMixButton.Background = (Brush)Application.Current.Resources[played ? "MixRadioPlayMeBrush" : "MixRadioAccentBrush"];
             CreateMixLabel.Text = PhoneText.Get(played ? "UiPlayMe" : "UiCreateMix");
             if (modeChanged) SetImage(CreateMixImage, "/Assets/MixRadio/" + (played ? "PlayMeTileIcon.png" : "CreateTileIcon.png"));
             AutomationProperties.SetName(PlayMeButton, played ? PhoneText.Get("UiNowPlaying") : PhoneText.Get("UiPlayMe"));
         }
-        private void OnCurrentImageFailed(object sender, ExceptionRoutedEventArgs args) { if (played) CurrentTitle.Visibility = Visibility.Visible; }
+        private void OnCurrentImageFailed(object sender, ExceptionRoutedEventArgs args)
+        {
+            if (!played) return;
+            CurrentImage.Visibility = CurrentShade.Visibility = Visibility.Collapsed;
+            CurrentTitlePanel.Visibility = Visibility.Visible;
+        }
         private static void SetRecent(Button button, Image image, IList<Album> albums, int index)
         {
             var album = index < albums.Count ? albums[index] : null;

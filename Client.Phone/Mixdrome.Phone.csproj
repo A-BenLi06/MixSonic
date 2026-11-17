@@ -284,6 +284,8 @@
     <Compile Include="Common\PhoneTitleBar.xaml.cs"><DependentUpon>PhoneTitleBar.xaml</DependentUpon></Compile>
     <Page Include="Common\PhoneTitleBar.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
     <Compile Include="Services\PhonePlaybackObserver.cs" />
+      <Compile Include="Common\PhoneProgressCounter.xaml.cs"><DependentUpon>PhoneProgressCounter.xaml</DependentUpon></Compile>
+      <Page Include="Common\PhoneProgressCounter.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
     <Compile Include="Services\PhoneCollectionPresentation.cs" />
     <Compile Include="Services\PhoneOfflineManifest.cs" />
     <Compile Include="Services\PhoneOfflineMixes.cs" />

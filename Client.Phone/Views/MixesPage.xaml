@@ -4,12 +4,15 @@
       xmlns:common="using:Mixdrome.Phone.Common"
       Background="Black" SizeChanged="OnPageSizeChanged">
     <Page.Resources>
-        <DataTemplate x:Key="MixHeadingTemplate"><TextBlock Text="{Binding Name}" FontSize="{Binding Size}" FontWeight="Light" Margin="{Binding Margin}" /></DataTemplate>
+        <Thickness x:Key="PivotHeaderItemMargin">0,-6.5,0,0</Thickness>
+        <DataTemplate x:Key="MixHeadingTemplate"><TextBlock Text="{Binding Name}" FontSize="{Binding Size}" FontFamily="{StaticResource PhoneReferenceSemiLightFontFamily}" FontWeight="Normal" CharacterSpacing="0" Margin="{Binding Margin}" /></DataTemplate>
         <DataTemplate x:Key="MixCardTemplate">
             <Grid Width="{Binding Size}" Height="{Binding Size}" Margin="{Binding CardMargin}" Background="{ThemeResource PhoneAccentBrush}" Holding="OnCardHolding">
                 <Image Source="{Binding Artwork}" Stretch="UniformToFill" ImageFailed="OnArtworkFailed" />
-                <Border VerticalAlignment="Bottom" Height="{Binding LabelHeight}" Background="{ThemeResource PhoneAccentBrush}" Opacity="0.6" />
-                <TextBlock Text="{Binding Name}" VerticalAlignment="Bottom" Margin="{Binding LabelMargin}" FontSize="{Binding LabelSize}" FontWeight="SemiBold" Foreground="White" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
+                <Grid VerticalAlignment="Bottom" Height="{Binding LabelHeight}">
+                    <Border Background="{ThemeResource PhoneAccentBrush}" Opacity="0.6" />
+                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="{Binding LabelMargin}" FontFamily="{StaticResource PhoneReferenceSemiBoldFontFamily}" FontSize="{Binding LabelSize}" FontWeight="Normal" CharacterSpacing="0" LineHeight="{Binding LabelLineHeight}" LineStackingStrategy="BlockLineHeight" MaxHeight="{Binding LabelMaxHeight}" Foreground="White" TextWrapping="Wrap" TextTrimming="WordEllipsis" />
+                </Grid>
             </Grid>
         </DataTemplate>
         <ItemsPanelTemplate x:Key="MixItemsPanel"><ItemsWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="2" Loaded="OnPanelLoaded" SizeChanged="OnPanelSizeChanged" /></ItemsPanelTemplate>

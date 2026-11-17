@@ -4,8 +4,9 @@
       xmlns:common="using:Mixdrome.Phone.Common"
       Background="Black" SizeChanged="OnPageSizeChanged">
     <Page.Resources>
+        <Thickness x:Key="PivotHeaderItemMargin">0,-6.5,0,0</Thickness>
         <CollectionViewSource x:Name="ArtistGroupsSource" IsSourceGrouped="True" />
-        <DataTemplate x:Key="FavouriteHeadingTemplate"><TextBlock Text="{Binding Name}" FontSize="{Binding Size}" FontWeight="Light" Margin="{Binding Margin}" /></DataTemplate>
+        <DataTemplate x:Key="FavouriteHeadingTemplate"><TextBlock Text="{Binding Name}" FontSize="{Binding Size}" FontFamily="{StaticResource PhoneReferenceSemiLightFontFamily}" FontWeight="Normal" CharacterSpacing="0" Margin="{Binding Margin}" /></DataTemplate>
         <Style x:Key="FavouriteRowContainerStyle" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="Padding" Value="0" /><Setter Property="Margin" Value="0" /><Setter Property="MinHeight" Value="0" />
         </Style>

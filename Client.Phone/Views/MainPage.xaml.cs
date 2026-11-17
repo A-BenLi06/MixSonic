@@ -42,7 +42,7 @@ namespace Mixdrome.Phone.Views
         }
         private void OnPlaybackChanged(object sender, EventArgs args)
         {
-            if (active && observer != null && ReferenceEquals(sender, observer)) HomeTiles.SetCurrent(observer.Track, observer.Elapsed);
+            if (active && observer != null && ReferenceEquals(sender, observer)) HomeTiles.SetCurrent(observer.Track, observer.Position);
         }
         private bool IsCurrent(int version) { return active && generation == version; }
         private async Task LoadHome()
@@ -145,7 +145,11 @@ namespace Mixdrome.Phone.Views
                 tile.Width = (tile == FavouritesTile ? 348 : 168) * scale;
                 tile.HorizontalAlignment = HorizontalAlignment.Left;
                 var grid = (Grid)tile.Content;
-                foreach (var child in grid.Children.OfType<TextBlock>()) { child.FontSize = 21 * scale; child.Margin = new Thickness(12 * scale, 0, 8 * scale, 10 * scale); }
+                foreach (var child in grid.Children.OfType<TextBlock>())
+                {
+                    child.FontSize = 21 * scale; child.LineHeight = 22 * scale; child.MaxHeight = 44 * scale;
+                    child.Margin = new Thickness(12 * scale, 12 * scale, 12 * scale, 12 * scale);
+                }
             }
             ArtistBackdrop.Width = ActualWidth * 1.18; ArtistBackdrop.Height = ActualHeight;
         }

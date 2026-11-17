@@ -1,4 +1,4 @@
-<UserControl x:Class="Mixdrome.Phone.Common.PhoneHomePanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<UserControl x:Class="Mixdrome.Phone.Common.PhoneHomePanel" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:Mixdrome.Phone.Common">
   <Grid x:Name="TileGrid">
    <Grid.ColumnDefinitions><ColumnDefinition x:Name="LargeTileColumn"/><ColumnDefinition x:Name="SmallTileColumn"/></Grid.ColumnDefinitions>
    <StackPanel>
@@ -6,10 +6,15 @@
      <Grid>
       <Image x:Name="PlayMeImage" Source="/Assets/MixRadio/PlayMeTileIcon.png" Stretch="Uniform"/>
       <TextBlock x:Name="PlayMeLabel" x:Uid="PhoneUi_Text_PlayMe" Style="{StaticResource PhoneLargeTileLabelStyle}"/>
-      <Image x:Name="CurrentImage" Stretch="UniformToFill" Visibility="Collapsed" ImageFailed="OnCurrentImageFailed"/>
-      <Rectangle x:Name="CurrentShade" Fill="Black" Opacity="0.1" Visibility="Collapsed"/>
-      <Grid x:Name="CurrentClip" Visibility="Collapsed"><TextBlock x:Name="CurrentElapsed" Foreground="White" Opacity="0.7" FontWeight="SemiBold" VerticalAlignment="Bottom"/></Grid>
-      <TextBlock x:Name="CurrentTitle" Style="{StaticResource PhoneLargeTileLabelStyle}" Visibility="Collapsed"/>
+      <Grid x:Name="CurrentClip" Background="{ThemeResource PhoneAccentBrush}" Visibility="Collapsed">
+       <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+       <Image x:Name="CurrentImage" Grid.RowSpan="2" Stretch="UniformToFill" ImageFailed="OnCurrentImageFailed"/>
+       <Rectangle x:Name="CurrentShade" Grid.RowSpan="2" Fill="Black" Opacity="0.1"/>
+       <StackPanel x:Name="CurrentTitlePanel" Margin="0,-6,-12,0" Visibility="Collapsed">
+        <TextBlock x:Name="CurrentTitle" FontFamily="{StaticResource PhoneReferenceSemiBoldFontFamily}" Foreground="White" FontSize="24" TextWrapping="Wrap" Margin="12,12,12,0" MaxHeight="68"/>
+       </StackPanel>
+       <local:PhoneProgressCounter x:Name="CurrentProgress" Grid.Row="1"/>
+      </Grid>
      </Grid>
     </Button>
     <Button x:Name="CreateMixButton" Tag="create" HorizontalAlignment="Right" Style="{StaticResource PhoneHubTileButtonStyle}" Click="OnTileClick"><Grid><Image x:Name="CreateMixImage" Source="/Assets/MixRadio/CreateTileIcon.png" Stretch="Uniform"/><TextBlock x:Name="CreateMixLabel" Style="{StaticResource PhoneTileLabelStyle}"/></Grid></Button>
@@ -18,9 +23,9 @@
    </StackPanel>
    <StackPanel x:Name="OffsetColumn" Grid.Column="1">
     <Button x:Name="RecentAlbumOne" HorizontalAlignment="Left" Style="{StaticResource PhoneHubTileButtonStyle}" Background="Transparent" Click="OnRecentClick"><Image x:Name="RecentImageOne" Stretch="UniformToFill"/></Button>
-    <Button x:Name="MixOneButton" HorizontalAlignment="Left" Tag="mixes" Style="{StaticResource PhoneHubTileButtonStyle}" Click="OnTileClick"><Grid><Image x:Name="MixOneImage" Source="/Assets/MixRadio/MixesTileIcon.png" Stretch="UniformToFill"/><Border x:Name="MixOneBand" VerticalAlignment="Bottom" Background="{ThemeResource PhoneAccentBrush}" Opacity="0.6" Visibility="Collapsed"/><TextBlock x:Name="MixOneLabel" Style="{StaticResource PhoneTileLabelStyle}" SizeChanged="OnMixLabelSizeChanged"/></Grid></Button>
+    <Button x:Name="MixOneButton" HorizontalAlignment="Left" Tag="mixes" Style="{StaticResource PhoneHubTileButtonStyle}" Click="OnTileClick"><Grid><Image x:Name="MixOneImage" Source="/Assets/MixRadio/MixesTileIcon.png" Stretch="UniformToFill"/><Grid x:Name="MixOneBand" Height="50" VerticalAlignment="Bottom" Visibility="Collapsed"><Border Background="{ThemeResource PhoneAccentBrush}" Opacity="0.6"/><TextBlock x:Name="MixOneLabel" Style="{StaticResource PhoneTileLabelStyle}" VerticalAlignment="Center" Margin="12,0"/></Grid></Grid></Button>
     <Button x:Name="RecentAlbumTwo" HorizontalAlignment="Left" Style="{StaticResource PhoneHubTileButtonStyle}" Background="Transparent" Click="OnRecentClick"><Image x:Name="RecentImageTwo" Stretch="UniformToFill"/></Button>
-    <Button x:Name="MixTwoButton" HorizontalAlignment="Left" Tag="offline" Style="{StaticResource PhoneHubTileButtonStyle}" Click="OnTileClick"><Grid><Image x:Name="MixTwoImage" Source="/Assets/MixRadio/OfflineTileIcon.png" Stretch="UniformToFill"/><Border x:Name="MixTwoBand" VerticalAlignment="Bottom" Background="{ThemeResource PhoneAccentBrush}" Opacity="0.6" Visibility="Collapsed"/><TextBlock x:Name="MixTwoLabel" Style="{StaticResource PhoneTileLabelStyle}" SizeChanged="OnMixLabelSizeChanged"/></Grid></Button>
+    <Button x:Name="MixTwoButton" HorizontalAlignment="Left" Tag="offline" Style="{StaticResource PhoneHubTileButtonStyle}" Click="OnTileClick"><Grid><Image x:Name="MixTwoImage" Source="/Assets/MixRadio/OfflineTileIcon.png" Stretch="UniformToFill"/><Grid x:Name="MixTwoBand" Height="50" VerticalAlignment="Bottom" Visibility="Collapsed"><Border Background="{ThemeResource PhoneAccentBrush}" Opacity="0.6"/><TextBlock x:Name="MixTwoLabel" Style="{StaticResource PhoneTileLabelStyle}" VerticalAlignment="Center" Margin="12,0"/></Grid></Grid></Button>
    </StackPanel>
   </Grid>
 </UserControl>

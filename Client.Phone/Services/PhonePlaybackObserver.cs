@@ -2,7 +2,6 @@ namespace Mixdrome.Phone.Services
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Threading.Tasks;
     using Windows.Foundation.Collections;
     using Windows.Media.Playback;
@@ -22,7 +21,7 @@ namespace Mixdrome.Phone.Services
         private List<TrackInfo> tracks = new List<TrackInfo>();
         public event EventHandler Changed;
         public TrackInfo Track { get; private set; }
-        public string Elapsed { get; private set; }
+        public TimeSpan? Position { get; private set; }
         public PhonePlaybackObserver(CoreDispatcher dispatcher) { this.dispatcher = dispatcher; timer.Tick += OnTick; }
         public async Task StartAsync()
         {
@@ -65,7 +64,7 @@ namespace Mixdrome.Phone.Services
         private void OnTick(object sender, object args)
         {
             if (!active) return;
-            Elapsed = string.Empty;
+            Position = null;
             try
             {
                 if (Track != null)
@@ -75,7 +74,7 @@ namespace Mixdrome.Phone.Services
                     if (state != MediaPlayerState.Closed && state != MediaPlayerState.Opening && state != MediaPlayerState.Buffering)
                     {
                         var position = player.Position;
-                        Elapsed = ((int)position.TotalMinutes).ToString(CultureInfo.CurrentCulture) + ":" + position.Seconds.ToString("00", CultureInfo.CurrentCulture);
+                        Position = TimeSpan.FromSeconds(Math.Max(0, Math.Floor(position.TotalSeconds)));
                     }
                 }
             }

@@ -151,7 +151,7 @@ namespace Mixdrome.Phone.Views
             var cellWidth = Math.Floor((viewport > 0 ? viewport : 450 * scale) / 2);
             if (cellWidth <= 0) return;
             if (panel != null) { panel.ItemWidth = cellWidth; panel.ItemHeight = cellWidth; }
-            foreach (var item in tab == "featured" ? Featured : Categories) item.Size = cellWidth * 207 / 225;
+            foreach (var item in tab == "featured" ? Featured : Categories) { item.Size = cellWidth * 207 / 225; item.TypographyScale = scale; }
         }
         private async void OnItemClick(object sender, ItemClickEventArgs e)
         {

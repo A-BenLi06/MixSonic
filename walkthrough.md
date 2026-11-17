@@ -654,3 +654,11 @@
 - 验证：最终产品源码14套CLR回归全通过，1237项计数断言及10项显式序列化检查；模型扫描31 OK/2预期SKIP。x86与ARM WP8.1 Debug XAML/PRI/AppX构建通过，原生运行仅x86。源码审计59文件/21 XAML/230字符串查找/259资源/8既有资产通过。732提交的push和PR CI required成功；文档提交后继续检查最新HEAD。
 - 文档补齐分包证据、失败帧排除、真实协议和本地缓存验证，最终6图压缩WebP总览与安全索引留在.tmp/ui-acceptance/2026-11-17/reference-composition。蓝色来自系统强调色，原始模板同样使用PhoneAccentBrush；品牌粉色复用原主题FFFF2E80。没有加入参考人物图片或夹具数据到产品资产。
 - 尚未认证：此前偶发退出根因、其它屏幕尺寸、ARM运行、锁屏/系统媒体中断、耳听输出及通过UI删除完整离线缓存。上述缺口和PR草稿状态均明确记录，没有把CLR或构建成功代替原生验收。
+
+## 2026-11-17 18:28:54 +08:00 — 实时歌曲进度与逆向字体排版修正
+
+- 用户明确首页2:56及顶部1:18都是当前歌曲进度，本轮按用户要求减少验证，后续由用户手工验收。核对逆向MiniPlayer、TrackProgressTemplateSelector、HoursAndMinutes/Seconds converters及EnhancedPhoneApplicationFrame：两处读取同一PlayPosition，不能作为封面或静态装饰。
+- 新增共享PhoneProgressCounter：观察器直接传TimeSpan?，不反解析本地化字符串；分钟/小时分钟与:秒分两列。使用原版Segoe WP Black字面字体、Normal字重和0字距；首页0.7透明度及124/94/68三档、顶栏0.1及91/91/78三档，逐项恢复固定秒列宽、负margin、自然测量与裁剪。顶部200×60只用作clip，不作为布局尺寸；Home的进度层独立于真实封面，缺封面时显示真实歌名。
+- 对齐标题栏SemiLight20、9左留白及进度可见时-60右留白；Mixes/收藏大标题SemiLight72、Normal、0字距，横向留白21/1并去掉WinRT重复的16左margin，保留WinRT垂直模板适配。菜单/首页标签恢复Semibold字体及22行高、BlockLineHeight、12边距；混音caption用Semibold21、22行高/44最大高，在60高背景带内居中，字体按页面比例缩放，不再随卡片宽度取整缩小。
+- 发现先前私有fixture对首页截图的封面裁剪误包含2:56。仅将3个受污染测试cover逐字节替换为已有干净Acceptance封面，修改私有准备脚本，隔离服务器fullScan完成；未重绘参考图、未修改产品资产。安全摘要.tmp/phone-emulator-fixture/reference-cover-repair-summary.json记录替换前后SHA。旧相关截图不再作为进度字体复刻依据。
+- 验证：手机源码/资源/包审计通过61文件、22 XAML、230字符串查找、267资源、8既有资产；x86 Debug旧SDK XAML/PRI/AppX构建通过，git diff --check通过。独立只读核对确认三档参数、DP初始化、自然测量及raw TimeSpan传递一致。没有重新部署、截图或跑长队列/整套手工回归；更新docs/mixradio/phone-reference-composition.md明确本轮由用户手动验收，旧运行证据仅对应旧包。

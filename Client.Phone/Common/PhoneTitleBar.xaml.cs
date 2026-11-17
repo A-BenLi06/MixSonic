@@ -3,21 +3,18 @@ namespace Mixdrome.Phone.Common
     using System;
     using Mixdrome.Phone.Services;
     using Mixdrome.Phone.Views;
-    using Windows.Foundation;
     using Windows.UI.Xaml;
     using Windows.UI.Xaml.Automation;
     using Windows.UI.Xaml.Controls;
-    using Windows.UI.Xaml.Media;
 
     public sealed partial class PhoneTitleBar : UserControl
     {
         public static readonly DependencyProperty TitleProperty = DependencyProperty.Register("Title", typeof(string), typeof(PhoneTitleBar), new PropertyMetadata(string.Empty, OnTextChanged));
-        public static readonly DependencyProperty ElapsedProperty = DependencyProperty.Register("Elapsed", typeof(string), typeof(PhoneTitleBar), new PropertyMetadata(string.Empty, OnTextChanged));
         private PhonePlaybackObserver observer;
         private bool loaded;
         private int loadedGeneration;
+        private double scale = 1;
         public string Title { get { return (string)GetValue(TitleProperty); } set { SetValue(TitleProperty, value); } }
-        public string Elapsed { get { return (string)GetValue(ElapsedProperty); } set { SetValue(ElapsedProperty, value); } }
         public PhoneTitleBar()
         {
             InitializeComponent();
@@ -33,9 +30,6 @@ namespace Mixdrome.Phone.Common
             var bar = (PhoneTitleBar)sender;
             if (bar.TitleText == null) return;
             bar.TitleText.Text = bar.Title ?? string.Empty;
-            bar.ElapsedText.Text = bar.Elapsed ?? string.Empty;
-            bar.ElapsedButton.IsEnabled = !string.IsNullOrEmpty(bar.Elapsed);
-            bar.ElapsedButton.Visibility = bar.ElapsedButton.IsEnabled ? Visibility.Visible : Visibility.Collapsed;
         }
         private async void OnLoaded(object sender, RoutedEventArgs args)
         {
@@ -59,23 +53,26 @@ namespace Mixdrome.Phone.Common
         }
         private void OnPlaybackChanged(object sender, EventArgs args)
         {
-            if (loaded && observer != null && ReferenceEquals(sender, observer)) Elapsed = observer.Track == null ? string.Empty : observer.Elapsed;
+            if (!loaded || observer == null || !ReferenceEquals(sender, observer)) return;
+            var position = observer.Track == null ? null : observer.Position;
+            ElapsedButton.IsEnabled = position.HasValue;
+            ElapsedButton.Visibility = position.HasValue ? Visibility.Visible : Visibility.Collapsed;
+            if (position.HasValue) ElapsedProgress.Position = position.Value;
+            UpdateTitleMargin();
         }
         private void OnBarSizeChanged(object sender, SizeChangedEventArgs args)
         {
-            var scale = args.NewSize.Width / 480;
+            scale = args.NewSize.Width / 480;
             if (scale <= 0) return;
             Bar.Height = 60 * scale;
             HomeColumn.Width = new GridLength(60 * scale);
             HomeGlyph.Width = HomeGlyph.Height = 25 * scale;
             Divider.Width = scale; Divider.Height = 44 * scale;
-            TitleText.FontSize = 21 * scale;
-            TitleText.Margin = new Thickness(8 * scale, 0, 8 * scale, 0);
-            ElapsedClip.Width = 200 * scale; ElapsedClip.Height = 60 * scale;
-            ElapsedClip.Clip = new RectangleGeometry { Rect = new Rect(0, 0, 200 * scale, 60 * scale) };
-            ElapsedText.FontSize = 91 * scale;
-            ElapsedText.Margin = new Thickness(-40 * scale, -27 * scale, 0, 0);
+            TitleText.FontSize = 20 * scale;
+            UpdateTitleMargin();
+            ElapsedProgress.Scale = scale;
         }
+        private void UpdateTitleMargin() { TitleText.Margin = new Thickness(9 * scale, 0, ElapsedButton.IsEnabled ? -60 * scale : 0, 0); }
         private void OnHomeClick(object sender, RoutedEventArgs args)
         {
             var frame = Window.Current.Content as Frame;
@@ -88,7 +85,7 @@ namespace Mixdrome.Phone.Common
         private void OnElapsedClick(object sender, RoutedEventArgs args)
         {
             var frame = Window.Current.Content as Frame;
-            if (frame != null && !(frame.Content is PlaybackPage) && !string.IsNullOrEmpty(Elapsed)) frame.Navigate(typeof(PlaybackPage));
+            if (frame != null && !(frame.Content is PlaybackPage) && ElapsedButton.IsEnabled) frame.Navigate(typeof(PlaybackPage));
         }
     }
 }
