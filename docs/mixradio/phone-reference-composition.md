@@ -26,6 +26,11 @@ establish that two columns fit after native measurement and layout rounding.
 Lists retain native scrolling and virtualization rather than placing the entire
 app inside a scaled fixed canvas.
 
+The recovered reference templates use `PhoneAccentBrush` / `PhoneAccentColor`
+for normal tiles and translucent captions. Final captures therefore show the
+emulator's blue accent; the supplied reference device uses yellow. The fixed
+Play Me / feedback pink reuses the recovered theme's `#FFFF2E80` value.
+
 ## Reference measurements
 
 | Image | Surface | Key geometry at 480 × 800 |
@@ -151,20 +156,72 @@ The phone source/resource/package audit also passed. These checks supplement
 native evidence and do not prove screenshot geometry, native image decoding or
 offline playback on the emulator.
 
-## Final native acceptance — root to complete after capture 041
+## Native acceptance status across successive packages
 
-**Pending.** The root agent will fill this section from the final installed
-package. Do not promote corrected source geometry or earlier screenshots into a
-passed native result.
+Updated: **2026-11-17T17:18:00+08:00**. Capture numbers identify the local evidence
+sequence, not a single unchanged binary. Earlier ordinary packages, the temporary
+exception-probe package and the latest ordinary package must remain distinct.
 
-| Check | Final screenshot / runtime evidence | Result |
+| Stage / evidence | Confirmed scope | Qualification |
 | --- | --- | --- |
-| Mixes has two columns; first cards near `(24,216)` / `(249,216)` | To fill from 041 onward | Pending |
-| Favourites first letter near `(24,230)` and first photo near `(24,315)` | To fill | Pending |
-| What's new first photo near `(24,221)`; wrapped rows remain readable | To fill | Pending |
-| Checklist icon, native selection/removal/addition and preserved server state | To fill | Pending |
-| Home/mini-player, artist backdrop transition, black fallback, player and feedback panel | To fill | Pending |
-| Status bar hidden on home and shown on other destinations, including settings/library | To fill | Pending |
-| Create-mix server playlist save and resulting playback | To fill | Pending |
-| Offline progress, cancellation/cleanup, completed local playback and removal | To fill | Pending |
+| Earlier ordinary package: `074-final-menu-background` and `layout-measurement.json` | All five complete menu tile rectangles match the normalized reference: each measured x/y/width/height delta is zero. | This measures tile exteriors only. It is not a whole-screen similarity score and excludes typography, icons, background and animation. |
+| Subsequent layout captures: `077-final-favourites-artists`, `078-final-favourites-updates` | Artist letter block is at `y230`, first photo at `y316`; what's new first photo is at `y221`. | The one-pixel photo difference from the approximate `y315` target is recorded. Later title top-margin, 20-square checklist icon and bottom-bar/status-panel changes still need final ordinary captures. |
+| Native panel correction: `092-native-grid-panel-loaded` | Mixes renders two columns, first row at `y216`, with approximately 207-square cards. | `075` had proved the previous fractional-width/`ItemsPanelRoot` attempt still produced one column. The replacement uses the panel's own Loaded/SizeChanged events, actual scroll viewport and whole-DIP `floor(viewport / 2)` cells. The later removal of the Mixes bottom bar and empty status space needs final recapture. |
+| Short queue: `095-transition-end-state`, `097-duplicate-queue` | The short native queue reaches its end, and the duplicate-entry case retains three queue occurrences. | This validates the exercised short queue, not overall stability of every 30-song run. Fixture order summaries are `transition-playlist-acceptance.json` and `artist-transition-playlist-acceptance.json`. |
+| Throttled native download: `112-throttled-download-progress`, `113-throttled-cancel-return` | Deliberately slowed MP3 transfer exposes real native progress; cancel/return and incomplete-download cleanup were exercised. | Throttling belongs to the private fixture proxy. This is cancellation/cleanup evidence, not acceptance of completed offline playback or of a background download service. |
+| Ordinary create-mix flow: `126-created-mix-playback` plus `native-create-mix-backend.json` | Native creation saves a real playlist. Backend readback finds 30 songs / 30 unique IDs, 180 seconds total, matching listing/detail counts, stable repeated ordered readback and the current fixture owner. | Creation and server persistence are verified. Two earlier runs exited unexpectedly; their causes remain unresolved. This row does not certify uninterrupted 30-song playback. |
+| Temporary exception-probe package: `137-exact-30-queue-start` and `exact-queue-trace/frame-01` … `frame-24` | The exact saved 30-song queue progresses to its normal end in this run; no exception-probe log was produced. | This is an instrumented package's result. It neither explains the two earlier exits nor proves the final ordinary package stable. |
+
+The backend summaries named above live under
+`.tmp/phone-emulator-fixture/`; trace frames and numbered captures live in the
+native evidence directory. They remain local acceptance artifacts and omit
+credentials/authenticated request URLs from the safe summaries.
+
+### Ordinary-package results and final recapture
+
+The uninstrumented `7b504eb` package completed the same real saved queue.
+`ordinary-queue-trace/` has 24 full frames: 01–19 show track progression;
+20–24 remain on Fixture track 108 at `0:06 / 0:06`, with Play visible and Next
+disabled. No exit occurred in this run. Its EXE/AppX hashes are preserved in
+`ordinary-queue-7b-binary-identity.json`, separate from the later binary identity.
+**The earlier intermittent exits are not explained or accepted as fixed.**
+
+The final ordinary source is `7325a03`, including offline selection ownership and
+the native `Symbol.List` icon. The 20-square custom PathIcon still rendered
+incorrectly in `177`; it is excluded as a passing icon result. No diagnostic
+handler, timer or trace remains in product source or the installed final binary.
+
+| Check | Observed scope / evidence |
+| --- | --- |
+| Ordinary 30-song queue | `149`, `ordinary-queue-trace/frame-01` … `frame-24`: this `7b504eb` run completes normally. This is not a claim about all runs. |
+| Mixes viewport | `156-normal-mixes-featured`: two columns start at `y216`; third row continues below the former bottom bar/status gap. |
+| Favourites geometry | `153` / `154`: first letter `y230`, first photo `y316`, updates photo `y221`, Compact artists bar and Minimal updates bar. Custom checklist rendering failed in `153` and `177`; native List recapture follows separately. |
+| Home / artist transitions | `151` shows real current artwork and elapsed shortcut; `152` shows all five menu rectangles over the parallax artist image. Ordinary trace contains actual transitions between the fixture artists' images. |
+| Status bar | `138`, `151`, `152`, `167`, `176` hide it on home; `140`, `153`, `154`, `156`, `169`, `177` show it on their respective destination pages. |
+| Completed local playback with server unreachable | `158` / `159`: true long-press download and ready card. With only the private proxy stopped and confirmed unreachable, `160` starts A, `161` plays B at `0:01`, `164` reaches final A at `0:06`, and `166` shows A/B/A. ISE lists exactly two MP3 files (121,422 / 121,423 bytes), JPEG and manifest. Native local decoding and duplicate occurrence preservation are verified on `7b504eb`; this was proxy unreachability, not airplane mode or ear-listening verification. |
+| Offline cancellation | `112` / `113` plus directory readback establish incomplete-cache cleanup. Completed-cache removal is still not native-verified. |
+| Final native List | `215-final-favourites-native-list`: the platform List glyph is fully inside the native circle, with no clipping or overflow. `214-final-config-saved` confirms the final ordinary menu with the actual server photo after UI configuration. |
+| Final ordinary composition | `214-final-config-saved`, `215-final-favourites-native-list`, `216-final-favourites-updates`, `218-final-mixes-two-columns`: final menu, native icon, artists/updates geometry and full two-column viewport. Blue is the current system accent. |
+| Final player / feedback | `223` reaches actual Play Me playback; `224` pauses. `225-final-pink-feedback` opens the 328-high pink panel, with 80-square icon and 204×48 OK button; OK returns to `226-final-feedback-dismissed-paused`. The rating message describes the real server rating operation rather than claiming unavailable personal-mix recommendation training. Earlier backend evidence separately confirms the rating write. |
+| Final Play Me offline entry and playback | `227` exposes the eligible queue's offline command; `228` shows real `4/30` transfer progress; `229` shows the completed pink Play Me card. Opening the card reaches actual playback (`231`, `0:05 / 0:06`). `232` and repeated `233` stay on Fixture track 024 at `0:02` with Play visible, confirming pause. The proxy is restored in this final run; server-unreachable decoding is separately established by the `7b504eb` run above. |
+
+`162` / `163` were intended pause checks but captured opening/restart states;
+their filenames do not establish a successful pause. `128` records the prior
+unexpected departure to Photos. Neither is promoted into a passed result.
+Private fixture photos, media, traces and credentials are not shipped assets.
+
+Final ordinary source validation: all 14 CLR suites passed, with 1,237 counted
+assertions plus 10 explicit serialization checks. The model scan reports 31 OK
+and two intentional SKIP entries. Both x86 and ARM WP8.1 Debug builds passed;
+only x86 was run in the emulator. The source/resource audit passed 59 source
+files, 21 XAML files, 230 string lookups, 259 resources and eight existing assets.
+`final-binary-identity.json` binds the installed EXE/AppX to `7325a03` and finds
+none of the temporary diagnostic identifiers. Subsequent documentation-only
+commits do not change that installed product source.
+
+The local final overview is `final-overview-732.webp`; its index records the six
+complete native frames and their hashes. These remain local review artifacts.
+PR #6 remains a draft until the earlier intermittent exit is explained; this
+pass does not certify ARM execution, other screen sizes, lock-screen/system
+interrupt recovery, ear-listening output or completed-cache removal through UI.
 
