@@ -67,11 +67,12 @@ if (-not $package) { throw 'No appx matches the built package identity; stale pa
 $layoutRoot = Join-Path $outputRoot ([Guid]::NewGuid().ToString('N'))
 if ($existingRegistration) {
     $registeredRoot = [IO.Path]::GetFullPath($existingRegistration.InstallLocation)
-    if (-not $registeredRoot.StartsWith($projectRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+    if ($registeredRoot.StartsWith($projectRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+        $layoutRoot = $registeredRoot
+        Stop-WorkspaceClient
+    } elseif ([version]$identity.Version -le [version]$existingRegistration.Version) {
         throw 'The existing app is registered outside this workspace. Build a higher package version before changing its registration.'
     }
-    $layoutRoot = $registeredRoot
-    Stop-WorkspaceClient
 }
 New-Item -ItemType Directory -Path $layoutRoot -Force | Out-Null
 $archive = [IO.Compression.ZipFile]::OpenRead($package.FullName)

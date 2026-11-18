@@ -662,3 +662,10 @@
 - 对齐标题栏SemiLight20、9左留白及进度可见时-60右留白；Mixes/收藏大标题SemiLight72、Normal、0字距，横向留白21/1并去掉WinRT重复的16左margin，保留WinRT垂直模板适配。菜单/首页标签恢复Semibold字体及22行高、BlockLineHeight、12边距；混音caption用Semibold21、22行高/44最大高，在60高背景带内居中，字体按页面比例缩放，不再随卡片宽度取整缩小。
 - 发现先前私有fixture对首页截图的封面裁剪误包含2:56。仅将3个受污染测试cover逐字节替换为已有干净Acceptance封面，修改私有准备脚本，隔离服务器fullScan完成；未重绘参考图、未修改产品资产。安全摘要.tmp/phone-emulator-fixture/reference-cover-repair-summary.json记录替换前后SHA。旧相关截图不再作为进度字体复刻依据。
 - 验证：手机源码/资源/包审计通过61文件、22 XAML、230字符串查找、267资源、8既有资产；x86 Debug旧SDK XAML/PRI/AppX构建通过，git diff --check通过。独立只读核对确认三档参数、DP初始化、自然测量及raw TimeSpan传递一致。没有重新部署、截图或跑长队列/整套手工回归；更新docs/mixradio/phone-reference-composition.md明确本轮由用户手动验收，旧运行证据仅对应旧包。
+
+## 2026-11-18 14:26:53 +08:00 — 对齐电脑端首页队列抽屉与工作区注册升级逻辑
+
+- 修复 `Client/Main/MainView.xaml` 首页队列抽屉方向与遮罩样式：此前提交 `d04c6e8` 仅更新了 `NavidromePlayerView.xaml`，而首页仍保留 `NullButtonStyle`（模板无背景绘制）与 `HorizontalAlignment="Right"`，与 `MixRadioQueuePanel` 的左侧 `PaneThemeTransition Edge="Left"` 及参考设计不一致。现合并 `MixRadioOverlayResources.xaml`，将 `QueueDrawer` 设为 `HorizontalAlignment="Left"`，并将 `QueueDismiss` 改为 `MixRadioDismissButtonStyle` + `Background="Black" Opacity="0.5"`。
+- 在 `tools/navidrome-tests/check-client.py` 增加对 `MainView.xaml` 与 `NavidromePlayerView.xaml` 的 `QueueDrawer` 左对齐及 `QueueDismiss` 样式检查。
+- 修复 `tools/desktop/run.ps1` 的外部工作区注册迁移条件：仅当现有注册在当前工作区外且新包版本不高于已注册版本时阻止覆盖；将 `Client/Package.appxmanifest` 版本升级至 `1.3.0.36`，使当前工作区可通过 `Add-AppxPackage -Register ... -ForceUpdateFromAnyVersion` 平滑接管注册并保留既有应用数据。
+- 验证：`python tools/mixradio/port_styles.py` 与 `python tools/mixradio/port_templates.py` 与入库字典一致；`python tools/navidrome-tests/check-client.py` 通过（291 项桌面字符串查找、469 项资源引用及队列抽屉检查）；`pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\navidrome-tests\run-home.ps1` 通过 76 项首页与导航断言；`git diff --check` 通过。尚未完成桌面端原生部署与渲染回归（将在下一步进行）。
