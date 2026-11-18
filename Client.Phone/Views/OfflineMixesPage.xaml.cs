@@ -144,8 +144,24 @@ namespace Mixdrome.Phone.Views
             var menu = new PopupMenu();
             menu.Commands.Add(new UICommand(PhoneText.Get("RemoveOfflineMix"), async command =>
             {
-                try { await PhoneOfflineMixes.DeleteMixAsync(card.Saved); if (active) await Refresh(); }
-                catch (Exception exception) { if (active) SetStatus(PhoneText.Format("LoadFailed", exception.Message)); }
+                try
+                {
+                    // Detach bound cover art and remove the tile so WP8.1 releases
+                    // any read handle on cached files before folder deletion.
+                    card.Artwork = null;
+                    Cards.Remove(card);
+                    await Task.Yield();
+                    await PhoneOfflineMixes.DeleteMixAsync(card.Saved);
+                    if (active) await Refresh();
+                }
+                catch (Exception exception)
+                {
+                    if (active)
+                    {
+                        await Refresh();
+                        SetStatus(PhoneText.Format("LoadFailed", exception.Message));
+                    }
+                }
             }));
             await menu.ShowAsync(e.GetPosition(null));
         }
@@ -196,10 +212,11 @@ namespace Mixdrome.Phone.Views
 
     public sealed class PhoneOfflineCard : INotifyPropertyChanged
     {
+        private string artwork;
         private double size;
         public PhoneSavedMix Saved { get; set; }
         public string Name { get; set; }
-        public string Artwork { get; set; }
+        public string Artwork { get { return artwork; } set { artwork = value; Changed("Artwork"); } }
         public bool IsPlayMe { get; set; }
         public bool IsDownloading { get; set; }
         public double Size { get { return size; } set { size = value; Changed("Size"); } }

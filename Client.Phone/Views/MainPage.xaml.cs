@@ -45,10 +45,15 @@ namespace Mixdrome.Phone.Views
             if (active && observer != null && ReferenceEquals(sender, observer)) HomeTiles.SetCurrent(observer.Track, observer.Position);
         }
         private bool IsCurrent(int version) { return active && generation == version; }
+        private void UpdateStatusBanner()
+        {
+            StatusBanner.Visibility = !string.IsNullOrEmpty(StatusText.Text) || LoadingIndicator.Visibility == Visibility.Visible
+                ? Visibility.Visible : Visibility.Collapsed;
+        }
         private async Task LoadHome()
         {
             var version = ++generation;
-            LoadingIndicator.IsActive = true; LoadingIndicator.Visibility = Visibility.Visible; StatusText.Text = string.Empty;
+            LoadingIndicator.IsActive = true; LoadingIndicator.Visibility = Visibility.Visible; StatusText.Text = string.Empty; UpdateStatusBanner();
             try
             {
                 var account = AccountIdentity.For(PhoneSettings.Load());
@@ -61,7 +66,7 @@ namespace Mixdrome.Phone.Views
                 }
                 var service = await PhoneSubsonicServiceFactory.CreateAsync();
                 if (!IsCurrent(version)) return;
-                if (string.IsNullOrEmpty(service.Configuration.BaseUrl)) { StatusText.Text = PhoneText.Get("ConfigureServer"); return; }
+                if (string.IsNullOrEmpty(service.Configuration.BaseUrl)) { StatusText.Text = PhoneText.Get("ConfigureServer"); UpdateStatusBanner(); return; }
                 var api = new NavidromeApi(service.Configuration);
                 var albums = await api.GetAlbums(new AlbumQuery { Type = AlbumListType.Recent, Size = 3 }).ReadAsync();
                 if (!IsCurrent(version)) return;
@@ -86,8 +91,8 @@ namespace Mixdrome.Phone.Views
                     { ArtistBackdrop.Source = new BitmapImage(photo); break; }
                 }
             }
-            catch (Exception ex) { if (IsCurrent(version)) StatusText.Text = PhoneText.Format("LoadFailed", ex.Message); }
-            finally { if (IsCurrent(version)) { LoadingIndicator.IsActive = false; LoadingIndicator.Visibility = Visibility.Collapsed; } }
+            catch (Exception ex) { if (IsCurrent(version)) { StatusText.Text = PhoneText.Format("LoadFailed", ex.Message); UpdateStatusBanner(); } }
+            finally { if (IsCurrent(version)) { LoadingIndicator.IsActive = false; LoadingIndicator.Visibility = Visibility.Collapsed; UpdateStatusBanner(); } }
         }
         private async void OnTileClicked(object sender, PhoneTileEventArgs args)
         {
@@ -104,13 +109,13 @@ namespace Mixdrome.Phone.Views
             {
                 var service = await PhoneSubsonicServiceFactory.CreateAsync();
                 if (!IsCurrent(version)) return;
-                if (string.IsNullOrEmpty(service.Configuration.BaseUrl)) { StatusText.Text = PhoneText.Get("ConfigureServer"); return; }
+                if (string.IsNullOrEmpty(service.Configuration.BaseUrl)) { StatusText.Text = PhoneText.Get("ConfigureServer"); UpdateStatusBanner(); return; }
                 var songs = await new NavidromeApi(service.Configuration).GetRandomSongs(new RandomSongQuery { Size = 30 }).ReadAsync();
                 if (!IsCurrent(version)) return;
-                if (songs.Count == 0) { StatusText.Text = PhoneText.Get("NoSongs"); return; }
+                if (songs.Count == 0) { StatusText.Text = PhoneText.Get("NoSongs"); UpdateStatusBanner(); return; }
                 Frame.Navigate(typeof(PlaybackPage), new PlaybackNavigationParameter { IsMix = true, Playlist = songs.Select((song, index) => new SongDisplayItem { Id = song.Id, Track = index + 1, Title = song.Title ?? song.Name, Artist = song.Artist, Album = song.Album, CoverArt = song.CoverArt, Duration = song.Duration }).ToList(), StartIndex = 0 });
             }
-            catch (Exception ex) { if (IsCurrent(version)) StatusText.Text = PhoneText.Format("LoadFailed", ex.Message); }
+            catch (Exception ex) { if (IsCurrent(version)) { StatusText.Text = PhoneText.Format("LoadFailed", ex.Message); UpdateStatusBanner(); } }
             finally { startingPlayback = false; HomeTiles.IsBusy = false; }
         }
         private void Navigate(string route)

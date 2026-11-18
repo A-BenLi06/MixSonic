@@ -20,6 +20,8 @@
     </Grid>
    </StackPanel>
   </ScrollViewer>
-  <StackPanel VerticalAlignment="Bottom" Margin="12" IsHitTestVisible="False"><TextBlock x:Name="StatusText" Style="{StaticResource BodyTextStyle}" TextWrapping="Wrap"/><ProgressRing x:Name="LoadingIndicator" Width="32" Height="32" Visibility="Collapsed"/></StackPanel>
+  <Border x:Name="StatusBanner" VerticalAlignment="Bottom" Background="#D9101010" Padding="14,10" Margin="12" IsHitTestVisible="False" Visibility="Collapsed">
+   <StackPanel><TextBlock x:Name="StatusText" Style="{StaticResource BodyTextStyle}" TextWrapping="Wrap"/><ProgressRing x:Name="LoadingIndicator" Width="32" Height="32" Visibility="Collapsed"/></StackPanel>
+  </Border>
  </Grid>
 </Page>

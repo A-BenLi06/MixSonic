@@ -83,6 +83,7 @@ namespace Mixdrome.Phone.Services
                 RequireAccount(account); cancellation.ThrowIfCancellationRequested();
                 if (!user.DownloadRole || !user.StreamRole) throw new InvalidOperationException(PhoneText.Get("DownloadingUnavailable"));
                 var root = await AccountFolder(account);
+                await SweepUnpublishedFoldersAsync(root);
                 target = await root.CreateFolderAsync(Guid.NewGuid().ToString("N"), CreationCollisionOption.FailIfExists);
                 var records = new List<DownloadedSong>();
                 var selected = queueIds.Distinct(StringComparer.Ordinal).ToList();
@@ -221,23 +222,65 @@ namespace Mixdrome.Phone.Services
             Guid folderId;
             if (parts.Length != 2 || parts[0] != Hash(mix.AccountKey) || !Guid.TryParseExact(parts[1], "N", out folderId))
                 throw new InvalidDataException(PhoneText.Get("OfflineDataInvalid"));
-            var root = await AccountFolder(mix.AccountKey);
-            // Remove every completed revision of this mix, so an older copy cannot
-            // reappear after deleting the latest download.
-            foreach (var folder in await root.GetFoldersAsync())
+            await DownloadGate.WaitAsync();
+            try
             {
-                if (!Guid.TryParseExact(folder.Name, "N", out folderId)) continue;
-                PhoneOfflineManifest manifest;
-                try
-                {
-                    manifest = LocalXml.Deserialize<PhoneOfflineManifest>(await FileIO.ReadTextAsync(await folder.GetFileAsync(ManifestName)));
-                    manifest.Validate(mix.AccountKey);
-                }
-                catch (Exception) { continue; }
-                if (manifest.Id != mix.Id) continue;
                 RequireAccount(mix.AccountKey);
-                await folder.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                var root = await AccountFolder(mix.AccountKey);
+                // Remove every completed revision of this mix, so an older copy cannot
+                // reappear after deleting the latest download. Unpublish manifest.xml
+                // first so active XAML image or audio handles never leave the mix listed.
+                foreach (var folder in await root.GetFoldersAsync())
+                {
+                    if (!Guid.TryParseExact(folder.Name, "N", out folderId)) continue;
+                    StorageFile manifestFile;
+                    PhoneOfflineManifest manifest;
+                    try
+                    {
+                        manifestFile = await folder.GetFileAsync(ManifestName);
+                        manifest = LocalXml.Deserialize<PhoneOfflineManifest>(await FileIO.ReadTextAsync(manifestFile));
+                        manifest.Validate(mix.AccountKey);
+                    }
+                    catch (Exception) { continue; }
+                    if (manifest.Id != mix.Id) continue;
+                    RequireAccount(mix.AccountKey);
+                    await manifestFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    await TryDeleteFolderContentsAsync(folder);
+                }
+                await SweepUnpublishedFoldersAsync(root);
             }
+            finally { DownloadGate.Release(); }
+        }
+
+        private static async Task SweepUnpublishedFoldersAsync(StorageFolder accountFolder)
+        {
+            foreach (var folder in await accountFolder.GetFoldersAsync())
+            {
+                Guid id;
+                if (!Guid.TryParseExact(folder.Name, "N", out id)) continue;
+                var files = await folder.GetFilesAsync();
+                if (files.Any(file => string.Equals(file.Name, ManifestName, StringComparison.Ordinal) ||
+                    string.Equals(file.Name, ManifestName + ".pending", StringComparison.Ordinal))) continue;
+                await TryDeleteFolderContentsAsync(folder);
+            }
+        }
+
+        private static async Task TryDeleteFolderContentsAsync(StorageFolder folder)
+        {
+            foreach (var file in await folder.GetFilesAsync())
+            {
+                try { await file.DeleteAsync(StorageDeleteOption.PermanentDelete); }
+                catch (Exception error) { if (!IsLockException(error)) throw; }
+            }
+            try { await folder.DeleteAsync(StorageDeleteOption.PermanentDelete); }
+            catch (Exception error) { if (!IsLockException(error)) throw; }
+        }
+
+        private static bool IsLockException(Exception error)
+        {
+            var code = unchecked((uint)error.HResult);
+            return error is UnauthorizedAccessException || error is IOException ||
+                code == 0x80070005u || code == 0x80070020u || code == 0x80070091u;
         }
 
         private static async Task<DownloadPayload> Transfer(StorageFolder folder, string name, Uri uri,

@@ -40,6 +40,8 @@ namespace Windows.Storage
         { var path = Child(name); if (!Directory.Exists(path)) throw new FileNotFoundException(); return Task.FromResult(new StorageFolder(path)); }
         public Task<IReadOnlyList<StorageFolder>> GetFoldersAsync()
         { return Task.FromResult<IReadOnlyList<StorageFolder>>(Directory.GetDirectories(Path).Select(path => new StorageFolder(path)).ToList()); }
+        public Task<IReadOnlyList<StorageFile>> GetFilesAsync()
+        { return Task.FromResult<IReadOnlyList<StorageFile>>(Directory.GetFiles(Path).Select(path => new StorageFile(path)).ToList()); }
         public Task<StorageFile> CreateFileAsync(string name, CreationCollisionOption collision)
         {
             var path = Child(name);
@@ -54,6 +56,7 @@ namespace Windows.Storage
     public sealed class StorageFile
     {
         public string Path { get; private set; }
+        public string Name { get { return System.IO.Path.GetFileName(Path); } }
         public StorageFile(string path) { Path = path; }
         public Task<BasicProperties> GetBasicPropertiesAsync() { return Task.FromResult(new BasicProperties { Size = (ulong)new FileInfo(Path).Length }); }
         public Task<Stream> OpenStreamForWriteAsync() { return Task.FromResult<Stream>(new FileStream(Path, FileMode.Create, FileAccess.Write, FileShare.None)); }

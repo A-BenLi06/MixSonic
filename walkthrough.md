@@ -687,3 +687,13 @@
 - 对齐 `Client.Phone/Views/CreateMixPage.xaml` 与 `CreateMixPage.xaml.cs`：`PageTitle` 改用 `PhoneReferenceSemiLightFontFamily` 与按 `ActualWidth / 480` 缩放的 `72` 字号大标题。
 - 统一子页面顶部栏与高对比搜索框：`LibraryPage`、`SearchPage`、`AlbumPage`、`ArtistAlbumsPage` 与 `GenreSongsPage` 均接入共享 `<common:PhoneTitleBar />`（复用现有 `.resw` `UiMyMusic` / `UiSearch` 资源，移除遗留 `MixRadioWordmarkTextStyle` / 小图标占位）；`SearchTextBox` 启用 `MixRadioPhoneTextBoxStyle`；`LibraryPage` 与 `SearchPage` 枢纽页签采用 `PhoneReferenceSemiLightFontFamily` `54` 标题模板；`tools/phone/LibraryTests.cs` 与 `SearchTests.cs` 补充最小 `PhoneTitleBar` 测试存根。
 - 验证：`python tools/phone/check.py` 通过（61 文件、22 XAML、235 字符串、259 资源、8 既有资产）；7 项手机端生产 CLR 套件全部通过（`run-collections` 19、`run-connection` 38+13、`run-library` 39、`run-listening` 36、`run-offline` 36+19、`run-playback` 39+89、`run-search` 15）；`x86` 与 `ARM` Debug 原生 WP8.1 SDK 重建均通过，`git diff --check` 通过。真机/模拟器部署与截屏回归将在下一步执行。
+
+## 2026-11-18 15:35:51 +08:00 — 修复离线混音移除时的文件句柄锁定（E_ACCESSDENIED）与首页未配置状态条
+
+- 真机/模拟器长按回归暴露问题：在 WP8.1 WVGA 模拟器将 `Test tone` 离线保存完成并触发长按菜单 `remove offline mix` 时，页面弹出 `Access is denied. (0x80070005)`。定位为 `OfflineMixesPage.xaml` 内 `<Image Source="{Binding Artwork}" />` 持续持有 `ms-appdata:///local/phone-offline-mixes/.../cover.jpg` 只读锁，而 `PhoneOfflineMixes.DeleteMixAsync` 先前直接调用 `folder.DeleteAsync(StorageDeleteOption.PermanentDelete)`，在封面或后台音轨被占用时整个目录删除被拒绝且未先移除 `manifest.xml`。
+- 修复方案：
+  - `Client.Phone/Services/PhoneOfflineMixes.cs`：在 `DownloadGate` 内串行执行 `DeleteMixAsync`，匹配修订后**先删除 `manifest.xml`** 立即原子取消发布，再逐个删除目录文件及目录本身并仅忽略锁定异常；新增 `SweepUnpublishedFoldersAsync` 在删除后与下次 `SaveMixAsync` 前清理已释放句柄的无清单残余目录。
+  - `Client.Phone/Views/OfflineMixesPage.xaml.cs`：为 `PhoneOfflineCard.Artwork` 增加属性变更通知；点击 `remove offline mix` 前先置空 `card.Artwork`、从 `Cards` 移除卡片并让出渲染帧，释放 XAML 图片句柄后再删除；保留 `run-offline.ps1` 提取的 5 个核心方法签名不变。
+  - `Client.Phone/Views/MainPage.xaml` / `MainPage.xaml.cs`：将首页底部 `StatusText`/`LoadingIndicator` 包裹在按需显示的深色半透明 `StatusBanner` 中，消除未配置服务器时提示语与 `recently played` 的重叠。
+  - `tools/phone/OfflineStorageAdapters.cs` 与 `OfflineMixTests.cs`：补充 `StorageFolder.GetFilesAsync`/`StorageFile.Name` 适配器与真实文件句柄锁定期间的删除回归断言。
+- 将 `Client.Phone/Package.appxmanifest` 升至 `1.3.0.1` 以支持模拟器保留凭据与离线缓存就地 `/updatelaunch`。验证：`python tools/phone/check.py`、全部 7 项手机 CLR 回归（含 `run-offline.ps1` `37+19` 断言）、`x86` 与 `ARM` Debug 原生重建及 `git diff --check` 全部通过。

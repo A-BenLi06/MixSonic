@@ -131,8 +131,17 @@ public static class PhoneOfflineMixTests
             Check(rejected && Directory.GetFiles(output, "manifest.xml", SearchOption.AllDirectories).Length == 1, "An account change during download prevents publication."); configuration.Username = "fixture";
             var latest = await PhoneOfflineMixes.SaveMixAsync(configuration, definition, null, CancellationToken.None);
             Check((await PhoneOfflineMixes.GetSavedMixesAsync()).Count == 1, "Downloading again exposes only the newest complete revision.");
+            var lockedMedia = Path.Combine(output, Uri.UnescapeDataString(new Uri(latest.CreateQueue()[0].StreamUrl).AbsolutePath.Substring("/local/".Length)).Replace('/', Path.DirectorySeparatorChar));
+            using (new FileStream(lockedMedia, FileMode.Open, FileAccess.Read, FileShare.Read))
+                await PhoneOfflineMixes.DeleteMixAsync(latest);
+            Check((await PhoneOfflineMixes.GetSavedMixesAsync()).Count == 0 && !await PhoneOfflineMixes.ValidateLocalQueueAsync(latest.CreateQueue()) &&
+                Directory.GetFiles(output, "manifest.xml", SearchOption.AllDirectories).Length == 0,
+                "Removing an offline mix unpublishes its manifest immediately even when a cached media or artwork file is still held open.");
+            latest = await PhoneOfflineMixes.SaveMixAsync(configuration, definition, null, CancellationToken.None);
             await PhoneOfflineMixes.DeleteMixAsync(latest);
-            Check((await PhoneOfflineMixes.GetSavedMixesAsync()).Count == 0 && Directory.GetFiles(output, "manifest.xml", SearchOption.AllDirectories).Length == 0, "Removing an offline mix deletes all revisions, preventing old downloads from reappearing.");
+            var accountDirectory = Path.GetDirectoryName(Path.GetDirectoryName(lockedMedia));
+            Check((await PhoneOfflineMixes.GetSavedMixesAsync()).Count == 0 && Directory.GetFiles(output, "manifest.xml", SearchOption.AllDirectories).Length == 0 &&
+                Directory.GetDirectories(accountDirectory).Length == 0, "Removing an offline mix deletes all revisions and sweeps released handles without orphan folders.");
             Check(!await PhoneOfflineMixes.ValidateLocalQueueAsync(new[] { new SongDisplayItem { Id = "one", StreamUrl = "ms-appdata:///local/unrelated/private.mp3" } }), "Local files outside the validated offline catalog cannot be played as saved mixes.");
         }
     }
