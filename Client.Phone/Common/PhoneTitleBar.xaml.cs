@@ -46,10 +46,15 @@ namespace Mixdrome.Phone.Common
             await nextObserver.StartAsync();
             if (!loaded || generation != loadedGeneration || !ReferenceEquals(observer, nextObserver)) nextObserver.Dispose();
         }
+        private void StopObserver()
+        {
+            ++loadedGeneration;
+            if (observer != null) { observer.Dispose(); observer = null; }
+        }
         private void OnUnloaded(object sender, RoutedEventArgs args)
         {
-            loaded = false; ++loadedGeneration;
-            if (observer != null) { observer.Dispose(); observer = null; }
+            loaded = false;
+            StopObserver();
         }
         private void OnPlaybackChanged(object sender, EventArgs args)
         {
@@ -77,6 +82,7 @@ namespace Mixdrome.Phone.Common
         {
             var frame = Window.Current.Content as Frame;
             if (frame == null || frame.Content is MainPage) return;
+            StopObserver();
             // Home is a root navigation. Let Frame select the cached home page
             // before clearing its journal, rather than pruning a live back
             // journal and then asking the legacy Frame to resolve GoBack.
@@ -85,7 +91,9 @@ namespace Mixdrome.Phone.Common
         private void OnElapsedClick(object sender, RoutedEventArgs args)
         {
             var frame = Window.Current.Content as Frame;
-            if (frame != null && !(frame.Content is PlaybackPage) && ElapsedButton.IsEnabled) frame.Navigate(typeof(PlaybackPage));
+            if (frame == null || frame.Content is PlaybackPage || !ElapsedButton.IsEnabled) return;
+            StopObserver();
+            frame.Navigate(typeof(PlaybackPage));
         }
     }
 }

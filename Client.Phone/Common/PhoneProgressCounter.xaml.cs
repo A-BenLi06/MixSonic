@@ -38,16 +38,20 @@ namespace Mixdrome.Phone.Common
             {
                 fontSize = longTime ? 78 : 91;
                 secondsWidth = longTime ? 108 : shortTime ? 174 : 132;
-                margin = new Thickness(0, -42 * scale, (longTime ? 0 : shortTime ? -50 : -8) * scale, -34 * scale);
+                Height = 60 * scale;
                 VerticalAlignment = VerticalAlignment.Center;
-                Clip = new RectangleGeometry { Rect = new Rect(0, -7 * scale, 200 * scale, 60 * scale) };
+                Digits.VerticalAlignment = VerticalAlignment.Top;
+                margin = new Thickness(0, (longTime ? -13 : -19) * scale, (longTime ? 0 : shortTime ? -50 : -8) * scale, 0);
+                Clip = new RectangleGeometry { Rect = new Rect(0, 0, 200 * scale, 60 * scale) };
             }
             else
             {
                 fontSize = longTime ? 68 : shortTime ? 124 : 94;
                 secondsWidth = longTime ? 96 : shortTime ? 174 : 132;
-                margin = new Thickness((longTime ? -20 : shortTime ? -100 : -60) * scale, 0, 0, (longTime ? -18 : shortTime ? -34 : -26) * scale);
+                Height = double.NaN;
                 VerticalAlignment = VerticalAlignment.Bottom;
+                Digits.VerticalAlignment = VerticalAlignment.Stretch;
+                margin = new Thickness((longTime ? -20 : shortTime ? -100 : -60) * scale, 0, 0, (longTime ? -18 : shortTime ? -34 : -26) * scale);
                 Clip = null;
             }
             Digits.Margin = margin;

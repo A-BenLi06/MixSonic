@@ -28,7 +28,7 @@ namespace Mixdrome.Phone.Services
             if (active) return;
             active = true;
             try { await ApplicationData.Current.LocalFolder.GetFileAsync(BackgroundAudioMessages.SessionFile); }
-            catch (System.IO.FileNotFoundException) { active = false; return; }
+            catch (Exception) { active = false; return; }
             if (!active) return;
             BackgroundMediaPlayer.MessageReceivedFromBackground += OnMessage;
             try { var player = BackgroundMediaPlayer.Current; RequestState(); timer.Start(); }

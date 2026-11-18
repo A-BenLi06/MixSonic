@@ -11,7 +11,7 @@
        <Image x:Name="CurrentImage" Grid.RowSpan="2" Stretch="UniformToFill" ImageFailed="OnCurrentImageFailed"/>
        <Rectangle x:Name="CurrentShade" Grid.RowSpan="2" Fill="Black" Opacity="0.1"/>
        <StackPanel x:Name="CurrentTitlePanel" Margin="0,-6,-12,0" Visibility="Collapsed">
-        <TextBlock x:Name="CurrentTitle" FontFamily="{StaticResource PhoneReferenceSemiBoldFontFamily}" Foreground="White" FontSize="24" TextWrapping="Wrap" Margin="12,12,12,0" MaxHeight="68"/>
+        <TextBlock x:Name="CurrentTitle" FontFamily="{StaticResource PhoneReferenceSemiBoldFontFamily}" FontWeight="SemiBold" Foreground="White" FontSize="24" TextWrapping="Wrap" Margin="12,12,12,0" MaxHeight="68"/>
        </StackPanel>
        <local:PhoneProgressCounter x:Name="CurrentProgress" Grid.Row="1"/>
       </Grid>

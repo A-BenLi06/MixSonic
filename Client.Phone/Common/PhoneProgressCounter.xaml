@@ -4,7 +4,7 @@
     HorizontalAlignment="Right" VerticalAlignment="Bottom" IsHitTestVisible="False">
     <Grid x:Name="Digits">
         <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition x:Name="SecondsColumn" /></Grid.ColumnDefinitions>
-        <TextBlock x:Name="MinutesText" FontFamily="{StaticResource PhoneReferenceBlackFontFamily}" FontWeight="Normal" CharacterSpacing="0" Foreground="White" TextAlignment="Right" />
-        <TextBlock x:Name="SecondsText" Grid.Column="1" FontFamily="{StaticResource PhoneReferenceBlackFontFamily}" FontWeight="Normal" CharacterSpacing="0" Foreground="White" TextAlignment="Left" />
+        <TextBlock x:Name="MinutesText" FontFamily="{StaticResource PhoneReferenceBlackFontFamily}" FontWeight="Black" CharacterSpacing="0" Foreground="White" TextAlignment="Right" />
+        <TextBlock x:Name="SecondsText" Grid.Column="1" FontFamily="{StaticResource PhoneReferenceBlackFontFamily}" FontWeight="Black" CharacterSpacing="0" Foreground="White" TextAlignment="Left" />
     </Grid>
 </UserControl>

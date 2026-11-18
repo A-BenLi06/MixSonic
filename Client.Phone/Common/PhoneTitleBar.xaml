@@ -10,6 +10,6 @@
   <Button x:Name="ElapsedButton" Grid.Column="2" HorizontalAlignment="Right" Style="{StaticResource MixRadioFlatButtonStyle}" Click="OnElapsedClick">
    <local:PhoneProgressCounter x:Name="ElapsedProgress" IsCompact="True"/>
   </Button>
-  <TextBlock x:Name="TitleText" Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource PhoneReferenceSemiLightFontFamily}" Foreground="White" IsHitTestVisible="False" TextTrimming="WordEllipsis"/>
+  <TextBlock x:Name="TitleText" Grid.Column="1" VerticalAlignment="Center" FontFamily="{StaticResource PhoneReferenceSemiLightFontFamily}" FontWeight="SemiLight" Foreground="White" IsHitTestVisible="False" TextTrimming="WordEllipsis"/>
  </Grid>
 </UserControl>

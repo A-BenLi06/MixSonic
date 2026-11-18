@@ -77,6 +77,7 @@ namespace Mixdrome.Phone
                         && hide == (frame.Content is MainPage)) return;
                 }
             }
+            catch (Exception) { }
             finally { updatingStatusBar = false; }
         }
 

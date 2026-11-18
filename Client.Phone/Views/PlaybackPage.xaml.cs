@@ -809,7 +809,19 @@ namespace Mixdrome.Phone.Views
 
         private async void OnMediaStateChanged(MediaPlayer sender, object args)
         {
-            try { await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { if (active) UpdatePlaybackState(); }); }
+            try
+            {
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    if (!active) return;
+                    try { UpdatePlaybackState(); }
+                    catch (Exception exception)
+                    {
+                        Debug.WriteLine("Phone audio state failed: " + exception.GetType().Name);
+                        if (active) PlaybackStatusText.Text = PhoneText.Get("PlaybackFailed");
+                    }
+                });
+            }
             catch (Exception exception) { Debug.WriteLine("Phone audio dispatcher unavailable: " + exception.GetType().Name); }
         }
 

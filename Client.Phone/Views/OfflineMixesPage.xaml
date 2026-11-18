@@ -11,7 +11,7 @@
                     <Image Source="/Assets/MixRadio/PlayMeTileIcon.png" Stretch="Uniform" Visibility="{Binding PlayMeVisibility}" />
                     <Grid VerticalAlignment="Bottom" Height="{Binding CaptionHeight}">
                         <Border Background="{ThemeResource PhoneAccentBrush}" Opacity="0.6" Visibility="{Binding LabelVisibility}" />
-                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="{Binding LabelMargin}" FontFamily="{StaticResource PhoneReferenceSemiBoldFontFamily}" FontSize="{Binding CaptionSize}" FontWeight="Normal" CharacterSpacing="0" LineHeight="{Binding CaptionLineHeight}" LineStackingStrategy="BlockLineHeight" MaxHeight="{Binding CaptionMaxHeight}" Foreground="White" TextWrapping="Wrap" TextTrimming="WordEllipsis" />
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Margin="{Binding LabelMargin}" FontFamily="{StaticResource PhoneReferenceSemiBoldFontFamily}" FontSize="{Binding CaptionSize}" FontWeight="SemiBold" CharacterSpacing="0" LineHeight="{Binding CaptionLineHeight}" LineStackingStrategy="BlockLineHeight" MaxHeight="{Binding CaptionMaxHeight}" Foreground="White" TextWrapping="Wrap" TextTrimming="WordEllipsis" />
                     </Grid>
                 </Grid>
                 <ProgressBar Value="{Binding Progress}" Maximum="100" Height="{Binding ProgressBarHeight}" IsIndeterminate="{Binding IsIndeterminate}" Foreground="{ThemeResource PhoneAccentBrush}" Background="#FF222222" Visibility="{Binding ProgressVisibility}" Margin="0,4,0,0" />
@@ -36,7 +36,7 @@
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
         <common:PhoneTitleBar x:Name="PageTitleBar" />
         <StackPanel x:Name="HeadingPanel" Grid.Row="1" Margin="24,5,24,12">
-            <TextBlock x:Name="PageTitle" FontFamily="{StaticResource PhoneReferenceSemiLightFontFamily}" FontSize="72" FontWeight="Normal" CharacterSpacing="0" Foreground="White" Margin="-3,0,0,16" />
+            <TextBlock x:Name="PageTitle" FontFamily="{StaticResource PhoneReferenceSemiLightFontFamily}" FontSize="72" FontWeight="SemiLight" CharacterSpacing="0" Foreground="White" Margin="-3,0,0,16" />
             <TextBlock x:Name="HintText" FontSize="21" Foreground="White" TextWrapping="Wrap" LineStackingStrategy="BlockLineHeight" LineHeight="26" MinHeight="52" />
         </StackPanel>
         <GridView x:Name="MixGrid" Grid.Row="2" ItemsSource="{Binding Cards}" Margin="24,0,6,0" Padding="0" BorderThickness="0" ItemsPanel="{StaticResource OfflineItemsPanel}" ItemTemplate="{StaticResource OfflineCardTemplate}" ItemContainerStyle="{StaticResource OfflineContainerStyle}" SelectionMode="None" IsItemClickEnabled="True" ItemClick="OnMixClick" Holding="OnMixHolding" SizeChanged="OnGridSizeChanged" ScrollViewer.HorizontalScrollMode="Disabled" ScrollViewer.VerticalScrollMode="Enabled" />

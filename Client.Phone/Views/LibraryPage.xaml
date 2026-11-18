@@ -5,7 +5,7 @@
       Background="Black">
     <Page.Resources>
         <Thickness x:Key="PivotHeaderItemMargin">0,-6.5,0,0</Thickness>
-        <DataTemplate x:Key="LibraryHeadingTemplate"><TextBlock Text="{Binding}" FontSize="54" FontFamily="{StaticResource PhoneReferenceSemiLightFontFamily}" FontWeight="Normal" CharacterSpacing="0" /></DataTemplate>
+        <DataTemplate x:Key="LibraryHeadingTemplate"><TextBlock Text="{Binding}" FontSize="54" FontFamily="{StaticResource PhoneReferenceSemiLightFontFamily}" FontWeight="SemiLight" CharacterSpacing="0" /></DataTemplate>
         <Style x:Key="LibraryPlayButtonStyle" TargetType="Button" BasedOn="{StaticResource CircularButtonStyle}">
             <Setter Property="Width" Value="44" /><Setter Property="Height" Value="44" />
             <Setter Property="MinWidth" Value="44" /><Setter Property="MinHeight" Value="44" />
