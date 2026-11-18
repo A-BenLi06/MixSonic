@@ -19,8 +19,8 @@
             <Hub.Header><Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition x:Name="HeaderIndent" Width="80" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Viewbox x:Name="WordmarkHost" Width="266" Height="41" VerticalAlignment="Top">
-                        <ContentControl Template="{StaticResource MixdromeWordmarkTemplate}" />
+                    <Viewbox x:Name="WordmarkHost" Height="41" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,24,0">
+                        <ContentControl Template="{StaticResource MixdromeWordmarkTemplate}" HorizontalContentAlignment="Left" />
                     </Viewbox>
                     <Button x:Uid="Navidrome_LibraryButton" Content="&#xE14C;" Style="{StaticResource ButtonBase}" VerticalAlignment="Bottom" Margin="0,0,0,2" Click="OnLibraryClicked" />
                 </StackPanel>

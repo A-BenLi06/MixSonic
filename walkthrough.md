@@ -669,3 +669,14 @@
 - 在 `tools/navidrome-tests/check-client.py` 增加对 `MainView.xaml` 与 `NavidromePlayerView.xaml` 的 `QueueDrawer` 左对齐及 `QueueDismiss` 样式检查。
 - 修复 `tools/desktop/run.ps1` 的外部工作区注册迁移条件：仅当现有注册在当前工作区外且新包版本不高于已注册版本时阻止覆盖；将 `Client/Package.appxmanifest` 版本升级至 `1.3.0.36`，使当前工作区可通过 `Add-AppxPackage -Register ... -ForceUpdateFromAnyVersion` 平滑接管注册并保留既有应用数据。
 - 验证：`python tools/mixradio/port_styles.py` 与 `python tools/mixradio/port_templates.py` 与入库字典一致；`python tools/navidrome-tests/check-client.py` 通过（291 项桌面字符串查找、469 项资源引用及队列抽屉检查）；`pwsh -NoProfile -ExecutionPolicy Bypass -File .\tools\navidrome-tests\run-home.ps1` 通过 76 项首页与导航断言；`git diff --check` 通过。尚未完成桌面端原生部署与渲染回归（将在下一步进行）。
+
+## 2026-11-18 15:03:45 +08:00 — 电脑端字标复刻、部署工具防陈旧打包及全套原生界面/播放/浮层回归
+
+- 修复首页 `Mixdrome` 字标尺寸与左对齐偏差：先前固定 `Width="266" Height="41"` 外层套用 `<Viewbox>` 将 `FontSize="52"` 的字标等比压缩（大写字母高度约 22px，且首字偏右），现重构 `tools/mixradio/port_templates.py` 与 `Client/Navidrome/NavidromeResources.xaml` 中的 `MixdromeWordmarkTemplate`（`FontSize="68"`、`Margin="-3,-33,0,-16"`，`Height="41"` 左上对齐），并移除 `Client/Main/MainView.xaml` / `MainView.xaml.cs` 中的固定宽度，改以 `MaxWidth`（宽屏 `360` / 窄屏 `Math.Max(160, ActualWidth - 132)`）、`Height`（`41` / `34`）与 `Margin`（`24` / `18`）紧贴圆形菜单按钮左对齐。
+- 修复 `tools/desktop/NativeUiProbe.cs` 在小曲库分组下的分页判定：以 `pagingSelection != null && indexedModel.CanLoadMore` 记录 `pagingTested`，避免测试夹具仅有 6 张专辑/3 名艺术家/3 个流派时误报分页状态；`songs` 真实触发 `100 -> 127` 增量加载并保持选择状态。
+- 修复 `tools/desktop/run.ps1` 陈旧 `.appx` 与覆盖写丢失权限导致的激活挂起（`MoAppHang` / DCOM 超时）：始终使用 `/t:Rebuild` 与 `/p:GenerateAppxPackageOnBuild=true`，部署前校验已选 `.appx` 内 `Mixdrome.exe` 与编译输出目录 `Mixdrome.exe` 的 SHA-256 一致性；当布局目录发生文件更新（`$updatedFiles -gt 0`）时不再复用 `$registrationReused`，确保 `Add-AppxPackage -Register` 重建 AppContainer 访问权限。
+- 完成桌面端全套原生 XAML 回归（隔离测试服务器 `http://127.0.0.1:2845/`，先清理夹具 95 个缓存图片并刷新 9 份歌单封面清除旧 `2:56` 拼贴）：
+  - `NativeUiProbe`（`20261118T065115Z`）：34 页采集零错误、4 项字母索引/分页（含 `songs` 100→127）、错误遮罩与库菜单全部通过，`outsideCardTexts=0`；实测 `home.png` 字标白色包围盒 `x=123..379, y=50..100`（高 `51px`）、窄屏 `home-narrow.png` `x=42..319, y=52..93`（高 `42px`）无裁切，`home-library.png` 歌单瓷砖呈现整洁封面。
+  - `NativePlaybackProbe`：本地 PCM 与 `1744/900/500` 三档播放器布局及拖拽预览共 29 项断言全部通过。
+  - 临时浮层回归（验证后已通过 `git checkout` 精确还原 `tools/desktop/NativePlaybackProbe.cs` 原始 SHA-256 `8904A7769886195A96B6E488472B9B4950E782046C4D489EB636E60F4883899B`）：53 项断言全通过，覆盖 `1744/900/500` 专辑弹层重排、队列 `58+10` 行距与 `NavidromePlayerView` / `MainView` 双页左侧 `300px` 队列抽屉及 `0.5` 黑色遮罩开闭交互。
+- 验证：已重编并部署 `normal` 模式桌面端包（`.tmp/desktop/build-mode-AnyCPU-Debug.txt` 为 `normal`，产物 `Mixdrome.exe` 不含任何探针符号且正常启动至主页）；`python tools/mixradio/port_templates.py`、`python tools/navidrome-tests/check-client.py`（291 项字符串、469 项资源及队列抽屉检查）、`tools/navidrome-tests/run-home.ps1`（76 项断言）与 `git diff --check` 全部通过。
