@@ -156,8 +156,8 @@ namespace Mixdrome.Phone.Views
         {
             var scale = e.NewSize.Width / 480;
             if (scale <= 0) return;
-            HeadingPanel.Margin = new Thickness(24 * scale, 12 * scale, 24 * scale, 12 * scale);
-            PageTitle.FontSize = 72 * scale; PageTitle.Margin = new Thickness(0, 0, 0, 28 * scale);
+            HeadingPanel.Margin = new Thickness(24 * scale, 5 * scale, 24 * scale, 12 * scale);
+            PageTitle.FontSize = 72 * scale; PageTitle.Margin = new Thickness(-3 * scale, 0, 0, 16 * scale);
             HintText.FontSize = 21 * scale; HintText.LineHeight = 26 * scale; HintText.MinHeight = 52 * scale;
             MixGrid.Margin = new Thickness(24 * scale, 0, 6 * scale, 0);
             ResizeCards();
@@ -176,7 +176,7 @@ namespace Mixdrome.Phone.Views
             if (cellWidth <= 0) return;
             if (mixPanel != null) mixPanel.ItemWidth = cellWidth;
             var cardScale = cellWidth / 225;
-            foreach (var card in Cards) card.Resize(207 * cardScale, cardScale);
+            foreach (var card in Cards) card.Resize(207 * cardScale, cardScale, scale);
         }
         private void OnArtworkFailed(object sender, ExceptionRoutedEventArgs e)
         {
@@ -206,6 +206,8 @@ namespace Mixdrome.Phone.Views
         public double Progress { get; private set; }
         public double CaptionHeight { get; private set; }
         public double CaptionSize { get; private set; }
+        public double CaptionLineHeight { get; private set; }
+        public double CaptionMaxHeight { get; private set; }
         public double StatusFontSize { get; private set; }
         public double ProgressBarHeight { get; private set; }
         public Thickness LabelMargin { get; private set; }
@@ -216,11 +218,13 @@ namespace Mixdrome.Phone.Views
         public Visibility LabelVisibility { get { return IsPlayMe ? Visibility.Collapsed : Visibility.Visible; } }
         public Visibility ProgressVisibility { get { return IsDownloading ? Visibility.Visible : Visibility.Collapsed; } }
         public event PropertyChangedEventHandler PropertyChanged;
-        public void Resize(double width, double scale)
+        public void Resize(double width, double cardScale, double typographyScale = 0)
         {
-            Size = width; CaptionHeight = 60 * scale; CaptionSize = 21 * scale; Spacing = new Thickness(0, 0, 18 * scale, 18 * scale);
-            StatusFontSize = 20 * scale; ProgressBarHeight = 4 * scale; LabelMargin = new Thickness(12 * scale, 0, 8 * scale, 8 * scale);
-            Changed("CaptionHeight"); Changed("CaptionSize"); Changed("Spacing");
+            var typo = typographyScale > 0 ? typographyScale : cardScale;
+            Size = width; CaptionHeight = 60 * cardScale; CaptionSize = 21 * typo; CaptionLineHeight = 22 * typo; CaptionMaxHeight = 44 * typo;
+            Spacing = new Thickness(0, 0, 18 * cardScale, 18 * cardScale);
+            StatusFontSize = 20 * typo; ProgressBarHeight = 4 * cardScale; LabelMargin = new Thickness(12 * cardScale, 0, 12 * cardScale, 0);
+            Changed("CaptionHeight"); Changed("CaptionSize"); Changed("CaptionLineHeight"); Changed("CaptionMaxHeight"); Changed("Spacing");
             Changed("StatusFontSize"); Changed("ProgressBarHeight"); Changed("LabelMargin");
         }
         public void Report(PhoneOfflineProgress value)

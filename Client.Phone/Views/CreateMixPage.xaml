@@ -1,13 +1,13 @@
 <Page x:Class="Mixdrome.Phone.Views.CreateMixPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:common="using:Mixdrome.Phone.Common" Background="Black">
+      xmlns:common="using:Mixdrome.Phone.Common" Background="Black" SizeChanged="OnPageSizeChanged">
     <Grid>
         <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
         <common:PhoneTitleBar x:Name="PageTitleBar" />
         <ScrollViewer Grid.Row="1">
-            <StackPanel Margin="24,12,24,24">
-                <TextBlock x:Name="PageTitle" FontSize="56" FontWeight="Light" Foreground="White" TextWrapping="Wrap" Margin="0,0,0,28" />
+            <StackPanel x:Name="ContentPanel" Margin="24,5,24,24">
+                <TextBlock x:Name="PageTitle" FontFamily="{StaticResource PhoneReferenceSemiLightFontFamily}" FontSize="72" FontWeight="Normal" CharacterSpacing="0" Foreground="White" TextWrapping="Wrap" Margin="-3,0,0,20" />
                 <TextBlock x:Name="NameLabel" FontSize="21" Foreground="White" Margin="0,0,0,8" />
                 <TextBox x:Name="NameBox" Style="{StaticResource MixRadioPhoneTextBoxStyle}" MaxLength="200" Margin="0,0,0,20" />
                 <TextBlock x:Name="GenreLabel" FontSize="21" Foreground="White" Margin="0,0,0,8" />

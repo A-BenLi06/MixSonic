@@ -29,6 +29,14 @@ namespace Mixdrome.Phone.Views
             GenreLabel.Text = PhoneText.Get("UiGenre"); DescriptionText.Text = PhoneText.Get("CreateMixDescription");
             CreateButton.Content = PhoneText.Get("CreateMixAction");
         }
+        private void OnPageSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            var scale = e.NewSize.Width / 480;
+            if (scale <= 0) return;
+            ContentPanel.Margin = new Thickness(24 * scale, 5 * scale, 24 * scale, 24 * scale);
+            PageTitle.FontSize = 72 * scale;
+            PageTitle.Margin = new Thickness(-3 * scale, 0, 0, 20 * scale);
+        }
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e); active = true; HardwareButtons.BackPressed += OnBackPressed;

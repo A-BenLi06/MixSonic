@@ -680,3 +680,10 @@
   - `NativePlaybackProbe`：本地 PCM 与 `1744/900/500` 三档播放器布局及拖拽预览共 29 项断言全部通过。
   - 临时浮层回归（验证后已通过 `git checkout` 精确还原 `tools/desktop/NativePlaybackProbe.cs` 原始 SHA-256 `8904A7769886195A96B6E488472B9B4950E782046C4D489EB636E60F4883899B`）：53 项断言全通过，覆盖 `1744/900/500` 专辑弹层重排、队列 `58+10` 行距与 `NavidromePlayerView` / `MainView` 双页左侧 `300px` 队列抽屉及 `0.5` 黑色遮罩开闭交互。
 - 验证：已重编并部署 `normal` 模式桌面端包（`.tmp/desktop/build-mode-AnyCPU-Debug.txt` 为 `normal`，产物 `Mixdrome.exe` 不含任何探针符号且正常启动至主页）；`python tools/mixradio/port_templates.py`、`python tools/navidrome-tests/check-client.py`（291 项字符串、469 项资源及队列抽屉检查）、`tools/navidrome-tests/run-home.ps1`（76 项断言）与 `git diff --check` 全部通过。
+
+## 2026-11-18 15:08:50 +08:00 — 对齐手机端离线精选集、创建混音与子页面顶部栏排版
+
+- 对齐 `Client.Phone/Views/OfflineMixesPage.xaml` 与 `OfflineMixesPage.xaml.cs`：大标题 `PageTitle` 改用 `PhoneReferenceSemiLightFontFamily`、`72` 字号缩放、`Normal` 字重与 `0` 字距并消除偏移差异；卡片底栏改为 `60` 高容器中垂直居中排版（`PhoneReferenceSemiBoldFontFamily`、`21` 字号、`22` 行高、`44` 最大高、`BlockLineHeight`、`WordEllipsis`），普通卡片保留 `0.6` 强调色蒙层，`play me` 卡片保持无额外半透明条并与 `MixesPage` 字号按页面比例缩放（保留 2 参默认兼容）。
+- 对齐 `Client.Phone/Views/CreateMixPage.xaml` 与 `CreateMixPage.xaml.cs`：`PageTitle` 改用 `PhoneReferenceSemiLightFontFamily` 与按 `ActualWidth / 480` 缩放的 `72` 字号大标题。
+- 统一子页面顶部栏与高对比搜索框：`LibraryPage`、`SearchPage`、`AlbumPage`、`ArtistAlbumsPage` 与 `GenreSongsPage` 均接入共享 `<common:PhoneTitleBar />`（复用现有 `.resw` `UiMyMusic` / `UiSearch` 资源，移除遗留 `MixRadioWordmarkTextStyle` / 小图标占位）；`SearchTextBox` 启用 `MixRadioPhoneTextBoxStyle`；`LibraryPage` 与 `SearchPage` 枢纽页签采用 `PhoneReferenceSemiLightFontFamily` `54` 标题模板；`tools/phone/LibraryTests.cs` 与 `SearchTests.cs` 补充最小 `PhoneTitleBar` 测试存根。
+- 验证：`python tools/phone/check.py` 通过（61 文件、22 XAML、235 字符串、259 资源、8 既有资产）；7 项手机端生产 CLR 套件全部通过（`run-collections` 19、`run-connection` 38+13、`run-library` 39、`run-listening` 36、`run-offline` 36+19、`run-playback` 39+89、`run-search` 15）；`x86` 与 `ARM` Debug 原生 WP8.1 SDK 重建均通过，`git diff --check` 通过。真机/模拟器部署与截屏回归将在下一步执行。
