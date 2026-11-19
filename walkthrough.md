@@ -704,3 +704,11 @@
 - 修复 `PhoneProgressCounter.xaml.cs` 在顶栏紧凑模式（`IsCompact`）的 WinRT `typo` 度量偏移与裁切：`Height = 60 * scale`、`Digits.VerticalAlignment = VerticalAlignment.Top`、`Margin` 上移至 `-19`（`longTime` `-13`）、`Clip` 对齐 `(0, 0, 200 * scale, 60 * scale)`，使 `91px` 黑色数字底边紧贴顶栏底部并消除上方 6px 空隙（`!IsCompact` 时显式恢复 `Height = double.NaN` 与 `VerticalAlignment = VerticalAlignment.Stretch`）。
 - 加固顶栏快捷跳转与异步状态回调安全：`PhonePlaybackObserver.StartAsync` 捕获 `SessionFile` 读取瞬态异常；`PhoneTitleBar.xaml.cs` 提取 `StopObserver()`，在 `OnHomeClick` 与 `OnElapsedClick` 发起 `Frame.Navigate` 前同步卸载后台监听（并在 `OnUnloaded` 复用）；`PlaybackPage.xaml.cs` `OnMediaStateChanged` 在 `Dispatcher.RunAsync` 回调内部用 `try/catch` 包裹 `UpdatePlaybackState()`（保持 `UpdateProgress`/`OnProgressTimerTick` 既有 `COMException` 语义与测试兼容）；`App.xaml.cs` `UpdateStatusBarVisibility` 增加 `catch (Exception)` 防止系统状态栏切换瞬态异常逃逸 `async void`。
 - 升级 `Client.Phone/Package.appxmanifest` 至 `1.3.0.2`。验证：`python tools/phone/check.py` 通过（61 文件、22 XAML、236 字符串、259 资源、8 资产）、全部 7 套手机 CLR 测试通过（`run-connection` 38+13、`run-playback` 39+89、`run-listening` 36、`run-library` 39、`run-search` 15、`run-collections` 19、`run-offline` 37+19）、`Client.Phone` `x86` 与 `ARM` Debug Clean Rebuild 通过、`git diff --check` 通过。接下来将在 WP8.1 WVGA 模拟器清理卸载重装 `1.3.0.2` 验证新字重、紧凑进度裁剪与 `PhoneTitleBar` 快捷跳转。
+
+## 2026-11-19 21:04:42 +08:00 — 接手 Antigravity 手机与桌面 UI 原生复验
+
+- 沿用包含 origin/main 的现有 PR #6 分支，验证产品源码 7448e76，补充 docs/mixradio/ui-regression-2026-11-19.md。独立保存本轮证据，避免以前轮截图替代当前包验收。
+- 桌面 NativeUiProbe 34 页面零页面错误、四组索引及歌曲 100→127 分页通过；NativePlaybackProbe 29 项通过。最后恢复 normal 普通构建并部署。
+- 安装手机普通 1.3.0.2 x86 包，复测菜单、混音、收藏、曲库、搜索、创建页、专辑、空离线页及顶栏导航。90 秒 MP3 的首页 0:26、顶栏 1:06 和播放器 1:20 进度均取得 WebP 证据。
+- 发现未通过项：未配置首页提示条仍覆盖末行内容；播放到 1:20 的最后观察后发送暂停点击，随后黑屏并进入 Photos，再启动恢复首页。未取得异常栈，暂不能归因于暂停或曲目切换，手机稳定性继续未通过。
+- 验证：14 套 CLR、手机与桌面源码资源审计通过。仅认证实际执行范围，其它手机尺寸、ARM 运行、锁屏、完整离线流程仍待验证。原始截图、压缩 WebP、诊断报告与日志位于忽略目录 .tmp/ui-acceptance/2026-11-19。此次仅修改验收记录。
