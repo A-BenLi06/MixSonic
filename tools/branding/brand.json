@@ -1,7 +1,7 @@
 {
   "wordmark": [
-    { "text": "Mix", "font": "segoeuib.ttf" },
-    { "text": "drome", "font": "segoeuil.ttf" }
+    { "text": "Mix", "font": "SegoeWP-Bold.ttf" },
+    { "text": "Sonic", "font": "SegoeWP-Light.ttf" }
   ],
   "palette": {
     "accent": "#E60067",

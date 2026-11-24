@@ -42,6 +42,7 @@
     <SolidColorBrush x:Key="MixRadioMutedBrush" Color="#FFB8B8B8" />
 
     <Style x:Key="MixRadioWordmarkTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource PhoneReferenceSemiLightFontFamily}" />
         <Setter Property="FontSize" Value="48" />
         <Setter Property="FontWeight" Value="SemiLight" />
         <Setter Property="Foreground" Value="White" />

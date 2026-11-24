@@ -1,6 +1,6 @@
-"""Render Mixdrome's Windows 8.1 / Phone 8.1 branding from scalable geometry.
+"""Render MixSonic's Windows 8.1 / Phone 8.1 branding from scalable geometry.
 
-Requires Pillow and the Segoe UI fonts supplied by Windows. Run from any folder:
+Requires Pillow and the Segoe WP fonts supplied by Windows. Run from any folder:
     python tools/branding/generate.py
     python tools/branding/generate.py --font-directory C:/Windows/Fonts
 
@@ -145,8 +145,8 @@ def review_sheet(output, font_directory):
     output.parent.mkdir(parents=True, exist_ok=True)
     sheet = Image.new('RGB', (1280, 860), '#141414')
     draw = ImageDraw.Draw(sheet)
-    title = ImageFont.truetype(str(font_directory / 'segoeuil.ttf'), 36)
-    label = ImageFont.truetype(str(font_directory / 'segoeui.ttf'), 18)
+    title = ImageFont.truetype(str(font_directory / 'SegoeWP-Light.ttf'), 36)
+    label = ImageFont.truetype(str(font_directory / 'SegoeWP.ttf'), 18)
     draw.text((34, 20), ''.join(part['text'] for part in CONFIG['wordmark']), font=title, fill='white')
     panels = [(34, 92, 280, 280, 'square', 'Square tile'),
               (338, 92, 578, 280, 'wide', 'Wide tile'),
@@ -172,7 +172,7 @@ def main():
     args = parser.parse_args()
     for part in CONFIG['wordmark']:
         if not (args.font_directory / part['font']).is_file():
-            parser.error(f"Missing Segoe UI font: {args.font_directory / part['font']}")
+            parser.error(f"Missing Segoe WP font: {args.font_directory / part['font']}")
     count = 0
     for platform, data in CONFIG['platforms'].items():
         folder = ROOT / platform / 'Assets'

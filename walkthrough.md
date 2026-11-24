@@ -720,3 +720,15 @@
   - 将左右音符眼统一为相同的 `116×88` 大小并围绕 `x = 500` 对称分布（`360..476` 与 `524..640`，与两侧耳罩均保持 `92` 单位间距），音符竖杆收细至 `32` 并上移至 `y = 333..524`，右侧八分音符符尾保持在 `x = 688` 以内，与头梁内沿留出充足间隙。
   - 将微笑半圆调整为 `(355, 505, 645, 765)`（宽 `290`、高 `130`，上沿 `y = 635`、下沿 `y = 765`），拉大与音符眼及圆盘底部的留白。
 - 验证：使用 `py -3.13 -m uv run --with pillow python tools/branding/generate.py` 重新生成全部 33 个桌面/手机 PNG 资产及 `.tmp/branding/mixdrome-preview.webp` 预览图；目视检查 WebP 预览图确认对称性与留白改善；运行 `py -3.13 tools/phone/check.py`（61 文件/22 XAML/236 字符串/259 资源/8 资产通过）及 `git diff --check` 通过。
+
+## 2026-11-24 23:50:25 +08:00 — 字标切换为 MixRadio 同款 Segoe WP 字体并更名为 MixSonic
+
+- 核对 `.tmp/mixradio-phone-reference` 解包得到的 `theme.xaml`（第 43–48 行）与用户提供的 MixRadio 参考图，确认原版字标与界面使用的字体为 `Segoe WP`（`SegoeWP-Bold.ttf` + `SegoeWP-Light.ttf`），特征为直立外腿的 `M` 与圆形点缀的 `i`。
+- 更新 `tools/branding/brand.json` 与 `tools/branding/generate.py`，将字标文本从 `Mixdrome` 改为 `Mix` + `Sonic`，字体从 `segoeuib.ttf`/`segoeuil.ttf` 切换为 `SegoeWP-Bold.ttf`/`SegoeWP-Light.ttf`（预览页标题与标签同步使用 `SegoeWP-Light.ttf`/`SegoeWP.ttf`），并重新生成全部 33 个桌面/手机 PNG 资产与 `.tmp/branding/mixdrome-preview.webp`。
+- 更新应用内品牌显示与字标资源，保留既有 C# 命名空间与包身份标识符以避免破坏构建与回归：
+  - `Client/Navidrome/NavidromeResources.xaml`：`MixdromeWordmarkTemplate` 改用 `FontFamily="Segoe WP"`。
+  - `Client/Strings/en-US/Resources.resw`：`ApplicationName`、`AppName.Text` 改为 `MixSonic`，`BrandPrefix.Text`/`BrandSuffix.Text` 改为 `Mix`/`Sonic`，`PlaylistFileType` 改为 `MixSonic playlist`。
+  - `Client/Package.appxmanifest`：`DisplayName` 与 `DefaultTile ShortName` 改为 `MixSonic`。
+  - `Client.Phone/Common/Styles.xaml`、`Client.Phone/Strings/en-US/Resources.resw`、`Client.Phone/Strings/zh-CN/Resources.resw`：`MixRadioWordmarkTextStyle` 显式绑定 `PhoneReferenceSemiLightFontFamily`（`Segoe WP`），品牌展示字符串更新为 `MixSonic`。
+  - `Client.Common/Services/Navidrome/SubsonicRequest.cs`：`ClientName` 更新为 `MixSonic`。
+- 验证：`py -3.13 -m uv run --with pillow python tools/branding/generate.py` 生成 33 个 PNG 及 WebP 预览并通过目视核对；`py -3.13 tools/phone/check.py`（61 文件/22 XAML/236 字符串/260 资源/8 资产）与 `git diff --check` 通过。

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
 <data name="AppDescription" xml:space="preserve"><value>Navidrome music client</value></data>
-<data name="AppName" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="AppName" xml:space="preserve"><value>MixSonic</value></data>
 <data name="Phone_Text_AlbumCount" xml:space="preserve"><value>{0} albums</value></data>
 <data name="Phone_Text_ApiKeyHelp" xml:space="preserve"><value>Use an API key for this Navidrome account.</value></data>
 <data name="Phone_Text_AuthenticationApiKey" xml:space="preserve"><value>API key</value></data>
@@ -70,9 +70,9 @@
 <data name="Phone_Text_UiJustNow" xml:space="preserve"><value>just now</value></data>
 <data name="Phone_Text_UiLeaveBlankForTheServerDefaultOrEnterAFormatSupportedByYourServer" xml:space="preserve"><value>Leave blank for the server default, or enter a format supported by your server.</value></data>
 <data name="Phone_Text_UiMaximumBitrateKbps" xml:space="preserve"><value>maximum bitrate (kbps)</value></data>
-<data name="Phone_Text_UiMixDrome" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="Phone_Text_UiMixDrome" xml:space="preserve"><value>MixSonic</value></data>
 <data name="Phone_Text_UiMixes" xml:space="preserve"><value>mixes</value></data>
-<data name="Phone_Text_UiMixRadio" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="Phone_Text_UiMixRadio" xml:space="preserve"><value>MixSonic</value></data>
 <data name="Phone_Text_UiMore" xml:space="preserve"><value>more</value></data>
 <data name="Phone_Text_UiMyMusic" xml:space="preserve"><value>my music</value></data>
 <data name="Phone_Text_UiNext" xml:space="preserve"><value>next</value></data>
@@ -153,9 +153,9 @@
 <data name="PhoneUi_Text_Ites.Text" xml:space="preserve"><value>ites</value></data>
 <data name="PhoneUi_Text_Lists.Text" xml:space="preserve"><value>lists</value></data>
 <data name="PhoneUi_Text_LIVE.Text" xml:space="preserve"><value>LIVE</value></data>
-<data name="PhoneUi_Text_MixDrome.Text" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="PhoneUi_Text_MixDrome.Text" xml:space="preserve"><value>MixSonic</value></data>
 <data name="PhoneUi_Text_Mixes.Text" xml:space="preserve"><value>mixes</value></data>
-<data name="PhoneUi_Text_MixRadio.Text" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="PhoneUi_Text_MixRadio.Text" xml:space="preserve"><value>MixSonic</value></data>
 <data name="PhoneUi_Text_MyMusic.Text" xml:space="preserve"><value>my music</value></data>
 <data name="PhoneUi_Text_NoAlbumsFound.Text" xml:space="preserve"><value>No albums found</value></data>
 <data name="PhoneUi_Text_NoArtistsFound.Text" xml:space="preserve"><value>No artists found.</value></data>
@@ -193,7 +193,7 @@
 <data name="Playback_Title.Text" xml:space="preserve"><value>MY MUSIC</value></data>
 <data name="Settings_Account.Text" xml:space="preserve"><value>account</value></data>
 <data name="Settings_Authentication.Header" xml:space="preserve"><value>authentication</value></data>
-<data name="Settings_Brand.Text" xml:space="preserve"><value>Mixdrome</value></data>
+<data name="Settings_Brand.Text" xml:space="preserve"><value>MixSonic</value></data>
 <data name="Settings_Compatibility.Header" xml:space="preserve"><value>compatible playback</value></data>
 <data name="Settings_Compatibility.OffContent" xml:space="preserve"><value>off</value></data>
 <data name="Settings_Compatibility.OnContent" xml:space="preserve"><value>on</value></data>
