@@ -14,8 +14,8 @@
     <!-- MixSonic wordmark: the product name resolves through PRI resources. -->
     <ControlTemplate x:Key="MixdromeWordmarkTemplate">
         <Grid Height="41" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <TextBlock FontFamily="Segoe WP" FontSize="68" Margin="-3,-33,0,-16" Foreground="White" FlowDirection="LeftToRight">
-                <Run x:Uid="BrandPrefix" FontWeight="Bold" /><Run x:Uid="BrandSuffix" FontWeight="Light" />
+            <TextBlock FontFamily="Bahnschrift" FontSize="68" Margin="-3,-33,0,-16" Foreground="White" FlowDirection="LeftToRight">
+                <Run x:Uid="BrandPrefix" FontWeight="Bold" FontStretch="SemiCondensed" /><Run x:Uid="BrandSuffix" FontWeight="Light" />
             </TextBlock>
         </Grid>
     </ControlTemplate>

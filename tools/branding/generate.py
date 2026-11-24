@@ -73,9 +73,15 @@ def mark(canvas, left, top, diameter):
                       fill=PALETTE['accent'])
 
 
+def load_font(font_directory, part, size):
+    font = ImageFont.truetype(str(font_directory / part['font']), round(size))
+    if 'axes' in part:
+        font.set_variation_by_axes(part['axes'])
+    return font
+
+
 def wordmark(canvas, center_x, baseline, font_size, font_directory):
-    fonts = [ImageFont.truetype(str(font_directory / part['font']),
-                               round(font_size * SUPERSAMPLE)) for part in CONFIG['wordmark']]
+    fonts = [load_font(font_directory, part, font_size * SUPERSAMPLE) for part in CONFIG['wordmark']]
     widths = [font.getlength(part['text']) for font, part in zip(fonts, CONFIG['wordmark'])]
     left = center_x * SUPERSAMPLE - sum(widths) / 2
     for part, font, width in zip(CONFIG['wordmark'], fonts, widths):

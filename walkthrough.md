@@ -732,3 +732,11 @@
   - `Client.Phone/Common/Styles.xaml`、`Client.Phone/Strings/en-US/Resources.resw`、`Client.Phone/Strings/zh-CN/Resources.resw`：`MixRadioWordmarkTextStyle` 显式绑定 `PhoneReferenceSemiLightFontFamily`（`Segoe WP`），品牌展示字符串更新为 `MixSonic`。
   - `Client.Common/Services/Navidrome/SubsonicRequest.cs`：`ClientName` 更新为 `MixSonic`。
 - 验证：`py -3.13 -m uv run --with pillow python tools/branding/generate.py` 生成 33 个 PNG 及 WebP 预览并通过目视核对；`py -3.13 tools/phone/check.py`（61 文件/22 XAML/236 字符串/260 资源/8 资产）与 `git diff --check` 通过。
+
+## 2026-11-24 23:54:25 +08:00 — 使用窄体可变字体还原 MixRadio 品牌字标的瘦长比例
+
+- 进一步核对 `.tmp/mixradio-phone-reference/direct/wp/decompiled/Nokia.Media.MusicClient/theme/datatemplates.xaml`（第 1631–1650 行），确认原版 `MixRadio` 品牌字标并非 `Segoe WP` 文本，而是以瘦长比例（`M` 宽高比约 `0.93`）的矢量 `<Path>` 绘制（即 Nokia Pure 风格，未随系统或应用打包 TTF）。
+- 为在系统自带字体中还原 `Mix` 瘦长紧凑、`Sonic` 纤细匀称的视觉比例：
+  - 在 `tools/branding/generate.py` 新增 `load_font()` 支持可变字体轴参数（`axes`），并在 `tools/branding/brand.json` 中将字标切换为 Windows 内置可变字体 `bahnschrift.ttf`：`Mix` 使用 `[700, 84]`（Bold + 窄体），`Sonic` 使用 `[300, 94]`（Light + 微窄）。
+  - 同步更新 `Client/Navidrome/NavidromeResources.xaml` 中 `MixdromeWordmarkTemplate`，采用 `FontFamily="Bahnschrift"`，并为 `BrandPrefix` 设置 `FontWeight="Bold" FontStretch="SemiCondensed"`、`BrandSuffix` 设置 `FontWeight="Light"`。
+- 验证：重新生成全部 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp` 并目视确认 `Mix` 的窄体比例；`py -3.13 tools/phone/check.py` 与 `git diff --check` 均通过。
