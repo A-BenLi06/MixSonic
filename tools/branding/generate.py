@@ -57,18 +57,19 @@ def mark(canvas, left, top, diameter):
                      for index, value in enumerate(values))
 
     canvas.ellipse(bounds((0, 0, 1000, 1000)), PALETTE['white'])
-    canvas.draw.arc(canvas.box(bounds((170, 160, 830, 820))), start=180, end=360,
-                    fill=PALETTE['accent'], width=max(1, round(62 * factor * SUPERSAMPLE)))
-    for values in ((120, 430, 275, 705), (725, 430, 880, 705)):
-        canvas.round_rectangle(bounds(values), 72 * factor, PALETTE['accent'])
-    canvas.ellipse(bounds((335, 510, 487, 625)), PALETTE['accent'])
-    canvas.polygon([bounds(point) for point in ((435, 550), (487, 550), (487, 330), (435, 348))],
+    canvas.draw.arc(canvas.box(bounds((175, 165, 825, 815))), start=180, end=360,
+                    fill=PALETTE['accent'], width=max(1, round(56 * factor * SUPERSAMPLE)))
+    for values in ((128, 435, 268, 690), (732, 435, 872, 690)):
+        canvas.round_rectangle(bounds(values), 68 * factor, PALETTE['accent'])
+    # Symmetrical note eyes centered around x=500 with equal spacing to the earcups.
+    canvas.ellipse(bounds((360, 480, 476, 568)), PALETTE['accent'])
+    canvas.polygon([bounds(point) for point in ((444, 524), (476, 524), (476, 333), (444, 345))],
                    PALETTE['accent'])
-    canvas.ellipse(bounds((550, 510, 695, 625)), PALETTE['accent'])
-    canvas.polygon([bounds(point) for point in ((645, 550), (695, 550), (695, 385),
-                                               (737, 370), (737, 320), (645, 350))],
+    canvas.ellipse(bounds((524, 480, 640, 568)), PALETTE['accent'])
+    canvas.polygon([bounds(point) for point in ((608, 524), (640, 524), (640, 375),
+                                               (688, 395), (688, 355), (608, 333))],
                    PALETTE['accent'])
-    canvas.draw.chord(canvas.box(bounds((335, 505, 665, 835))), start=0, end=180,
+    canvas.draw.chord(canvas.box(bounds((355, 505, 645, 765))), start=0, end=180,
                       fill=PALETTE['accent'])
 
 
