@@ -740,3 +740,12 @@
   - 在 `tools/branding/generate.py` 新增 `load_font()` 支持可变字体轴参数（`axes`），并在 `tools/branding/brand.json` 中将字标切换为 Windows 内置可变字体 `bahnschrift.ttf`：`Mix` 使用 `[700, 84]`（Bold + 窄体），`Sonic` 使用 `[300, 94]`（Light + 微窄）。
   - 同步更新 `Client/Navidrome/NavidromeResources.xaml` 中 `MixdromeWordmarkTemplate`，采用 `FontFamily="Bahnschrift"`，并为 `BrandPrefix` 设置 `FontWeight="Bold" FontStretch="SemiCondensed"`、`BrandSuffix` 设置 `FontWeight="Light"`。
 - 验证：重新生成全部 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp` 并目视确认 `Mix` 的窄体比例；`py -3.13 tools/phone/check.py` 与 `git diff --check` 均通过。
+
+## 2026-11-25 00:02:00 +08:00 — 基于截图与原版矢量数据量取迭代，还原 MixRadio 精确字标比例
+
+- 从用户截图与 `datatemplates.xaml` 原版 `MixRadio` 矢量 `<Path>` 精确量取参数：大写高度 `47.505`、x 高度 `34.058`（比值 `0.717`），`M` 宽高比 `0.933` 且中间 V 尖端止于基线上方 `11.555` 处，`i` 为圆形点缀，细体部（`Radio`）笔画约占大写高度 `8.4%`、`o` 宽高比 `0.877`、主副词间距 `0.07–0.08` 倍大写高度。
+- 经过两轮比对渲染（`.tmp/branding/wordmark-iter1.webp` 与 `wordmark-iter2.webp`）消除 `Bahnschrift` 的方正感与 `SegoeWP-Light` 笔画过细/过宽问题：
+  - `tools/branding/generate.py` 直接采用原版 `Mix` 矢量轮廓（`M`、`i` 圆点与竖杆、`x`）按 `cap_h` 等比缩放绘制，并以 `SegoeWP-Semilight.ttf` 横向收缩 `0.88` 倍渲染 `Sonic`（补偿左侧字距留白，保持 `0.08 * cap_h` 间距）。
+  - `tools/branding/brand.json` 同步记录 `condense: 0.88` 与 `SegoeWP-Semilight.ttf`。
+  - `Client/Navidrome/NavidromeResources.xaml` 中 `MixdromeWordmarkTemplate` 改为嵌入相同 `Mix` 矢量 `<Path>` 与 `Segoe WP SemiLight` 的 `BrandSuffix`。
+- 验证：重新生成 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp` 并与原截图对比确认一致；`py -3.13 tools/phone/check.py` 与 `git diff --check` 均通过。

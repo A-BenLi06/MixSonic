@@ -73,21 +73,62 @@ def mark(canvas, left, top, diameter):
                       fill=PALETTE['accent'])
 
 
-def load_font(font_directory, part, size):
-    font = ImageFont.truetype(str(font_directory / part['font']), round(size))
-    if 'axes' in part:
-        font.set_variation_by_axes(part['axes'])
-    return font
+MIX_ORIGIN_X = 24.115
+MIX_BASELINE_Y = 79.855
+MIX_CAP_HEIGHT = 47.505
+MIX_WIDTH = 121.150 - MIX_ORIGIN_X
+MIX_M_POLY = [
+    (46.281, 57.893), (33.984, 32.350), (24.115, 32.350), (24.115, 79.855),
+    (32.699, 79.855), (32.699, 48.703), (42.498, 68.300), (49.525, 68.300),
+    (59.862, 47.893), (59.862, 79.855), (68.445, 79.855), (68.445, 32.350),
+    (58.579, 32.350),
+]
+MIX_I_DOT = (73.648, 29.918, 83.920, 40.863)
+MIX_I_STEM = (74.256, 45.797, 83.311, 79.855)
+MIX_X_POLY = [
+    (119.801, 45.797), (110.205, 45.797), (104.527, 55.865), (98.311, 45.797),
+    (87.838, 45.797), (98.852, 62.219), (87.297, 79.855), (96.893, 79.855),
+    (103.582, 68.771), (110.543, 79.855), (121.150, 79.855), (109.326, 62.285),
+]
 
 
 def wordmark(canvas, center_x, baseline, font_size, font_directory):
-    fonts = [load_font(font_directory, part, font_size * SUPERSAMPLE) for part in CONFIG['wordmark']]
-    widths = [font.getlength(part['text']) for font, part in zip(fonts, CONFIG['wordmark'])]
-    left = center_x * SUPERSAMPLE - sum(widths) / 2
-    for part, font, width in zip(CONFIG['wordmark'], fonts, widths):
-        canvas.draw.text((round(left), round(baseline * SUPERSAMPLE)), part['text'],
-                         font=font, fill=PALETTE['white'], anchor='ls')
-        left += width
+    suffix_part = CONFIG['wordmark'][1]
+    suffix_font = ImageFont.truetype(str(font_directory / suffix_part['font']),
+                                     round(font_size * SUPERSAMPLE))
+    cap_top = suffix_font.getbbox('S', anchor='ls')[1]
+    cap_h = -cap_top
+    mix_scale = cap_h / MIX_CAP_HEIGHT
+    mix_w = MIX_WIDTH * mix_scale
+    gap = cap_h * 0.08
+    condense = suffix_part.get('condense', 1.0)
+    sb_left, _, sb_right, _ = suffix_font.getbbox(suffix_part['text'], anchor='ls')
+    suffix_ink_w = (sb_right - sb_left) * condense
+    total_w = mix_w + gap + suffix_ink_w
+    left = center_x * SUPERSAMPLE - total_w / 2
+    base_y = baseline * SUPERSAMPLE
+
+    def tx(x):
+        return left + (x - MIX_ORIGIN_X) * mix_scale
+
+    def ty(y):
+        return base_y + (y - MIX_BASELINE_Y) * mix_scale
+
+    canvas.draw.polygon([(tx(x), ty(y)) for x, y in MIX_M_POLY], fill=PALETTE['white'])
+    canvas.draw.ellipse((tx(MIX_I_DOT[0]), ty(MIX_I_DOT[1]),
+                         tx(MIX_I_DOT[2]), ty(MIX_I_DOT[3])), fill=PALETTE['white'])
+    canvas.draw.rectangle((tx(MIX_I_STEM[0]), ty(MIX_I_STEM[1]),
+                           tx(MIX_I_STEM[2]), ty(MIX_I_STEM[3])), fill=PALETTE['white'])
+    canvas.draw.polygon([(tx(x), ty(y)) for x, y in MIX_X_POLY], fill=PALETTE['white'])
+
+    suffix_h = round(font_size * SUPERSAMPLE * 1.5)
+    suffix_w = round(sb_right - sb_left + 8)
+    suffix_base = round(font_size * SUPERSAMPLE * 1.1)
+    tmp = Image.new('RGBA', (suffix_w, suffix_h), (0, 0, 0, 0))
+    ImageDraw.Draw(tmp).text((-sb_left, suffix_base), suffix_part['text'],
+                             font=suffix_font, fill=PALETTE['white'], anchor='ls')
+    scaled = tmp.resize((round(suffix_w * condense), suffix_h), Image.Resampling.LANCZOS)
+    canvas.image.paste(scaled, (round(left + mix_w + gap), round(base_y - suffix_base)), scaled)
 
 
 def corner_ribbons(canvas, width, height):

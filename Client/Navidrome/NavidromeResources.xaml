@@ -11,13 +11,22 @@
     <ControlTemplate x:Key="CuratedRadioStationArtworkTemplate">
         <common:MixRadioArtwork Source="{Binding ImageUrl}" DefaultSource="ms-appx:///Assets/MixRadio/W8_Music_asset_DefaulPackArt_200px.png" />
     </ControlTemplate>
-    <!-- MixSonic wordmark: the product name resolves through PRI resources. -->
+    <!-- MixSonic wordmark: exact Mix vector geometry paired with Segoe WP SemiLight suffix. -->
     <ControlTemplate x:Key="MixdromeWordmarkTemplate">
-        <Grid Height="41" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <TextBlock FontFamily="Bahnschrift" FontSize="68" Margin="-3,-33,0,-16" Foreground="White" FlowDirection="LeftToRight">
-                <Run x:Uid="BrandPrefix" FontWeight="Bold" FontStretch="SemiCondensed" /><Run x:Uid="BrandSuffix" FontWeight="Light" />
+        <StackPanel Orientation="Horizontal" Height="41" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Canvas Width="98" Height="41" Margin="0,-24,3,0" FlowDirection="LeftToRight">
+                <Path Data="F1 M 46.281,57.893 L 33.984,32.350 L 24.115,32.350 L 24.115,79.855 L 32.699,79.855 L 32.699,48.703 L 42.498,68.300 L 49.525,68.300 L 59.862,47.893 L 59.862,79.855 L 68.445,79.855 L 68.445,32.350 L 58.579,32.350 L 46.281,57.893 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 78.785,29.918 C 77.205,29.918 75.957,30.447 75.033,31.505 C 74.110,32.565 73.648,33.859 73.648,35.391 C 73.648,36.922 74.110,38.219 75.033,39.277 C 75.957,40.336 77.205,40.863 78.785,40.863 C 80.359,40.863 81.609,40.348 82.533,39.311 C 83.457,38.273 83.920,36.969 83.920,35.391 C 83.920,33.814 83.457,32.508 82.533,31.472 C 81.609,30.436 80.359,29.918 78.785,29.918 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 74.256,79.855 L 83.311,79.855 L 83.311,45.797 L 74.256,45.797 L 74.256,79.855 Z" Fill="#ffffffff" />
+                <Path Data="F1 M 119.801,45.797 L 110.205,45.797 L 104.527,55.865 L 98.311,45.797 L 87.838,45.797 L 98.852,62.219 L 87.297,79.855 L 96.893,79.855 L 103.582,68.771 L 110.543,79.855 L 121.150,79.855 L 109.326,62.285 L 119.801,45.797 Z" Fill="#ffffffff" />
+                <Canvas.RenderTransform>
+                    <TranslateTransform X="-24.115" Y="-14.5" />
+                </Canvas.RenderTransform>
+            </Canvas>
+            <TextBlock FontFamily="Segoe WP" FontSize="68" FontWeight="SemiLight" Margin="0,-33,0,-16" Foreground="White" FlowDirection="LeftToRight">
+                <Run x:Uid="BrandSuffix" />
             </TextBlock>
-        </Grid>
+        </StackPanel>
     </ControlTemplate>
     <!-- Common/NokiaMusicClient.json: MyMusicInfoItemTemplate; data bindings adapted to Navidrome. -->
     <ControlTemplate x:Key="MyMusicInfoItemTemplate">

@@ -1,7 +1,7 @@
 {
   "wordmark": [
-    { "text": "Mix", "font": "bahnschrift.ttf", "axes": [700, 84] },
-    { "text": "Sonic", "font": "bahnschrift.ttf", "axes": [300, 94] }
+    { "text": "Mix", "font": "SegoeWP-Bold.ttf" },
+    { "text": "Sonic", "font": "SegoeWP-Semilight.ttf", "condense": 0.88 }
   ],
   "palette": {
     "accent": "#E60067",
