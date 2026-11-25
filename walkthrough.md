@@ -786,3 +786,8 @@
 - 将 `Client/Package.appxmanifest` 与 `Client.Phone/Package.appxmanifest` 的 `<Identity Version>` 统一更新为 `2.0.0.0`（对应发布标签 `v2.0.0.0`）。
 - 修复 `tools/navidrome-tests/NavidromeTests.cs` 第 82 行硬编码断言 `"Mixdrome"`，改为引用 `SubsonicRequest.ClientName`（当前为 `"MixSonic"`）。
 - 验证：`pwsh -ExecutionPolicy Bypass -File ./tools/ci/run-desktop.ps1` 全部 14 套桌面及手机 CLR 回归套件通过（serializer 33 模型、navidrome 196、audio 54、connection 19、jukebox 28、home 76、playback 521、phone 38+13+39+89+15+39+36+19+37+19）。
+
+## 2026-11-26 00:16:00 +08:00 — 同步品牌说明并触发 main 分支 push CI
+
+- 更新 `docs/branding.md` 以记录 `MixSonic` 展示名称、原版矢量 `Mix` + `Segoe WP Light` `Sonic` 字标及笑脸圆盘重心优化。
+- 通过短期分支 PR 合入 `main`，以触发 `main` 分支 `push` 事件的 `CI required` 检查（弥补此前 PR #6 合并时 GitHub 502 导致 `d89eac1` 缺少 `push` CI 运行的问题），为 `v2.0.0.0` 正式发布提供完整云端验证记录。
