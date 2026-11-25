@@ -57,19 +57,19 @@ def mark(canvas, left, top, diameter):
                      for index, value in enumerate(values))
 
     canvas.ellipse(bounds((0, 0, 1000, 1000)), PALETTE['white'])
-    canvas.draw.arc(canvas.box(bounds((175, 165, 825, 815))), start=180, end=360,
-                    fill=PALETTE['accent'], width=max(1, round(56 * factor * SUPERSAMPLE)))
-    for values in ((128, 435, 268, 690), (732, 435, 872, 690)):
+    canvas.draw.arc(canvas.box(bounds((175, 180, 825, 830))), start=180, end=360,
+                    fill=PALETTE['accent'], width=max(1, round(54 * factor * SUPERSAMPLE)))
+    for values in ((130, 445, 268, 705), (732, 445, 870, 705)):
         canvas.round_rectangle(bounds(values), 68 * factor, PALETTE['accent'])
     # Symmetrical note eyes centered around x=500 with equal spacing to the earcups.
-    canvas.ellipse(bounds((360, 480, 476, 568)), PALETTE['accent'])
-    canvas.polygon([bounds(point) for point in ((444, 524), (476, 524), (476, 333), (444, 345))],
+    canvas.ellipse(bounds((362, 500, 476, 588)), PALETTE['accent'])
+    canvas.polygon([bounds(point) for point in ((444, 544), (476, 544), (476, 355), (444, 367))],
                    PALETTE['accent'])
-    canvas.ellipse(bounds((524, 480, 640, 568)), PALETTE['accent'])
-    canvas.polygon([bounds(point) for point in ((608, 524), (640, 524), (640, 375),
-                                               (688, 395), (688, 355), (608, 333))],
+    canvas.ellipse(bounds((524, 500, 638, 588)), PALETTE['accent'])
+    canvas.polygon([bounds(point) for point in ((606, 544), (638, 544), (638, 396),
+                                               (684, 415), (684, 376), (606, 355))],
                    PALETTE['accent'])
-    canvas.draw.chord(canvas.box(bounds((355, 505, 645, 765))), start=0, end=180,
+    canvas.draw.chord(canvas.box(bounds((360, 504, 640, 792))), start=0, end=180,
                       fill=PALETTE['accent'])
 
 
@@ -92,7 +92,7 @@ MIX_X_POLY = [
 ]
 
 
-def wordmark(canvas, center_x, baseline, font_size, font_directory):
+def wordmark_metrics(font_size, font_directory):
     suffix_part = CONFIG['wordmark'][1]
     suffix_font = ImageFont.truetype(str(font_directory / suffix_part['font']),
                                      round(font_size * SUPERSAMPLE))
@@ -102,7 +102,12 @@ def wordmark(canvas, center_x, baseline, font_size, font_directory):
     mix_w = MIX_WIDTH * mix_scale
     sb_left, _, sb_right, _ = suffix_font.getbbox(suffix_part['text'], anchor='ls')
     suffix_ink_w = sb_right - sb_left
-    total_w = mix_w + suffix_ink_w
+    return suffix_part, suffix_font, cap_h, mix_scale, mix_w, sb_left, mix_w + suffix_ink_w
+
+
+def wordmark(canvas, center_x, baseline, font_size, font_directory):
+    suffix_part, suffix_font, _, mix_scale, mix_w, sb_left, total_w = wordmark_metrics(
+        font_size, font_directory)
     left = center_x * SUPERSAMPLE - total_w / 2
     base_y = baseline * SUPERSAMPLE
 
@@ -151,24 +156,38 @@ def render(width, height, kind, font_directory):
         mark(canvas, (width - diameter) / 2, (height - diameter) / 2, diameter)
     elif kind == 'square':
         corner_ribbons(canvas, width, height)
-        diameter = width * .62
-        mark(canvas, (width - diameter) / 2, height * .105, diameter)
-        wordmark(canvas, width * .47, height * .875, width * .174, font_directory)
+        diameter = width * .58
+        mark(canvas, (width - diameter) / 2, height * .095, diameter)
+        wordmark(canvas, width * .50, height * .870, width * .168, font_directory)
     elif kind == 'wide':
         corner_ribbons(canvas, width, height)
-        diameter = height * .66
-        mark(canvas, height * .17, (height - diameter) / 2, diameter)
-        wordmark(canvas, width * .69, height * .575, height * .212, font_directory)
+        diameter = height * .64
+        font_size = height * .245
+        _, _, cap_h, _, _, _, wm_w = wordmark_metrics(font_size, font_directory)
+        wm_w /= SUPERSAMPLE
+        cap_h /= SUPERSAMPLE
+        gap = height * .14
+        lockup_left = (width - (diameter + gap + wm_w)) / 2
+        mark(canvas, lockup_left, (height - diameter) / 2, diameter)
+        wordmark(canvas, lockup_left + diameter + gap + wm_w / 2,
+                 height / 2 + cap_h / 2, font_size, font_directory)
     elif kind == 'splash':
         splash_accents(canvas, width, height)
         if width > height:
-            diameter = height * .64
-            mark(canvas, width * .115, (height - diameter) / 2, diameter)
-            wordmark(canvas, width * .70, height * .58, height * .205, font_directory)
+            diameter = height * .62
+            font_size = height * .235
+            _, _, cap_h, _, _, _, wm_w = wordmark_metrics(font_size, font_directory)
+            wm_w /= SUPERSAMPLE
+            cap_h /= SUPERSAMPLE
+            gap = height * .15
+            lockup_left = (width - (diameter + gap + wm_w)) / 2
+            mark(canvas, lockup_left, (height - diameter) / 2, diameter)
+            wordmark(canvas, lockup_left + diameter + gap + wm_w / 2,
+                     height / 2 + cap_h / 2, font_size, font_directory)
         else:
-            diameter = width * .65
-            mark(canvas, (width - diameter) / 2, height * .245, diameter)
-            wordmark(canvas, width * .5, height * .745, width * .19, font_directory)
+            diameter = width * .60
+            mark(canvas, (width - diameter) / 2, height * .235, diameter)
+            wordmark(canvas, width * .50, height * .765, width * .19, font_directory)
     else:
         raise ValueError(f'Unsupported asset kind: {kind}')
     return canvas.result()

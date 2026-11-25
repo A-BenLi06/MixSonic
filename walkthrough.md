@@ -770,3 +770,13 @@
 - 移除 `tools/branding/generate.py` 中 `0.08 * cap_h` 的额外间隙，使 `Sonic` 左墨迹边界紧接 `Mix` 右边界，并重新生成 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp`。
 - 同步收紧 `Client/Navidrome/NavidromeResources.xaml` 中 `MixdromeWordmarkTemplate` 的内联间距（`Canvas Width="97" Margin="0,-24,0,0"`、`TextBlock Margin="-3,-33,0,-16"`）。
 - 验证：`py -3.13 tools/phone/check.py`（61 文件/22 XAML/236 字符串/260 资源/8 资产）与 `git diff --check` 均通过。
+
+## 2026-11-25 20:41:35 +08:00 — 优化笑脸圆盘内部垂直重心及全尺寸磁贴/启动页图文协调比例
+
+- 调整 `tools/branding/generate.py` 中 `mark()` 的垂直重心（解决原图标上紧下空、微笑偏高的问题）：
+  - 头梁下移至 `y = 180`（线宽 `54`）、耳罩 `y = 445..705`（宽 `138`、高 `260`）、音符眼 `y = 500..588`、微笑弧线 `y = 648..792`（宽 `280`、高 `144`），使顶部留白 `180` 与底部视觉留白 `208` 在圆盘内取得光学居中平衡。
+- 抽出 `wordmark_metrics()` 精确计算 `MixSonic` 的真实渲染宽高，使各尺寸磁贴与启动页的图文组合严格居中匀称：
+  - **Square tile**：圆盘缩至 `0.58 * width`（`top = 0.095`），字标恢复水平正中 `0.50 * width`（`baseline = 0.870`、`font_size = 0.168 * width`），拉开圆盘与字标间距并居中对齐。
+  - **Wide tile / Desktop splash**：放大字标字号（`0.245 * height` / `0.235 * height`），将「圆盘 + 间距 + MixSonic」整体组合按画布正中水平、垂直双重居中对齐（cap-height 中心与圆盘中心重合）。
+  - **Phone splash**：微调为 `diameter = 0.60 * width`、`top = 0.235`、`baseline = 0.765`，拉大图文间距并均衡上下留白。
+- 验证：重新生成 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp` 并目视确认；`py -3.13 tools/phone/check.py`（61 文件/22 XAML/236 字符串/260 资源/8 资产）与 `git diff --check` 均通过。
