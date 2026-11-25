@@ -12,6 +12,7 @@ import argparse
 import json
 import math
 import os
+import re
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -73,62 +74,103 @@ def mark(canvas, left, top, diameter):
                       fill=PALETTE['accent'])
 
 
-MIX_ORIGIN_X = 24.115
-MIX_BASELINE_Y = 79.855
-MIX_CAP_HEIGHT = 47.505
-MIX_WIDTH = 121.150 - MIX_ORIGIN_X
-MIX_M_POLY = [
-    (46.281, 57.893), (33.984, 32.350), (24.115, 32.350), (24.115, 79.855),
-    (32.699, 79.855), (32.699, 48.703), (42.498, 68.300), (49.525, 68.300),
-    (59.862, 47.893), (59.862, 79.855), (68.445, 79.855), (68.445, 32.350),
-    (58.579, 32.350),
+MIXSONIC_ORIGIN_X = 24.115
+MIXSONIC_BASELINE_Y = 79.855
+MIXSONIC_CAP_HEIGHT = 47.505
+MIXSONIC_WIDTH = 261.0 - MIXSONIC_ORIGIN_X
+MIXSONIC_PATHS = [
+    "F1 M 46.281,57.893 L 33.984,32.350 L 24.115,32.350 L 24.115,79.855 L 32.699,79.855 L 32.699,48.703 L 42.498,68.300 L 49.525,68.300 L 59.862,47.893 L 59.862,79.855 L 68.445,79.855 L 68.445,32.350 L 58.579,32.350 L 46.281,57.893 Z",
+    "F1 M 78.785,29.918 C 77.205,29.918 75.957,30.447 75.033,31.505 C 74.110,32.565 73.648,33.859 73.648,35.391 C 73.648,36.922 74.110,38.219 75.033,39.277 C 75.957,40.336 77.205,40.863 78.785,40.863 C 80.359,40.863 81.609,40.348 82.533,39.311 C 83.457,38.273 83.920,36.969 83.920,35.391 C 83.920,33.814 83.457,32.508 82.533,31.472 C 81.609,30.436 80.359,29.918 78.785,29.918 Z",
+    "F1 M 74.256,79.855 L 83.311,79.855 L 83.311,45.797 L 74.256,45.797 L 74.256,79.855 Z",
+    "F1 M 119.801,45.797 L 110.205,45.797 L 104.527,55.865 L 98.311,45.797 L 87.838,45.797 L 98.852,62.219 L 87.297,79.855 L 96.893,79.855 L 103.582,68.771 L 110.543,79.855 L 121.150,79.855 L 109.326,62.285 L 119.801,45.797 Z",
+    "F1 M 150.3,35.2 C 147.8,32.9 144.0,31.7 139.2,31.7 C 131.0,31.7 125.6,36.2 125.6,43.0 C 125.6,50.0 130.6,53.2 138.8,56.0 C 145.6,58.3 148.3,60.7 148.3,66.2 C 148.3,72.7 143.5,76.9 136.8,76.9 C 132.4,76.9 128.6,75.4 125.9,72.8 L 124.2,76.1 C 127.3,79.0 131.6,80.6 136.9,80.6 C 146.1,80.6 152.4,74.8 152.4,66.0 C 152.4,58.6 147.6,54.9 139.5,52.2 C 132.6,49.8 129.7,47.6 129.7,42.8 C 129.7,37.8 133.5,35.3 139.3,35.3 C 143.1,35.3 146.2,36.4 148.5,38.4 Z",
+    "F1 M 180.188,73.199 C 178.341,75.698 175.479,76.949 171.607,76.949 C 167.778,76.949 164.938,75.698 163.091,73.199 C 161.244,70.697 160.321,67.309 160.321,63.029 C 160.321,58.839 161.255,55.473 163.126,52.926 C 164.995,50.382 167.823,49.108 171.607,49.108 C 175.434,49.108 178.286,50.382 180.155,52.926 C 182.023,55.473 182.958,58.839 182.958,63.029 C 182.958,67.309 182.036,70.697 180.188,73.199 Z M 186.032,55.967 C 185.380,53.828 184.413,51.979 183.126,50.426 C 181.843,48.871 180.245,47.656 178.331,46.777 C 176.415,45.898 174.175,45.459 171.607,45.459 C 169.083,45.459 166.866,45.898 164.950,46.777 C 163.036,47.656 161.438,48.871 160.153,50.426 C 158.869,51.979 157.887,53.828 157.214,55.967 C 156.538,58.107 156.200,60.461 156.200,63.029 C 156.200,65.596 156.526,67.960 157.179,70.123 C 157.833,72.287 158.800,74.145 160.085,75.698 C 161.370,77.253 162.979,78.459 164.917,79.313 C 166.854,80.170 169.083,80.598 171.607,80.598 C 174.083,80.598 176.292,80.170 178.229,79.313 C 180.167,78.459 181.776,77.253 183.059,75.698 C 184.345,74.145 185.325,72.287 186.001,70.123 C 186.677,67.960 187.013,65.596 187.013,63.029 C 187.013,60.461 186.686,58.107 186.032,55.967 Z",
+    "F1 M 193.0,79.855 L 196.985,79.855 L 196.985,56.8 C 198.2,52.0 201.9,49.108 206.4,49.108 C 211.7,49.108 214.5,52.3 214.5,58.4 L 214.5,79.855 L 218.485,79.855 L 218.485,57.8 C 218.485,49.6 214.0,45.459 207.1,45.459 C 202.3,45.459 198.7,47.7 196.985,51.4 L 196.85,46.338 L 193.0,46.338 Z",
+    "F1 M 225.916,79.855 L 229.901,79.855 L 229.901,46.338 L 225.916,46.338 L 225.916,79.855 Z",
+    "F1 M 227.875,31.810 C 226.973,31.810 226.242,32.113 225.678,32.722 C 225.113,33.329 224.834,34.131 224.834,35.121 C 224.834,36.111 225.113,36.910 225.678,37.520 C 226.242,38.129 226.973,38.432 227.875,38.432 C 228.774,38.432 229.518,38.139 230.104,37.553 C 230.689,36.969 230.982,36.158 230.982,35.121 C 230.982,34.131 230.689,33.329 230.104,32.722 C 229.518,32.113 228.774,31.810 227.875,31.810 Z",
+    "F1 M 259.5,50.8 C 256.8,47.2 253.0,45.459 248.4,45.459 C 239.2,45.459 233.6,52.3 233.6,63.029 C 233.6,73.8 239.2,80.598 248.4,80.598 C 253.2,80.598 257.1,78.8 259.8,75.0 L 257.2,72.4 C 255.0,75.4 252.0,76.949 248.5,76.949 C 241.5,76.949 237.7,71.4 237.7,63.029 C 237.7,54.6 241.5,49.108 248.5,49.108 C 252.0,49.108 254.9,50.6 257.0,53.5 Z",
 ]
-MIX_I_DOT = (73.648, 29.918, 83.920, 40.863)
-MIX_I_STEM = (74.256, 45.797, 83.311, 79.855)
-MIX_X_POLY = [
-    (119.801, 45.797), (110.205, 45.797), (104.527, 55.865), (98.311, 45.797),
-    (87.838, 45.797), (98.852, 62.219), (87.297, 79.855), (96.893, 79.855),
-    (103.582, 68.771), (110.543, 79.855), (121.150, 79.855), (109.326, 62.285),
-]
+
+
+def _eval_cubic(p0, p1, p2, p3, steps=24):
+    pts = []
+    for i in range(1, steps + 1):
+        t = i / steps
+        mt = 1 - t
+        pts.append((
+            mt**3 * p0[0] + 3 * mt**2 * t * p1[0] + 3 * mt * t**2 * p2[0] + t**3 * p3[0],
+            mt**3 * p0[1] + 3 * mt**2 * t * p1[1] + 3 * mt * t**2 * p2[1] + t**3 * p3[1],
+        ))
+    return pts
+
+
+def _parse_path(data):
+    tokens = re.findall(r'[MLCZF]|-?\d+(?:\.\d+)?', data)
+    contours, cur, pos, i, cmd = [], [], (0.0, 0.0), 0, None
+    while i < len(tokens):
+        t = tokens[i]
+        if t in 'MLCZF':
+            if t == 'F':
+                i += 2
+                continue
+            cmd = t
+            i += 1
+            if cmd == 'Z':
+                if cur:
+                    contours.append(cur)
+                    cur = []
+                continue
+        if cmd == 'M':
+            pos = (float(tokens[i]), float(tokens[i + 1]))
+            i += 2
+            cur = [pos]
+            cmd = 'L'
+        elif cmd == 'L':
+            pos = (float(tokens[i]), float(tokens[i + 1]))
+            i += 2
+            cur.append(pos)
+        elif cmd == 'C':
+            p1 = (float(tokens[i]), float(tokens[i + 1]))
+            p2 = (float(tokens[i + 2]), float(tokens[i + 3]))
+            p3 = (float(tokens[i + 4]), float(tokens[i + 5]))
+            i += 6
+            cur.extend(_eval_cubic(pos, p1, p2, p3))
+            pos = p3
+    if cur:
+        contours.append(cur)
+    return contours
 
 
 def wordmark(canvas, center_x, baseline, font_size, font_directory):
-    suffix_part = CONFIG['wordmark'][1]
-    suffix_font = ImageFont.truetype(str(font_directory / suffix_part['font']),
-                                     round(font_size * SUPERSAMPLE))
-    cap_top = suffix_font.getbbox('S', anchor='ls')[1]
-    cap_h = -cap_top
-    mix_scale = cap_h / MIX_CAP_HEIGHT
-    mix_w = MIX_WIDTH * mix_scale
-    gap = cap_h * 0.08
-    condense = suffix_part.get('condense', 1.0)
-    sb_left, _, sb_right, _ = suffix_font.getbbox(suffix_part['text'], anchor='ls')
-    suffix_ink_w = (sb_right - sb_left) * condense
-    total_w = mix_w + gap + suffix_ink_w
+    cap_h = font_size * SUPERSAMPLE * 0.72
+    scale = cap_h / MIXSONIC_CAP_HEIGHT
+    total_w = MIXSONIC_WIDTH * scale
     left = center_x * SUPERSAMPLE - total_w / 2
     base_y = baseline * SUPERSAMPLE
 
     def tx(x):
-        return left + (x - MIX_ORIGIN_X) * mix_scale
+        return left + (x - MIXSONIC_ORIGIN_X) * scale
 
     def ty(y):
-        return base_y + (y - MIX_BASELINE_Y) * mix_scale
+        return base_y + (y - MIXSONIC_BASELINE_Y) * scale
 
-    canvas.draw.polygon([(tx(x), ty(y)) for x, y in MIX_M_POLY], fill=PALETTE['white'])
-    canvas.draw.ellipse((tx(MIX_I_DOT[0]), ty(MIX_I_DOT[1]),
-                         tx(MIX_I_DOT[2]), ty(MIX_I_DOT[3])), fill=PALETTE['white'])
-    canvas.draw.rectangle((tx(MIX_I_STEM[0]), ty(MIX_I_STEM[1]),
-                           tx(MIX_I_STEM[2]), ty(MIX_I_STEM[3])), fill=PALETTE['white'])
-    canvas.draw.polygon([(tx(x), ty(y)) for x, y in MIX_X_POLY], fill=PALETTE['white'])
-
-    suffix_h = round(font_size * SUPERSAMPLE * 1.5)
-    suffix_w = round(sb_right - sb_left + 8)
-    suffix_base = round(font_size * SUPERSAMPLE * 1.1)
-    tmp = Image.new('RGBA', (suffix_w, suffix_h), (0, 0, 0, 0))
-    ImageDraw.Draw(tmp).text((-sb_left, suffix_base), suffix_part['text'],
-                             font=suffix_font, fill=PALETTE['white'], anchor='ls')
-    scaled = tmp.resize((round(suffix_w * condense), suffix_h), Image.Resampling.LANCZOS)
-    canvas.image.paste(scaled, (round(left + mix_w + gap), round(base_y - suffix_base)), scaled)
+    mask = Image.new('L', canvas.image.size, 0)
+    mdraw = ImageDraw.Draw(mask)
+    for data in MIXSONIC_PATHS:
+        contours = _parse_path(data)
+        if len(contours) == 1:
+            mdraw.polygon([(tx(x), ty(y)) for x, y in contours[0]], fill=255)
+        else:
+            ordered = sorted(
+                contours,
+                key=lambda c: (max(p[0] for p in c) - min(p[0] for p in c)) * (max(p[1] for p in c) - min(p[1] for p in c)),
+                reverse=True,
+            )
+            mdraw.polygon([(tx(x), ty(y)) for x, y in ordered[0]], fill=255)
+            for hole in ordered[1:]:
+                mdraw.polygon([(tx(x), ty(y)) for x, y in hole], fill=0)
+    fill_layer = Image.new('RGBA', canvas.image.size, PALETTE['white'])
+    canvas.image.paste(fill_layer, (0, 0), mask)
 
 
 def corner_ribbons(canvas, width, height):

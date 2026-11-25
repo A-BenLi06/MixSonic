@@ -749,3 +749,10 @@
   - `tools/branding/brand.json` 同步记录 `condense: 0.88` 与 `SegoeWP-Semilight.ttf`。
   - `Client/Navidrome/NavidromeResources.xaml` 中 `MixdromeWordmarkTemplate` 改为嵌入相同 `Mix` 矢量 `<Path>` 与 `Segoe WP SemiLight` 的 `BrandSuffix`。
 - 验证：重新生成 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp` 并与原截图对比确认一致；`py -3.13 tools/phone/check.py` 与 `git diff --check` 均通过。
+
+## 2026-11-25 12:37:40 +08:00 — 纯矢量贝塞尔轮廓重构 MixSonic 字标以达成 >95% 一致度
+
+- 针对上一版 `SegoeWP-Semilight` 横向缩放造成的纵横笔画不均与字形差异，按 `MixRadio` 原版 `datatemplates.xaml` 矢量基准（大写高度 `47.505`、x 高度 `34.058`、细体统一笔画 `~3.985`、超椭圆曲率及基线过冲 `45.459..80.598`）将 `Sonic` 全部重构为纯矢量三次贝塞尔路径：
+  - `M`、`i`、`x` 与细体 `o`、`i` 直接复用原版矢量路径数据；`S`、`n`、`c` 按相同 `~3.985` 均匀线宽、弧顶过冲与字间距手写精确三次贝塞尔轮廓，并在 `.tmp/branding/wordmark-iter3.webp` 中与原版 `MixRadio` 上下比对确认高度一致。
+- 将纯矢量 `MixSonic` 写入 `tools/branding/generate.py`（通过 Alpha 遮罩正确镂空 `o` 内孔，适配洋红/黑色/透明背景）及 `Client/Navidrome/NavidromeResources.xaml` 的 `MixdromeWordmarkTemplate`。
+- 验证：重新生成 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp` 并目视确认；`py -3.13 tools/phone/check.py`（61 文件/22 XAML/236 字符串/260 资源/8 资产）与 `git diff --check` 均通过。
