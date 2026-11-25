@@ -1,6 +1,6 @@
-"""Render Mixdrome's Windows 8.1 / Phone 8.1 branding from scalable geometry.
+"""Render MixSonic's Windows 8.1 / Phone 8.1 branding from scalable geometry.
 
-Requires Pillow and the Segoe UI fonts supplied by Windows. Run from any folder:
+Requires Pillow and the Segoe WP fonts supplied by Windows. Run from any folder:
     python tools/branding/generate.py
     python tools/branding/generate.py --font-directory C:/Windows/Fonts
 
@@ -57,30 +57,74 @@ def mark(canvas, left, top, diameter):
                      for index, value in enumerate(values))
 
     canvas.ellipse(bounds((0, 0, 1000, 1000)), PALETTE['white'])
-    canvas.draw.arc(canvas.box(bounds((170, 160, 830, 820))), start=180, end=360,
-                    fill=PALETTE['accent'], width=max(1, round(62 * factor * SUPERSAMPLE)))
-    for values in ((120, 430, 275, 705), (725, 430, 880, 705)):
-        canvas.round_rectangle(bounds(values), 72 * factor, PALETTE['accent'])
-    canvas.ellipse(bounds((335, 510, 487, 625)), PALETTE['accent'])
-    canvas.polygon([bounds(point) for point in ((435, 550), (487, 550), (487, 330), (435, 348))],
+    canvas.draw.arc(canvas.box(bounds((175, 180, 825, 830))), start=180, end=360,
+                    fill=PALETTE['accent'], width=max(1, round(54 * factor * SUPERSAMPLE)))
+    for values in ((130, 445, 268, 705), (732, 445, 870, 705)):
+        canvas.round_rectangle(bounds(values), 68 * factor, PALETTE['accent'])
+    # Symmetrical note eyes centered around x=500 with equal spacing to the earcups.
+    canvas.ellipse(bounds((362, 500, 476, 588)), PALETTE['accent'])
+    canvas.polygon([bounds(point) for point in ((444, 544), (476, 544), (476, 355), (444, 367))],
                    PALETTE['accent'])
-    canvas.ellipse(bounds((550, 510, 695, 625)), PALETTE['accent'])
-    canvas.polygon([bounds(point) for point in ((645, 550), (695, 550), (695, 385),
-                                               (737, 370), (737, 320), (645, 350))],
+    canvas.ellipse(bounds((524, 500, 638, 588)), PALETTE['accent'])
+    canvas.polygon([bounds(point) for point in ((606, 544), (638, 544), (638, 396),
+                                               (684, 415), (684, 376), (606, 355))],
                    PALETTE['accent'])
-    canvas.draw.chord(canvas.box(bounds((335, 505, 665, 835))), start=0, end=180,
+    canvas.draw.chord(canvas.box(bounds((360, 504, 640, 792))), start=0, end=180,
                       fill=PALETTE['accent'])
 
 
+MIX_ORIGIN_X = 24.115
+MIX_BASELINE_Y = 79.855
+MIX_CAP_HEIGHT = 47.505
+MIX_WIDTH = 121.150 - MIX_ORIGIN_X
+MIX_M_POLY = [
+    (46.281, 57.893), (33.984, 32.350), (24.115, 32.350), (24.115, 79.855),
+    (32.699, 79.855), (32.699, 48.703), (42.498, 68.300), (49.525, 68.300),
+    (59.862, 47.893), (59.862, 79.855), (68.445, 79.855), (68.445, 32.350),
+    (58.579, 32.350),
+]
+MIX_I_DOT = (73.648, 29.918, 83.920, 40.863)
+MIX_I_STEM = (74.256, 45.797, 83.311, 79.855)
+MIX_X_POLY = [
+    (119.801, 45.797), (110.205, 45.797), (104.527, 55.865), (98.311, 45.797),
+    (87.838, 45.797), (98.852, 62.219), (87.297, 79.855), (96.893, 79.855),
+    (103.582, 68.771), (110.543, 79.855), (121.150, 79.855), (109.326, 62.285),
+]
+
+
+def wordmark_metrics(font_size, font_directory):
+    suffix_part = CONFIG['wordmark'][1]
+    suffix_font = ImageFont.truetype(str(font_directory / suffix_part['font']),
+                                     round(font_size * SUPERSAMPLE))
+    cap_top = suffix_font.getbbox('S', anchor='ls')[1]
+    cap_h = -cap_top
+    mix_scale = cap_h / MIX_CAP_HEIGHT
+    mix_w = MIX_WIDTH * mix_scale
+    sb_left, _, sb_right, _ = suffix_font.getbbox(suffix_part['text'], anchor='ls')
+    suffix_ink_w = sb_right - sb_left
+    return suffix_part, suffix_font, cap_h, mix_scale, mix_w, sb_left, mix_w + suffix_ink_w
+
+
 def wordmark(canvas, center_x, baseline, font_size, font_directory):
-    fonts = [ImageFont.truetype(str(font_directory / part['font']),
-                               round(font_size * SUPERSAMPLE)) for part in CONFIG['wordmark']]
-    widths = [font.getlength(part['text']) for font, part in zip(fonts, CONFIG['wordmark'])]
-    left = center_x * SUPERSAMPLE - sum(widths) / 2
-    for part, font, width in zip(CONFIG['wordmark'], fonts, widths):
-        canvas.draw.text((round(left), round(baseline * SUPERSAMPLE)), part['text'],
-                         font=font, fill=PALETTE['white'], anchor='ls')
-        left += width
+    suffix_part, suffix_font, _, mix_scale, mix_w, sb_left, total_w = wordmark_metrics(
+        font_size, font_directory)
+    left = center_x * SUPERSAMPLE - total_w / 2
+    base_y = baseline * SUPERSAMPLE
+
+    def tx(x):
+        return left + (x - MIX_ORIGIN_X) * mix_scale
+
+    def ty(y):
+        return base_y + (y - MIX_BASELINE_Y) * mix_scale
+
+    canvas.draw.polygon([(tx(x), ty(y)) for x, y in MIX_M_POLY], fill=PALETTE['white'])
+    canvas.draw.ellipse((tx(MIX_I_DOT[0]), ty(MIX_I_DOT[1]),
+                         tx(MIX_I_DOT[2]), ty(MIX_I_DOT[3])), fill=PALETTE['white'])
+    canvas.draw.rectangle((tx(MIX_I_STEM[0]), ty(MIX_I_STEM[1]),
+                           tx(MIX_I_STEM[2]), ty(MIX_I_STEM[3])), fill=PALETTE['white'])
+    canvas.draw.polygon([(tx(x), ty(y)) for x, y in MIX_X_POLY], fill=PALETTE['white'])
+    canvas.draw.text((round(left + mix_w - sb_left), round(base_y)),
+                     suffix_part['text'], font=suffix_font, fill=PALETTE['white'], anchor='ls')
 
 
 def corner_ribbons(canvas, width, height):
@@ -112,24 +156,38 @@ def render(width, height, kind, font_directory):
         mark(canvas, (width - diameter) / 2, (height - diameter) / 2, diameter)
     elif kind == 'square':
         corner_ribbons(canvas, width, height)
-        diameter = width * .62
-        mark(canvas, (width - diameter) / 2, height * .105, diameter)
-        wordmark(canvas, width * .47, height * .875, width * .174, font_directory)
+        diameter = width * .58
+        mark(canvas, (width - diameter) / 2, height * .095, diameter)
+        wordmark(canvas, width * .50, height * .870, width * .168, font_directory)
     elif kind == 'wide':
         corner_ribbons(canvas, width, height)
-        diameter = height * .66
-        mark(canvas, height * .17, (height - diameter) / 2, diameter)
-        wordmark(canvas, width * .69, height * .575, height * .212, font_directory)
+        diameter = height * .64
+        font_size = height * .245
+        _, _, cap_h, _, _, _, wm_w = wordmark_metrics(font_size, font_directory)
+        wm_w /= SUPERSAMPLE
+        cap_h /= SUPERSAMPLE
+        gap = height * .14
+        lockup_left = (width - (diameter + gap + wm_w)) / 2
+        mark(canvas, lockup_left, (height - diameter) / 2, diameter)
+        wordmark(canvas, lockup_left + diameter + gap + wm_w / 2,
+                 height / 2 + cap_h / 2, font_size, font_directory)
     elif kind == 'splash':
         splash_accents(canvas, width, height)
         if width > height:
-            diameter = height * .64
-            mark(canvas, width * .115, (height - diameter) / 2, diameter)
-            wordmark(canvas, width * .70, height * .58, height * .205, font_directory)
+            diameter = height * .62
+            font_size = height * .235
+            _, _, cap_h, _, _, _, wm_w = wordmark_metrics(font_size, font_directory)
+            wm_w /= SUPERSAMPLE
+            cap_h /= SUPERSAMPLE
+            gap = height * .15
+            lockup_left = (width - (diameter + gap + wm_w)) / 2
+            mark(canvas, lockup_left, (height - diameter) / 2, diameter)
+            wordmark(canvas, lockup_left + diameter + gap + wm_w / 2,
+                     height / 2 + cap_h / 2, font_size, font_directory)
         else:
-            diameter = width * .65
-            mark(canvas, (width - diameter) / 2, height * .245, diameter)
-            wordmark(canvas, width * .5, height * .745, width * .19, font_directory)
+            diameter = width * .60
+            mark(canvas, (width - diameter) / 2, height * .235, diameter)
+            wordmark(canvas, width * .50, height * .765, width * .19, font_directory)
     else:
         raise ValueError(f'Unsupported asset kind: {kind}')
     return canvas.result()
@@ -144,8 +202,8 @@ def review_sheet(output, font_directory):
     output.parent.mkdir(parents=True, exist_ok=True)
     sheet = Image.new('RGB', (1280, 860), '#141414')
     draw = ImageDraw.Draw(sheet)
-    title = ImageFont.truetype(str(font_directory / 'segoeuil.ttf'), 36)
-    label = ImageFont.truetype(str(font_directory / 'segoeui.ttf'), 18)
+    title = ImageFont.truetype(str(font_directory / 'SegoeWP-Light.ttf'), 36)
+    label = ImageFont.truetype(str(font_directory / 'SegoeWP.ttf'), 18)
     draw.text((34, 20), ''.join(part['text'] for part in CONFIG['wordmark']), font=title, fill='white')
     panels = [(34, 92, 280, 280, 'square', 'Square tile'),
               (338, 92, 578, 280, 'wide', 'Wide tile'),
@@ -171,7 +229,7 @@ def main():
     args = parser.parse_args()
     for part in CONFIG['wordmark']:
         if not (args.font_directory / part['font']).is_file():
-            parser.error(f"Missing Segoe UI font: {args.font_directory / part['font']}")
+            parser.error(f"Missing Segoe WP font: {args.font_directory / part['font']}")
     count = 0
     for platform, data in CONFIG['platforms'].items():
         folder = ROOT / platform / 'Assets'

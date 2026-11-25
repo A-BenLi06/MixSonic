@@ -79,7 +79,7 @@ public static class NavidromeTests
         Check(Param(uri.Query, "u") == configuration.Username, "Username is encoded");
         Check(Param(uri.Query, "p") == configuration.EncodedPassword, "Password parameter retains encoded value");
         Check(Param(uri.Query, "id") == "id&+= #测试", "Opaque Unicode ID is encoded");
-        Check(Param(uri.Query, "c") == "Mixdrome", "Application identifies itself");
+        Check(Param(uri.Query, "c") == SubsonicRequest.ClientName, "Application identifies itself");
         var api = new NavidromeApi(configuration);
         var oldAccount = api.AccountKey;
         configuration.Username = "changed";
