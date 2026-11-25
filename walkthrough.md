@@ -763,3 +763,10 @@
   - `tools/branding/brand.json` 恢复 `Sonic` 使用 `SegoeWP-Light.ttf`；`tools/branding/generate.py` 保留矢量 `Mix` 绘制并直接用 `SegoeWP-Light.ttf` 渲染 `Sonic`（按大写高度等比对齐，`0.08 * cap_h` 间距并补偿左侧字距留白），重新生成 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp`。
   - `Client/Navidrome/NavidromeResources.xaml` 中 `MixdromeWordmarkTemplate` 保留 4 条 `Mix` 矢量 `<Path>`，后缀 `BrandSuffix` 恢复为 `FontFamily="Segoe WP"`、`FontWeight="Light"`。
 - 验证：`py -3.13 tools/phone/check.py`（61 文件/22 XAML/236 字符串/260 资源/8 资产）与 `git diff --check` 均通过。
+
+## 2026-11-25 20:39:15 +08:00 — 收紧 Mix 与 Sonic 字标间距使两者贴紧
+
+- 对照参考截图中 `MixRadio` 的紧贴排布，并通过 `.tmp/branding/gap_test.webp` 对比 `gap = +0.040 / +0.020 / 0.000 / -0.015` 四个档位，确认 `gap = 0` 时 `x` 右下脚与 `S` 左下弧线既紧贴连贯又保留细微光学缝隙不粘连。
+- 移除 `tools/branding/generate.py` 中 `0.08 * cap_h` 的额外间隙，使 `Sonic` 左墨迹边界紧接 `Mix` 右边界，并重新生成 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp`。
+- 同步收紧 `Client/Navidrome/NavidromeResources.xaml` 中 `MixdromeWordmarkTemplate` 的内联间距（`Canvas Width="97" Margin="0,-24,0,0"`、`TextBlock Margin="-3,-33,0,-16"`）。
+- 验证：`py -3.13 tools/phone/check.py`（61 文件/22 XAML/236 字符串/260 资源/8 资产）与 `git diff --check` 均通过。

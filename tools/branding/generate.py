@@ -100,10 +100,9 @@ def wordmark(canvas, center_x, baseline, font_size, font_directory):
     cap_h = -cap_top
     mix_scale = cap_h / MIX_CAP_HEIGHT
     mix_w = MIX_WIDTH * mix_scale
-    gap = cap_h * 0.08
     sb_left, _, sb_right, _ = suffix_font.getbbox(suffix_part['text'], anchor='ls')
     suffix_ink_w = sb_right - sb_left
-    total_w = mix_w + gap + suffix_ink_w
+    total_w = mix_w + suffix_ink_w
     left = center_x * SUPERSAMPLE - total_w / 2
     base_y = baseline * SUPERSAMPLE
 
@@ -119,7 +118,7 @@ def wordmark(canvas, center_x, baseline, font_size, font_directory):
     canvas.draw.rectangle((tx(MIX_I_STEM[0]), ty(MIX_I_STEM[1]),
                            tx(MIX_I_STEM[2]), ty(MIX_I_STEM[3])), fill=PALETTE['white'])
     canvas.draw.polygon([(tx(x), ty(y)) for x, y in MIX_X_POLY], fill=PALETTE['white'])
-    canvas.draw.text((round(left + mix_w + gap - sb_left), round(base_y)),
+    canvas.draw.text((round(left + mix_w - sb_left), round(base_y)),
                      suffix_part['text'], font=suffix_font, fill=PALETTE['white'], anchor='ls')
 
 
