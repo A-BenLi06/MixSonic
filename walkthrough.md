@@ -756,3 +756,10 @@
   - `M`、`i`、`x` 与细体 `o`、`i` 直接复用原版矢量路径数据；`S`、`n`、`c` 按相同 `~3.985` 均匀线宽、弧顶过冲与字间距手写精确三次贝塞尔轮廓，并在 `.tmp/branding/wordmark-iter3.webp` 中与原版 `MixRadio` 上下比对确认高度一致。
 - 将纯矢量 `MixSonic` 写入 `tools/branding/generate.py`（通过 Alpha 遮罩正确镂空 `o` 内孔，适配洋红/黑色/透明背景）及 `Client/Navidrome/NavidromeResources.xaml` 的 `MixdromeWordmarkTemplate`。
 - 验证：重新生成 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp` 并目视确认；`py -3.13 tools/phone/check.py`（61 文件/22 XAML/236 字符串/260 资源/8 资产）与 `git diff --check` 均通过。
+
+## 2026-11-25 17:21:55 +08:00 — 保留原版矢量 Mix，将 Sonic 改回 Segoe WP Light 字体
+
+- 按用户确认保留原版 `MixRadio` 精确矢量 `Mix` 轮廓（`M`、`i` 圆点与竖杆、`x`），将后缀 `Sonic` 改回无缩放的 `Segoe WP Light` 字体：
+  - `tools/branding/brand.json` 恢复 `Sonic` 使用 `SegoeWP-Light.ttf`；`tools/branding/generate.py` 保留矢量 `Mix` 绘制并直接用 `SegoeWP-Light.ttf` 渲染 `Sonic`（按大写高度等比对齐，`0.08 * cap_h` 间距并补偿左侧字距留白），重新生成 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp`。
+  - `Client/Navidrome/NavidromeResources.xaml` 中 `MixdromeWordmarkTemplate` 保留 4 条 `Mix` 矢量 `<Path>`，后缀 `BrandSuffix` 恢复为 `FontFamily="Segoe WP"`、`FontWeight="Light"`。
+- 验证：`py -3.13 tools/phone/check.py`（61 文件/22 XAML/236 字符串/260 资源/8 资产）与 `git diff --check` 均通过。
