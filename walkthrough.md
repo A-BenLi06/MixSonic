@@ -780,3 +780,9 @@
   - **Wide tile / Desktop splash**：放大字标字号（`0.245 * height` / `0.235 * height`），将「圆盘 + 间距 + MixSonic」整体组合按画布正中水平、垂直双重居中对齐（cap-height 中心与圆盘中心重合）。
   - **Phone splash**：微调为 `diameter = 0.60 * width`、`top = 0.235`、`baseline = 0.765`，拉大图文间距并均衡上下留白。
 - 验证：重新生成 33 个 PNG 资产及 `.tmp/branding/mixdrome-preview.webp` 并目视确认；`py -3.13 tools/phone/check.py`（61 文件/22 XAML/236 字符串/260 资源/8 资产）与 `git diff --check` 均通过。
+
+## 2026-11-26 00:05:00 +08:00 — 统一桌面与手机端清单版本号至 2.0.0.0 并修复协议客户端标识回归
+
+- 将 `Client/Package.appxmanifest` 与 `Client.Phone/Package.appxmanifest` 的 `<Identity Version>` 统一更新为 `2.0.0.0`（对应发布标签 `v2.0.0.0`）。
+- 修复 `tools/navidrome-tests/NavidromeTests.cs` 第 82 行硬编码断言 `"Mixdrome"`，改为引用 `SubsonicRequest.ClientName`（当前为 `"MixSonic"`）。
+- 验证：`pwsh -ExecutionPolicy Bypass -File ./tools/ci/run-desktop.ps1` 全部 14 套桌面及手机 CLR 回归套件通过（serializer 33 模型、navidrome 196、audio 54、connection 19、jukebox 28、home 76、playback 521、phone 38+13+39+89+15+39+36+19+37+19）。
