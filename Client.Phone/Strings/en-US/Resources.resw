@@ -218,7 +218,7 @@
 <data name="Phone_Text_OpenLibraryItem" xml:space="preserve"><value>Open {0}</value></data>
 <data name="PhoneUi_Text_ShuffleAll.Text" xml:space="preserve"><value>shuffle all</value></data>
 <data name="PhoneUi_Brand_Lead.Text" xml:space="preserve"><value>Mix</value></data>
-<data name="PhoneUi_Brand_Tail.Text" xml:space="preserve"><value>drome</value></data>
+<data name="PhoneUi_Brand_Tail.Text" xml:space="preserve"><value>Sonic</value></data>
 <data name="Phone_Text_UiHome" xml:space="preserve"><value>home</value></data>
 <data name="Phone_Text_UiCreateMix" xml:space="preserve"><value>create a mix</value></data>
 <data name="Phone_Text_UiOfflineMixes" xml:space="preserve"><value>offline mixes</value></data>

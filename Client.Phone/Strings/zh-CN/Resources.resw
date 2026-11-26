@@ -218,7 +218,7 @@
 <data name="Phone_Text_OpenLibraryItem" xml:space="preserve"><value>打开 {0}</value></data>
 <data name="PhoneUi_Text_ShuffleAll.Text" xml:space="preserve"><value>全部随机播放</value></data>
 <data name="PhoneUi_Brand_Lead.Text" xml:space="preserve"><value>Mix</value></data>
-<data name="PhoneUi_Brand_Tail.Text" xml:space="preserve"><value>drome</value></data>
+<data name="PhoneUi_Brand_Tail.Text" xml:space="preserve"><value>Sonic</value></data>
 <data name="Phone_Text_UiHome" xml:space="preserve"><value>首页</value></data>
 <data name="Phone_Text_UiCreateMix" xml:space="preserve"><value>创建精选集</value></data>
 <data name="Phone_Text_UiOfflineMixes" xml:space="preserve"><value>离线精选集</value></data>
