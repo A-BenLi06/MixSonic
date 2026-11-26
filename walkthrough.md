@@ -797,3 +797,15 @@
 - 首次触发 `Publish release`（`45750479666`）在 `Download draft assets` 阶段因 `GET /repos/.../releases/tags/{tag}` 对草稿 Release 返回 HTTP 404 而失败。
 - 修复 `.github/workflows/release.yml`：改用 `GET /repos/.../releases?per_page=100` 按精确 `tag_name` 查找并校验唯一草稿 Release，复核及正式发布改为按已锁定 `$before.id` 调用 `GET`/`PATCH /repos/.../releases/{id}`（`draft=false`），保留既有的不可变、草稿唯一性及指纹校验逻辑。
 - 验证：运行 `py -3.13 tools/ci/check.py`，随后通过 PR 合入 `main` 并重新触发 `v2.0.0.0` 发布。
+
+## 2026-11-26 15:46:00 +08:00 — 补齐手机版 v2.0.0.0 发布、对齐字标并重写产品化 README
+
+- 修正桌面端字标垂直对齐与手机端首页遗漏的后缀资源：
+  - 将 `Client/Navidrome/NavidromeResources.xaml` 中 `MixdromeWordmarkTemplate` 的 `TranslateTransform.Y` 由 `-14.5` 调整至 `-26.5`，消除 `Mix` 矢量路径与 `Segoe WP Light` `Sonic` 的 `12px` 基线落差，并在桌面端 `NativeUiProbe` 实机截图中确认基线对齐。
+  - 将 `Client.Phone/Strings/en-US/Resources.resw` 与 `zh-CN/Resources.resw` 中的 `PhoneUi_Brand_Tail.Text` 由 `drome` 更新为 `Sonic`，消除手机端首页仍显示 `Mixdrome` 的残留。
+- 构建并补传 Windows Phone 8.1 `v2.0.0.0` 发布包：
+  - 基于本地发布证书（`CN=benli06`，指纹 `A619F951B3408FCF099D3BDD7271E87197877770`）重新构建并签名 `Release ARM` 与 `Release x86` Phone AppX（`Version="2.0.0.0"`），打包为 `Mixdrome.Phone-v2.0.0.0.zip` 及 `phone-release-manifest.json` 上传至 `v2.0.0.0` Release，同步更新 Release Notes 覆盖桌面端与手机端下载及安装说明。
+  - 在 `Mobile Emulator 10.0.14393.0 WXGA 4.5 inch 1GB.ben_l` 部署验证 `x86` 发布包并截取实机画面确认 `MixSonic` 显示正常。
+- 产品化重写 `README.md`（替代旧 `README.textile`）：
+  - 基于 `tools/branding/generate.py` 导出 `docs/images/mixsonic-banner.webp` 与 `mixsonic-logo.webp`，并将桌面端及手机端真实截图统一压缩为 `docs/images/*.webp` 嵌入首页展示。
+- 验证：执行 `pwsh -ExecutionPolicy Bypass -File ./tools/ci/run-desktop.ps1` 与 `py -3.13 tools/ci/check.py` 及 `git diff --check`。
