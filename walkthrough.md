@@ -791,3 +791,9 @@
 
 - 更新 `docs/branding.md` 以记录 `MixSonic` 展示名称、原版矢量 `Mix` + `Segoe WP Light` `Sonic` 字标及笑脸圆盘重心优化。
 - 通过短期分支 PR 合入 `main`，以触发 `main` 分支 `push` 事件的 `CI required` 检查（弥补此前 PR #6 合并时 GitHub 502 导致 `d89eac1` 缺少 `push` CI 运行的问题），为 `v2.0.0.0` 正式发布提供完整云端验证记录。
+
+## 2026-11-26 11:42:30 +08:00 — 修复 CD 工作流查询草稿 Release 返回 404 的问题
+
+- 首次触发 `Publish release`（`45750479666`）在 `Download draft assets` 阶段因 `GET /repos/.../releases/tags/{tag}` 对草稿 Release 返回 HTTP 404 而失败。
+- 修复 `.github/workflows/release.yml`：改用 `GET /repos/.../releases?per_page=100` 按精确 `tag_name` 查找并校验唯一草稿 Release，复核及正式发布改为按已锁定 `$before.id` 调用 `GET`/`PATCH /repos/.../releases/{id}`（`draft=false`），保留既有的不可变、草稿唯一性及指纹校验逻辑。
+- 验证：运行 `py -3.13 tools/ci/check.py`，随后通过 PR 合入 `main` 并重新触发 `v2.0.0.0` 发布。

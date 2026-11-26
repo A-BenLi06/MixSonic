@@ -61,12 +61,14 @@ jobs:
       - name: Download draft assets
         shell: pwsh
         run: |
-          $json = & gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$env:RELEASE_TAG"
-          if ($LASTEXITCODE -ne 0) { throw 'Cannot read the draft release.' }
-          $release = $json | ConvertFrom-Json
+          $listJson = & gh api "repos/$env:GITHUB_REPOSITORY/releases?per_page=100"
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot list repository releases.' }
+          $matches = @($listJson | ConvertFrom-Json | Where-Object { $_.tag_name -ceq $env:RELEASE_TAG })
+          if ($matches.Count -ne 1) { throw 'Cannot read the draft release.' }
+          $release = $matches[0]
           if (-not $release.draft) { throw 'Only draft releases can be published; published versions are immutable.' }
           New-Item -ItemType Directory -Path .tmp/release-download -Force | Out-Null
-          $json | Set-Content .tmp/release-snapshot.json
+          $release | ConvertTo-Json -Depth 10 | Set-Content .tmp/release-snapshot.json
           & gh release download $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --dir .tmp/release-download
           if ($LASTEXITCODE -ne 0) { throw 'Release asset download failed.' }
       - name: Verify source, version and package inventory
@@ -81,7 +83,7 @@ jobs:
         shell: pwsh
         run: |
           $before = Get-Content .tmp/release-snapshot.json -Raw | ConvertFrom-Json
-          $json = & gh api "repos/$env:GITHUB_REPOSITORY/releases/tags/$env:RELEASE_TAG"
+          $json = & gh api "repos/$env:GITHUB_REPOSITORY/releases/$($before.id)"
           if ($LASTEXITCODE -ne 0) { throw 'Cannot recheck the release.' }
           $after = $json | ConvertFrom-Json
           $originalAssets = $before.assets | Select-Object id,name,size,updated_at | ConvertTo-Json -Compress
@@ -91,6 +93,7 @@ jobs:
           if (-not $tagCommit) { $tagCommit = & git ls-remote origin "refs/tags/$env:RELEASE_TAG" }
           if ($LASTEXITCODE -ne 0 -or ($tagCommit -split '\s+')[0] -ne $env:RELEASE_COMMIT) { throw 'The release tag changed during verification.' }
           if (-not $after.draft -or $after.id -ne $before.id -or $after.updated_at -ne $before.updated_at -or $originalAssets -cne $currentAssets) { throw 'The release changed during verification.' }
-          & gh release edit $env:RELEASE_TAG --repo $env:GITHUB_REPOSITORY --draft=false
+          $publishedJson = & gh api -X PATCH "repos/$env:GITHUB_REPOSITORY/releases/$($after.id)" -F draft=false
           if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }
-          "Published $($after.html_url) from $env:RELEASE_COMMIT" >> $env:GITHUB_STEP_SUMMARY
+          $published = $publishedJson | ConvertFrom-Json
+          "Published $($published.html_url) from $env:RELEASE_COMMIT" >> $env:GITHUB_STEP_SUMMARY
